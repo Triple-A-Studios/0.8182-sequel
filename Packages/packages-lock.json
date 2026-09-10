@@ -1,5 +1,26 @@
 {
   "dependencies": {
+    "com.annulusgames.alchemy": {
+      "version": "git+https://github.com/annulusgames/Alchemy.git?path=/Alchemy/Assets/Alchemy",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "03caefed20b51ccab32f1751e6e26005f955eaf4"
+    },
+    "com.triple-a-studios.core-setup": {
+      "version": "https://github.com/Triple-A-Studios/TripleA-CoreSetup.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1568ee5d948bd0933c8ac0d11bf94326a8e014e2"
+    },
+    "com.triple-a-studios.utils": {
+      "version": "git+https://github.com/Triple-A-Studios/TripleA-Utils.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1ffce53baca23e7556244d933585bee887298745"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.13",
       "depth": 0,
@@ -46,7 +67,7 @@
       "dependencies": {}
     },
     "com.unity.ide.rider": {
-      "version": "3.0.39",
+      "version": "3.0.40",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -89,9 +110,30 @@
     },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.6",
-      "depth": 3,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "3.2.2",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.pipeline": {
+      "version": "0.6.0-exp.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.33",
+        "com.unity.nuget.mono-cecil": "1.11.6",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.screencapture": "1.0.0",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
