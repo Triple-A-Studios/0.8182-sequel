@@ -39,7 +39,7 @@ This project uses the `game-dev-docs` skill. Before doing any work in a fresh se
 **Project settings**
 - Engine: Unity
 - Unity testing: Play-mode only
-- Co-author line: ask once per milestone
+- Co-author line: never add it
 
 **Working hygiene**
 - One git branch per milestone.
