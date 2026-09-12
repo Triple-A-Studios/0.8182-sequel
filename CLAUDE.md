@@ -23,6 +23,16 @@ The project is at an early skeleton stage: no gameplay scripts exist yet (`Asset
 - `Assets/_IGNORE/` — excluded scratch/reference content, not part of the shipped project.
 - `Docs/` — design documentation (`design-doc.md`). Treat this as the source of truth for game design decisions; update it when a design decision it documents actually changes, rather than letting the doc drift from the implementation.
 
+## Code style
+
+Naming is enforced by `.editorconfig` (ReSharper naming rules) — follow it for all C# code:
+- Private instance/static fields: `m_` prefix + camelCase (`m_maxFuel`, `m_planeController`), including `[SerializeField] private` fields.
+- Protected fields: `_` prefix + camelCase.
+- Private constants: `k_` prefix + PascalCase (`k_MaxSpeed`). Non-private constants: `ALL_UPPER_SNAKE_CASE`.
+- Private static readonly: `m_S_` prefix + PascalCase. Non-private static readonly: `S_` prefix + PascalCase.
+- Public/non-private instance fields (rare — prefer properties): plain camelCase, no prefix.
+- Indentation in `.cs` files is tabs, not spaces (`.editorconfig` overrides the repo-wide space default for this extension).
+
 ## Platform constraints
 
 - Landscape-only. The web build must detect portrait orientation on Android browsers and prompt the player to rotate.

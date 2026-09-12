@@ -506,8 +506,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93fc71ab66b71674e96a66d955e70863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fuelSystem: {fileID: 622492922}
-  fillElementName: fuel-gauge-fill
+  m_fuelSystem: {fileID: 622492922}
+  m_fillElementName: fuel-gauge-fill
 --- !u!1 &531764006
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,7 +854,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4459706632786819009, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}
-      propertyPath: building
+      propertyPath: m_building
       value: 
       objectReference: {fileID: 1594931728}
     - target: {fileID: 5561655706574146712, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}

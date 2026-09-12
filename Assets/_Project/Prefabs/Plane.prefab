@@ -216,15 +216,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646e3f62c7c683440ab1d55a5efaa76b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forwardSpeed: 20
-  pitchRateDegPerSec: 60
-  sideSpeed: 15
-  maxPitchAngle: 60
-  visualRoot: {fileID: 4128297192964488244}
-  maxBankAngle: 40
-  bankSpeedDegPerSec: 180
-  moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  inputDeadZone: 0.1
+  m_forwardSpeed: 20
+  m_pitchRateDegPerSec: 60
+  m_sideSpeed: 15
+  m_maxPitchAngle: 60
+  m_visualRoot: {fileID: 4128297192964488244}
+  m_maxBankAngle: 40
+  m_bankSpeedDegPerSec: 180
+  m_moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_inputDeadZone: 0.1
 --- !u!114 &4459706632786819009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab506e0df4fa2149b087c9d4ad1b2b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxFuel: 100
-  drainPerSecond: 5
-  building: {fileID: 0}
+  m_maxFuel: 100
+  m_drainPerSecond: 5
+  m_building: {fileID: 0}

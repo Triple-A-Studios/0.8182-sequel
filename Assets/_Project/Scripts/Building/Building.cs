@@ -9,14 +9,14 @@ namespace Opoint8182.Building
     public class Building : MonoBehaviour
     {
         [Title("Weak Point")]
-        [FoldoutGroup("Weak Point")] [SerializeField] private WeakPoint weakPoint;
+        [FoldoutGroup("Weak Point")] [SerializeField] private WeakPoint m_weakPoint;
 
         [Title("Crash Quality")]
-        [FoldoutGroup("Crash Quality")] [SerializeField] private float referenceMaxSpeed = 25f;
+        [FoldoutGroup("Crash Quality")] [SerializeField] private float m_referenceMaxSpeed = 25f;
 
         [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float _lastCrashQuality;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool _lastHitWeakPoint;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_lastCrashQuality;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_lastHitWeakPoint;
 
         public event Action<float> Crashed;
 
@@ -28,7 +28,7 @@ namespace Opoint8182.Building
             if (plane == null) return;
 
             var contactPoint = collision.GetContact(0).point;
-            var hitWeakPoint = Vector3.Distance(contactPoint, weakPoint.Position) <= weakPoint.HitRadius;
+            var hitWeakPoint = Vector3.Distance(contactPoint, m_weakPoint.Position) <= m_weakPoint.HitRadius;
 
             var quality = 0f;
             if (hitWeakPoint)
@@ -37,13 +37,13 @@ namespace Opoint8182.Building
                 // collision response - reading plane.Velocity/Speed here would give the post-impact
                 // (already-stopped) velocity instead, since resolution happens before this callback fires.
                 var impactVelocity = collision.relativeVelocity;
-                var speed01 = Mathf.Clamp01(impactVelocity.magnitude / referenceMaxSpeed);
-                var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -weakPoint.OutwardNormal));
+                var speed01 = Mathf.Clamp01(impactVelocity.magnitude / m_referenceMaxSpeed);
+                var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -m_weakPoint.OutwardNormal));
                 quality = speed01 * alignment01;
             }
 
-            _lastCrashQuality = quality;
-            _lastHitWeakPoint = hitWeakPoint;
+            m_lastCrashQuality = quality;
+            m_lastHitWeakPoint = hitWeakPoint;
 
             Debug.Log($"[Building] '{name}' crashed - hitWeakPoint={hitWeakPoint}, quality={quality:0.00}");
             Crashed?.Invoke(quality);

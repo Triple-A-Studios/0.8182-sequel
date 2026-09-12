@@ -165,8 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56012f9a89d1f54fb81bbbca54c023a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weakPoint: {fileID: 9126071507178752301}
-  referenceMaxSpeed: 25
+  m_weakPoint: {fileID: 9126071507178752301}
+  m_referenceMaxSpeed: 25
 --- !u!65 &766389751162855936
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -287,4 +287,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ddfdf5c4002bba4aaf041909149cb5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitRadius: 0.75
+  m_hitRadius: 1.5

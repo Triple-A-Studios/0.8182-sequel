@@ -8,70 +8,70 @@ namespace Opoint8182.Player
     public class PlaneController : MonoBehaviour
     {
         [Title("Movement")]
-        [FoldoutGroup("Movement")] [SerializeField] private float forwardSpeed = 20f;
-        [FoldoutGroup("Movement")] [SerializeField] private float pitchRateDegPerSec = 60f;
-        [FoldoutGroup("Movement")] [SerializeField] private float sideSpeed = 15f;
-        [FoldoutGroup("Movement")] [SerializeField] private float maxPitchAngle = 60f;
+        [FoldoutGroup("Movement")] [SerializeField] private float m_forwardSpeed = 20f;
+        [FoldoutGroup("Movement")] [SerializeField] private float m_pitchRateDegPerSec = 60f;
+        [FoldoutGroup("Movement")] [SerializeField] private float m_sideSpeed = 15f;
+        [FoldoutGroup("Movement")] [SerializeField] private float m_maxPitchAngle = 60f;
 
         [Title("Visual Bank (cosmetic only)")]
-        [FoldoutGroup("Visual Bank")] [SerializeField] private Transform visualRoot;
-        [FoldoutGroup("Visual Bank")] [SerializeField] private float maxBankAngle = 40f;
-        [FoldoutGroup("Visual Bank")] [SerializeField] private float bankSpeedDegPerSec = 180f;
+        [FoldoutGroup("Visual Bank")] [SerializeField] private Transform m_visualRoot;
+        [FoldoutGroup("Visual Bank")] [SerializeField] private float m_maxBankAngle = 40f;
+        [FoldoutGroup("Visual Bank")] [SerializeField] private float m_bankSpeedDegPerSec = 180f;
 
         [Title("Input")]
-        [FoldoutGroup("Input")] [SerializeField] private InputActionReference moveAction;
-        [FoldoutGroup("Input")] [SerializeField] private float inputDeadZone = 0.1f;
+        [FoldoutGroup("Input")] [SerializeField] private InputActionReference m_moveAction;
+        [FoldoutGroup("Input")] [SerializeField] private float m_inputDeadZone = 0.1f;
 
         [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private Vector2 _steerInput;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float _currentBankAngle;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private Vector2 m_steerInput;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentBankAngle;
 
-        private Rigidbody _rigidbody;
-        private float _pitchDeg;
+        private Rigidbody m_rigidbody;
+        private float m_pitchDeg;
 
-        public Vector3 Velocity => _rigidbody.linearVelocity;
-        public float Speed => _rigidbody.linearVelocity.magnitude;
+        public Vector3 Velocity => m_rigidbody.linearVelocity;
+        public float Speed => m_rigidbody.linearVelocity.magnitude;
         public Vector3 Forward => transform.forward;
         public float SpeedMultiplier { get; set; } = 1f;
 
         private void Awake()
         {
-            _rigidbody = GetComponent<Rigidbody>();
+            m_rigidbody = GetComponent<Rigidbody>();
         }
 
         private void OnEnable()
         {
-            moveAction.action.Enable();
+            m_moveAction.action.Enable();
         }
 
         private void OnDisable()
         {
-            moveAction.action.Disable();
+            m_moveAction.action.Disable();
         }
 
         private void FixedUpdate()
         {
-            _steerInput = moveAction.action.ReadValue<Vector2>();
-            if (_steerInput.magnitude < inputDeadZone)
+            m_steerInput = m_moveAction.action.ReadValue<Vector2>();
+            if (m_steerInput.magnitude < m_inputDeadZone)
             {
-                _steerInput = Vector2.zero;
+                m_steerInput = Vector2.zero;
             }
 
-            _pitchDeg += -_steerInput.y * pitchRateDegPerSec * Time.fixedDeltaTime;
-            _pitchDeg = Mathf.Clamp(_pitchDeg, -maxPitchAngle, maxPitchAngle);
+            m_pitchDeg += -m_steerInput.y * m_pitchRateDegPerSec * Time.fixedDeltaTime;
+            m_pitchDeg = Mathf.Clamp(m_pitchDeg, -m_maxPitchAngle, m_maxPitchAngle);
 
-            var rotation = Quaternion.Euler(_pitchDeg, 0f, 0f);
-            _rigidbody.MoveRotation(rotation);
+            var rotation = Quaternion.Euler(m_pitchDeg, 0f, 0f);
+            m_rigidbody.MoveRotation(rotation);
 
-            var forwardVelocity = rotation * Vector3.forward * (forwardSpeed * SpeedMultiplier);
-            var lateralVelocity = Vector3.right * (_steerInput.x * sideSpeed);
-            _rigidbody.linearVelocity = forwardVelocity + lateralVelocity;
+            var forwardVelocity = rotation * Vector3.forward * (m_forwardSpeed * SpeedMultiplier);
+            var lateralVelocity = Vector3.right * (m_steerInput.x * m_sideSpeed);
+            m_rigidbody.linearVelocity = forwardVelocity + lateralVelocity;
 
-            if (visualRoot != null)
+            if (m_visualRoot != null)
             {
-                var targetBankAngle = -_steerInput.x * maxBankAngle;
-                _currentBankAngle = Mathf.MoveTowards(_currentBankAngle, targetBankAngle, bankSpeedDegPerSec * Time.fixedDeltaTime);
-                visualRoot.localRotation = Quaternion.Euler(0f, 0f, _currentBankAngle);
+                var targetBankAngle = -m_steerInput.x * m_maxBankAngle;
+                m_currentBankAngle = Mathf.MoveTowards(m_currentBankAngle, targetBankAngle, m_bankSpeedDegPerSec * Time.fixedDeltaTime);
+                m_visualRoot.localRotation = Quaternion.Euler(0f, 0f, m_currentBankAngle);
             }
         }
     }
