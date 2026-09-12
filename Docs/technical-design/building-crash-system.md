@@ -11,12 +11,15 @@ Hierarchy is flexible — nesting the weak point under a `Visual` wrapper (match
 ## Crash-quality formula
 
 ```
-speed01     = Mathf.Clamp01(plane.Speed / referenceMaxSpeed)
-alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(plane.Velocity, -weakPoint.OutwardNormal))
-quality     = hitWeakPoint ? speed01 * alignment01 : 0f
+impactVelocity = collision.relativeVelocity
+speed01        = Mathf.Clamp01(impactVelocity.magnitude / referenceMaxSpeed)
+alignment01    = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -weakPoint.OutwardNormal))
+quality        = hitWeakPoint ? speed01 * alignment01 : 0f
 ```
 
 `referenceMaxSpeed` (tunable per building) is the speed at/above which the speed component of quality maxes out — set above the plane's default cruise speed since no boost exists yet in Milestone 1. `OutwardNormal` is the weak-point marker's `transform.forward`. A dead-on hit at/above `referenceMaxSpeed` scores 1.0 ("perfect crash"). A hit on the building's body outside `hitRadius` is still a valid, physical crash but scores `0` — the design doc ([Docs/design-doc.md](../design-doc.md)) only defines the quality metric "into" the weak point; no partial-credit zone is invented for a body hit.
+
+**Uses `collision.relativeVelocity`, not `plane.Velocity`/`plane.Speed`.** Unity resolves the collision response (the actual velocity change from impact) before dispatching `OnCollisionEnter`, so reading the plane's `Rigidbody` velocity inside that callback gives the *post-impact* velocity — against a static, heavy building that's close to zero regardless of how fast or well-aligned the approach was. `collision.relativeVelocity` is computed pre-resolution and is the correct value for an impact calculation like this. (Also: `Vector3Math.GetDotProduct(vector, direction)` only normalizes `direction`, not `vector` — passing an unnormalized velocity into it double-counts speed since `speed01` already accounts for magnitude separately. Both `impactVelocity.magnitude` and `impactVelocity.normalized` are used explicitly to avoid this.)
 
 `Vector3Math.GetDotProduct` comes from `TripleA.Utils.Extensions` (already a project dependency, see [dependencies.md](dependencies.md)).
 

@@ -1,0 +1,16 @@
+.fuel-gauge-background {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 220px;
+    height: 28px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+}
+
+.fuel-gauge-fill {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 140, 0);
+}

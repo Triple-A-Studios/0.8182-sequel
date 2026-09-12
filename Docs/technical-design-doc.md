@@ -4,6 +4,8 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 
 ## Systems
 - [Building & Crash System](technical-design/building-crash-system.md)
+- [Fuel System](technical-design/fuel-system.md)
+- [UI (UI Toolkit)](technical-design/ui.md)
 
 ## Dependencies
 - [Third-party packages & plugins](technical-design/dependencies.md)

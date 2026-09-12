@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 5817102402772139475}
   - component: {fileID: 8708013200719578978}
   - component: {fileID: 8901983981539814019}
+  - component: {fileID: 4459706632786819009}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Player
@@ -215,12 +216,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646e3f62c7c683440ab1d55a5efaa76b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forwardSpeed: 5
+  forwardSpeed: 20
   pitchRateDegPerSec: 60
-  yawRateDegPerSec: 60
+  sideSpeed: 15
   maxPitchAngle: 60
   visualRoot: {fileID: 4128297192964488244}
   maxBankAngle: 40
   bankSpeedDegPerSec: 180
   moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   inputDeadZone: 0.1
+--- !u!114 &4459706632786819009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5561655706574146712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab506e0df4fa2149b087c9d4ad1b2b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxFuel: 100
+  drainPerSecond: 5
+  building: {fileID: 0}

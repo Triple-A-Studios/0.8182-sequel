@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="FuelGauge.uss" />
+    <ui:VisualElement name="fuel-gauge-background" class="fuel-gauge-background">
+        <ui:VisualElement name="fuel-gauge-fill" class="fuel-gauge-fill" />
+    </ui:VisualElement>
+</ui:UXML>
