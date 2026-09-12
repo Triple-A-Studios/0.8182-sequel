@@ -33,8 +33,12 @@ namespace Opoint8182.Building
             var quality = 0f;
             if (hitWeakPoint)
             {
-                var speed01 = Mathf.Clamp01(plane.Speed / referenceMaxSpeed);
-                var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(plane.Velocity, -weakPoint.OutwardNormal));
+                // collision.relativeVelocity is the impact velocity computed before Unity resolves the
+                // collision response - reading plane.Velocity/Speed here would give the post-impact
+                // (already-stopped) velocity instead, since resolution happens before this callback fires.
+                var impactVelocity = collision.relativeVelocity;
+                var speed01 = Mathf.Clamp01(impactVelocity.magnitude / referenceMaxSpeed);
+                var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -weakPoint.OutwardNormal));
                 quality = speed01 * alignment01;
             }
 
