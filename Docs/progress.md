@@ -4,6 +4,7 @@
 
 | Item | Origin | Type | Status |
 |---|---|---|---|
+| Plane momentarily stops on crash — both plane and building are colliders, physics resolves a full stop before `Destroy` | [Pass 1, Milestone: Building types + scoring](current-state.md) | Bug | Open |
 
 ## Phase: Prototype
 
@@ -16,8 +17,8 @@
 | 3 | Verified — Complete | `ad1cfde` | Fuel system (drain + crash-precision refuel + run-end at zero) |
 | 4 | Verified — Complete | `ad1cfde` | Minimal UI (fuel gauge) |
 
-### Milestone: Building types + scoring — Upcoming
-See [plan.md](plan.md#phase-prototype) for scope.
+### Milestone: Building types + scoring — In Progress
+See [current-state.md](current-state.md) for live pass status.
 
 ## Phase: MVP — Upcoming
 See [plan.md](plan.md#phase-mvp) for scope.

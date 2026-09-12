@@ -14,6 +14,10 @@ namespace Opoint8182.Building
         [Title("Crash Quality")]
         [FoldoutGroup("Crash Quality")] [SerializeField] private float m_referenceMaxSpeed = 25f;
 
+        [Title("Tough Settings")]
+        [FoldoutGroup("Tough Settings")] [SerializeField] private BuildingType m_buildingType = BuildingType.Normal;
+        [FoldoutGroup("Tough Settings")] [SerializeField] private float m_toughBreakSpeed = 30f;
+
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_lastCrashQuality;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_lastHitWeakPoint;
@@ -30,13 +34,21 @@ namespace Opoint8182.Building
             var contactPoint = collision.GetContact(0).point;
             var hitWeakPoint = Vector3.Distance(contactPoint, m_weakPoint.Position) <= m_weakPoint.HitRadius;
 
+            // collision.relativeVelocity is the impact velocity computed before Unity resolves the
+            // collision response - reading plane.Velocity/Speed here would give the post-impact
+            // (already-stopped) velocity instead, since resolution happens before this callback fires.
+            var impactVelocity = collision.relativeVelocity;
+
+            var canBreak = m_buildingType == BuildingType.Normal || impactVelocity.magnitude >= m_toughBreakSpeed;
+            if (!canBreak)
+            {
+                Debug.Log($"[Building] '{name}' resisted crash - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}");
+                return;
+            }
+
             var quality = 0f;
             if (hitWeakPoint)
             {
-                // collision.relativeVelocity is the impact velocity computed before Unity resolves the
-                // collision response - reading plane.Velocity/Speed here would give the post-impact
-                // (already-stopped) velocity instead, since resolution happens before this callback fires.
-                var impactVelocity = collision.relativeVelocity;
                 var speed01 = Mathf.Clamp01(impactVelocity.magnitude / m_referenceMaxSpeed);
                 var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -m_weakPoint.OutwardNormal));
                 quality = speed01 * alignment01;
