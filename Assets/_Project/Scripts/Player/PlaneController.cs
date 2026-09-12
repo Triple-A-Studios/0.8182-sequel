@@ -22,6 +22,11 @@ namespace Opoint8182.Player
         [FoldoutGroup("Input")] [SerializeField] private InputActionReference m_moveAction;
         [FoldoutGroup("Input")] [SerializeField] private float m_inputDeadZone = 0.1f;
 
+        [Title("Boost")]
+        [FoldoutGroup("Boost")] [SerializeField] private InputActionReference m_boostAction;
+        [FoldoutGroup("Boost")] [SerializeField] private float m_boostSpeedMultiplier = 1.6f;
+        [FoldoutGroup("Boost")] [SerializeField] private float m_boostSteerMultiplier = 0.5f;
+
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private Vector2 m_steerInput;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentBankAngle;
@@ -33,6 +38,7 @@ namespace Opoint8182.Player
         public float Speed => m_rigidbody.linearVelocity.magnitude;
         public Vector3 Forward => transform.forward;
         public float SpeedMultiplier { get; set; } = 1f;
+        public bool IsBoosting { get; private set; }
 
         private void Awake()
         {
@@ -42,11 +48,13 @@ namespace Opoint8182.Player
         private void OnEnable()
         {
             m_moveAction.action.Enable();
+            m_boostAction.action.Enable();
         }
 
         private void OnDisable()
         {
             m_moveAction.action.Disable();
+            m_boostAction.action.Disable();
         }
 
         private void FixedUpdate()
@@ -57,14 +65,18 @@ namespace Opoint8182.Player
                 m_steerInput = Vector2.zero;
             }
 
-            m_pitchDeg += -m_steerInput.y * m_pitchRateDegPerSec * Time.fixedDeltaTime;
+            IsBoosting = m_boostAction.action.IsPressed();
+            SpeedMultiplier = IsBoosting ? m_boostSpeedMultiplier : 1f;
+            var steerMultiplier = IsBoosting ? m_boostSteerMultiplier : 1f;
+
+            m_pitchDeg += -m_steerInput.y * (m_pitchRateDegPerSec * steerMultiplier) * Time.fixedDeltaTime;
             m_pitchDeg = Mathf.Clamp(m_pitchDeg, -m_maxPitchAngle, m_maxPitchAngle);
 
             var rotation = Quaternion.Euler(m_pitchDeg, 0f, 0f);
             m_rigidbody.MoveRotation(rotation);
 
             var forwardVelocity = rotation * Vector3.forward * (m_forwardSpeed * SpeedMultiplier);
-            var lateralVelocity = Vector3.right * (m_steerInput.x * m_sideSpeed);
+            var lateralVelocity = Vector3.right * (m_steerInput.x * m_sideSpeed * steerMultiplier);
             m_rigidbody.linearVelocity = forwardVelocity + lateralVelocity;
 
             if (m_visualRoot != null)

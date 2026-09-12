@@ -14,6 +14,7 @@ namespace Opoint8182.Fuel
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_maxFuel = 100f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_drainPerSecond = 5f;
+        [FoldoutGroup("Tunables")] [SerializeField] private float m_boostDrainMultiplier = 2f;
 
         [Title("Crash Source")]
         [FoldoutGroup("Crash Source")] [SerializeField] private Bldng m_building;
@@ -57,7 +58,8 @@ namespace Opoint8182.Fuel
         {
             if (m_isRunEnded) return;
 
-            var drained = Mathf.Clamp(Fuel.Value - m_drainPerSecond * Time.deltaTime, 0f, m_maxFuel);
+            var drainRate = m_drainPerSecond * (m_planeController.IsBoosting ? m_boostDrainMultiplier : 1f);
+            var drained = Mathf.Clamp(Fuel.Value - drainRate * Time.deltaTime, 0f, m_maxFuel);
             Fuel.Set(drained);
 
             if (Fuel.Value <= 0f) EndRun();

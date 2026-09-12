@@ -12,6 +12,8 @@ newFuel = Mathf.Clamp(currentFuel + quality * maxFuel, 0, maxFuel)
 
 A quality-1.0 ("perfect crash") hit always clamps to exactly `maxFuel` regardless of current level, matching the design doc's "a perfect crash fully refuels." Partial quality adds a proportional, clamped amount.
 
+Drain rate is multiplied by `m_boostDrainMultiplier` (default `2`) whenever [`PlaneController.IsBoosting`](movement.md#boost-milestone-2-pass-2) is true — boost costs fuel faster, per the design doc's risk-lever framing.
+
 ## Value storage — `ObservableFloat`
 
 The current fuel value is backed by `TripleA.Utils.Observables.Primaries.ObservableFloat` (an existing project dependency) instead of a plain float, so [FuelGaugeUI](ui.md) can react to changes via `AddListener` rather than polling every frame.
