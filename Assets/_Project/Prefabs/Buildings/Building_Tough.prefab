@@ -169,6 +169,7 @@ MonoBehaviour:
   m_referenceMaxSpeed: 25
   m_buildingType: 1
   m_toughBreakSpeed: 30
+  m_toughHitDamage: 35
 --- !u!65 &766389751162855936
 BoxCollider:
   m_ObjectHideFlags: 0

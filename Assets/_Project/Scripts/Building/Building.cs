@@ -1,12 +1,13 @@
 using System;
 using Alchemy.Inspector;
+using Opoint8182.Common;
 using Opoint8182.Player;
 using TripleA.Utils.Extensions;
 using UnityEngine;
 
 namespace Opoint8182.Building
 {
-    public class Building : MonoBehaviour
+    public class Building : MonoBehaviour, IDamageDealer
     {
         [Title("Weak Point")]
         [FoldoutGroup("Weak Point")] [SerializeField] private WeakPoint m_weakPoint;
@@ -17,12 +18,16 @@ namespace Opoint8182.Building
         [Title("Tough Settings")]
         [FoldoutGroup("Tough Settings")] [SerializeField] private BuildingType m_buildingType = BuildingType.Normal;
         [FoldoutGroup("Tough Settings")] [SerializeField] private float m_toughBreakSpeed = 30f;
+        [FoldoutGroup("Tough Settings")] [SerializeField] private float m_toughHitDamage = 35f;
 
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_lastCrashQuality;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_lastHitWeakPoint;
 
+        public float Damage => m_toughHitDamage;
+
         public event Action<float> Crashed;
+        public event Action<float> DamageDealt;
 
         private void OnCollisionEnter(Collision collision)
         {
@@ -42,7 +47,8 @@ namespace Opoint8182.Building
             var canBreak = m_buildingType == BuildingType.Normal || impactVelocity.magnitude >= m_toughBreakSpeed;
             if (!canBreak)
             {
-                Debug.Log($"[Building] '{name}' resisted crash - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}");
+                Debug.Log($"[Building] '{name}' resisted crash - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}, dealing {m_toughHitDamage:0.0} damage");
+                DamageDealt?.Invoke(m_toughHitDamage);
                 return;
             }
 

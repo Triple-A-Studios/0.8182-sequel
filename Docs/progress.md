@@ -5,6 +5,7 @@
 | Item | Origin | Type | Status |
 |---|---|---|---|
 | Plane momentarily stops on crash — both plane and building are colliders, physics resolves a full stop before `Destroy` | [Pass 1, Milestone: Building types + scoring](current-state.md) | Bug | Open |
+| Extend the `IDamageDealer` pattern to other resource-affecting sources (e.g. a refuel-source interface for `Building.Crashed`, a restore interface for future health/fuel pickups) so `FuelSystem`/`HealthSystem` don't hardcode concrete source types — worth doing once pickups/obstacles actually get built (Milestone 3+), not before | [Pass 3, Milestone: Building types + scoring](current-state.md) | Enhancement | Open |
 
 ## Phase: Prototype
 

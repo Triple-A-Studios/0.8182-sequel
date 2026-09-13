@@ -11,8 +11,7 @@
 |---|---|---|---|
 | 1 | Verified — Complete (`9145687`) | Backlog: plane momentarily stops on crash before `Destroy` (both colliders) — see [backlog](progress.md#backlog) | Tough building type (variant requiring hold-boost-to-break, distinct visual, own weak point) |
 | 2 | Verified — Complete (`2692147`) | Reused existing `Sprint` action for boost input | Boost mechanic (input, faster fuel drain, harder steering while active) |
-| 2 | Not Started | — | Boost mechanic (input, faster fuel drain, harder steering while active) |
-| 3 | Not Started | — | Health resource (second stat; lost on mistimed tough-building crash; death behavior — instant vs. gradual — TBD by playtest feel) |
+| 3 | In Progress | — | Health resource (second stat; lost on mistimed tough-building crash; death behavior — instant vs. gradual — TBD by playtest feel) |
 | 4 | Not Started | — | Score (simple visible score, increments per crash, shown in UI) |
 
 See [progress.md](progress.md) for the full project history and backlog, and [plan.md](plan.md) for what comes after this milestone.

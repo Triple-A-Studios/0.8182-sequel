@@ -6,7 +6,9 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Movement](technical-design/movement.md)
 - [Building & Crash System](technical-design/building-crash-system.md)
 - [Fuel System](technical-design/fuel-system.md)
+- [Health System](technical-design/health-system.md)
 - [UI (UI Toolkit)](technical-design/ui.md)
+- [Common (shared interfaces)](technical-design/common.md)
 
 ## Dependencies
 - [Third-party packages & plugins](technical-design/dependencies.md)

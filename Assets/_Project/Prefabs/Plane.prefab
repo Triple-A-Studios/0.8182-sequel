@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 8708013200719578978}
   - component: {fileID: 8901983981539814019}
   - component: {fileID: 4459706632786819009}
+  - component: {fileID: 4005894035758027034}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Player
@@ -244,3 +245,17 @@ MonoBehaviour:
   m_drainPerSecond: 5
   m_boostDrainMultiplier: 2
   m_building: {fileID: 0}
+--- !u!114 &4005894035758027034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5561655706574146712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24c5c08e0ab6434281c2a234ff79434b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_maxHealth: 100
+  m_damageDealerBehaviour: {fileID: 0}
