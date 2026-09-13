@@ -18,4 +18,10 @@ Project convention: UI Toolkit (UITK), not uGUI (see [CLAUDE.md](../../CLAUDE.md
 
 `FuelGaugeUI` queries the fill element once via UQuery (`rootVisualElement.Q<VisualElement>("fuel-gauge-fill")`) in `OnEnable`, then subscribes to [FuelSystem](fuel-system.md)'s `ObservableFloat` (`AddListener`) and pushes the initial value immediately — `AddListener` alone doesn't fire retroactively for the current value. Each change sets `style.width = new StyleLength(Length.Percent(fraction * 100f))`. Unsubscribes in `OnDisable`.
 
-This is the whole of Milestone 1's UI scope — no score/health/menu UI belongs here (Milestone 2+).
+This was the whole of Milestone 1's UI scope. No health UI exists yet — [HealthSystem](health-system.md) shipped Pass 3 with only a debug Inspector field, same as `FuelSystem` had before this UI existed; a health bar isn't scoped into this milestone at all.
+
+## Score UI (Milestone 2 Pass 4)
+
+Second HUD element, `ScoreDisplay` GameObject (sibling of the fuel gauge's `UIDocument` object, both children of `HUD`): `UIDocument` (Source Asset = `Score.uxml`, Panel Settings = the *same* `FuelGaugePanelSettings.asset` — `PanelSettings` is a shared config asset by design, reusing it avoids another Editor-menu-only asset creation for a second HUD element) + `ScoreUI.cs`, wired to the `Plane`'s `ScoreSystem`.
+
+`ScoreUI` mirrors `FuelGaugeUI`'s update pattern exactly, just with a `Label` instead of a fill bar: queries it once in `OnEnable` (`rootVisualElement.Q<Label>("score-label")`), subscribes to [ScoreSystem](score-system.md)'s `ObservableInt`, and sets `.text = $"Score: {score}"` on every change (plus once immediately on enable).

@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="Score.uss" />
+    <ui:Label name="score-label" text="Score: 0" class="score-label" />
+</ui:UXML>
