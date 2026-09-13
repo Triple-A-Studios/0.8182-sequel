@@ -50,6 +50,7 @@ This project uses the `game-dev-docs` skill. Before doing any work in a fresh se
 - Engine: Unity
 - Unity testing: Play-mode only
 - Co-author line: never add it
+- docs-conformant: true
 
 **Working hygiene**
 - One git branch per milestone.

@@ -10,6 +10,7 @@ Milestones:
 ### Phase: MVP
 Milestones:
 - **Obstacles, combos, recovery** — adds the two-tier obstacle system (large obstacle buildings, small hazards like birds), combo chain scoring, and health pickups to recover from bad crashes/obstacle hits.
+- **Core systems refactor** — pays down architecture debt flagged during the previous milestone before more features (difficulty ramp, spawning) pile onto it. Replace per-instance `IDamageDealer`/`Crashed` array wiring with a static/global event, since hand-wired arrays don't scale to procedurally spawned obstacles/hazards. Introduce an overseeing `GameManager` (or equivalent) for run/game state. Introduce a `PlayerManager` (or equivalent) that owns crash/damage/run-end orchestration, subscribing to sources and telling `FuelSystem`/`HealthSystem` what to apply — those two become pure resource managers (apply deltas, raise a "depleted" event) with no knowledge of where penalties/refuels come from. Done when obstacle spawning (next milestone's difficulty ramp) has a clean event-driven foundation to build on, and Fuel/Health/Score no longer hand-track source arrays. See progress.md backlog for the individual flagged items.
 - **Difficulty ramp** — obstacle/building density and toughness increase over the length of a run.
 - **Feel polish** — camera effects (shake, follow-tightening on boost, etc.) and general juice. MVP is considered done here.
 
