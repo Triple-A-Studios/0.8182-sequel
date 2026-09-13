@@ -18,4 +18,18 @@ Introduced so damage tuning lives on whatever deals the damage, not on whatever 
 
 **Unity can't serialize a bare interface field in the Inspector.** Consumers store a `[SerializeField] private MonoBehaviour` and cast it to `IDamageDealer` at `Awake` (see `HealthSystem.m_damageDealerBehaviour`) — a plain cast, not a custom PropertyDrawer or asset-based indirection; that's more machinery than a prototype-scope single-source hookup needs.
 
-See the backlog for the broader "interface-ify other resource sources" idea (refuel, health regen pickups) this pattern opens the door to — not done yet, flagged for when those features actually get built.
+See the backlog for the broader "interface-ify other resource sources" idea this pattern opens the door to — [`IRestorer`](#irestorer-milestone-3-pass-4) below folds the health/fuel-pickup half of it; a symmetric refuel-source interface for `Building.Crashed` is not done.
+
+## `IRestorer` (Milestone 3 Pass 4)
+
+`Assets/_Project/Scripts/Common/IRestorer.cs`, namespace `Opoint8182.Common`.
+
+```csharp
+public interface IRestorer
+{
+    float Restore { get; }
+    event Action<float> Restored;
+}
+```
+
+Same shape as `IDamageDealer`, inverted — a resource-restoring source instead of a resource-draining one. Same cast-a-`MonoBehaviour[]`-at-`Awake` consumption idiom (see [`HealthSystem.m_restorerBehaviours`](health-system.md#health-pickups-milestone-3-pass-4)). [`HealthPickup`](pickup-system.md) is the only implementation today; a future fuel pickup would implement the same interface with zero changes to it.

@@ -8,6 +8,7 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Fuel System](technical-design/fuel-system.md)
 - [Health System](technical-design/health-system.md)
 - [Obstacle System](technical-design/obstacle-system.md)
+- [Pickup System](technical-design/pickup-system.md)
 - [Score System](technical-design/score-system.md)
 - [UI (UI Toolkit)](technical-design/ui.md)
 - [Common (shared interfaces)](technical-design/common.md)

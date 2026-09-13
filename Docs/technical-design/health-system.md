@@ -14,6 +14,18 @@ newHealth = Mathf.Clamp(currentHealth - damage, 0, m_maxHealth)
 
 This is deliberately set up so a future damage source just needs to implement `IDamageDealer` on its own component; `HealthSystem` doesn't change at all. The array generalization (Milestone 3 Pass 1) replaced the original single-`MonoBehaviour`-field version — it fixed the previous single-reference scaffold limitation shared with `FuelSystem` (see below), which meant only one damage source at a time could ever reach `HealthSystem` even with multiple in the scene.
 
+## Health pickups (Milestone 3 Pass 4)
+
+Same array-of-sources shape as damage, mirrored: `[SerializeField] private MonoBehaviour[] m_restorerBehaviours`, cast to [`IRestorer[]`](common.md#irestorer-milestone-3-pass-4) in `Awake`, subscribed to every entry's `Restored` event in `OnEnable`/`OnDisable`. `HandleRestored` clamps the opposite direction from `HandleDamageDealt`:
+
+```
+newHealth = Mathf.Clamp(currentHealth + amount, 0, m_maxHealth)
+```
+
+No run-end check needed on the damage side's reasoning (restoring can't end a run), but it's guarded by `m_isRunEnded` anyway for consistency with `HandleDamageDealt` — harmless either way since a pickup collected after the plane's already disabled just wouldn't matter gameplay-wise. [`HealthPickup`](pickup-system.md) is the only source today; unlike damage dealers, a pickup is single-use (destroys itself after firing `Restored` once) rather than a persistent hazard.
+
+Fuel doesn't get a matching restorer array this pass — no fuel pickup exists, fuel is deliberately restored only through the crash-refuel loop per the design doc, and an unused array would be dead wiring. Trivial to add later if a fuel pickup is ever actually built (same `IRestorer` interface, no changes needed to it).
+
 ## Value storage — `ObservableFloat`
 
 Same reasoning as `FuelSystem.Fuel`: backed by `TripleA.Utils.Observables.Primaries.ObservableFloat`, exposed through a lazily-constructed private property (`Health => m_health ??= new ObservableFloat(m_maxHealth)`) so reads are safe regardless of cross-object `Awake` ordering. No UI consumer yet — a debug `[ShowInInspector] public float CurrentHealth` field surfaces it in the meantime, same as `FuelSystem` had before the fuel gauge existed. A health bar isn't in this milestone's scope (Pass 4 is "Score," not health UI); it'll come with a later UI pass.

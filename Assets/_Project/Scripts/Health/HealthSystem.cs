@@ -17,6 +17,9 @@ namespace Opoint8182.Health
         [Title("Damage Sources")]
         [FoldoutGroup("Damage Sources")] [SerializeField] private MonoBehaviour[] m_damageDealerBehaviours;
 
+        [Title("Restore Sources")]
+        [FoldoutGroup("Restore Sources")] [SerializeField] private MonoBehaviour[] m_restorerBehaviours;
+
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentHealth => Health.Value;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
@@ -25,6 +28,7 @@ namespace Opoint8182.Health
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
         private IDamageDealer[] m_damageDealers;
+        private IRestorer[] m_restorers;
 
         public event Action Died;
 
@@ -45,6 +49,7 @@ namespace Opoint8182.Health
             // typed MonoBehaviour[] and cast here - any damage-dealing component (Building,
             // ObstacleBuilding, future hazards) can be dropped in as long as it implements IDamageDealer.
             m_damageDealers = Array.ConvertAll(m_damageDealerBehaviours, b => b as IDamageDealer);
+            m_restorers = Array.ConvertAll(m_restorerBehaviours, b => b as IRestorer);
         }
 
         private void OnEnable()
@@ -53,6 +58,11 @@ namespace Opoint8182.Health
             {
                 if (dealer != null) dealer.DamageDealt += HandleDamageDealt;
             }
+
+            foreach (var restorer in m_restorers)
+            {
+                if (restorer != null) restorer.Restored += HandleRestored;
+            }
         }
 
         private void OnDisable()
@@ -60,6 +70,11 @@ namespace Opoint8182.Health
             foreach (var dealer in m_damageDealers)
             {
                 if (dealer != null) dealer.DamageDealt -= HandleDamageDealt;
+            }
+
+            foreach (var restorer in m_restorers)
+            {
+                if (restorer != null) restorer.Restored -= HandleRestored;
             }
         }
 
@@ -73,6 +88,16 @@ namespace Opoint8182.Health
             Debug.Log($"[HealthSystem] Took {damage:0.0} damage - health now {damaged:0.0}/{m_maxHealth:0.0}");
 
             if (Health.Value <= 0f) EndRun();
+        }
+
+        private void HandleRestored(float amount)
+        {
+            if (m_isRunEnded) return;
+
+            var restored = Mathf.Clamp(Health.Value + amount, 0f, m_maxHealth);
+            Health.Set(restored);
+
+            Debug.Log($"[HealthSystem] Restored {amount:0.0} - health now {restored:0.0}/{m_maxHealth:0.0}");
         }
 
         private void EndRun()
