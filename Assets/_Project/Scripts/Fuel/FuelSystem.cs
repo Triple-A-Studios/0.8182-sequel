@@ -1,6 +1,7 @@
 using System;
 using Alchemy.Inspector;
 using Bldng = Opoint8182.Building.Building;
+using Opoint8182.Common;
 using Opoint8182.Player;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
@@ -16,8 +17,11 @@ namespace Opoint8182.Fuel
         [FoldoutGroup("Tunables")] [SerializeField] private float m_drainPerSecond = 5f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_boostDrainMultiplier = 2f;
 
-        [Title("Crash Source")]
-        [FoldoutGroup("Crash Source")] [SerializeField] private Bldng m_building;
+        [Title("Crash Sources")]
+        [FoldoutGroup("Crash Sources")] [SerializeField] private Bldng[] m_buildings;
+
+        [Title("Damage Sources")]
+        [FoldoutGroup("Damage Sources")] [SerializeField] private MonoBehaviour[] m_damageSourceBehaviours;
 
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentFuel => Fuel.Value;
@@ -26,6 +30,7 @@ namespace Opoint8182.Fuel
         private ObservableFloat m_fuel;
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
+        private IDamageDealer[] m_damageSources;
 
         public event Action RunEnded;
 
@@ -42,16 +47,36 @@ namespace Opoint8182.Fuel
         {
             m_planeController = GetComponent<PlaneController>();
             m_rigidbody = GetComponent<Rigidbody>();
+            // Same MonoBehaviour-cast idiom as HealthSystem.m_damageDealerBehaviours - Unity can't
+            // serialize a bare interface reference, so obstacle/hazard sources get dropped in here
+            // and cast at Awake.
+            m_damageSources = Array.ConvertAll(m_damageSourceBehaviours, b => b as IDamageDealer);
         }
 
         private void OnEnable()
         {
-            if (m_building != null) m_building.Crashed += HandleCrashed;
+            foreach (var building in m_buildings)
+            {
+                if (building != null) building.Crashed += HandleCrashed;
+            }
+
+            foreach (var source in m_damageSources)
+            {
+                if (source != null) source.DamageDealt += HandleDamagePenalty;
+            }
         }
 
         private void OnDisable()
         {
-            if (m_building != null) m_building.Crashed -= HandleCrashed;
+            foreach (var building in m_buildings)
+            {
+                if (building != null) building.Crashed -= HandleCrashed;
+            }
+
+            foreach (var source in m_damageSources)
+            {
+                if (source != null) source.DamageDealt -= HandleDamagePenalty;
+            }
         }
 
         private void Update()
@@ -71,6 +96,16 @@ namespace Opoint8182.Fuel
 
             var refueled = Mathf.Clamp(Fuel.Value + quality * m_maxFuel, 0f, m_maxFuel);
             Fuel.Set(refueled);
+        }
+
+        private void HandleDamagePenalty(float damage)
+        {
+            if (m_isRunEnded) return;
+
+            var drained = Mathf.Clamp(Fuel.Value - damage, 0f, m_maxFuel);
+            Fuel.Set(drained);
+
+            if (Fuel.Value <= 0f) EndRun();
         }
 
         private void EndRun()

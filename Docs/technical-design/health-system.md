@@ -4,15 +4,15 @@
 
 ## Damage — via `IDamageDealer`, not a hardcoded source
 
-`HealthSystem` doesn't know or care that damage currently comes from a tough building. It holds zero Building-specific knowledge: a `[SerializeField] private MonoBehaviour m_damageDealerBehaviour` field (Unity can't serialize a bare interface reference in the Inspector, so it's typed `MonoBehaviour` and cast to [`IDamageDealer`](common.md) in `Awake`), and subscribes to that interface's `event Action<float> DamageDealt`. Whatever fires that event and however much damage it carries is entirely the source's business — `HealthSystem` just clamps it in:
+`HealthSystem` doesn't know or care what building or obstacle damage comes from. It holds zero source-specific knowledge: a `[SerializeField] private MonoBehaviour[] m_damageDealerBehaviours` array (Unity can't serialize a bare interface reference in the Inspector, so it's typed `MonoBehaviour[]` and each entry cast to [`IDamageDealer`](common.md) in `Awake`), and subscribes to every entry's `event Action<float> DamageDealt` in `OnEnable`/`OnDisable` (same foreach pattern [`ScoreSystem`](score-system.md) uses for `Building.Crashed`). Whatever fires that event and however much damage it carries is entirely the source's business — `HealthSystem` just clamps it in:
 
 ```
 newHealth = Mathf.Clamp(currentHealth - damage, 0, m_maxHealth)
 ```
 
-`Building` (`Assets/_Project/Scripts/Building/Building.cs`) is the only `IDamageDealer` today — it owns its own `m_toughHitDamage` tunable and fires `DamageDealt` from the same `!canBreak` branch that used to just log-and-return (see [building-crash-system.md](building-crash-system.md#damage-dealing-milestone-2-pass-3)). Default `m_maxHealth: 100`, `Building.m_toughHitDamage: 35` — three mistimed tough hits to die. Both are plain tunables; instant-vs-gradual was left open in the design doc for playtest feel, resolved this way for now but easy to retune (e.g. `m_toughHitDamage = m_maxHealth` for instant death without any code change).
+`Building` (`Assets/_Project/Scripts/Building/Building.cs`) and [`ObstacleBuilding`](obstacle-system.md) (Milestone 3 Pass 1) are the two `IDamageDealer` implementations today. `Building` owns its own `m_toughHitDamage` tunable and fires `DamageDealt` from the same `!canBreak` branch that used to just log-and-return (see [building-crash-system.md](building-crash-system.md#damage-dealing-milestone-2-pass-3)). Default `m_maxHealth: 100`, `Building.m_toughHitDamage: 35` — three mistimed tough hits to die. Both are plain tunables; instant-vs-gradual was left open in the design doc for playtest feel, resolved this way for now but easy to retune (e.g. `m_toughHitDamage = m_maxHealth` for instant death without any code change).
 
-This is deliberately set up so a future damage source — a large obstacle building, a bird hazard — just needs to implement `IDamageDealer` on its own component; `HealthSystem` doesn't change at all. (It still only wires up a single source at a time, same single-reference scaffold limitation as `FuelSystem` — see below.)
+This is deliberately set up so a future damage source just needs to implement `IDamageDealer` on its own component; `HealthSystem` doesn't change at all. The array generalization (Milestone 3 Pass 1) replaced the original single-`MonoBehaviour`-field version — it fixed the previous single-reference scaffold limitation shared with `FuelSystem` (see below), which meant only one damage source at a time could ever reach `HealthSystem` even with multiple in the scene.
 
 ## Value storage — `ObservableFloat`
 
@@ -24,4 +24,4 @@ At health = 0: disables `PlaneController` and zeros the Rigidbody's `linearVeloc
 
 ## Scene/prefab constraint
 
-Same constraint as `FuelSystem.building` (see [fuel-system.md](fuel-system.md#sceneprefab-constraint)): `HealthSystem.m_damageDealerBehaviour` can't be baked into `Plane.prefab` since the only `Building` instances are scene-only. It's assigned as a prefab-instance override in `Prototype.unity`, wired to `Building_Tough` specifically — `Building_Normal` can never fire `DamageDealt` (`canBreak` is always true for `BuildingType.Normal`), so wiring `HealthSystem` to it would mean it never takes damage at all.
+Same constraint as `FuelSystem.m_buildings`/`m_damageSourceBehaviours` (see [fuel-system.md](fuel-system.md#multi-source-wiring-milestone-3-pass-1)): `HealthSystem.m_damageDealerBehaviours` can't be baked into `Plane.prefab` since damage-source instances are scene-only. It's assigned as a prefab-instance array override in `Prototype.unity`. `Building_Normal` can never fire `DamageDealt` (`canBreak` is always true for `BuildingType.Normal`), so wiring it in is harmless but pointless — it just never fires.

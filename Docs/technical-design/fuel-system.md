@@ -30,6 +30,12 @@ This matters because Unity does not guarantee `Awake` order across different Gam
 
 At fuel = 0: disables `PlaneController` (which disables its own input action via its existing `OnDisable`) and zeros the Rigidbody's `linearVelocity` so the plane visibly stops rather than coasting forever (no gravity/drag on the Plane). Fires `public event Action RunEnded` — **no consumer yet**, same unconsumed-seam pattern as `Building.Crashed`; a future pass (game-over UI, restart) is expected to subscribe.
 
+## Multi-source wiring (Milestone 3 Pass 1)
+
+`m_building` (single `Building`) generalized to `m_buildings` (`Building[]`), subscribing/unsubscribing to each one's `Crashed` in `OnEnable`/`OnDisable` — same foreach pattern [`ScoreSystem`](score-system.md) already used. Fixes a known limitation: previously only one `Building` instance could ever refuel the plane even with multiple crashable buildings in the scene.
+
+A second array, `m_damageSourceBehaviours` (`MonoBehaviour[]`, cast to `IDamageDealer[]` at `Awake` — same cast idiom as [`HealthSystem`](health-system.md)), subscribes to `DamageDealt` and drains fuel by the same amount on `HandleDamagePenalty`. This is opt-in per source: empty by default, so wiring nothing into it leaves existing tough-building mistimed-hit behavior (health-only penalty) unchanged. [`ObstacleBuilding`](obstacle-system.md) is the first source meant to be wired in here, since obstacles cost both fuel and health per the design doc.
+
 ## Scene/prefab constraint
 
-`FuelSystem.building` (the crash-quality source) cannot be baked into `Plane.prefab` — the only `Building` instance is scene-only, and a prefab asset cannot hold a reference to a scene object (Unity silently nulls it on save). It's assigned as a prefab-instance override on the `Plane` inside `Prototype.unity` instead.
+`FuelSystem.m_buildings`/`m_damageSourceBehaviours` (the crash/damage sources) cannot be baked into `Plane.prefab` — `Building`/obstacle instances are scene-only, and a prefab asset cannot hold a reference to a scene object (Unity silently nulls it on save). They're assigned as prefab-instance array overrides on the `Plane` inside `Prototype.unity` instead.

@@ -14,8 +14,8 @@ namespace Opoint8182.Health
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_maxHealth = 100f;
 
-        [Title("Damage Source")]
-        [FoldoutGroup("Damage Source")] [SerializeField] private MonoBehaviour m_damageDealerBehaviour;
+        [Title("Damage Sources")]
+        [FoldoutGroup("Damage Sources")] [SerializeField] private MonoBehaviour[] m_damageDealerBehaviours;
 
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentHealth => Health.Value;
@@ -24,7 +24,7 @@ namespace Opoint8182.Health
         private ObservableFloat m_health;
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
-        private IDamageDealer m_damageDealer;
+        private IDamageDealer[] m_damageDealers;
 
         public event Action Died;
 
@@ -42,19 +42,25 @@ namespace Opoint8182.Health
             m_planeController = GetComponent<PlaneController>();
             m_rigidbody = GetComponent<Rigidbody>();
             // Unity can't serialize a bare interface reference in the Inspector, so the field is
-            // typed MonoBehaviour and cast here - any damage-dealing component (Building today,
-            // obstacles later) can be dropped in as long as it implements IDamageDealer.
-            m_damageDealer = m_damageDealerBehaviour as IDamageDealer;
+            // typed MonoBehaviour[] and cast here - any damage-dealing component (Building,
+            // ObstacleBuilding, future hazards) can be dropped in as long as it implements IDamageDealer.
+            m_damageDealers = Array.ConvertAll(m_damageDealerBehaviours, b => b as IDamageDealer);
         }
 
         private void OnEnable()
         {
-            if (m_damageDealer != null) m_damageDealer.DamageDealt += HandleDamageDealt;
+            foreach (var dealer in m_damageDealers)
+            {
+                if (dealer != null) dealer.DamageDealt += HandleDamageDealt;
+            }
         }
 
         private void OnDisable()
         {
-            if (m_damageDealer != null) m_damageDealer.DamageDealt -= HandleDamageDealt;
+            foreach (var dealer in m_damageDealers)
+            {
+                if (dealer != null) dealer.DamageDealt -= HandleDamageDealt;
+            }
         }
 
         private void HandleDamageDealt(float damage)

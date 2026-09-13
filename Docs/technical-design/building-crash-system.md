@@ -35,7 +35,7 @@ Boost (Pass 2) raises the plane's real speed via `PlaneController.SpeedMultiplie
 
 `Building_Tough.prefab` (`Assets/_Project/Prefabs/Buildings/`) duplicates `Building_Normal.prefab` with `m_buildingType: Tough` and a distinct placeholder material (`Mat_Building_Tough.mat`, dark red tint) — no new art asset, just a different `_BaseColor`. One instance is manually placed in `Prototype.unity` alongside `Building_Normal`.
 
-**Known limitation:** [`FuelSystem`](fuel-system.md) still hardcodes a single `m_building` reference, and [`HealthSystem`](health-system.md) hardcodes a single damage-source reference (a Milestone-1 scaffold constraint — see fuel-system.md's "Scene/prefab constraint"). Currently both happen to be wired to `Building_Tough` in `Prototype.unity` — `FuelSystem` refuels off it breaking, `HealthSystem` takes damage off it resisting; `Building_Normal` has no subscribers at all right now, so crashing it still destroys it (visible via its own `Debug.Log`) but doesn't refuel. Revisit once multiple simultaneous crashable buildings are the norm (likely the Obstacles milestone) rather than a Prototype-scope fix.
+**Resolved (Milestone 3 Pass 1):** [`FuelSystem`](fuel-system.md) and [`HealthSystem`](health-system.md) previously each hardcoded a single source reference (a Milestone-1 scaffold constraint), so only `Building_Tough` ever refueled/damaged the plane and `Building_Normal` had no subscribers. Both systems now take arrays and subscribe to every entry, mirroring [`ScoreSystem`](score-system.md)'s pre-existing `Bldng[] m_buildings` pattern — see fuel-system.md's "Multi-source wiring" section.
 
 ## Damage dealing (Milestone 2 Pass 3)
 

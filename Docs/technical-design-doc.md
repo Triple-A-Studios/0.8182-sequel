@@ -7,6 +7,7 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Building & Crash System](technical-design/building-crash-system.md)
 - [Fuel System](technical-design/fuel-system.md)
 - [Health System](technical-design/health-system.md)
+- [Obstacle System](technical-design/obstacle-system.md)
 - [Score System](technical-design/score-system.md)
 - [UI (UI Toolkit)](technical-design/ui.md)
 - [Common (shared interfaces)](technical-design/common.md)
