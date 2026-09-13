@@ -18,4 +18,13 @@ Deliberately never wired into [`ScoreSystem`](score-system.md) (which only liste
 
 ## Prefab
 
-`Obstacle_Large.prefab` (`Assets/_Project/Prefabs/Obstacles/`) mirrors `Building_Normal.prefab`'s root+Visual hierarchy but drops the `Weakpoint` child and uses a bigger `BoxCollider`/mesh scale (`{10, 14, 10}` vs. buildings' `{6, 8, 6}`) to read as a larger, more imposing hazard. Placeholder material `Mat_Obstacle_Large.mat` — same shader setup as the building materials, distinct hazard-orange `_BaseColor`, no new art asset (same convention as `Mat_Building_Tough.mat`).
+`Obstacle_Large.prefab` (`Assets/_Project/Prefabs/Obstacles/`) mirrors `Building_Normal.prefab`'s root+Visual hierarchy but drops the `Weakpoint` child. Placeholder material `Mat_Obstacle_Large.mat` — same shader setup as the building materials, distinct hazard-orange `_BaseColor`, no new art asset (same convention as `Mat_Building_Tough.mat`). Collider/mesh scale and `m_hitDamage` are tuned directly in the Editor as placeholder values get playtested — check the prefab itself for current numbers rather than assuming this doc's original targets.
+
+## Tier 2: small hazards — birds (Milestone 3 Pass 2)
+
+`BirdHazard.cs` (`Assets/_Project/Scripts/Obstacle/BirdHazard.cs`), same namespace as `ObstacleBuilding`. The design doc's "more of a reflex/dodge challenge" tier: lower `m_hitDamage` than `ObstacleBuilding`, and two things that make it read as a dodge challenge rather than a smaller static obstacle:
+
+- **It patrols.** A simple, cheap back-and-forth drift along world X between `±m_patrolDistance` of its spawn position at `m_moveSpeed` — no navmesh/pathing needed for a prototype hazard. Static obstacles can be planned around from a distance; a moving one forces the player to react as they approach.
+- **It's a trigger, not solid.** `m_IsTrigger: 1` on its `BoxCollider`, damage fired from `OnTriggerEnter` instead of `OnCollisionEnter` — the plane passes through rather than physically bouncing off it, which would be a disproportionate physical response to something bird-sized.
+
+Otherwise identical shape to `ObstacleBuilding`: implements `IDamageDealer`, no `Destroy`, never wired into `ScoreSystem`. Plugs into the same `FuelSystem.m_damageSourceBehaviours`/`HealthSystem.m_damageDealerBehaviours` arrays `ObstacleBuilding` uses — Pass 1's multi-source generalization needed no further changes for this pass. Prefab: `Bird_Small.prefab`, much smaller than `Obstacle_Large` (`{1, 1, 1.5}` collider/mesh scale), placeholder material `Mat_Bird.mat` (dark tint, same shader-reuse convention).
