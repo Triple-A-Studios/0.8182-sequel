@@ -90,7 +90,11 @@ namespace Opoint8182.Fuel
             if (Fuel.Value <= 0f) EndRun();
         }
 
-        private void HandleCrashed(float quality)
+        // scoreValue is ScoreSystem's concern, not FuelSystem's - FuelSystem only needs quality,
+        // but it has to match Building.Crashed's signature. Exactly the kind of coupling the
+        // planned "Core systems refactor" milestone (PlayerManager mediating sources -> Fuel/
+        // Health/Score) exists to remove.
+        private void HandleCrashed(float quality, int scoreValue)
         {
             if (m_isRunEnded) return;
 

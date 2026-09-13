@@ -20,13 +20,17 @@ namespace Opoint8182.Building
         [FoldoutGroup("Tough Settings")] [SerializeField] private float m_toughBreakSpeed = 30f;
         [FoldoutGroup("Tough Settings")] [SerializeField] private float m_toughHitDamage = 35f;
 
+        [Title("Scoring")]
+        [FoldoutGroup("Scoring")] [SerializeField] private int m_scoreValue = 10;
+
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_lastCrashQuality;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_lastHitWeakPoint;
 
         public float Damage => m_toughHitDamage;
+        public int ScoreValue => m_scoreValue;
 
-        public event Action<float> Crashed;
+        public event Action<float, int> Crashed;
         public event Action<float> DamageDealt;
 
         private void OnCollisionEnter(Collision collision)
@@ -64,7 +68,7 @@ namespace Opoint8182.Building
             m_lastHitWeakPoint = hitWeakPoint;
 
             Debug.Log($"[Building] '{name}' crashed - hitWeakPoint={hitWeakPoint}, quality={quality:0.00}");
-            Crashed?.Invoke(quality);
+            Crashed?.Invoke(quality, m_scoreValue);
 
             Destroy(gameObject);
         }

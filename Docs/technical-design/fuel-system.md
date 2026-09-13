@@ -10,6 +10,8 @@ Drains at a tunable `drainPerSecond` every frame. Refuels on `Building.Crashed` 
 newFuel = Mathf.Clamp(currentFuel + quality * maxFuel, 0, maxFuel)
 ```
 
+`Crashed` widened to `Action<float, int>` in Milestone 3 Pass 3 (quality + the building's `ScoreValue`, for [`ScoreSystem`](score-system.md)) — `HandleCrashed` picked up the unused `scoreValue` param just to keep the signature matching. Flagged as exactly the kind of coupling the planned "Core systems refactor" milestone (a mediating system between crash/damage sources and Fuel/Health/Score) exists to remove.
+
 A quality-1.0 ("perfect crash") hit always clamps to exactly `maxFuel` regardless of current level, matching the design doc's "a perfect crash fully refuels." Partial quality adds a proportional, clamped amount.
 
 Drain rate is multiplied by `m_boostDrainMultiplier` (default `2`) whenever [`PlaneController.IsBoosting`](movement.md#boost-milestone-2-pass-2) is true — boost costs fuel faster, per the design doc's risk-lever framing.

@@ -1,4 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <Style src="Score.uss" />
     <ui:Label name="score-label" text="Score: 0" class="score-label" />
+    <ui:Label name="combo-label" text="x1" class="combo-label" />
+    <ui:VisualElement name="combo-timer-background" class="combo-timer-background">
+        <ui:VisualElement name="combo-timer-fill" class="combo-timer-fill" />
+    </ui:VisualElement>
 </ui:UXML>

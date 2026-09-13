@@ -25,3 +25,9 @@ This was the whole of Milestone 1's UI scope. No health UI exists yet — [Healt
 Second HUD element, `ScoreDisplay` GameObject (sibling of the fuel gauge's `UIDocument` object, both children of `HUD`): `UIDocument` (Source Asset = `Score.uxml`, Panel Settings = the *same* `FuelGaugePanelSettings.asset` — `PanelSettings` is a shared config asset by design, reusing it avoids another Editor-menu-only asset creation for a second HUD element) + `ScoreUI.cs`, wired to the `Plane`'s `ScoreSystem`.
 
 `ScoreUI` mirrors `FuelGaugeUI`'s update pattern exactly, just with a `Label` instead of a fill bar: queries it once in `OnEnable` (`rootVisualElement.Q<Label>("score-label")`), subscribes to [ScoreSystem](score-system.md)'s `ObservableInt`, and sets `.text = $"Score: {score}"` on every change (plus once immediately on enable).
+
+## Combo label (Milestone 3 Pass 3)
+
+Second `Label` in `Score.uxml` (`combo-label`, `.combo-label` in `Score.uss` — same look as the score label, positioned just below it, gold-tinted to stand out). `ScoreUI` queries it alongside the score label and subscribes to [`ScoreSystem.MultiplierValue`](score-system.md#combo-multiplier) the same way, setting `.text = $"x{multiplier}"` on every change plus once on enable. Always visible (shows `x1` at baseline) rather than hidden below x2 — simplest option, no visibility-toggling logic needed for a prototype-scope HUD element.
+
+A third element, `combo-timer-fill` (a `fuel-gauge-fill`-style bar, not a label — `combo-timer-background`/`.combo-timer-fill` in `Score.uss`, gold-tinted, positioned below the combo label), shows the countdown to the next step-down. `ScoreUI` subscribes to `ScoreSystem.ComboTimerValue` and sets `style.width` from `ScoreSystem.ComboTimerFraction`, same width-percent pattern [`FuelGaugeUI`](#scene-setup) already uses for the fuel gauge.

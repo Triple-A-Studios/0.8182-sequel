@@ -25,7 +25,7 @@ quality        = hitWeakPoint ? speed01 * alignment01 : 0f
 
 ## Seam for later passes
 
-`Building` fires `public event Action<float> Crashed` with the computed quality value immediately before destroying itself (`Destroy(gameObject)`, no VFX — deferred to the Feel Polish milestone). **No consumer exists yet** — Milestone 1 Pass 3 (fuel system) is expected to subscribe to `Crashed` to apply refuel amount; nothing currently needs to be edited on `Building`/`WeakPoint` to add that subscriber. A `Debug.Log` and Alchemy `[ReadOnly, ShowInInspector]` debug fields (`_lastCrashQuality`, `_lastHitWeakPoint`) surface the result in the meantime, since no fuel/UI exists to display it.
+`Building` fires `public event Action<float, int> Crashed` — crash quality plus the building's own `m_scoreValue` (see [Scoring](#scoring-milestone-3-pass-3) below) — immediately before destroying itself (`Destroy(gameObject)`, no VFX — deferred to the Feel Polish milestone). A `Debug.Log` and Alchemy `[ReadOnly, ShowInInspector]` debug fields (`_lastCrashQuality`, `_lastHitWeakPoint`) surface the quality result too, since no fuel/UI exists to display it (historical - fuel/score both consume it directly now).
 
 ## Building types (Milestone 2 Pass 1)
 
@@ -42,3 +42,7 @@ Boost (Pass 2) raises the plane's real speed via `PlaneController.SpeedMultiplie
 `Building` implements [`IDamageDealer`](common.md) (`Assets/_Project/Scripts/Common/IDamageDealer.cs`): a `Damage` property backed by its own `m_toughHitDamage` tunable, and `public event Action<float> DamageDealt`, fired with that value from the same `!canBreak` branch described above, right before the early `return`. A mistimed tough-building hit is a distinct outcome from `Crashed` (broke, refuel), so it gets its own event rather than overloading `Crashed` with a zero/negative quality value.
 
 Damage tuning lives here, on the source, rather than on whatever receives it — [`HealthSystem`](health-system.md) is the only current subscriber, but it has no idea the damage came from a building specifically; it just reacts to `IDamageDealer.DamageDealt`. A future damage source (large obstacle buildings, hazards) only needs to implement the interface — no changes needed on the receiving end.
+
+## Scoring (Milestone 3 Pass 3)
+
+`m_scoreValue` (default `10` on `Building_Normal`, `20` on `Building_Tough`) is a plain per-instance tunable, same "lives on the source" treatment as `m_toughHitDamage`/`m_referenceMaxSpeed` — exposed as `public int ScoreValue`. It's carried on `Crashed` alongside `quality` rather than requiring [`ScoreSystem`](score-system.md) to look it up separately, since a shared `Action<float, int>` subscriber (one handler for every building in an array, see `ScoreSystem.m_buildings`) has no other way to know which specific instance fired without per-instance closures. [`FuelSystem`](fuel-system.md) also had to widen its `HandleCrashed` signature to match even though it only uses `quality` — flagged as exactly the kind of coupling the planned "Core systems refactor" milestone exists to remove.
