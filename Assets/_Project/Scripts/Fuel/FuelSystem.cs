@@ -1,6 +1,5 @@
 using System;
 using Alchemy.Inspector;
-using Opoint8182.Common;
 using Opoint8182.Player;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
@@ -8,7 +7,6 @@ using UnityEngine;
 namespace Opoint8182.Fuel
 {
     [RequireComponent(typeof(PlaneController))]
-    [RequireComponent(typeof(Rigidbody))]
     public class FuelSystem : MonoBehaviour
     {
         [Title("Tunables")]
@@ -18,13 +16,12 @@ namespace Opoint8182.Fuel
 
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentFuel => Fuel.Value;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isDepleted;
 
         private ObservableFloat m_fuel;
         private PlaneController m_planeController;
-        private Rigidbody m_rigidbody;
 
-        public event Action RunEnded;
+        public event Action Depleted;
 
         // Lazily constructed so FuelValue/CurrentFuel are safe to read even if another
         // object's OnEnable/Start runs before this component's own Awake - Unity doesn't
@@ -38,58 +35,38 @@ namespace Opoint8182.Fuel
         private void Awake()
         {
             m_planeController = GetComponent<PlaneController>();
-            m_rigidbody = GetComponent<Rigidbody>();
-        }
-
-        private void OnEnable()
-        {
-            CombatEvents.Crashed += HandleCrashed;
-            CombatEvents.DamageDealt += HandleDamagePenalty;
-        }
-
-        private void OnDisable()
-        {
-            CombatEvents.Crashed -= HandleCrashed;
-            CombatEvents.DamageDealt -= HandleDamagePenalty;
         }
 
         private void Update()
         {
-            if (m_isRunEnded) return;
+            if (m_isDepleted) return;
 
             var drainRate = m_drainPerSecond * (m_planeController.IsBoosting ? m_boostDrainMultiplier : 1f);
-            var drained = Mathf.Clamp(Fuel.Value - drainRate * Time.deltaTime, 0f, m_maxFuel);
-            Fuel.Set(drained);
-
-            if (Fuel.Value <= 0f) EndRun();
+            Drain(drainRate * Time.deltaTime);
         }
 
-        // source is unused here (ScoreSystem is the one that reads source.ScoreValue) - kept in
-        // the signature only to match CombatEvents.Crashed.
-        private void HandleCrashed(ICrashSource source, float quality, bool countsForCombo)
+        public void Refuel(float quality)
         {
-            if (m_isRunEnded) return;
+            if (m_isDepleted) return;
 
             var refueled = Mathf.Clamp(Fuel.Value + quality * m_maxFuel, 0f, m_maxFuel);
             Fuel.Set(refueled);
         }
 
-        private void HandleDamagePenalty(IDamageDealer source, float damage)
+        public void Drain(float amount)
         {
-            if (m_isRunEnded) return;
+            if (m_isDepleted) return;
 
-            var drained = Mathf.Clamp(Fuel.Value - damage * source.FuelDamageMultiplier, 0f, m_maxFuel);
+            var drained = Mathf.Clamp(Fuel.Value - amount, 0f, m_maxFuel);
             Fuel.Set(drained);
 
-            if (Fuel.Value <= 0f) EndRun();
+            if (Fuel.Value <= 0f) MarkDepleted();
         }
 
-        private void EndRun()
+        private void MarkDepleted()
         {
-            m_isRunEnded = true;
-            m_planeController.enabled = false;
-            m_rigidbody.linearVelocity = Vector3.zero;
-            RunEnded?.Invoke();
+            m_isDepleted = true;
+            Depleted?.Invoke();
         }
     }
 }

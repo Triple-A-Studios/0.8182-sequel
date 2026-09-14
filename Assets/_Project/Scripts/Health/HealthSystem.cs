@@ -1,14 +1,10 @@
 using System;
 using Alchemy.Inspector;
-using Opoint8182.Common;
-using Opoint8182.Player;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
 
 namespace Opoint8182.Health
 {
-    [RequireComponent(typeof(PlaneController))]
-    [RequireComponent(typeof(Rigidbody))]
     public class HealthSystem : MonoBehaviour
     {
         [Title("Tunables")]
@@ -16,13 +12,11 @@ namespace Opoint8182.Health
 
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentHealth => Health.Value;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isDepleted;
 
         private ObservableFloat m_health;
-        private PlaneController m_planeController;
-        private Rigidbody m_rigidbody;
 
-        public event Action Died;
+        public event Action Depleted;
 
         // Lazily constructed so HealthValue/CurrentHealth are safe to read even if another
         // object's OnEnable/Start runs before this component's own Awake - Unity doesn't
@@ -33,39 +27,21 @@ namespace Opoint8182.Health
         public ObservableFloat HealthValue => Health;
         public float HealthFraction => m_maxHealth > 0f ? Mathf.Clamp01(Health.Value / m_maxHealth) : 0f;
 
-        private void Awake()
+        public void TakeDamage(float amount)
         {
-            m_planeController = GetComponent<PlaneController>();
-            m_rigidbody = GetComponent<Rigidbody>();
-        }
+            if (m_isDepleted) return;
 
-        private void OnEnable()
-        {
-            CombatEvents.DamageDealt += HandleDamageDealt;
-            CombatEvents.Restored += HandleRestored;
-        }
-
-        private void OnDisable()
-        {
-            CombatEvents.DamageDealt -= HandleDamageDealt;
-            CombatEvents.Restored -= HandleRestored;
-        }
-
-        private void HandleDamageDealt(IDamageDealer source, float damage)
-        {
-            if (m_isRunEnded) return;
-
-            var damaged = Mathf.Clamp(Health.Value - damage * source.HealthDamageMultiplier, 0f, m_maxHealth);
+            var damaged = Mathf.Clamp(Health.Value - amount, 0f, m_maxHealth);
             Health.Set(damaged);
 
-            Debug.Log($"[HealthSystem] Took {damage:0.0} damage - health now {damaged:0.0}/{m_maxHealth:0.0}");
+            Debug.Log($"[HealthSystem] Took {amount:0.0} damage - health now {damaged:0.0}/{m_maxHealth:0.0}");
 
-            if (Health.Value <= 0f) EndRun();
+            if (Health.Value <= 0f) MarkDepleted();
         }
 
-        private void HandleRestored(IRestorer source, float amount)
+        public void Heal(float amount)
         {
-            if (m_isRunEnded) return;
+            if (m_isDepleted) return;
 
             var restored = Mathf.Clamp(Health.Value + amount, 0f, m_maxHealth);
             Health.Set(restored);
@@ -73,12 +49,10 @@ namespace Opoint8182.Health
             Debug.Log($"[HealthSystem] Restored {amount:0.0} - health now {restored:0.0}/{m_maxHealth:0.0}");
         }
 
-        private void EndRun()
+        private void MarkDepleted()
         {
-            m_isRunEnded = true;
-            m_planeController.enabled = false;
-            m_rigidbody.linearVelocity = Vector3.zero;
-            Died?.Invoke();
+            m_isDepleted = true;
+            Depleted?.Invoke();
         }
     }
 }

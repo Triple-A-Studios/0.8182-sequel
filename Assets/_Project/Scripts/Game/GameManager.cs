@@ -22,14 +22,14 @@ namespace Opoint8182.Game
             m_fuelSystem = FindAnyObjectByType<FuelSystem>();
             m_healthSystem = FindAnyObjectByType<HealthSystem>();
 
-            if (m_fuelSystem != null) m_fuelSystem.RunEnded += HandleRunEnded;
-            if (m_healthSystem != null) m_healthSystem.Died += HandleRunEnded;
+            if (m_fuelSystem != null) m_fuelSystem.Depleted += HandleRunEnded;
+            if (m_healthSystem != null) m_healthSystem.Depleted += HandleRunEnded;
         }
 
         private void OnDisable()
         {
-            if (m_fuelSystem != null) m_fuelSystem.RunEnded -= HandleRunEnded;
-            if (m_healthSystem != null) m_healthSystem.Died -= HandleRunEnded;
+            if (m_fuelSystem != null) m_fuelSystem.Depleted -= HandleRunEnded;
+            if (m_healthSystem != null) m_healthSystem.Depleted -= HandleRunEnded;
         }
 
         private void HandleRunEnded()
