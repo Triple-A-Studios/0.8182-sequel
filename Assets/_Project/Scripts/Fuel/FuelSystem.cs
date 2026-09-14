@@ -78,7 +78,7 @@ namespace Opoint8182.Fuel
         {
             if (m_isRunEnded) return;
 
-            var drained = Mathf.Clamp(Fuel.Value - damage, 0f, m_maxFuel);
+            var drained = Mathf.Clamp(Fuel.Value - damage * source.FuelDamageMultiplier, 0f, m_maxFuel);
             Fuel.Set(drained);
 
             if (Fuel.Value <= 0f) EndRun();

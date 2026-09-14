@@ -55,7 +55,7 @@ namespace Opoint8182.Health
         {
             if (m_isRunEnded) return;
 
-            var damaged = Mathf.Clamp(Health.Value - damage, 0f, m_maxHealth);
+            var damaged = Mathf.Clamp(Health.Value - damage * source.HealthDamageMultiplier, 0f, m_maxHealth);
             Health.Set(damaged);
 
             Debug.Log($"[HealthSystem] Took {damage:0.0} damage - health now {damaged:0.0}/{m_maxHealth:0.0}");
