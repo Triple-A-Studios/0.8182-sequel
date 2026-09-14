@@ -24,6 +24,8 @@ The player flies a plane with limited fuel and deliberately crashes into buildin
 - **Second fail state confirmed:** crashing into a tough building without enough boost/speed is punishing, not a harmless bounce — either instant death or health loss that eventually kills you. Exact behavior (instant vs. gradual) is intentionally left open to decide via playtest feel, not a gap that needs answering now.
 - This introduces **health as a resource alongside fuel** — fuel is the endless-run clock (crash-refuel loop), health is the "don't botch a crash / don't hit the wrong thing" penalty.
 - Obstacles come in two tiers: **large obstacle buildings** (bigger, visually distinct from crashable normal/tough buildings, higher penalty on impact) and **small hazards** like birds (lower penalty, more of a reflex/dodge challenge).
+- **Altitude bounds (new fail states):** the play space has an upper and lower altitude limit. Ceiling: the player is warned first; if they don't descend (or keep climbing), the run ends — plane flies off fast into the sky, camera stops following, Game Over screen appears. Ground: hitting it ends the run instantly, with the same cosmetic "blast" treatment as a building crash or a health-zero death, Game Over screen appears.
+- **Crash-quality formula under review:** currently speed × angle-into-weak-point (see below); flagged to be simplified so players don't have to reason about precise crash angles. Not yet decided what the simplified formula looks like — see backlog.
 
 ## 4. Player Experience, Emotion & Fantasy — ✅ Resolved
 Cartoonish, over-the-top destruction — chunky debris, screen shake, silly rather than gritty. The feeling should be satisfying/comedic impact, not tense realism.
