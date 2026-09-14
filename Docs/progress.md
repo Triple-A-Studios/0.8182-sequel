@@ -49,8 +49,8 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 3 | Verified — Complete | `4101335` | Combo chain scoring — crash multiple buildings in quick succession for bonus/multiplier |
 | 4 | Verified — Complete | `e9fce2d` | Health pickups + restore interface — generalize `IDamageDealer` into a matching restore-interface for fuel/health pickups (folds backlog item) |
 
-### Milestone: Core systems refactor — Upcoming
-See [plan.md](plan.md#phase-mvp) for scope. No passes defined yet.
+### Milestone: Core systems refactor — In Progress
+See [current-state.md](current-state.md) for live pass-by-pass status.
 
 ## Phase: Alpha — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.

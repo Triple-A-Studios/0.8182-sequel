@@ -2,8 +2,16 @@
 
 ## Snapshot
 - **Last landed:** Pass 4 — Health pickups + `IRestorer` interface (`e9fce2d`). Milestone "Obstacles, combos, recovery" complete — see [progress.md](progress.md).
-- **Now:** Next milestone, "Core systems refactor" (MVP phase), has no passes scoped yet — see [plan.md](plan.md#phase-mvp). No branch created for it yet.
-- **Known issues to check before scoping/starting next:** see `progress.md` backlog — Inspector debug fields not refreshing live, and a design inconsistency around mistimed tough-building hits (doesn't destroy/score, isn't wired into fuel/combo penalties) needing a decision before it's implemented. Several other backlog rows are exactly what "Core systems refactor" is scoped to fix.
+- **Now:** Milestone "Core systems refactor" (MVP phase) — 5 passes scoped, none started. No branch created for it yet; create `milestone/core-systems-refactor` before writing Pass 1 code.
+
+### Scoped passes — Core systems refactor
+1. **Event-driven damage/restore wiring** — Static/global event any `IDamageDealer` fires (plus a new symmetric crash-source interface for `Building.Crashed`), subscribed to once by `FuelSystem`/`HealthSystem`/`ScoreSystem` instead of per-instance Inspector array wiring. `FuelSystem` stops hardcoding `Building` as the crash-source type. (Folds backlog rows: array wiring, symmetric refuel-source interface.)
+2. **Uniform penalty wiring + tough-building mistimed-hit fix** — Every damage source reaches Health/Fuel/Score-combo uniformly via the Pass 1 event. `Building_Tough`'s `!canBreak` branch now fires `Crashed` with quality=0 (destroys, base score) alongside the health penalty — confirmed design: mistimed tough-building hits still destroy the building, "requires enough boost" stays a scoring-quality gate, not a hard-resistance gate. (Folds backlog rows: uniform 3-system wiring, mistimed tough-hit design.)
+3. **Per-resource damage tuning** — Tunable multiplier/second value on the damage interface so a source can hurt fuel vs. health by different amounts. (Folds backlog row: per-resource damage tuning.)
+4. **`GameManager`** — Overseeing system for run/game state (run active/ended), above the individual resource systems.
+5. **`PlayerManager`** — Owns crash/damage/run-end orchestration: subscribes to sources via the Pass 1 event, tells `FuelSystem`/`HealthSystem` what to apply, reacts to their "depleted" events to end the run (disabling `PlaneController`, zeroing velocity). `FuelSystem`/`HealthSystem` become pure resource managers with no run-end logic of their own.
+
+- **Known issues, not folded into this milestone:** see `progress.md` backlog — plane momentarily stops on crash before `Destroy` (physics bug); combo-timer missing-building penalty (blocked on a building spawner that doesn't exist yet); Alchemy `[ShowInInspector]` debug fields not refreshing live in Play Mode (Inspector repaint issue, not a logic bug).
 - **Before you test:** Reload the open scene (`Prototype.unity`) after script changes before entering Play Mode.
 
 See [progress.md](progress.md) for the full project history and backlog, and [plan.md](plan.md) for what comes after this milestone.
