@@ -1,6 +1,5 @@
 using System;
 using Alchemy.Inspector;
-using Bldng = Opoint8182.Building.Building;
 using Opoint8182.Common;
 using Opoint8182.Player;
 using TripleA.Utils.Observables.Primaries;
@@ -17,12 +16,6 @@ namespace Opoint8182.Fuel
         [FoldoutGroup("Tunables")] [SerializeField] private float m_drainPerSecond = 5f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_boostDrainMultiplier = 2f;
 
-        [Title("Crash Sources")]
-        [FoldoutGroup("Crash Sources")] [SerializeField] private Bldng[] m_buildings;
-
-        [Title("Damage Sources")]
-        [FoldoutGroup("Damage Sources")] [SerializeField] private MonoBehaviour[] m_damageSourceBehaviours;
-
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentFuel => Fuel.Value;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
@@ -30,7 +23,6 @@ namespace Opoint8182.Fuel
         private ObservableFloat m_fuel;
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
-        private IDamageDealer[] m_damageSources;
 
         public event Action RunEnded;
 
@@ -47,36 +39,18 @@ namespace Opoint8182.Fuel
         {
             m_planeController = GetComponent<PlaneController>();
             m_rigidbody = GetComponent<Rigidbody>();
-            // Same MonoBehaviour-cast idiom as HealthSystem.m_damageDealerBehaviours - Unity can't
-            // serialize a bare interface reference, so obstacle/hazard sources get dropped in here
-            // and cast at Awake.
-            m_damageSources = Array.ConvertAll(m_damageSourceBehaviours, b => b as IDamageDealer);
         }
 
         private void OnEnable()
         {
-            foreach (var building in m_buildings)
-            {
-                if (building != null) building.Crashed += HandleCrashed;
-            }
-
-            foreach (var source in m_damageSources)
-            {
-                if (source != null) source.DamageDealt += HandleDamagePenalty;
-            }
+            CombatEvents.Crashed += HandleCrashed;
+            CombatEvents.DamageDealt += HandleDamagePenalty;
         }
 
         private void OnDisable()
         {
-            foreach (var building in m_buildings)
-            {
-                if (building != null) building.Crashed -= HandleCrashed;
-            }
-
-            foreach (var source in m_damageSources)
-            {
-                if (source != null) source.DamageDealt -= HandleDamagePenalty;
-            }
+            CombatEvents.Crashed -= HandleCrashed;
+            CombatEvents.DamageDealt -= HandleDamagePenalty;
         }
 
         private void Update()
@@ -90,11 +64,9 @@ namespace Opoint8182.Fuel
             if (Fuel.Value <= 0f) EndRun();
         }
 
-        // scoreValue is ScoreSystem's concern, not FuelSystem's - FuelSystem only needs quality,
-        // but it has to match Building.Crashed's signature. Exactly the kind of coupling the
-        // planned "Core systems refactor" milestone (PlayerManager mediating sources -> Fuel/
-        // Health/Score) exists to remove.
-        private void HandleCrashed(float quality, int scoreValue)
+        // source is unused here (ScoreSystem is the one that reads source.ScoreValue) - kept in
+        // the signature only to match CombatEvents.Crashed.
+        private void HandleCrashed(ICrashSource source, float quality)
         {
             if (m_isRunEnded) return;
 
@@ -102,7 +74,7 @@ namespace Opoint8182.Fuel
             Fuel.Set(refueled);
         }
 
-        private void HandleDamagePenalty(float damage)
+        private void HandleDamagePenalty(IDamageDealer source, float damage)
         {
             if (m_isRunEnded) return;
 

@@ -1,4 +1,3 @@
-using System;
 using Alchemy.Inspector;
 using Opoint8182.Common;
 using UnityEngine;
@@ -12,14 +11,12 @@ namespace Opoint8182.Pickup
 
         public float Restore => m_restoreAmount;
 
-        public event Action<float> Restored;
-
         private void OnTriggerEnter(Collider other)
         {
             if (!other.gameObject.CompareTag("Player")) return;
 
             Debug.Log($"[HealthPickup] '{name}' collected - restoring {m_restoreAmount:0.0}");
-            Restored?.Invoke(m_restoreAmount);
+            CombatEvents.RaiseRestored(this, m_restoreAmount);
 
             Destroy(gameObject);
         }

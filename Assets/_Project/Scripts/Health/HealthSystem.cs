@@ -14,12 +14,6 @@ namespace Opoint8182.Health
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_maxHealth = 100f;
 
-        [Title("Damage Sources")]
-        [FoldoutGroup("Damage Sources")] [SerializeField] private MonoBehaviour[] m_damageDealerBehaviours;
-
-        [Title("Restore Sources")]
-        [FoldoutGroup("Restore Sources")] [SerializeField] private MonoBehaviour[] m_restorerBehaviours;
-
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentHealth => Health.Value;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
@@ -27,8 +21,6 @@ namespace Opoint8182.Health
         private ObservableFloat m_health;
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
-        private IDamageDealer[] m_damageDealers;
-        private IRestorer[] m_restorers;
 
         public event Action Died;
 
@@ -45,40 +37,21 @@ namespace Opoint8182.Health
         {
             m_planeController = GetComponent<PlaneController>();
             m_rigidbody = GetComponent<Rigidbody>();
-            // Unity can't serialize a bare interface reference in the Inspector, so the field is
-            // typed MonoBehaviour[] and cast here - any damage-dealing component (Building,
-            // ObstacleBuilding, future hazards) can be dropped in as long as it implements IDamageDealer.
-            m_damageDealers = Array.ConvertAll(m_damageDealerBehaviours, b => b as IDamageDealer);
-            m_restorers = Array.ConvertAll(m_restorerBehaviours, b => b as IRestorer);
         }
 
         private void OnEnable()
         {
-            foreach (var dealer in m_damageDealers)
-            {
-                if (dealer != null) dealer.DamageDealt += HandleDamageDealt;
-            }
-
-            foreach (var restorer in m_restorers)
-            {
-                if (restorer != null) restorer.Restored += HandleRestored;
-            }
+            CombatEvents.DamageDealt += HandleDamageDealt;
+            CombatEvents.Restored += HandleRestored;
         }
 
         private void OnDisable()
         {
-            foreach (var dealer in m_damageDealers)
-            {
-                if (dealer != null) dealer.DamageDealt -= HandleDamageDealt;
-            }
-
-            foreach (var restorer in m_restorers)
-            {
-                if (restorer != null) restorer.Restored -= HandleRestored;
-            }
+            CombatEvents.DamageDealt -= HandleDamageDealt;
+            CombatEvents.Restored -= HandleRestored;
         }
 
-        private void HandleDamageDealt(float damage)
+        private void HandleDamageDealt(IDamageDealer source, float damage)
         {
             if (m_isRunEnded) return;
 
@@ -90,7 +63,7 @@ namespace Opoint8182.Health
             if (Health.Value <= 0f) EndRun();
         }
 
-        private void HandleRestored(float amount)
+        private void HandleRestored(IRestorer source, float amount)
         {
             if (m_isRunEnded) return;
 

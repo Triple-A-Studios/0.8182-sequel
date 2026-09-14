@@ -1,5 +1,4 @@
 using Alchemy.Inspector;
-using Bldng = Opoint8182.Building.Building;
 using Opoint8182.Common;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
@@ -8,10 +7,6 @@ namespace Opoint8182.Score
 {
     public class ScoreSystem : MonoBehaviour
     {
-        [Title("Sources")]
-        [FoldoutGroup("Sources")] [SerializeField] private Bldng[] m_buildings;
-        [FoldoutGroup("Sources")] [SerializeField] private MonoBehaviour[] m_hazardBehaviours;
-
         [Title("Combo")]
         [FoldoutGroup("Combo")] [SerializeField] private float m_comboWindow = 3f;
         [FoldoutGroup("Combo")] [SerializeField] private int[] m_comboStepSizes = { 3, 5, 8 };
@@ -26,7 +21,6 @@ namespace Opoint8182.Score
         private ObservableInt m_score;
         private ObservableInt m_multiplier;
         private ObservableFloat m_comboTimer;
-        private IDamageDealer[] m_hazardSources;
 
         // Lazily constructed for the same reason as FuelSystem.Fuel/HealthSystem.Health -
         // Unity doesn't guarantee Awake order across different GameObjects.
@@ -39,37 +33,16 @@ namespace Opoint8182.Score
         public ObservableFloat ComboTimerValue => ComboTimer;
         public float ComboTimerFraction => m_comboWindow > 0f ? Mathf.Clamp01(ComboTimer.Value / m_comboWindow) : 0f;
 
-        private void Awake()
-        {
-            // Same MonoBehaviour-cast idiom FuelSystem/HealthSystem use for IDamageDealer arrays -
-            // ObstacleBuilding/BirdHazard hits eat into the combo timer, but aren't scored themselves.
-            m_hazardSources = System.Array.ConvertAll(m_hazardBehaviours, b => b as IDamageDealer);
-        }
-
         private void OnEnable()
         {
-            foreach (var building in m_buildings)
-            {
-                if (building != null) building.Crashed += HandleCrashed;
-            }
-
-            foreach (var source in m_hazardSources)
-            {
-                if (source != null) source.DamageDealt += HandleHazardHit;
-            }
+            CombatEvents.Crashed += HandleCrashed;
+            CombatEvents.DamageDealt += HandleHazardHit;
         }
 
         private void OnDisable()
         {
-            foreach (var building in m_buildings)
-            {
-                if (building != null) building.Crashed -= HandleCrashed;
-            }
-
-            foreach (var source in m_hazardSources)
-            {
-                if (source != null) source.DamageDealt -= HandleHazardHit;
-            }
+            CombatEvents.Crashed -= HandleCrashed;
+            CombatEvents.DamageDealt -= HandleHazardHit;
         }
 
         private void Update()
@@ -77,8 +50,9 @@ namespace Opoint8182.Score
             Tick(Time.deltaTime);
         }
 
-        private void HandleCrashed(float quality, int scoreValue)
+        private void HandleCrashed(ICrashSource source, float quality)
         {
+            var scoreValue = source.ScoreValue;
             var bonus = Mathf.RoundToInt(quality * scoreValue);
             var crashScore = (scoreValue + bonus) * Multiplier.Value;
             Score.Set(Score.Value + crashScore);
@@ -94,7 +68,7 @@ namespace Opoint8182.Score
             }
         }
 
-        private void HandleHazardHit(float damage)
+        private void HandleHazardHit(IDamageDealer source, float damage)
         {
             if (ComboTimer.Value <= 0f) return;
 

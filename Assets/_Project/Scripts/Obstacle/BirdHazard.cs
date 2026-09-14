@@ -1,4 +1,3 @@
-using System;
 using Alchemy.Inspector;
 using Opoint8182.Common;
 using UnityEngine;
@@ -15,8 +14,6 @@ namespace Opoint8182.Obstacle
         [FoldoutGroup("Patrol")] [SerializeField] private float m_patrolDistance = 6f;
 
         public float Damage => m_hitDamage;
-
-        public event Action<float> DamageDealt;
 
         private Vector3 m_startPosition;
         private int m_direction = 1;
@@ -41,7 +38,7 @@ namespace Opoint8182.Obstacle
             if (!other.gameObject.CompareTag("Player")) return;
 
             Debug.Log($"[BirdHazard] '{name}' hit by player - dealing {m_hitDamage:0.0} damage");
-            DamageDealt?.Invoke(m_hitDamage);
+            CombatEvents.RaiseDamageDealt(this, m_hitDamage);
         }
     }
 }

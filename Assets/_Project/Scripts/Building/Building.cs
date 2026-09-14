@@ -1,4 +1,3 @@
-using System;
 using Alchemy.Inspector;
 using Opoint8182.Common;
 using Opoint8182.Player;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace Opoint8182.Building
 {
-    public class Building : MonoBehaviour, IDamageDealer
+    public class Building : MonoBehaviour, IDamageDealer, ICrashSource
     {
         [Title("Weak Point")]
         [FoldoutGroup("Weak Point")] [SerializeField] private WeakPoint m_weakPoint;
@@ -30,9 +29,6 @@ namespace Opoint8182.Building
         public float Damage => m_toughHitDamage;
         public int ScoreValue => m_scoreValue;
 
-        public event Action<float, int> Crashed;
-        public event Action<float> DamageDealt;
-
         private void OnCollisionEnter(Collision collision)
         {
             if (!collision.gameObject.CompareTag("Player")) return;
@@ -52,7 +48,7 @@ namespace Opoint8182.Building
             if (!canBreak)
             {
                 Debug.Log($"[Building] '{name}' resisted crash - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}, dealing {m_toughHitDamage:0.0} damage");
-                DamageDealt?.Invoke(m_toughHitDamage);
+                CombatEvents.RaiseDamageDealt(this, m_toughHitDamage);
                 return;
             }
 
@@ -68,7 +64,7 @@ namespace Opoint8182.Building
             m_lastHitWeakPoint = hitWeakPoint;
 
             Debug.Log($"[Building] '{name}' crashed - hitWeakPoint={hitWeakPoint}, quality={quality:0.00}");
-            Crashed?.Invoke(quality, m_scoreValue);
+            CombatEvents.RaiseCrashed(this, quality);
 
             Destroy(gameObject);
         }
