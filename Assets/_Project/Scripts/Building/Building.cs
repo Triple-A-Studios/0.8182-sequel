@@ -47,8 +47,10 @@ namespace Opoint8182.Building
             var canBreak = m_buildingType == BuildingType.Normal || impactVelocity.magnitude >= m_toughBreakSpeed;
             if (!canBreak)
             {
-                Debug.Log($"[Building] '{name}' resisted crash - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}, dealing {m_toughHitDamage:0.0} damage");
+                Debug.Log($"[Building] '{name}' mistimed tough hit - impact speed {impactVelocity.magnitude:0.0} below tough threshold {m_toughBreakSpeed:0.0}, dealing {m_toughHitDamage:0.0} damage, destroying with base score");
                 CombatEvents.RaiseDamageDealt(this, m_toughHitDamage);
+                CombatEvents.RaiseCrashed(this, 0f, countsForCombo: false);
+                Destroy(gameObject);
                 return;
             }
 

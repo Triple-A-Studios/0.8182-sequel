@@ -50,12 +50,14 @@ namespace Opoint8182.Score
             Tick(Time.deltaTime);
         }
 
-        private void HandleCrashed(ICrashSource source, float quality)
+        private void HandleCrashed(ICrashSource source, float quality, bool countsForCombo)
         {
             var scoreValue = source.ScoreValue;
             var bonus = Mathf.RoundToInt(quality * scoreValue);
             var crashScore = (scoreValue + bonus) * Multiplier.Value;
             Score.Set(Score.Value + crashScore);
+
+            if (!countsForCombo) return;
 
             m_chainCrashCount++;
             ComboTimer.Set(m_comboWindow);

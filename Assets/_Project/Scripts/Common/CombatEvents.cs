@@ -6,10 +6,10 @@ namespace Opoint8182.Common
     {
         public static event Action<IDamageDealer, float> DamageDealt;
         public static event Action<IRestorer, float> Restored;
-        public static event Action<ICrashSource, float> Crashed;
+        public static event Action<ICrashSource, float, bool> Crashed;
 
         public static void RaiseDamageDealt(IDamageDealer source, float damage) => DamageDealt?.Invoke(source, damage);
         public static void RaiseRestored(IRestorer source, float amount) => Restored?.Invoke(source, amount);
-        public static void RaiseCrashed(ICrashSource source, float quality) => Crashed?.Invoke(source, quality);
+        public static void RaiseCrashed(ICrashSource source, float quality, bool countsForCombo = true) => Crashed?.Invoke(source, quality, countsForCombo);
     }
 }

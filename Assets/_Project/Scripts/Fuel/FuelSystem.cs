@@ -66,7 +66,7 @@ namespace Opoint8182.Fuel
 
         // source is unused here (ScoreSystem is the one that reads source.ScoreValue) - kept in
         // the signature only to match CombatEvents.Crashed.
-        private void HandleCrashed(ICrashSource source, float quality)
+        private void HandleCrashed(ICrashSource source, float quality, bool countsForCombo)
         {
             if (m_isRunEnded) return;
 
