@@ -62,6 +62,9 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 4 | Verified — Complete | `6173841` | `GameManager` — single source of truth for run-active state (folds backlog item: no overseeing system) |
 | 5 | Verified — Complete | `ee01e77` | `PlayerManager` — owns crash/damage/run-end orchestration; `FuelSystem`/`HealthSystem` become pure resource managers (folds backlog item: pure resource managers) |
 
+### Milestone: Movement & fail-state rework — In Progress
+See [current-state.md](current-state.md) for live pass-by-pass status.
+
 ### Milestone: Difficulty ramp — Upcoming
 See [plan.md](plan.md#phase-mvp) for scope. No passes defined yet.
 
