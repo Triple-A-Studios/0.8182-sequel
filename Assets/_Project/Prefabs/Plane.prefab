@@ -318,12 +318,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_forwardSpeed: 20
-  m_pitchRateDegPerSec: 60
   m_sideSpeed: 15
-  m_maxPitchAngle: 60
+  m_verticalSpeed: 15
   m_visualRoot: {fileID: 4128297192964488244}
   m_maxBankAngle: 40
   m_bankSpeedDegPerSec: 180
+  m_maxPitchAngle: 30
+  m_pitchSpeedDegPerSec: 180
   m_moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_inputDeadZone: 0.1
   m_boostAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -370,7 +371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_comboWindow: 3
-  m_comboStepSizes: 030000000500000008000000
+  m_comboStepSizes: 010000000200000003000000
   m_hazardTimerPenalty: 1.5
 --- !u!1 &8146068598434706761
 GameObject:

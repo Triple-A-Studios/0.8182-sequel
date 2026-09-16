@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace Opoint8182.Player
 {
@@ -9,14 +10,15 @@ namespace Opoint8182.Player
     {
         [Title("Movement")]
         [FoldoutGroup("Movement")] [SerializeField] private float m_forwardSpeed = 20f;
-        [FoldoutGroup("Movement")] [SerializeField] private float m_pitchRateDegPerSec = 60f;
         [FoldoutGroup("Movement")] [SerializeField] private float m_sideSpeed = 15f;
-        [FoldoutGroup("Movement")] [SerializeField] private float m_maxPitchAngle = 60f;
+        [FoldoutGroup("Movement")] [SerializeField] private float m_verticalSpeed = 15f;
 
-        [Title("Visual Bank (cosmetic only)")]
+        [Title("Visual Rotation (cosmetic only)")]
         [FoldoutGroup("Visual Bank")] [SerializeField] private Transform m_visualRoot;
         [FoldoutGroup("Visual Bank")] [SerializeField] private float m_maxBankAngle = 40f;
         [FoldoutGroup("Visual Bank")] [SerializeField] private float m_bankSpeedDegPerSec = 180f;
+        [FoldoutGroup("Visual Bank")] [SerializeField] private float m_maxPitchAngle = 60f;
+        [FoldoutGroup("Visual Bank")] [FormerlySerializedAs("m_pitchRateDegPerSec")] [SerializeField] private float m_pitchSpeedDegPerSec = 60f;
 
         [Title("Input")]
         [FoldoutGroup("Input")] [SerializeField] private InputActionReference m_moveAction;
@@ -30,9 +32,9 @@ namespace Opoint8182.Player
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private Vector2 m_steerInput;
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentBankAngle;
+        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentPitchAngle;
 
         private Rigidbody m_rigidbody;
-        private float m_pitchDeg;
 
         public Vector3 Velocity => m_rigidbody.linearVelocity;
         public float Speed => m_rigidbody.linearVelocity.magnitude;
@@ -69,21 +71,20 @@ namespace Opoint8182.Player
             SpeedMultiplier = IsBoosting ? m_boostSpeedMultiplier : 1f;
             var steerMultiplier = IsBoosting ? m_boostSteerMultiplier : 1f;
 
-            m_pitchDeg += -m_steerInput.y * (m_pitchRateDegPerSec * steerMultiplier) * Time.fixedDeltaTime;
-            m_pitchDeg = Mathf.Clamp(m_pitchDeg, -m_maxPitchAngle, m_maxPitchAngle);
-
-            var rotation = Quaternion.Euler(m_pitchDeg, 0f, 0f);
-            m_rigidbody.MoveRotation(rotation);
-
-            var forwardVelocity = rotation * Vector3.forward * (m_forwardSpeed * SpeedMultiplier);
+            var forwardVelocity = Vector3.forward * (m_forwardSpeed * SpeedMultiplier);
             var lateralVelocity = Vector3.right * (m_steerInput.x * m_sideSpeed * steerMultiplier);
-            m_rigidbody.linearVelocity = forwardVelocity + lateralVelocity;
+            var verticalVelocity = Vector3.up * (m_steerInput.y * m_verticalSpeed * steerMultiplier);
+            m_rigidbody.linearVelocity = forwardVelocity + lateralVelocity + verticalVelocity;
 
             if (m_visualRoot != null)
             {
                 var targetBankAngle = -m_steerInput.x * m_maxBankAngle;
                 m_currentBankAngle = Mathf.MoveTowards(m_currentBankAngle, targetBankAngle, m_bankSpeedDegPerSec * Time.fixedDeltaTime);
-                m_visualRoot.localRotation = Quaternion.Euler(0f, 0f, m_currentBankAngle);
+
+                var targetPitchAngle = -m_steerInput.y * m_maxPitchAngle;
+                m_currentPitchAngle = Mathf.MoveTowards(m_currentPitchAngle, targetPitchAngle, m_pitchSpeedDegPerSec * Time.fixedDeltaTime);
+
+                m_visualRoot.localRotation = Quaternion.Euler(m_currentPitchAngle, 0f, m_currentBankAngle);
             }
         }
     }
