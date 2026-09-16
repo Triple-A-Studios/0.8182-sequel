@@ -1,11 +1,11 @@
 # Current State
 
 ## Snapshot
-- **Last landed:** Pass 5 — `PlayerManager` (`ee01e77`). Milestone "Core systems refactor" (MVP phase) complete — see [progress.md](progress.md).
-- **Now:** Milestone "Movement & fail-state rework" (MVP phase) — 6 passes scoped, none started. No branch created yet; create `milestone/movement-fail-state-rework` before writing Pass 1 code.
+- **Last landed:** Pass 1 — pitch-cosmetic / velocity-based vertical movement (`a5f58c0`). Milestone "Movement & fail-state rework" (MVP phase) in progress — see [progress.md](progress.md).
+- **Now:** Milestone "Movement & fail-state rework" (MVP phase), Pass 2 next (not started) — branch `milestone/movement-and-fail-state-rework` already checked out.
 
 ### Scoped passes — Movement & fail-state rework
-1. **Pitch-cosmetic / velocity-based vertical movement** — W/S becomes purely cosmetic (visual rotation only), mirroring how horizontal/yaw movement already works. Actual vertical movement uses `rb.linearVelocity` directly. Releasing the input returns both vertical velocity and cosmetic pitch to level.
+1. ~~**Pitch-cosmetic / velocity-based vertical movement**~~ — Landed `a5f58c0`. `m_verticalSpeed` drives real vertical velocity directly (mirrors `m_sideSpeed`); pitch is now purely cosmetic via a `MoveTowards`-driven angle on `m_visualRoot`, mirroring the existing bank pattern exactly — combined into one `Quaternion.Euler(pitch, 0, bank)` assignment. `m_rigidbody.MoveRotation` and `m_pitchDeg` are gone; the Rigidbody no longer physically rotates at all. `m_pitchRateDegPerSec` renamed to `m_pitchSpeedDegPerSec` (`[FormerlySerializedAs]` preserves the prefab's tuned value). See [movement.md](technical-design/movement.md) for the rewritten spec.
 2. **Crash-quality formula rework** — currently speed × angle-into-weak-point; simplified so players don't have to reason about precise crash angles. Exact replacement formula **not yet decided** — Pass 1 makes crash angle constant (pitch no longer reflects real trajectory), so design this once Pass 1 has landed and shows exactly what data is still available.
 3. **Minimal Game Over screen** — no restart/game-over UI exists yet for any run-end today (not even the current fuel/health depletion path). Prerequisite for Pass 4.
 4. **Altitude bounds** — new fail states. Ceiling: warn the player first, then end the run if they don't descend (plane flies off fast into the sky, camera stops following). Ground: instant run end on impact, same "blast" cosmetic treatment as a building crash or a health-zero death. Both show the Pass 3 Game Over screen.

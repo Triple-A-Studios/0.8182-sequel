@@ -4,7 +4,11 @@
 
 ## Base flight
 
-Pitch is player-controlled (new Input System `Move` action's Y axis, clamped to `m_maxPitchAngle`), forward speed and lateral (X-axis) speed are constant tunables. `FixedUpdate` sets `Rigidbody.linearVelocity` directly every frame from the current pitch rotation — no acceleration/momentum model. `m_visualRoot` gets a separate cosmetic bank rotation driven by lateral input; it doesn't affect the physical Rigidbody.
+Forward speed, lateral (X-axis) speed, and vertical (Y-axis) speed are all constant tunables (`m_forwardSpeed`, `m_sideSpeed`, `m_verticalSpeed`). `FixedUpdate` sets `Rigidbody.linearVelocity` directly every frame as the sum of three world-space terms — forward, lateral (from `Move` action X), vertical (from `Move` action Y) — no acceleration/momentum model, and no rotation involved at all: the Rigidbody's actual rotation never changes (there's no yaw either).
+
+Pitch (`Move` Y) and bank (`Move` X) are both **purely cosmetic** — same pattern, mirrored on two axes. Each frame, input maps directly to a target angle (`-input * m_maxPitchAngle` / `-input * m_maxBankAngle`), and `m_currentPitchAngle`/`m_currentBankAngle` move toward that target via `Mathf.MoveTowards` at a fixed rate (`m_pitchSpeedDegPerSec` / `m_bankSpeedDegPerSec`). Both angles are applied in one `m_visualRoot.localRotation = Quaternion.Euler(pitch, 0, bank)` assignment — `m_visualRoot` is optional (null-checked) and never touches the physical Rigidbody. Releasing input returns both real vertical velocity (instantly, since the input term goes straight to 0) and cosmetic pitch (smoothly, via the same `MoveTowards` call) to level.
+
+Pitch was the only source of physical rotation until Pass 1 of the "Movement & fail-state rework" milestone made it cosmetic-only — this was a deliberate step to make crash-impact angle constant, since the crash-quality formula (see [building-crash-system.md](building-crash-system.md)) is being reworked to no longer depend on precise crash angle.
 
 ## Boost (Milestone 2 Pass 2)
 
