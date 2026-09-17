@@ -17,7 +17,7 @@ The player flies a plane with limited fuel and deliberately crashes into buildin
 
 ## 3. Core Gameplay Loop & Mechanics — ✅ Resolved
 **Resolved:**
-- Buildings have a visible weak point to aim for; crash precision (speed × angle into it) determines refuel amount, up to a full "perfect crash" refuel.
+- Buildings have a visible weak point to aim for; crash precision (impact speed, gated on hitting the weak point) determines refuel amount, up to a full "perfect crash" refuel.
 - Two building types: **normal** (easy, quick refuel, lower value) and **tough** (requires holding boost to break; boost drains fuel faster and makes steering harder — this is the game's built-in risk lever, rather than a fuel penalty on bad crashes).
 - Combo chains for crashing through multiple buildings in quick succession.
 - Difficulty ramps as the run goes on via **obstacles** — see #7 for detail.
@@ -25,7 +25,7 @@ The player flies a plane with limited fuel and deliberately crashes into buildin
 - This introduces **health as a resource alongside fuel** — fuel is the endless-run clock (crash-refuel loop), health is the "don't botch a crash / don't hit the wrong thing" penalty.
 - Obstacles come in two tiers: **large obstacle buildings** (bigger, visually distinct from crashable normal/tough buildings, higher penalty on impact) and **small hazards** like birds (lower penalty, more of a reflex/dodge challenge).
 - **Altitude bounds (new fail states):** the play space has an upper and lower altitude limit. Ceiling: the player is warned first; if they don't descend (or keep climbing), the run ends — plane flies off fast into the sky, camera stops following, Game Over screen appears. Ground: hitting it ends the run instantly, with the same cosmetic "blast" treatment as a building crash or a health-zero death, Game Over screen appears.
-- **Crash-quality formula under review:** currently speed × angle-into-weak-point (see below); flagged to be simplified so players don't have to reason about precise crash angles. Not yet decided what the simplified formula looks like — see backlog.
+- **Crash-quality formula simplified (Movement & fail-state rework, Pass 2):** now speed-only, gated on hitting the weak point — the angle-into-weak-point term was dropped since pitch became purely cosmetic (Pass 1) and no longer reliably reflects real impact angle.
 
 ## 4. Player Experience, Emotion & Fantasy — ✅ Resolved
 Cartoonish, over-the-top destruction — chunky debris, screen shake, silly rather than gritty. The feeling should be satisfying/comedic impact, not tense realism.
