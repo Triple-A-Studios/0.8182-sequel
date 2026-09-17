@@ -2,7 +2,7 @@
 
 ## Snapshot
 - **Last landed:** Pass 4 — altitude bounds (`d76fd2e`). Milestone "Movement & fail-state rework" (MVP phase) in progress — see [progress.md](progress.md).
-- **Now:** Milestone "Movement & fail-state rework" (MVP phase) — passes 1-4 (the milestone's "Done when" criteria per [plan.md](plan.md#phase-mvp)) all landed. Passes 5-6 (two folded backlog bugs) still open — milestone-completion status to confirm with developer.
+- **Now:** Milestone "Movement & fail-state rework" (MVP phase), Pass 5 next (not started) — branch `milestone/movement-and-fail-state-rework` already checked out. Developer confirmed: milestone continues through passes 5-6 (the two folded backlog bugs) rather than stopping at plan.md's baseline "Done when" criteria.
 
 ### Scoped passes — Movement & fail-state rework
 1. ~~**Pitch-cosmetic / velocity-based vertical movement**~~ — Landed `a5f58c0`. `m_verticalSpeed` drives real vertical velocity directly (mirrors `m_sideSpeed`); pitch is now purely cosmetic via a `MoveTowards`-driven angle on `m_visualRoot`, mirroring the existing bank pattern exactly — combined into one `Quaternion.Euler(pitch, 0, bank)` assignment. `m_rigidbody.MoveRotation` and `m_pitchDeg` are gone; the Rigidbody no longer physically rotates at all. `m_pitchRateDegPerSec` renamed to `m_pitchSpeedDegPerSec` (`[FormerlySerializedAs]` preserves the prefab's tuned value). See [movement.md](technical-design/movement.md) for the rewritten spec.
