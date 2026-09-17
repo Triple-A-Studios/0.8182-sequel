@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="GameOver.uss" />
+    <ui:VisualElement name="game-over-root" class="game-over-root">
+        <ui:Label name="game-over-title" text="GAME OVER" class="game-over-title" />
+        <ui:Label name="game-over-score-label" text="Score: 0" class="game-over-score-label" />
+        <ui:Button name="restart-button" text="Restart" class="restart-button" />
+    </ui:VisualElement>
+</ui:UXML>
