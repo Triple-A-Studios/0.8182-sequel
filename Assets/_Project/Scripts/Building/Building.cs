@@ -28,20 +28,27 @@ namespace Opoint8182.Building
         public float Damage => m_toughHitDamage;
         public int ScoreValue => m_scoreValue;
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnTriggerEnter(Collider other)
         {
-            if (!collision.gameObject.CompareTag("Player")) return;
+            if (!other.CompareTag("Player")) return;
 
-            var plane = collision.gameObject.GetComponent<PlaneController>();
+            var plane = other.GetComponent<PlaneController>();
             if (plane == null) return;
 
-            var contactPoint = collision.GetContact(0).point;
-            var hitWeakPoint = Vector3.Distance(contactPoint, m_weakPoint.Position) <= m_weakPoint.HitRadius;
+            var planeRigidbody = other.attachedRigidbody;
+            if (planeRigidbody == null) return;
 
-            // collision.relativeVelocity is the impact velocity computed before Unity resolves the
-            // collision response - reading plane.Velocity/Speed here would give the post-impact
-            // (already-stopped) velocity instead, since resolution happens before this callback fires.
-            var impactVelocity = collision.relativeVelocity;
+            // The building has no Rigidbody of its own (static as far as PhysX is concerned), so its
+            // velocity is always zero - the plane's own Rigidbody velocity is therefore exactly
+            // equivalent to the old collision.relativeVelocity (velocityA - velocityB, velocityB == 0).
+            // Triggers skip collision resolution entirely, so unlike OnCollisionEnter there's no
+            // pre/post-impact distinction here - this is just the plane's live velocity.
+            var impactVelocity = planeRigidbody.linearVelocity;
+
+            // No contact manifold on a trigger - use the closest point on the plane's own collider to
+            // the weak point as the equivalent of the old collision contact point.
+            var closestPoint = other.ClosestPoint(m_weakPoint.Position);
+            var hitWeakPoint = Vector3.Distance(closestPoint, m_weakPoint.Position) <= m_weakPoint.HitRadius;
 
             var canBreak = m_buildingType == BuildingType.Normal || impactVelocity.magnitude >= m_toughBreakSpeed;
             if (!canBreak)
