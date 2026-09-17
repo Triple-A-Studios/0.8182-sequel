@@ -1,7 +1,9 @@
 using Alchemy.Inspector;
+using Opoint8182.Altitude;
 using Opoint8182.Common;
 using Opoint8182.Fuel;
 using Opoint8182.Health;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Opoint8182.Player
@@ -10,8 +12,12 @@ namespace Opoint8182.Player
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(FuelSystem))]
     [RequireComponent(typeof(HealthSystem))]
+    [RequireComponent(typeof(AltitudeSystem))]
     public class PlayerManager : MonoBehaviour
     {
+        [Title("References")]
+        [FoldoutGroup("References")] [SerializeField] private CinemachineFollow m_followCamera;
+
         [Title("Debug")]
         [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
 
@@ -19,6 +25,7 @@ namespace Opoint8182.Player
         private Rigidbody m_rigidbody;
         private FuelSystem m_fuelSystem;
         private HealthSystem m_healthSystem;
+        private AltitudeSystem m_altitudeSystem;
 
         private void Awake()
         {
@@ -26,6 +33,7 @@ namespace Opoint8182.Player
             m_rigidbody = GetComponent<Rigidbody>();
             m_fuelSystem = GetComponent<FuelSystem>();
             m_healthSystem = GetComponent<HealthSystem>();
+            m_altitudeSystem = GetComponent<AltitudeSystem>();
         }
 
         private void OnEnable()
@@ -35,6 +43,8 @@ namespace Opoint8182.Player
             CombatEvents.Restored += HandleRestored;
             m_fuelSystem.Depleted += HandleDepleted;
             m_healthSystem.Depleted += HandleDepleted;
+            m_altitudeSystem.GroundHit += HandleDepleted;
+            m_altitudeSystem.CeilingExceeded += HandleCeilingExceeded;
         }
 
         private void OnDisable()
@@ -44,6 +54,8 @@ namespace Opoint8182.Player
             CombatEvents.Restored -= HandleRestored;
             m_fuelSystem.Depleted -= HandleDepleted;
             m_healthSystem.Depleted -= HandleDepleted;
+            m_altitudeSystem.GroundHit -= HandleDepleted;
+            m_altitudeSystem.CeilingExceeded -= HandleCeilingExceeded;
         }
 
         private void HandleCrashed(ICrashSource source, float quality, bool countsForCombo)
@@ -75,6 +87,18 @@ namespace Opoint8182.Player
             m_isRunEnded = true;
             m_planeController.enabled = false;
             m_rigidbody.linearVelocity = Vector3.zero;
+        }
+
+        private void HandleCeilingExceeded()
+        {
+            if (m_isRunEnded) return;
+
+            m_isRunEnded = true;
+            // Unlike HandleDepleted, don't touch linearVelocity - the plane keeps flying off
+            // in whatever direction it was last actually moving (no gravity/drag on this
+            // Rigidbody, so it drifts on forever once PlaneController stops overwriting it).
+            m_planeController.enabled = false;
+            if (m_followCamera != null) m_followCamera.enabled = false;
         }
     }
 }

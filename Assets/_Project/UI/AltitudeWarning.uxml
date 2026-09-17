@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="AltitudeWarning.uss" />
+    <ui:VisualElement name="altitude-warning-root" class="altitude-warning-root">
+        <ui:Label name="altitude-warning-label" text="TOO HIGH - DESCEND!" class="altitude-warning-label" />
+        <ui:VisualElement name="altitude-warning-background" class="altitude-warning-background">
+            <ui:VisualElement name="altitude-warning-fill" class="altitude-warning-fill" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
