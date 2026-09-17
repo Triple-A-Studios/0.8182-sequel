@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_weakPoint: {fileID: 9126071507178752301}
-  m_referenceMaxSpeed: 25
+  m_referenceMaxSpeed: 10
   m_buildingType: 0
   m_toughBreakSpeed: 30
   m_toughHitDamage: 0

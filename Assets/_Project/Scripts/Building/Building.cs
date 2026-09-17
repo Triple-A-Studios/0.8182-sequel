@@ -1,7 +1,6 @@
 using Alchemy.Inspector;
 using Opoint8182.Common;
 using Opoint8182.Player;
-using TripleA.Utils.Extensions;
 using UnityEngine;
 
 namespace Opoint8182.Building
@@ -54,13 +53,7 @@ namespace Opoint8182.Building
                 return;
             }
 
-            var quality = 0f;
-            if (hitWeakPoint)
-            {
-                var speed01 = Mathf.Clamp01(impactVelocity.magnitude / m_referenceMaxSpeed);
-                var alignment01 = Mathf.Clamp01(Vector3Math.GetDotProduct(impactVelocity.normalized, -m_weakPoint.OutwardNormal));
-                quality = speed01 * alignment01;
-            }
+            var quality = hitWeakPoint ? Mathf.Clamp01(impactVelocity.magnitude / m_referenceMaxSpeed) : 0f;
 
             m_lastCrashQuality = quality;
             m_lastHitWeakPoint = hitWeakPoint;

@@ -10,7 +10,6 @@ namespace Opoint8182.Building
 
         public float HitRadius => m_hitRadius;
         public Vector3 Position => transform.position;
-        public Vector3 OutwardNormal => transform.forward;
 
         private void OnDrawGizmosSelected()
         {

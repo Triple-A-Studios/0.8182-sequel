@@ -1828,10 +1828,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1857951467911857364, guid: cb9c4652a2944e7393ddbfc9ff764b07, type: 3}
-      propertyPath: m_moveSpeed
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2149348930800332881, guid: cb9c4652a2944e7393ddbfc9ff764b07, type: 3}
       propertyPath: m_Name
       value: Bird_Small
