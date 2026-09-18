@@ -29,10 +29,9 @@ namespace Opoint8182.Player
         [FoldoutGroup("Boost")] [SerializeField] private float m_boostSpeedMultiplier = 1.6f;
         [FoldoutGroup("Boost")] [SerializeField] private float m_boostSteerMultiplier = 0.5f;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private Vector2 m_steerInput;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentBankAngle;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_currentPitchAngle;
+        private Vector2 m_steerInput;
+        private float m_currentBankAngle;
+        private float m_currentPitchAngle;
 
         private Rigidbody m_rigidbody;
 

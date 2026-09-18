@@ -21,10 +21,6 @@ namespace Opoint8182.Building
         [Title("Scoring")]
         [FoldoutGroup("Scoring")] [SerializeField] private int m_scoreValue = 10;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_lastCrashQuality;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_lastHitWeakPoint;
-
         public float Damage => m_toughHitDamage;
         public int ScoreValue => m_scoreValue;
 
@@ -61,9 +57,6 @@ namespace Opoint8182.Building
             }
 
             var quality = hitWeakPoint ? Mathf.Clamp01(impactVelocity.magnitude / m_referenceMaxSpeed) : 0f;
-
-            m_lastCrashQuality = quality;
-            m_lastHitWeakPoint = hitWeakPoint;
 
             Debug.Log($"[Building] '{name}' crashed - hitWeakPoint={hitWeakPoint}, quality={quality:0.00}");
             CombatEvents.RaiseCrashed(this, quality);

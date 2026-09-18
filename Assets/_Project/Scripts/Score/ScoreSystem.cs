@@ -12,11 +12,10 @@ namespace Opoint8182.Score
         [FoldoutGroup("Combo")] [SerializeField] private int[] m_comboStepSizes = { 3, 5, 8 };
         [FoldoutGroup("Combo")] [SerializeField] private float m_hazardTimerPenalty = 1.5f;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ShowInInspector] public int CurrentScore => Score.Value;
-        [FoldoutGroup("Debug")] [ShowInInspector] public int CurrentMultiplier => Multiplier.Value;
-        [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentComboTimer => ComboTimer.Value;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private int m_chainCrashCount;
+        public int CurrentScore => Score.Value;
+        public int CurrentMultiplier => Multiplier.Value;
+
+        private int m_chainCrashCount;
 
         private ObservableInt m_score;
         private ObservableInt m_multiplier;

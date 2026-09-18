@@ -10,15 +10,13 @@ namespace Opoint8182.Health
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_maxHealth = 100f;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentHealth => Health.Value;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isDepleted;
+        private bool m_isDepleted;
 
         private ObservableFloat m_health;
 
         public event Action Depleted;
 
-        // Lazily constructed so HealthValue/CurrentHealth are safe to read even if another
+        // Lazily constructed so HealthValue/HealthFraction are safe to read even if another
         // object's OnEnable/Start runs before this component's own Awake - Unity doesn't
         // guarantee Awake order across different GameObjects. maxHealth's Inspector value is
         // already deserialized by the time any script runs, so this is always correct.

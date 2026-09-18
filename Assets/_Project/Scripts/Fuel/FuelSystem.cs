@@ -14,16 +14,14 @@ namespace Opoint8182.Fuel
         [FoldoutGroup("Tunables")] [SerializeField] private float m_drainPerSecond = 5f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_boostDrainMultiplier = 2f;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ShowInInspector] public float CurrentFuel => Fuel.Value;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isDepleted;
+        private bool m_isDepleted;
 
         private ObservableFloat m_fuel;
         private PlaneController m_planeController;
 
         public event Action Depleted;
 
-        // Lazily constructed so FuelValue/CurrentFuel are safe to read even if another
+        // Lazily constructed so FuelValue/FuelFraction are safe to read even if another
         // object's OnEnable/Start runs before this component's own Awake - Unity doesn't
         // guarantee Awake order across different GameObjects. maxFuel's Inspector value is
         // already deserialized by the time any script runs, so this is always correct.

@@ -18,8 +18,7 @@ namespace Opoint8182.Player
         [Title("References")]
         [FoldoutGroup("References")] [SerializeField] private CinemachineFollow m_followCamera;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_isRunEnded;
+        private bool m_isRunEnded;
 
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;

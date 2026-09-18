@@ -1,5 +1,4 @@
 using System;
-using Alchemy.Inspector;
 using Opoint8182.Altitude;
 using Opoint8182.Fuel;
 using Opoint8182.Health;
@@ -10,8 +9,7 @@ namespace Opoint8182.Game
 {
     public class GameManager : GenericSingleton<GameManager>
     {
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ShowInInspector] public bool IsRunActive { get; private set; } = true;
+        public bool IsRunActive { get; private set; } = true;
 
         public event Action RunEnded;
 

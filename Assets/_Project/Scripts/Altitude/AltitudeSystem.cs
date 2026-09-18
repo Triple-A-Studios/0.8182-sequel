@@ -14,10 +14,9 @@ namespace Opoint8182.Altitude
         [FoldoutGroup("Tunables")] [SerializeField] private float m_groundY = -1f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_ceilingWarningSeconds = 4f;
 
-        [Title("Debug")]
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_ceilingExceeded;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private bool m_groundHit;
-        [FoldoutGroup("Debug")] [ReadOnly, ShowInInspector] private float m_ceilingWarningRemaining;
+        private bool m_ceilingExceeded;
+        private bool m_groundHit;
+        private float m_ceilingWarningRemaining;
 
         private ObservableBool m_isWarning;
         private ObservableFloat m_warningFraction;
