@@ -6,7 +6,7 @@ Living doc: this gets updated as the concept develops. Resolved sections are rec
 ---
 
 ## 1. Core Concept & Hook — ✅ Resolved
-The player flies a plane with limited fuel and deliberately crashes into buildings instead of avoiding them. Crash quality (angle/speed into a visible weak point) determines how much fuel you recover — a perfect crash fully refuels. The run is endless and ends only when fuel runs out. The hook: risk/reward crash-aiming (Hill Climb Racing's tension) fused with the destruction fantasy of a demolition game, instead of pure dodge-and-survive.
+The player flies a plane with limited fuel and deliberately crashes into buildings instead of avoiding them. Crash quality (impact speed into a visible weak point) determines how much fuel you recover — a perfect crash fully refuels. The run is endless and ends only when fuel runs out. The hook: risk/reward crash-aiming (Hill Climb Racing's tension) fused with the destruction fantasy of a demolition game, instead of pure dodge-and-survive.
 
 ## 2. Genre, Platform & Format — ✅ Resolved
 - Casual endless arcade / vehicular destruction
@@ -24,7 +24,7 @@ The player flies a plane with limited fuel and deliberately crashes into buildin
 - **Second fail state confirmed:** crashing into a tough building without enough boost/speed is punishing, not a harmless bounce — either instant death or health loss that eventually kills you. Exact behavior (instant vs. gradual) is intentionally left open to decide via playtest feel, not a gap that needs answering now.
 - This introduces **health as a resource alongside fuel** — fuel is the endless-run clock (crash-refuel loop), health is the "don't botch a crash / don't hit the wrong thing" penalty.
 - Obstacles come in two tiers: **large obstacle buildings** (bigger, visually distinct from crashable normal/tough buildings, higher penalty on impact) and **small hazards** like birds (lower penalty, more of a reflex/dodge challenge).
-- **Altitude bounds (new fail states):** the play space has an upper and lower altitude limit. Ceiling: the player is warned first; if they don't descend (or keep climbing), the run ends — plane flies off fast into the sky, camera stops following, Game Over screen appears. Ground: hitting it ends the run instantly, with the same cosmetic "blast" treatment as a building crash or a health-zero death, Game Over screen appears.
+- **Altitude bounds (new fail states):** the play space has an upper and lower altitude limit. Ceiling: the player is warned first (countdown pauses while actively descending, only fully resets once back in safe bounds); if they don't descend in time (or keep climbing), the run ends — the plane keeps flying in whatever direction it was already moving (no forced launch skyward), camera stops following, Game Over screen appears. Ground: hitting it ends the run instantly, with the same cosmetic "blast" treatment as a building crash or a health-zero death, Game Over screen appears. Game Over screen: title, final score, and a Restart button that resets the run.
 - **Crash-quality formula simplified (Movement & fail-state rework, Pass 2):** now speed-only, gated on hitting the weak point — the angle-into-weak-point term was dropped since pitch became purely cosmetic (Pass 1) and no longer reliably reflects real impact angle.
 
 ## 4. Player Experience, Emotion & Fantasy — ✅ Resolved
