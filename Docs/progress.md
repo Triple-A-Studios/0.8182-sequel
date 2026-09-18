@@ -6,6 +6,8 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 | # | Item | Origin | Type |
 |---|---|---|---|
 | 7 | Combo timer should also take a reduction for *missing* a building (flying past without crashing), not just for crashing hazards — needs a way to know a building existed and wasn't hit, which requires building spawning/tracking (not built yet, buildings are hand-placed). Implement once that spawner exists. | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Enhancement |
+| 15 | New building type: heals the plane on crash, same precision-matters feel as `Building`'s damage buildings — weak point + speed-gated crash-quality formula, but firing `CombatEvents.RaiseRestored` (scaled by quality) instead of `RaiseCrashed`. Needs its own component (`HealthSystem`/`Building`'s `IRestorer`/`ICrashSource` split means `HealthPickup`'s flat touch-heal can't be reused as-is) plus a new prefab and `SpawnKind` entry. | Developer note (2026-09-18) | Feature |
+| 16 | Plane health HUD element (MVP phase) — no on-screen health readout exists today, only `FuelGaugeUI`/`ScoreUI`/`AltitudeWarningUI`/`GameOverUI`. Mirror `FuelGaugeUI`'s pattern for `HealthSystem`. Once an art pass (Alpha or Feel Polish) adds visual damage feedback on the plane itself (smoke, sparks, etc.), revisit whether the HUD element gets removed in favor of the visual cue or kept alongside it. | Developer note (2026-09-18) | Feature |
 
 ## Resolved Backlog
 Bookkeeping only — items move here once addressed, keeping the table above to open items.
@@ -80,8 +82,8 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 5 | Verified — Complete | `875f6d9` | Crash-stutter physics fix — trigger collider replaces solid collision (folds backlog item: crash stutter) |
 | 6 | Verified — Complete | `b7a8725` | Alchemy debug-inspector refresh fix — dropped `[ShowInInspector]`/`[ReadOnly]` reliance for debug vars project-wide (folds backlog item: Alchemy inspector refresh) |
 
-### Milestone: Difficulty ramp — Upcoming
-See [plan.md](plan.md#phase-mvp) for scope. No passes defined yet.
+### Milestone: Difficulty ramp
+**In Progress — see current-state.md**
 
 ## Phase: Alpha — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
