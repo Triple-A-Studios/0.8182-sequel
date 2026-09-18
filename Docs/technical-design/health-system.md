@@ -28,7 +28,7 @@ Fuel doesn't get a matching restorer array this pass — no fuel pickup exists, 
 
 ## Value storage — `ObservableFloat`
 
-Same reasoning as `FuelSystem.Fuel`: backed by `TripleA.Utils.Observables.Primaries.ObservableFloat`, exposed through a lazily-constructed private property (`Health => m_health ??= new ObservableFloat(m_maxHealth)`) so reads are safe regardless of cross-object `Awake` ordering. No UI consumer yet — a debug `[ShowInInspector] public float CurrentHealth` field surfaces it in the meantime, same as `FuelSystem` had before the fuel gauge existed. A health bar isn't in this milestone's scope (Pass 4 is "Score," not health UI); it'll come with a later UI pass.
+Same reasoning as `FuelSystem.Fuel`: backed by `TripleA.Utils.Observables.Primaries.ObservableFloat`, exposed through a lazily-constructed private property (`Health => m_health ??= new ObservableFloat(m_maxHealth)`) so reads are safe regardless of cross-object `Awake` ordering. No UI consumer yet — `HealthValue`/`HealthFraction` are inspectable via the Inspector's Debug mode in the meantime, same as `FuelSystem` had before the fuel gauge existed. A health bar isn't in this milestone's scope (Pass 4 is "Score," not health UI); it'll come with a later UI pass. (A `CurrentHealth` debug property with Alchemy's `[ShowInInspector]` used to sit here — removed in Pass 6, Movement & fail-state rework, see [current-state.md](../current-state.md); the project no longer uses `[ShowInInspector]`/`[ReadOnly]` for debug-only variables.)
 
 ## Run end
 

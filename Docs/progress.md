@@ -6,8 +6,6 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 | # | Item | Origin | Type |
 |---|---|---|---|
 | 7 | Combo timer should also take a reduction for *missing* a building (flying past without crashing), not just for crashing hazards — needs a way to know a building existed and wasn't hit, which requires building spawning/tracking (not built yet, buildings are hand-placed). Implement once that spawner exists. | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Enhancement |
-| 8 | Alchemy `[ShowInInspector]` debug fields (`CurrentFuel`, `CurrentScore`, `CurrentMultiplier`, `CurrentComboTimer`, etc.) don't visibly update in the Inspector during Play Mode — stuck at their initial value all playtest. The underlying values are confirmed correct (HUD, which reads the same `Observable*` instances via `AddListener`, updates live) — looks like an Inspector repaint issue in the Alchemy package rather than a logic bug, not yet root-caused. | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Bug |
-| 14 | Add upper/lower altitude limits — crossing either ends the run. **Ceiling:** warn the player first; if they don't descend/go further up, run ends (plane flies off fast into the sky, camera stops following, Game Over screen appears). **Ground:** instant run end on impact, same "blast" cosmetic treatment as a building crash or a health-zero death, Game Over screen appears. Confirmed design decision, not yet scoped into a pass. Depends on a Game Over screen existing — no restart/game-over UI has been built yet. | Developer note (2026-09-14) | Feature |
 
 ## Resolved Backlog
 Bookkeeping only — items move here once addressed, keeping the table above to open items.
@@ -25,6 +23,8 @@ Bookkeeping only — items move here once addressed, keeping the table above to 
 | 13 | ~~Crash-quality calculation (speed × angle-into-weak-point) simplified so players don't need to reason about precise crash angles.~~ Done: dropped angle term, quality now speed-only gated on weak-point hit (`Building.cs`); `WeakPoint.OutwardNormal` removed as dead code (Pass 2, Milestone: Movement & fail-state rework). | Developer note (2026-09-14) | Design | Resolved (Pass 2, Milestone: Movement & fail-state rework) |
 | 1 | ~~Plane momentarily stops on crash — both plane and building are colliders, physics resolves a full stop before `Destroy`~~ Done: `Building`'s `BoxCollider` is now a trigger, `OnTriggerEnter` replaces `OnCollisionEnter` — trigger overlaps skip collision resolution entirely, so there's no stopping impulse left to cause the stutter (Pass 5, Milestone: Movement & fail-state rework). | [Pass 1, Milestone: Building types + scoring](current-state.md) | Bug | Resolved (Pass 5, Milestone: Movement & fail-state rework) |
 | 12 | ~~W/S pitch input becomes purely cosmetic (visual rotation only, mirroring how sideways/yaw movement already works) — actual vertical movement uses `rb.linearVelocity` directly, same approach as horizontal strafing.~~ Done: `m_verticalSpeed` drives real velocity, cosmetic pitch mirrors the existing bank `MoveTowards` pattern on `m_visualRoot` (Pass 1, Milestone: Movement & fail-state rework). | Developer note (2026-09-14) | Design/Refactor | Resolved (Pass 1, Milestone: Movement & fail-state rework) |
+| 14 | ~~Add upper/lower altitude limits — crossing either ends the run.~~ Done: `AltitudeSystem` — ceiling warns then ends the run (plane keeps its last velocity, camera stops following); ground ends the run instantly, same freeze as a building crash or health-zero death (Pass 4, Milestone: Movement & fail-state rework). | Developer note (2026-09-14) | Feature | Resolved (Pass 4, Milestone: Movement & fail-state rework) |
+| 8 | ~~Alchemy `[ShowInInspector]` debug fields (`CurrentFuel`, `CurrentScore`, `CurrentMultiplier`, `CurrentComboTimer`, etc.) don't visibly update in the Inspector during Play Mode.~~ Done: root cause known but out of scope (Alchemy repaint bug) — resolved instead by dropping `[ShowInInspector]`/`[ReadOnly]` for debug-only variables project-wide; use the Inspector's Debug mode instead (Pass 6, Milestone: Movement & fail-state rework). | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Bug | Resolved (Pass 6, Milestone: Movement & fail-state rework) |
 
 ## Phase: Prototype — Completed
 
@@ -69,8 +69,16 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 4 | Verified — Complete | `6173841` | `GameManager` — single source of truth for run-active state (folds backlog item: no overseeing system) |
 | 5 | Verified — Complete | `ee01e77` | `PlayerManager` — owns crash/damage/run-end orchestration; `FuelSystem`/`HealthSystem` become pure resource managers (folds backlog item: pure resource managers) |
 
-### Milestone: Movement & fail-state rework — In Progress
-See [current-state.md](current-state.md) for live pass-by-pass status.
+### Milestone: Movement & fail-state rework — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `a5f58c0` | Pitch-cosmetic / velocity-based vertical movement |
+| 2 | Verified — Complete | `cd40dcd` | Crash-quality formula rework — speed-only, dropped angle-alignment term |
+| 3 | Verified — Complete | `2f2e1b4` | Minimal Game Over screen |
+| 4 | Verified — Complete | `d76fd2e` | Altitude bounds — ceiling warning + fly-away, ground instant freeze |
+| 5 | Verified — Complete | `875f6d9` | Crash-stutter physics fix — trigger collider replaces solid collision (folds backlog item: crash stutter) |
+| 6 | Verified — Complete | `b7a8725` | Alchemy debug-inspector refresh fix — dropped `[ShowInInspector]`/`[ReadOnly]` reliance for debug vars project-wide (folds backlog item: Alchemy inspector refresh) |
 
 ### Milestone: Difficulty ramp — Upcoming
 See [plan.md](plan.md#phase-mvp) for scope. No passes defined yet.

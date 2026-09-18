@@ -35,7 +35,7 @@ quality        = hitWeakPoint ? speed01 : 0f
 
 ## Seam for later passes
 
-`Building` fires `public event Action<float, int> Crashed` — crash quality plus the building's own `m_scoreValue` (see [Scoring](#scoring-milestone-3-pass-3) below) — immediately before destroying itself (`Destroy(gameObject)`, no VFX — deferred to the Feel Polish milestone). A `Debug.Log` and Alchemy `[ReadOnly, ShowInInspector]` debug fields (`_lastCrashQuality`, `_lastHitWeakPoint`) surface the quality result too, since no fuel/UI exists to display it (historical - fuel/score both consume it directly now).
+`Building` fires `public event Action<float, int> Crashed` — crash quality plus the building's own `m_scoreValue` (see [Scoring](#scoring-milestone-3-pass-3) below) — immediately before destroying itself (`Destroy(gameObject)`, no VFX — deferred to the Feel Polish milestone). A `Debug.Log` surfaces the quality result too (historical - fuel/score both consume it directly now). The `_lastCrashQuality`/`_lastHitWeakPoint` Alchemy `[ShowInInspector]` debug fields this section used to mention were removed in Pass 6 (Movement & fail-state rework) — see [current-state.md](../current-state.md) — the project no longer uses Alchemy's `[ShowInInspector]`/`[ReadOnly]` for debug-only variables; the Inspector's own Debug mode covers that need instead.
 
 ## Building types (Milestone 2 Pass 1)
 
