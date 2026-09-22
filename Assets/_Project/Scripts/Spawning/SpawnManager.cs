@@ -23,10 +23,20 @@ namespace Opoint8182.Spawning
 			[SerializeField] private float m_verticalMin;
 			[SerializeField] private float m_verticalMax;
 
+			// Weight over normalized ramp progress (0 = run start, 1 = m_difficultyRampDistance
+			// reached). ClampProgressAtRampCap = true holds the curve's t=1 value forever once
+			// the ramp caps (every hazard/building type); false keeps sampling past t=1 on the
+			// curve's own raw, ever-growing progress - used only by HealthPickup, whose curve is
+			// authored flat through the ramp then decaying to a floor well past it.
+			[SerializeField] private AnimationCurve m_weightCurve;
+			[SerializeField] private bool m_clampProgressAtRampCap;
+
 			public GameObject Prefab => m_prefab;
 			public SpawnKind Kind => m_kind;
 			public float VerticalMin => m_verticalMin;
 			public float VerticalMax => m_verticalMax;
+			public AnimationCurve WeightCurve => m_weightCurve;
+			public bool ClampProgressAtRampCap => m_clampProgressAtRampCap;
 		}
 
 		[Title("Plane Reference")]
@@ -35,9 +45,12 @@ namespace Opoint8182.Spawning
 		[Title("Spawnables")]
 		[FoldoutGroup("Spawnables")] [SerializeField] private SpawnableEntry[] m_spawnables;
 
+		[Title("Difficulty Ramp")]
+		[FoldoutGroup("Difficulty Ramp")] [SerializeField] private float m_difficultyRampDistance = 3000f;
+
 		[Title("Spawn Pattern")]
 		[FoldoutGroup("Spawn Pattern")] [SerializeField] private float m_spawnAheadDistance = 100f;
-		[FoldoutGroup("Spawn Pattern")] [SerializeField] private float m_spawnInterval = 18f;
+		[FoldoutGroup("Spawn Pattern")] [SerializeField] private AnimationCurve m_spawnIntervalCurve = AnimationCurve.Linear(0f, 18f, 1f, 8f);
 		[FoldoutGroup("Spawn Pattern")] [SerializeField] private float m_spawnIntervalJitter = 6f;
 		[FoldoutGroup("Spawn Pattern")] [SerializeField] private float m_lateralRange = 10f;
 
@@ -56,6 +69,12 @@ namespace Opoint8182.Spawning
 		// Pass 2 hook: the difficulty ramp curve can read this instead of adding its own tracker.
 		public float DistanceTraveled =>
 			m_planeController != null ? m_planeController.transform.position.z - m_startZ : 0f;
+
+		// Clamped ramp progress (0 at run start, 1 once m_difficultyRampDistance is reached, held
+		// there after). Entries that don't clamp (HealthPickup) sample their curve on raw,
+		// ever-growing progress instead - see ComputeWeight.
+		public float DifficultyProgress01 =>
+			m_difficultyRampDistance > 0f ? Mathf.Clamp01(DistanceTraveled / m_difficultyRampDistance) : 1f;
 
 		// Deliberately NOT overriding Awake() - GenericSingleton<T>.Awake() must run unmodified
 		// to register the singleton instance (see GameManager, which follows the same rule and
@@ -101,18 +120,59 @@ namespace Opoint8182.Spawning
 			while (planeZ + m_spawnAheadDistance >= m_nextSpawnZ && spawnsThisFrame < k_MaxSpawnsPerFrame)
 			{
 				SpawnAt(m_nextSpawnZ);
-				m_nextSpawnZ += m_spawnInterval + UnityEngine.Random.Range(-m_spawnIntervalJitter, m_spawnIntervalJitter);
+				var advance = ComputeSpawnInterval() + UnityEngine.Random.Range(-m_spawnIntervalJitter, m_spawnIntervalJitter);
+				// A shrinking interval curve combined with jitter can otherwise go non-positive,
+				// walking m_nextSpawnZ backward and spamming spawns at the same spot every frame.
+				m_nextSpawnZ += Mathf.Max(1f, advance);
 				spawnsThisFrame++;
 			}
 
 			CullBehindPlane(planeZ);
 		}
 
+		private float ComputeSpawnInterval()
+		{
+			return Mathf.Max(0.5f, m_spawnIntervalCurve.Evaluate(DifficultyProgress01));
+		}
+
+		private float ComputeWeight(SpawnableEntry entry)
+		{
+			var rawProgress = m_difficultyRampDistance > 0f ? DistanceTraveled / m_difficultyRampDistance : 1f;
+			var sampleT = entry.ClampProgressAtRampCap ? DifficultyProgress01 : rawProgress;
+			return Mathf.Max(0f, entry.WeightCurve.Evaluate(sampleT));
+		}
+
+		private bool TryPickWeightedEntry(out SpawnableEntry picked)
+		{
+			var totalWeight = 0f;
+			for (var i = 0; i < m_spawnables.Length; i++) totalWeight += ComputeWeight(m_spawnables[i]);
+
+			if (totalWeight <= 0.0001f)
+			{
+				picked = default;
+				return false;
+			}
+
+			var roll = UnityEngine.Random.Range(0f, totalWeight);
+			var cumulative = 0f;
+			for (var i = 0; i < m_spawnables.Length; i++)
+			{
+				cumulative += ComputeWeight(m_spawnables[i]);
+				if (roll <= cumulative)
+				{
+					picked = m_spawnables[i];
+					return true;
+				}
+			}
+
+			picked = m_spawnables[^1]; // float-rounding fallback
+			return true;
+		}
+
 		private void SpawnAt(float spawnZ)
 		{
 			if (m_spawnables == null || m_spawnables.Length == 0) return;
-
-			var entry = m_spawnables[UnityEngine.Random.Range(0, m_spawnables.Length)];
+			if (!TryPickWeightedEntry(out var entry)) return;
 			if (entry.Prefab == null) return;
 
 			var lateral = UnityEngine.Random.Range(-m_lateralRange, m_lateralRange);
