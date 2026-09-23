@@ -8,6 +8,7 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 | 15 | New building type: heals the plane on crash, same precision-matters feel as `Building`'s damage buildings — weak point + speed-gated crash-quality formula, but firing `CombatEvents.RaiseRestored` (scaled by quality) instead of `RaiseCrashed`. Needs its own component (`HealthSystem`/`Building`'s `IRestorer`/`ICrashSource` split means `HealthPickup`'s flat touch-heal can't be reused as-is) plus a new prefab and `SpawnKind` entry. | Developer note (2026-09-18) | Feature |
 | 16 | Plane health HUD element (MVP phase) — no on-screen health readout exists today, only `FuelGaugeUI`/`ScoreUI`/`AltitudeWarningUI`/`GameOverUI`. Mirror `FuelGaugeUI`'s pattern for `HealthSystem`. Once an art pass (Alpha or Feel Polish) adds visual damage feedback on the plane itself (smoke, sparks, etc.), revisit whether the HUD element gets removed in favor of the visual cue or kept alongside it. | Developer note (2026-09-18) | Feature |
 | 17 | Spawn algorithm (`SpawnManager`) needs revisiting — Pass 2's independent-per-spawn weighted roll + single global ramp plateau is a known-incomplete design, not a finished one (it plateaus into a flat, pattern-matchable steady state). See `design-doc.md`'s "Difficulty ramp — engagement levers" (parking lot section) for specific candidate fixes: staggered per-stat plateaus, a post-plateau oscillator, chunk-based spawning, the golden-building idea as the plateau answer, a separate flight-speed axis, risk-positioned pickups. | Developer note (2026-09-22) | Design |
+| 18 | Lateral (sideward) bounds — mirrors `AltitudeSystem`'s ceiling/ground pattern but for the horizontal axis: a soft limit displays a warning, a hard limit past it ends the run. | Developer note (2026-09-23) | Feature |
 
 ## Resolved Backlog
 Bookkeeping only — items move here once addressed, keeping the table above to open items.
@@ -90,6 +91,9 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 1 | Verified — Complete | `93874e1` | Procedural spawner — `SpawnManager` replaces hand-placed buildings/obstacles/hazards/pickups, distance-based spawn ahead + cull behind |
 | 2 | Verified — Complete | `c5e89b5` | Difficulty ramp curve — per-entry `AnimationCurve` weights + spawn-interval curve, capped at a tunable ramp distance (`HealthPickup` decays to a floor instead) |
 | 3 | Verified — Complete | `1542362` | Combo-timer missing-building penalty — `ScoreSystem` subscribes to `SpawnEvents.EntityCulled` (folds backlog item: missed-building combo penalty) |
+
+### Milestone: Feel polish — In Progress
+See [current-state.md](current-state.md) for live pass-by-pass status.
 
 ## Phase: Alpha — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
