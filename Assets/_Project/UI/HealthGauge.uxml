@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="HealthGauge.uss" />
+    <ui:VisualElement name="health-gauge-background" class="health-gauge-background">
+        <ui:VisualElement name="health-gauge-fill" class="health-gauge-fill" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -56,3 +56,9 @@ Unlike `GameOverUI`, `AltitudeSystem` is a plain sibling-of-`Plane` component, n
 Fifth HUD element, `LateralWarning` GameObject (sibling of the other four, all children of `HUD`): `UIDocument` (Source Asset = `LateralWarning.uxml`, Panel Settings = the same shared `FuelGaugePanelSettings.asset`) + `LateralWarningUI.cs`, wired to the `Plane`'s [`LateralSystem`](lateral-system.md).
 
 Simpler than `AltitudeWarningUI` — `LateralSystem` has no countdown/fraction (see [lateral-system.md](lateral-system.md)), so `LateralWarningUI` binds only `IsWarningValue` (`ObservableBool`) to toggle `lateral-warning-root`'s `style.display`, no fill-bar element at all. Same `OnEnable` subscribe-and-push-once pattern as every other HUD element.
+
+## Health gauge (Feel polish, Pass 2)
+
+Sixth HUD element, `HealthGauge` GameObject (sibling of the other five, all children of `HUD`): `UIDocument` (Source Asset = `HealthGauge.uxml`, Panel Settings = the same shared `FuelGaugePanelSettings.asset`) + `HealthGaugeUI.cs`, wired to the `Plane`'s [`HealthSystem`](health-system.md). Resolves backlog #16.
+
+A structural copy of `FuelGaugeUI`/`FuelGauge.uxml`/`.uss` — `HealthSystem` already exposed a matching `HealthValue`/`HealthFraction` API (`Health` as a resource has mirrored `Fuel`'s shape since it was introduced), so no changes to `HealthSystem` itself were needed, only the UI layer. `HealthGaugeUI` queries `health-gauge-fill` once in `OnEnable`, subscribes to `HealthValue.AddListener`, and drives `style.width` from `HealthFraction` — identical update pattern to `FuelGaugeUI`. Positioned directly below the fuel gauge in the HUD's left column (`top: 56px`, same `220x28` size), green fill (`rgb(60, 200, 60)`) to read as a distinct resource from fuel's orange at a glance.
