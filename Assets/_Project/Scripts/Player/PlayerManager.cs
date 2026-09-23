@@ -3,6 +3,7 @@ using Opoint8182.Altitude;
 using Opoint8182.Common;
 using Opoint8182.Fuel;
 using Opoint8182.Health;
+using Opoint8182.Lateral;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace Opoint8182.Player
     [RequireComponent(typeof(FuelSystem))]
     [RequireComponent(typeof(HealthSystem))]
     [RequireComponent(typeof(AltitudeSystem))]
+    [RequireComponent(typeof(LateralSystem))]
     public class PlayerManager : MonoBehaviour
     {
         [Title("References")]
@@ -25,6 +27,7 @@ namespace Opoint8182.Player
         private FuelSystem m_fuelSystem;
         private HealthSystem m_healthSystem;
         private AltitudeSystem m_altitudeSystem;
+        private LateralSystem m_lateralSystem;
 
         private void Awake()
         {
@@ -33,6 +36,7 @@ namespace Opoint8182.Player
             m_fuelSystem = GetComponent<FuelSystem>();
             m_healthSystem = GetComponent<HealthSystem>();
             m_altitudeSystem = GetComponent<AltitudeSystem>();
+            m_lateralSystem = GetComponent<LateralSystem>();
         }
 
         private void OnEnable()
@@ -43,7 +47,8 @@ namespace Opoint8182.Player
             m_fuelSystem.Depleted += HandleDepleted;
             m_healthSystem.Depleted += HandleDepleted;
             m_altitudeSystem.GroundHit += HandleDepleted;
-            m_altitudeSystem.CeilingExceeded += HandleCeilingExceeded;
+            m_altitudeSystem.CeilingExceeded += HandleFlyAway;
+            m_lateralSystem.HardBoundExceeded += HandleFlyAway;
         }
 
         private void OnDisable()
@@ -54,7 +59,8 @@ namespace Opoint8182.Player
             m_fuelSystem.Depleted -= HandleDepleted;
             m_healthSystem.Depleted -= HandleDepleted;
             m_altitudeSystem.GroundHit -= HandleDepleted;
-            m_altitudeSystem.CeilingExceeded -= HandleCeilingExceeded;
+            m_altitudeSystem.CeilingExceeded -= HandleFlyAway;
+            m_lateralSystem.HardBoundExceeded -= HandleFlyAway;
         }
 
         private void HandleCrashed(ICrashSource source, float quality, bool countsForCombo)
@@ -88,7 +94,7 @@ namespace Opoint8182.Player
             m_rigidbody.linearVelocity = Vector3.zero;
         }
 
-        private void HandleCeilingExceeded()
+        private void HandleFlyAway()
         {
             if (m_isRunEnded) return;
 
@@ -96,6 +102,8 @@ namespace Opoint8182.Player
             // Unlike HandleDepleted, don't touch linearVelocity - the plane keeps flying off
             // in whatever direction it was last actually moving (no gravity/drag on this
             // Rigidbody, so it drifts on forever once PlaneController stops overwriting it).
+            // Shared by AltitudeSystem.CeilingExceeded and LateralSystem.HardBoundExceeded -
+            // same "flies off and leaves the camera behind" treatment on every bound.
             m_planeController.enabled = false;
             if (m_followCamera != null) m_followCamera.enabled = false;
         }

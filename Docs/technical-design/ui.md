@@ -50,3 +50,9 @@ The Restart `Button`'s `.clicked` event calls `SceneManager.LoadScene(SceneManag
 Fourth HUD element, `AltitudeWarning` GameObject (sibling of `UIDocument`/`ScoreDisplay`/`GameOver`, all children of `HUD`): `UIDocument` (Source Asset = `AltitudeWarning.uxml`, Panel Settings = the same shared `FuelGaugePanelSettings.asset`) + `AltitudeWarningUI.cs`, wired to the `Plane`'s [`AltitudeSystem`](altitude-system.md).
 
 Unlike `GameOverUI`, `AltitudeSystem` is a plain sibling-of-`Plane` component, not `GenericSingleton`-backed, so `AltitudeWarningUI` subscribes from `OnEnable()` same as `FuelGaugeUI`/`ScoreUI` — the Awake/OnEnable ordering risk documented above only applies to singleton lookups. Binds to two observables: `IsWarningValue` (`ObservableBool`) toggles `altitude-warning-root`'s `style.display` (mirrors `GameOverUI`'s show/hide), `WarningFractionValue` (`ObservableFloat`) drives `altitude-warning-fill`'s `style.width` percent (mirrors `ScoreUI`'s combo-timer-fill). Both are pushed once on `OnEnable` in addition to `AddListener`, matching every other HUD element's established convention.
+
+## Lateral warning (Feel polish, Pass 1)
+
+Fifth HUD element, `LateralWarning` GameObject (sibling of the other four, all children of `HUD`): `UIDocument` (Source Asset = `LateralWarning.uxml`, Panel Settings = the same shared `FuelGaugePanelSettings.asset`) + `LateralWarningUI.cs`, wired to the `Plane`'s [`LateralSystem`](lateral-system.md).
+
+Simpler than `AltitudeWarningUI` — `LateralSystem` has no countdown/fraction (see [lateral-system.md](lateral-system.md)), so `LateralWarningUI` binds only `IsWarningValue` (`ObservableBool`) to toggle `lateral-warning-root`'s `style.display`, no fill-bar element at all. Same `OnEnable` subscribe-and-push-once pattern as every other HUD element.

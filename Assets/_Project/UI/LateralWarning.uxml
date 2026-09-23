@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="LateralWarning.uss" />
+    <ui:VisualElement name="lateral-warning-root" class="lateral-warning-root">
+        <ui:Label name="lateral-warning-label" text="APPROACHING EDGE" class="lateral-warning-label" />
+    </ui:VisualElement>
+</ui:UXML>

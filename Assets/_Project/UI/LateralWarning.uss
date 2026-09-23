@@ -1,0 +1,17 @@
+.lateral-warning-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100px;
+    align-items: center;
+}
+
+.lateral-warning-label {
+    padding: 4px 16px;
+    background-color: rgba(120, 0, 0, 0.6);
+    border-width: 2px;
+    border-color: rgb(255, 60, 60);
+    color: rgb(255, 60, 60);
+    font-size: 22px;
+    -unity-font-style: bold;
+}
