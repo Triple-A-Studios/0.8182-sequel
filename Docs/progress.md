@@ -5,7 +5,6 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 
 | # | Item | Origin | Type |
 |---|---|---|---|
-| 7 | Combo timer should also take a reduction for *missing* a building (flying past without crashing), not just for crashing hazards — needs a way to know a building existed and wasn't hit, which requires building spawning/tracking (not built yet, buildings are hand-placed). Implement once that spawner exists. | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Enhancement |
 | 15 | New building type: heals the plane on crash, same precision-matters feel as `Building`'s damage buildings — weak point + speed-gated crash-quality formula, but firing `CombatEvents.RaiseRestored` (scaled by quality) instead of `RaiseCrashed`. Needs its own component (`HealthSystem`/`Building`'s `IRestorer`/`ICrashSource` split means `HealthPickup`'s flat touch-heal can't be reused as-is) plus a new prefab and `SpawnKind` entry. | Developer note (2026-09-18) | Feature |
 | 16 | Plane health HUD element (MVP phase) — no on-screen health readout exists today, only `FuelGaugeUI`/`ScoreUI`/`AltitudeWarningUI`/`GameOverUI`. Mirror `FuelGaugeUI`'s pattern for `HealthSystem`. Once an art pass (Alpha or Feel Polish) adds visual damage feedback on the plane itself (smoke, sparks, etc.), revisit whether the HUD element gets removed in favor of the visual cue or kept alongside it. | Developer note (2026-09-18) | Feature |
 | 17 | Spawn algorithm (`SpawnManager`) needs revisiting — Pass 2's independent-per-spawn weighted roll + single global ramp plateau is a known-incomplete design, not a finished one (it plateaus into a flat, pattern-matchable steady state). See `design-doc.md`'s "Difficulty ramp — engagement levers" (parking lot section) for specific candidate fixes: staggered per-stat plateaus, a post-plateau oscillator, chunk-based spawning, the golden-building idea as the plateau answer, a separate flight-speed axis, risk-positioned pickups. | Developer note (2026-09-22) | Design |
@@ -28,6 +27,7 @@ Bookkeeping only — items move here once addressed, keeping the table above to 
 | 12 | ~~W/S pitch input becomes purely cosmetic (visual rotation only, mirroring how sideways/yaw movement already works) — actual vertical movement uses `rb.linearVelocity` directly, same approach as horizontal strafing.~~ Done: `m_verticalSpeed` drives real velocity, cosmetic pitch mirrors the existing bank `MoveTowards` pattern on `m_visualRoot` (Pass 1, Milestone: Movement & fail-state rework). | Developer note (2026-09-14) | Design/Refactor | Resolved (Pass 1, Milestone: Movement & fail-state rework) |
 | 14 | ~~Add upper/lower altitude limits — crossing either ends the run.~~ Done: `AltitudeSystem` — ceiling warns then ends the run (plane keeps its last velocity, camera stops following); ground ends the run instantly, same freeze as a building crash or health-zero death (Pass 4, Milestone: Movement & fail-state rework). | Developer note (2026-09-14) | Feature | Resolved (Pass 4, Milestone: Movement & fail-state rework) |
 | 8 | ~~Alchemy `[ShowInInspector]` debug fields (`CurrentFuel`, `CurrentScore`, `CurrentMultiplier`, `CurrentComboTimer`, etc.) don't visibly update in the Inspector during Play Mode.~~ Done: root cause known but out of scope (Alchemy repaint bug) — resolved instead by dropping `[ShowInInspector]`/`[ReadOnly]` for debug-only variables project-wide; use the Inspector's Debug mode instead (Pass 6, Milestone: Movement & fail-state rework). | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Bug | Resolved (Pass 6, Milestone: Movement & fail-state rework) |
+| 7 | ~~Combo timer should also take a reduction for *missing* a building (flying past without crashing), not just for crashing hazards — needs a way to know a building existed and wasn't hit, which requires building spawning/tracking (not built yet, buildings are hand-placed). Implement once that spawner exists.~~ Done: `ScoreSystem` subscribes to `SpawnEvents.EntityCulled` (fires only for unhit buildings), drains `m_missedBuildingTimerPenalty` off the combo timer (Pass 3, Milestone: Difficulty ramp). | [Pass 3, Milestone: Obstacles, combos, recovery](current-state.md) | Enhancement | Resolved (Pass 3, Milestone: Difficulty ramp) |
 
 ## Phase: Prototype — Completed
 
@@ -83,8 +83,13 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 5 | Verified — Complete | `875f6d9` | Crash-stutter physics fix — trigger collider replaces solid collision (folds backlog item: crash stutter) |
 | 6 | Verified — Complete | `b7a8725` | Alchemy debug-inspector refresh fix — dropped `[ShowInInspector]`/`[ReadOnly]` reliance for debug vars project-wide (folds backlog item: Alchemy inspector refresh) |
 
-### Milestone: Difficulty ramp
-**In Progress — see current-state.md**
+### Milestone: Difficulty ramp — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `93874e1` | Procedural spawner — `SpawnManager` replaces hand-placed buildings/obstacles/hazards/pickups, distance-based spawn ahead + cull behind |
+| 2 | Verified — Complete | `c5e89b5` | Difficulty ramp curve — per-entry `AnimationCurve` weights + spawn-interval curve, capped at a tunable ramp distance (`HealthPickup` decays to a floor instead) |
+| 3 | Verified — Complete | `1542362` | Combo-timer missing-building penalty — `ScoreSystem` subscribes to `SpawnEvents.EntityCulled` (folds backlog item: missed-building combo penalty) |
 
 ## Phase: Alpha — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.

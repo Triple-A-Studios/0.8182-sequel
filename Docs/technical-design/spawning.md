@@ -22,7 +22,7 @@ This also gives Pass 2 (difficulty ramp curve) a free distance tracker: `SpawnMa
 
 Every spawned instance gets a runtime-`AddComponent`'d `SpawnedEntity` (not baked into the prefabs) carrying a `SpawnKind` enum (`BuildingNormal`/`BuildingTough`/`ObstacleLarge`/`BirdSmall`/`HealthPickup`) set via `Initialize(kind)` at spawn time. This lets `SpawnManager` track/cull without `GetComponent<Building>/<ObstacleBuilding>/<BirdHazard>` type-switching.
 
-`SpawnEvents.EntityCulled` (`Action<SpawnedEntity>`) mirrors `CombatEvents`'s static-bus pattern and fires **only** from the cull path — never for a hit-destroy. This means `EntityCulled` already means "this instance was never hit" by construction, which is exactly the "a building existed and wasn't hit" signal Pass 3 (folds backlog #7) needs — that pass should just subscribe and filter for `SpawnKind.BuildingNormal`/`BuildingTough`, no new plumbing required.
+`SpawnEvents.EntityCulled` (`Action<SpawnedEntity>`) mirrors `CombatEvents`'s static-bus pattern and fires **only** from the cull path — never for a hit-destroy. This means `EntityCulled` already means "this instance was never hit" by construction, which is exactly the "a building existed and wasn't hit" signal Pass 3 (folds backlog #7) needs. Confirmed: Pass 3's [`ScoreSystem`](score-system.md#combo-multiplier) subscribes directly and filters for `SpawnKind.BuildingNormal`/`BuildingTough` — no changes needed to this file's own code.
 
 ## Type/position selection (Pass 1 placeholder)
 
