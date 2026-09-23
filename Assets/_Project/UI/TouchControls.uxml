@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="TouchControls.uss" />
+    <ui:VisualElement name="touch-joystick-background" class="touch-joystick-background">
+        <ui:VisualElement name="touch-joystick-handle" class="touch-joystick-handle" />
+    </ui:VisualElement>
+    <ui:VisualElement name="touch-boost-button" class="touch-boost-button">
+        <ui:Label text="BOOST" class="touch-boost-label" />
+    </ui:VisualElement>
+</ui:UXML>

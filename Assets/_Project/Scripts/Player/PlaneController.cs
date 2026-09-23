@@ -40,6 +40,8 @@ namespace Opoint8182.Player
         public Vector3 Forward => transform.forward;
         public float SpeedMultiplier { get; set; } = 1f;
         public bool IsBoosting { get; private set; }
+        public Vector2 TouchSteer { get; set; }
+        public bool TouchBoost { get; set; }
 
         private void Awake()
         {
@@ -60,13 +62,13 @@ namespace Opoint8182.Player
 
         private void FixedUpdate()
         {
-            m_steerInput = m_moveAction.action.ReadValue<Vector2>();
+            m_steerInput = Vector2.ClampMagnitude(m_moveAction.action.ReadValue<Vector2>() + TouchSteer, 1f);
             if (m_steerInput.magnitude < m_inputDeadZone)
             {
                 m_steerInput = Vector2.zero;
             }
 
-            IsBoosting = m_boostAction.action.IsPressed();
+            IsBoosting = m_boostAction.action.IsPressed() || TouchBoost;
             SpeedMultiplier = IsBoosting ? m_boostSpeedMultiplier : 1f;
             var steerMultiplier = IsBoosting ? m_boostSteerMultiplier : 1f;
 
