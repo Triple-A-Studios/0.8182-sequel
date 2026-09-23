@@ -1,5 +1,6 @@
 using Alchemy.Inspector;
 using Opoint8182.Common;
+using Opoint8182.Spawning;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Opoint8182.Score
         [FoldoutGroup("Combo")] [SerializeField] private float m_comboWindow = 3f;
         [FoldoutGroup("Combo")] [SerializeField] private int[] m_comboStepSizes = { 3, 5, 8 };
         [FoldoutGroup("Combo")] [SerializeField] private float m_hazardTimerPenalty = 1.5f;
+        [FoldoutGroup("Combo")] [SerializeField] private float m_missedBuildingTimerPenalty = 1.5f;
 
         public int CurrentScore => Score.Value;
         public int CurrentMultiplier => Multiplier.Value;
@@ -36,12 +38,14 @@ namespace Opoint8182.Score
         {
             CombatEvents.Crashed += HandleCrashed;
             CombatEvents.DamageDealt += HandleHazardHit;
+            SpawnEvents.EntityCulled += HandleEntityCulled;
         }
 
         private void OnDisable()
         {
             CombatEvents.Crashed -= HandleCrashed;
             CombatEvents.DamageDealt -= HandleHazardHit;
+            SpawnEvents.EntityCulled -= HandleEntityCulled;
         }
 
         private void Update()
@@ -74,6 +78,15 @@ namespace Opoint8182.Score
             if (ComboTimer.Value <= 0f) return;
 
             Tick(m_hazardTimerPenalty);
+        }
+
+        private void HandleEntityCulled(SpawnedEntity entity)
+        {
+            if (entity.Kind != SpawnKind.BuildingNormal && entity.Kind != SpawnKind.BuildingTough) return;
+            if (ComboTimer.Value <= 0f) return;
+
+            Debug.LogWarning($"[ScoreSystem] Missed {entity.Kind} - combo timer {ComboTimer.Value:0.00} -{m_missedBuildingTimerPenalty:0.00}");
+            Tick(m_missedBuildingTimerPenalty);
         }
 
         // Shared by the per-frame decay and the hazard-hit timer penalty, so the zero-crossing
