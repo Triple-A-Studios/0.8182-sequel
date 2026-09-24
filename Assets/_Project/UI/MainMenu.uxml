@@ -1,0 +1,114 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="MainMenu.uss" />
+    <ui:VisualElement name="root" class="root">
+        <ui:VisualElement name="background" class="background" picking-mode="Ignore" />
+        <ui:VisualElement name="stripe-overlay" class="stripe-overlay" picking-mode="Ignore" />
+        <ui:VisualElement name="safe-area" class="safe-area">
+
+            <ui:VisualElement name="top-left-cluster" class="top-left-cluster" picking-mode="Ignore">
+                <ui:VisualElement name="profile-chip" class="chip profile-chip stub-clickable">
+                    <ui:VisualElement name="profile-avatar" class="profile-avatar" />
+                    <ui:VisualElement class="profile-text-column">
+                        <ui:Label text="OLIVE" class="profile-name" />
+                        <ui:Label text="LV 14 &#183; PROFILE" class="profile-meta" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="attempts-chip" class="chip attempts-chip stub-clickable">
+                    <ui:Label name="attempts-label" text="ATTEMPTS" class="attempts-label" />
+                    <ui:VisualElement class="attempts-pips">
+                        <ui:VisualElement class="attempts-pip" />
+                        <ui:VisualElement class="attempts-pip" />
+                        <ui:VisualElement class="attempts-pip" />
+                    </ui:VisualElement>
+                    <ui:Label name="attempts-value" text="3/3" class="attempts-value" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="top-right-cluster" class="top-right-cluster" picking-mode="Ignore">
+                <ui:VisualElement name="currency-chip" class="chip currency-chip stub-clickable">
+                    <ui:VisualElement class="currency-coin" />
+                    <ui:Label text="12,480" class="currency-value" />
+                    <ui:VisualElement name="currency-add-button" class="currency-add-button stub-clickable">
+                        <ui:Label text="+" class="currency-add-label" />
+                    </ui:VisualElement>
+                    <!-- a second currency-chip can be appended here later (e.g. premium currency) -->
+                </ui:VisualElement>
+                <ui:VisualElement name="menu-button" class="chip menu-button stub-clickable">
+                    <ui:VisualElement class="menu-bar" />
+                    <ui:VisualElement class="menu-bar" />
+                    <ui:VisualElement class="menu-bar" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- overflow menu stub: Settings / How to Play / Credits / Quit - non-functional for MVP -->
+            <ui:VisualElement name="overflow-menu" class="overflow-menu" picking-mode="Ignore">
+                <ui:Label text="Settings" class="overflow-menu-item" />
+                <ui:Label text="How to Play" class="overflow-menu-item" />
+                <ui:Label text="Credits" class="overflow-menu-item" />
+                <ui:Label text="Quit" class="overflow-menu-item" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="logo-block" class="logo-block" picking-mode="Ignore">
+                <ui:Label text="OPOINT8182" class="logo-label logo-shadow-back" />
+                <ui:Label text="OPOINT8182" class="logo-label logo-shadow-mid" />
+                <ui:Label text="OPOINT8182" class="logo-label logo-front" />
+                <ui:VisualElement name="tagline-pill" class="tagline-pill">
+                    <ui:Label text="CRASH &#183; REFUEL &#183; REPEAT" class="tagline-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="left-icon-column" class="left-icon-column" picking-mode="Ignore">
+                <ui:VisualElement name="shop-tile" class="chip icon-tile shop-tile stub-clickable">
+                    <ui:VisualElement class="shop-icon" />
+                    <ui:Label text="SHOP" class="icon-tile-label" />
+                </ui:VisualElement>
+                <ui:VisualElement name="leaderboard-tile" class="chip icon-tile leaderboard-tile stub-clickable">
+                    <ui:VisualElement class="leaderboard-bars">
+                        <ui:VisualElement class="leaderboard-bar leaderboard-bar-short" />
+                        <ui:VisualElement class="leaderboard-bar leaderboard-bar-tall" />
+                        <ui:VisualElement class="leaderboard-bar leaderboard-bar-mid" />
+                    </ui:VisualElement>
+                    <ui:Label text="LEADERBOARD" class="icon-tile-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- transparent + picking-mode ignore so a camera render of the equipped plane can show through later -->
+            <ui:VisualElement name="plane-slot" class="plane-slot" picking-mode="Ignore" />
+            <ui:VisualElement name="plane-slot-caption" class="plane-slot-caption" picking-mode="Ignore">
+                <ui:VisualElement class="caption-dot" />
+                <ui:VisualElement class="caption-dot" />
+                <ui:Label text="3D: equipped plane on a rooftop, idle bob + dust puffs" class="caption-label" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="play-cluster" class="play-cluster" picking-mode="Ignore">
+                <ui:VisualElement name="mode-tabs" class="mode-tabs" picking-mode="Ignore">
+                    <ui:VisualElement name="competitive-tab" class="mode-tab mode-tab--active stub-clickable">
+                        <ui:Label text="COMPETITIVE" class="mode-tab-label mode-tab-label--active" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="practice-tab" class="mode-tab stub-clickable">
+                        <ui:Label text="PRACTICE" class="mode-tab-label" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="play-button-wrapper" class="play-button-wrapper" picking-mode="Ignore">
+                    <ui:VisualElement name="play-button-lip" class="play-button-lip" picking-mode="Ignore" />
+                    <ui:VisualElement name="play-button" class="play-button">
+                        <ui:Label text="PLAY" class="play-label" />
+                        <ui:VisualElement class="play-sublabel-row">
+                            <ui:Label text="3 ATTEMPTS LEFT TODAY" class="play-sublabel" />
+                            <ui:VisualElement class="play-pips">
+                                <ui:VisualElement class="play-pip" />
+                                <ui:VisualElement class="play-pip" />
+                                <ui:VisualElement class="play-pip" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <ui:VisualElement name="stub-toast" class="stub-toast" picking-mode="Ignore">
+            <ui:Label name="stub-toast-label" text="IMPLEMENTED IN ALPHA" class="stub-toast-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

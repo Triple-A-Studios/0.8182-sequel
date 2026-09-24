@@ -1,0 +1,511 @@
+/* Design tokens - custom properties cascade from .root down to every child. */
+.root {
+    --bg-top: #6B95B4;
+    --bg-mid: #3D6280;
+    --bg-bottom: #22364A;
+    --panel: #223247;
+    --panel-lip: #101823;
+    --panel-inner: #1A2634;
+    --cream: #F6EFE2;
+    --accent: #F0A93B;
+    --accent-light: #FFC76A;
+    --accent-lip: #A2620F;
+    --red: #E8603C;
+    --green: #4CAF6D;
+    --green-lip: #24603A;
+    --ink: #2A1A06;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* TODO: replace with a real vertical gradient texture (--bg-top -> --bg-mid -> --bg-bottom) -
+   UITK USS has no linear-gradient() background support, approximated as a flat mid-tone for
+   this MVP blockout. */
+.background {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--bg-mid);
+}
+
+/* TODO: real 45deg diagonal stripe texture at ~4% white - approximated as a flat, very faint
+   white tint for this blockout. */
+.stripe-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.safe-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 24px;
+}
+
+/* Shared chip look: rounded, subtle light border. The spec's drop-shadow "lip" (a duplicate
+   backing element offset 8-14px) is approximated here as a thick, dark bottom border instead -
+   good enough for a blockout without doubling every chip's element count; play-button and the
+   logo (the two most prominent elements) get the real duplicate-element treatment below. */
+.chip {
+    background-color: var(--panel);
+    border-radius: 26px;
+    border-width: 4px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-bottom-width: 10px;
+    border-bottom-color: var(--panel-lip);
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Bounce press feedback (scale, driven from MainMenuController) for every stub button -
+   ease-out-back gives a small overshoot on the way back to full size, reading as "bouncy". */
+.stub-clickable {
+    transition-property: scale;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-back;
+}
+
+/* ---- Top-left cluster ---- */
+
+.top-left-cluster {
+    position: absolute;
+    left: 48px;
+    top: 40px;
+    flex-direction: row;
+}
+
+.profile-chip {
+    height: 104px;
+    padding: 0 18px;
+    margin-right: 18px;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background-color: var(--panel-inner);
+    margin-right: 14px;
+}
+
+.profile-text-column {
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 28px;
+    color: var(--cream);
+    -unity-font-style: bold;
+    /* TODO: font - Baloo 2 not available, using default theme font */
+}
+
+.profile-meta {
+    font-size: 19px;
+    color: rgba(246, 239, 226, 0.55);
+    /* TODO: font - Nunito not available, using default theme font */
+}
+
+.attempts-chip {
+    height: 104px;
+    padding: 0 18px;
+}
+
+.attempts-label {
+    font-size: 26px;
+    color: rgba(246, 239, 226, 0.6);
+    margin-right: 12px;
+}
+
+.attempts-pips {
+    flex-direction: row;
+    margin-right: 12px;
+}
+
+.attempts-pip {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: var(--accent);
+    margin-right: 6px;
+}
+
+.attempts-value {
+    font-size: 32px;
+    color: var(--cream);
+    -unity-font-style: bold;
+}
+
+/* ---- Top-right cluster ---- */
+
+.top-right-cluster {
+    position: absolute;
+    right: 48px;
+    top: 40px;
+    flex-direction: row;
+}
+
+.currency-chip {
+    height: 104px;
+    padding: 0 18px;
+    margin-right: 18px;
+}
+
+.currency-coin {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: var(--accent);
+    margin-right: 12px;
+}
+
+.currency-value {
+    font-size: 38px;
+    color: var(--cream);
+    -unity-font-style: bold;
+    margin-right: 12px;
+}
+
+.currency-add-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background-color: var(--green);
+    border-bottom-width: 4px;
+    border-bottom-color: var(--green-lip);
+    align-items: center;
+    justify-content: center;
+}
+
+.currency-add-label {
+    font-size: 28px;
+    color: var(--cream);
+    -unity-font-style: bold;
+}
+
+.menu-button {
+    width: 104px;
+    height: 104px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-bar {
+    width: 48px;
+    height: 7px;
+    background-color: var(--cream);
+    margin-bottom: 8px;
+}
+
+.overflow-menu {
+    display: none;
+    position: absolute;
+    right: 48px;
+    top: 152px;
+    background-color: var(--panel);
+    border-radius: 18px;
+    padding: 12px;
+}
+
+.overflow-menu-item {
+    font-size: 24px;
+    color: var(--cream);
+    padding: 8px 16px;
+}
+
+/* ---- Logo block ---- */
+
+.logo-block {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 180px;
+    align-items: center;
+    rotate: -3deg;
+}
+
+.logo-label {
+    position: absolute;
+    font-size: 128px;
+    -unity-font-style: bold;
+}
+
+.logo-shadow-back {
+    color: var(--panel-lip);
+    translate: 0 28px;
+}
+
+.logo-shadow-mid {
+    color: var(--red);
+    translate: 0 10px;
+}
+
+.logo-front {
+    position: relative;
+    color: var(--cream);
+}
+
+.tagline-pill {
+    margin-top: 16px;
+    background-color: var(--red);
+    border-radius: 12px;
+    padding: 6px 24px;
+}
+
+.tagline-label {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    letter-spacing: 7px;
+}
+
+/* ---- Left icon column ---- */
+
+.left-icon-column {
+    position: absolute;
+    left: 52px;
+    top: 38%;
+    flex-direction: column;
+}
+
+.icon-tile {
+    width: 212px;
+    height: 196px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 26px;
+}
+
+.shop-icon {
+    width: 86px;
+    height: 58px;
+    border-radius: 10px;
+    background-color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.icon-tile-label {
+    font-size: 30px;
+    color: var(--cream);
+}
+
+.leaderboard-bars {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.leaderboard-bar {
+    width: 20px;
+    margin-right: 6px;
+    background-color: var(--cream);
+}
+
+.leaderboard-bar-short {
+    height: 32px;
+}
+
+.leaderboard-bar-tall {
+    height: 58px;
+    background-color: var(--accent);
+}
+
+.leaderboard-bar-mid {
+    height: 44px;
+}
+
+/* ---- Center 3D slot ---- */
+
+/* TODO: not centered correctly (confirmed on-device) - UITK's auto-margin centering trick for
+   absolutely-positioned elements doesn't behave like browser CSS here. Revisit later (e.g. drop
+   the fixed width/auto-margins and center via a flex row wrapper instead), not blocking for now. */
+.plane-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 556px;
+    width: 660px;
+    height: 230px;
+    margin-left: auto;
+    margin-right: auto;
+    border-width: 4px;
+    border-color: rgba(246, 239, 226, 0.4);
+    /* TODO: real dashed border - UITK border-style has no "dashed" keyword, this is a solid
+       approximation for the blockout. */
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.plane-slot-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 800px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+/* DELETE before shipping - dev annotation only, per spec. */
+.caption-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    background-color: rgba(150, 150, 150, 0.6);
+    margin-right: 8px;
+}
+
+.caption-label {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---- Bottom-right PLAY cluster ---- */
+
+.play-cluster {
+    position: absolute;
+    right: 56px;
+    bottom: 56px;
+    align-items: flex-end;
+}
+
+/* Overlap must survive play-button's full 14px press-travel (MainMenuController.
+   m_playButtonPressTravelY) or a gap opens between the tabs and the button while pressed - the
+   tabs themselves don't move, only play-button does, so the rest-state overlap needs to be
+   bigger than the spec's plain ~8px to leave a few px to spare once pressed. */
+.mode-tabs {
+    flex-direction: row;
+    margin-bottom: -18px;
+}
+
+.mode-tab {
+    background-color: rgba(16, 24, 35, 0.55);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    padding: 10px 28px;
+}
+
+.mode-tab--active {
+    background-color: var(--red);
+}
+
+.mode-tab-label {
+    font-size: 30px;
+    color: rgba(246, 239, 226, 0.62);
+}
+
+.mode-tab-label--active {
+    font-size: 32px;
+    color: rgb(255, 255, 255);
+}
+
+/* Sizes to play-button exactly (the lip is position:absolute so it's excluded from this
+   wrapper's auto-sizing - only play-button, in normal flow, drives its size). UITK positions an
+   absolute child against its immediate parent (not the nearest "positioned" ancestor like CSS),
+   so the lip needed its own tightly-scoped parent rather than sharing play-cluster with the mode
+   tabs - it was picking up the whole cluster's height (tabs + button) and covering the tabs. */
+.play-button-wrapper {
+    align-items: flex-end;
+}
+
+.play-button-lip {
+    position: absolute;
+    right: 0;
+    bottom: -14px;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    background-color: var(--accent-lip);
+}
+
+.play-button {
+    background-color: var(--accent);
+    /* TODO: replace with real --accent-light -> --accent vertical gradient */
+    border-width: 6px;
+    border-color: rgba(255, 255, 255, 0.28);
+    border-radius: 30px;
+    padding: 30px 66px;
+    align-items: center;
+    transition-property: translate;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out-back;
+}
+
+/* Press state is driven from MainMenuController via pointer events, not :active - matches
+   TouchControlsUI's pointer-event approach from Pass 3 rather than relying on the :active
+   pseudo-class, which is less predictable under touch/pointer capture. Travels straight down by
+   the lip's full offset (translate, not scale) so it completely covers play-button-lip on press -
+   scaling down shrinks the button from its center and exposes the lip on every side, not just the
+   bottom (confirmed visually, direct developer correction). ease-out-back gives the release a
+   slight overshoot past rest before settling, same "bouncy" feel as every .stub-clickable. */
+
+.play-label {
+    font-size: 118px;
+    color: var(--ink);
+    -unity-font-style: bold;
+}
+
+.play-sublabel-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.play-sublabel {
+    font-size: 28px;
+    color: rgba(42, 26, 6, 0.78);
+    margin-right: 12px;
+}
+
+.play-pips {
+    flex-direction: row;
+}
+
+.play-pip {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: rgba(42, 26, 6, 0.78);
+    margin-right: 6px;
+}
+
+/* ---- Stub-button toast ---- */
+/* Every non-PLAY chip/tile/tab (.stub-clickable, wired in MainMenuController) shows this on
+   click - a placeholder "not built yet" affordance for playtesting, since every other button on
+   this screen is currently visual-only. */
+
+.stub-toast {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.stub-toast-label {
+    background-color: rgba(16, 24, 35, 0.85);
+    border-radius: 20px;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.2);
+    padding: 20px 40px;
+    font-size: 34px;
+    color: var(--cream);
+    -unity-font-style: bold;
+    white-space: normal;
+    max-width: 760px;
+    -unity-text-align: middle-center;
+}
