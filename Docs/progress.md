@@ -10,6 +10,8 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 | 20 | Chunk-spawning rework — Pass 6's `SpawnChunk`/`SpawnChunkSlot` starter set (`Solo`/`ToughPair`/`GauntletMixed`, fixed Z-offset slots, uniform pick among distance-eligible chunks) is a first cut; flagged post-playtest for better chunk variety/authoring. See [spawning.md](technical-design/spawning.md#chunkpattern-based-spawning-pass-6). | Developer note (2026-09-26) | Design |
 | 21 | Multi-lane spawn system (Subway Surfers-style) — lateral spawn position should snap to a fixed lane set with min/max variance instead of `SpawnManager`'s current continuous `Random.Range(-m_lateralRange, m_lateralRange)`; needs a matching height-lane axis too, for `BirdSmall`/`HealthPickup` (currently a per-entry vertical min/max range, not discrete lanes). | Developer note (2026-09-26) | Feature |
 | 22 | Low-altitude warning (ground proximity) — mirror `LateralSystem`'s soft/hard bound pattern instead of `AltitudeSystem`'s current ground behavior (instant run-end, no warning): a soft lower bound should warn as the plane nears the ground, but the run should only end on reaching the hard ground bound itself, not on a countdown timer (that's the *ceiling*'s pattern, explicitly not wanted here). | Developer note (2026-09-26) | Feature |
+| 23 | Cinematic side-view + slow-motion on a perfect Tough-building crash — upgrade to `CameraJuice`'s existing Tough-only hit-stop (`PlayerManager.HandleCrashed`'s `quality >= 1f && BuildingType.Tough` gate): switch to a side-view camera angle and slow time (not just a near-instant freeze) for the crash moment. | Developer note (2026-09-26) | Feature |
+| 24 | `PlaneController` movement itself feels like it's missing juice (separate from the camera-side juice `CameraJuice` added in Pass 7) — exact gap not yet identified, deferred until playtest feedback narrows down what's missing. | Developer note (2026-09-26) | Design |
 
 ## Resolved Backlog
 Bookkeeping only — items move here once addressed, keeping the table above to open items.
@@ -56,7 +58,7 @@ Bookkeeping only — items move here once addressed, keeping the table above to 
 
 Prototype phase complete — design doc: "Prototype is considered done here."
 
-## Phase: MVP
+## Phase: MVP — Completed
 
 ### Milestone: Obstacles, combos, recovery — Completed
 
@@ -96,8 +98,19 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 | 2 | Verified — Complete | `c5e89b5` | Difficulty ramp curve — per-entry `AnimationCurve` weights + spawn-interval curve, capped at a tunable ramp distance (`HealthPickup` decays to a floor instead) |
 | 3 | Verified — Complete | `1542362` | Combo-timer missing-building penalty — `ScoreSystem` subscribes to `SpawnEvents.EntityCulled` (folds backlog item: missed-building combo penalty) |
 
-### Milestone: Feel polish — In Progress
-See [current-state.md](current-state.md) for live pass-by-pass status.
+### Milestone: Feel polish — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `dd01b18` | Lateral (sideward) run bounds — soft warning + hard fly-away, mirrors `AltitudeSystem` (folds backlog item: lateral bounds) |
+| 2 | Verified — Complete | `a78fc3b` | Health HUD element — structural copy of `FuelGaugeUI` (folds backlog item: health HUD) |
+| 3 | Verified — Complete | `2e1ead9` | Android touch HUD — on-screen joystick + boost button, hand-built UI Toolkit |
+| 4 | Verified — Complete | `119f0fe` | Main menu scene UI — UI Toolkit flat-color blockout from mockup, PLAY button + stub-clickable feedback |
+| 5 | Verified — Complete | `edf0ef6` | Game flow — `Bootstrap` scene additively loads `MainMenu`+`Prototype`, `GameManager` FSM gates Play/Menu state |
+| 6 | Verified — Complete | `bbc0216` | Spawn algorithm rework — staggered per-stat ramp plateaus + chunk/pattern-based spawning (folds backlog item: spawn algorithm) |
+| 7 | Verified — Complete | `1ce5f3d` | Camera effects/juice — shake, boost follow-tighten/FOV kick, steering roll, Tough-only perfect-crash hit-stop |
+
+Feel polish milestone complete — design-doc.md: "MVP is considered done here."
 
 ## Phase: Alpha — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
