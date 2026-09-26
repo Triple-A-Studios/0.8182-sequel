@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using Alchemy.Inspector;
+using Opoint8182.Game;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
@@ -105,6 +107,13 @@ namespace Opoint8182.UI
         private void OnPlayClicked(ClickEvent evt)
         {
             Debug.Log("[MainMenu] PLAY pressed");
+
+            // Hide immediately so there's no chance of a leftover-menu flash once gameplay
+            // resumes - GameManager.EnterPlayingState only takes effect next frame (see
+            // GameManager's own comment on why), unloading MainMenu is fire-and-forget.
+            m_uiDocument.rootVisualElement.style.display = DisplayStyle.None;
+            GameManager.TryGetInstance()?.EnterPlayingState();
+            SceneManager.UnloadSceneAsync(gameObject.scene);
         }
 
         private void OnPlayPointerDown(PointerDownEvent evt)

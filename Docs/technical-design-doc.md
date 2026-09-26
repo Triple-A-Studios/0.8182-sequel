@@ -13,6 +13,7 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Pickup System](technical-design/pickup-system.md)
 - [Score System](technical-design/score-system.md)
 - [Spawning](technical-design/spawning.md)
+- [Game Flow](technical-design/game-flow.md)
 - [UI (UI Toolkit)](technical-design/ui.md)
 - [Common (shared interfaces)](technical-design/common.md)
 

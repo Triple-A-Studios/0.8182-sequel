@@ -1712,8 +1712,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2937463403651536400, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}
       propertyPath: m_followCamera
-      value: 
+      value:
       objectReference: {fileID: 1649086402}
+    - target: {fileID: 2937463403651536400, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}
+      propertyPath: m_hud
+      value:
+      objectReference: {fileID: 198709000}
     - target: {fileID: 5561655706574146712, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}
       propertyPath: m_Name
       value: Plane
