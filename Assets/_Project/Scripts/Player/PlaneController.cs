@@ -42,6 +42,7 @@ namespace Opoint8182.Player
         public bool IsBoosting { get; private set; }
         public Vector2 TouchSteer { get; set; }
         public bool TouchBoost { get; set; }
+        public Vector2 SteerInput => m_steerInput;
 
         private void Awake()
         {

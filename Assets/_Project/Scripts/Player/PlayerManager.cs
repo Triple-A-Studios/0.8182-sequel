@@ -1,5 +1,8 @@
 using Alchemy.Inspector;
 using Opoint8182.Altitude;
+using Bldng = Opoint8182.Building.Building;
+using Opoint8182.Building;
+using Opoint8182.CameraFeel;
 using Opoint8182.Common;
 using Opoint8182.Fuel;
 using Opoint8182.Game;
@@ -27,6 +30,9 @@ namespace Opoint8182.Player
         // without this, the HUD (sharing the same UI Toolkit PanelSettings as MainMenu's own UI)
         // renders on top of the menu the instant both scenes are loaded, before Play is pressed.
         [FoldoutGroup("References")] [SerializeField] private GameObject m_hud;
+        // Scene-only reference, same PrefabInstance-modification pattern as m_hud - CameraJuice
+        // lives on the CM Plane Follow Cam GameObject, not a Plane-prefab sibling.
+        [FoldoutGroup("References")] [SerializeField] private CameraJuice m_cameraJuice;
 
         private bool m_isRunEnded;
 
@@ -102,6 +108,16 @@ namespace Opoint8182.Player
             if (m_isRunEnded) return;
 
             m_fuelSystem.Refuel(quality);
+            m_cameraJuice?.ShakeForCrash(quality);
+
+            // Tough-only: Building_Normal's low reference speed already pins quality at ~1.0 on
+            // almost every weak-point hit, boosted or not, so gating on quality alone would fire
+            // hit-stop on nearly every Normal crash. Tough's higher reference speed makes a true
+            // quality-1 hit a real boost-dependent feat worth punctuating.
+            if (countsForCombo && quality >= 1f && source is Bldng building && building.BuildingType == BuildingType.Tough)
+            {
+                m_cameraJuice?.HitStop();
+            }
         }
 
         private void HandleDamageDealt(IDamageDealer source, float damage)
@@ -110,6 +126,7 @@ namespace Opoint8182.Player
 
             m_fuelSystem.Drain(damage * source.FuelDamageMultiplier);
             m_healthSystem.TakeDamage(damage * source.HealthDamageMultiplier);
+            m_cameraJuice?.ShakeForHit();
         }
 
         private void HandleRestored(IRestorer source, float amount)
@@ -126,6 +143,7 @@ namespace Opoint8182.Player
             m_isRunEnded = true;
             m_planeController.enabled = false;
             m_rigidbody.linearVelocity = Vector3.zero;
+            m_cameraJuice?.ShakeForDepleted();
         }
 
         private void HandleFlyAway()

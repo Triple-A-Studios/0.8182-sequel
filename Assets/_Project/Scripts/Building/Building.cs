@@ -23,6 +23,7 @@ namespace Opoint8182.Building
 
         public float Damage => m_toughHitDamage;
         public int ScoreValue => m_scoreValue;
+        public BuildingType BuildingType => m_buildingType;
 
         private void OnTriggerEnter(Collider other)
         {

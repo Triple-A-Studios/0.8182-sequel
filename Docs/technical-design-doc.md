@@ -14,6 +14,7 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Score System](technical-design/score-system.md)
 - [Spawning](technical-design/spawning.md)
 - [Game Flow](technical-design/game-flow.md)
+- [Camera Feel](technical-design/camera-feel.md)
 - [UI (UI Toolkit)](technical-design/ui.md)
 - [Common (shared interfaces)](technical-design/common.md)
 
