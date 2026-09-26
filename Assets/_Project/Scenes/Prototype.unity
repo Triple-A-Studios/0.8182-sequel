@@ -307,6 +307,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_clampProgressAtRampCap: 1
+    m_rampDistanceOverride: 1800
   - m_prefab: {fileID: 5038060288505121239, guid: 8401815bd7444a029a2bad6160a69b2c, type: 3}
     m_kind: 1
     m_verticalMin: 0
@@ -336,6 +337,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_clampProgressAtRampCap: 1
+    m_rampDistanceOverride: 1800
   - m_prefab: {fileID: 6277021068822703198, guid: bf8cadea57ed476faeb005b95b02dd3d, type: 3}
     m_kind: 2
     m_verticalMin: 0
@@ -432,6 +434,28 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_clampProgressAtRampCap: 0
+  m_chunks:
+  - m_name: Solo
+    m_minDistance: 0
+    m_slots:
+    - m_zOffset: 0
+      m_spawnableIndex: -1
+  - m_name: ToughPair
+    m_minDistance: 1200
+    m_slots:
+    - m_zOffset: 0
+      m_spawnableIndex: 1
+    - m_zOffset: 30
+      m_spawnableIndex: 0
+  - m_name: GauntletMixed
+    m_minDistance: 2500
+    m_slots:
+    - m_zOffset: 0
+      m_spawnableIndex: 2
+    - m_zOffset: 25
+      m_spawnableIndex: 3
+    - m_zOffset: 50
+      m_spawnableIndex: -1
   m_difficultyRampDistance: 3000
   m_spawnAheadDistance: 100
   m_spawnIntervalCurve:

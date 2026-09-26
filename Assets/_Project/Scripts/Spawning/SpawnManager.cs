@@ -23,13 +23,20 @@ namespace Opoint8182.Spawning
 			[SerializeField] private float m_verticalMin;
 			[SerializeField] private float m_verticalMax;
 
-			// Weight over normalized ramp progress (0 = run start, 1 = m_difficultyRampDistance
-			// reached). ClampProgressAtRampCap = true holds the curve's t=1 value forever once
-			// the ramp caps (every hazard/building type); false keeps sampling past t=1 on the
+			// Weight over normalized ramp progress (0 = run start, 1 = this entry's effective ramp
+			// distance reached). ClampProgressAtRampCap = true holds the curve's t=1 value forever
+			// once the ramp caps (every hazard/building type); false keeps sampling past t=1 on the
 			// curve's own raw, ever-growing progress - used only by HealthPickup, whose curve is
 			// authored flat through the ramp then decaying to a floor well past it.
 			[SerializeField] private AnimationCurve m_weightCurve;
 			[SerializeField] private bool m_clampProgressAtRampCap;
+
+			// Pass 6: per-entry plateau distance, staggered instead of every stat sharing one
+			// global cap. 0 = fall back to the manager-wide m_difficultyRampDistance - the correct
+			// default for a struct-array field added after entries already existed, since Unity
+			// zero-inits new serialized fields on existing elements rather than re-running C#
+			// field initializers.
+			[SerializeField] private float m_rampDistanceOverride;
 
 			public GameObject Prefab => m_prefab;
 			public SpawnKind Kind => m_kind;
@@ -37,6 +44,32 @@ namespace Opoint8182.Spawning
 			public float VerticalMax => m_verticalMax;
 			public AnimationCurve WeightCurve => m_weightCurve;
 			public bool ClampProgressAtRampCap => m_clampProgressAtRampCap;
+			public float RampDistanceOverride => m_rampDistanceOverride;
+		}
+
+		[Serializable]
+		private struct SpawnChunkSlot
+		{
+			[SerializeField] private float m_zOffset;
+			// -1 = weighted roll (semi-random slot); >= 0 = fixed index into m_spawnables
+			// (authored slot) - lets a chunk mix pre-authored structure with random fill.
+			[SerializeField] private int m_spawnableIndex;
+
+			public float ZOffset => m_zOffset;
+			public int SpawnableIndex => m_spawnableIndex;
+		}
+
+		[Serializable]
+		private struct SpawnChunk
+		{
+			[SerializeField] private string m_name; // editor label only, not read at runtime
+			// Chunk only enters the eligible pool once DistanceTraveled reaches this - the "pool
+			// grows with distance" lever from design-doc.md's parking lot.
+			[SerializeField] private float m_minDistance;
+			[SerializeField] private SpawnChunkSlot[] m_slots;
+
+			public float MinDistance => m_minDistance;
+			public SpawnChunkSlot[] Slots => m_slots;
 		}
 
 		[Title("Plane Reference")]
@@ -44,6 +77,9 @@ namespace Opoint8182.Spawning
 
 		[Title("Spawnables")]
 		[FoldoutGroup("Spawnables")] [SerializeField] private SpawnableEntry[] m_spawnables;
+
+		[Title("Spawn Chunks")]
+		[FoldoutGroup("Spawn Chunks")] [SerializeField] private SpawnChunk[] m_chunks;
 
 		[Title("Difficulty Ramp")]
 		[FoldoutGroup("Difficulty Ramp")] [SerializeField] private float m_difficultyRampDistance = 3000f;
@@ -119,10 +155,12 @@ namespace Opoint8182.Spawning
 			var spawnsThisFrame = 0;
 			while (planeZ + m_spawnAheadDistance >= m_nextSpawnZ && spawnsThisFrame < k_MaxSpawnsPerFrame)
 			{
-				SpawnAt(m_nextSpawnZ);
-				var advance = ComputeSpawnInterval() + UnityEngine.Random.Range(-m_spawnIntervalJitter, m_spawnIntervalJitter);
+				var chunkLength = SpawnChunkAt(m_nextSpawnZ);
+				var advance = chunkLength + ComputeSpawnInterval() + UnityEngine.Random.Range(-m_spawnIntervalJitter, m_spawnIntervalJitter);
 				// A shrinking interval curve combined with jitter can otherwise go non-positive,
 				// walking m_nextSpawnZ backward and spamming spawns at the same spot every frame.
+				// chunkLength is added on top so a multi-slot chunk's own internal length doesn't
+				// overlap the next chunk's items.
 				m_nextSpawnZ += Mathf.Max(1f, advance);
 				spawnsThisFrame++;
 			}
@@ -137,9 +175,49 @@ namespace Opoint8182.Spawning
 
 		private float ComputeWeight(SpawnableEntry entry)
 		{
-			var rawProgress = m_difficultyRampDistance > 0f ? DistanceTraveled / m_difficultyRampDistance : 1f;
-			var sampleT = entry.ClampProgressAtRampCap ? DifficultyProgress01 : rawProgress;
+			// Pass 6: sample against this entry's own effective ramp distance, not the shared
+			// DifficultyProgress01 - lets tough/normal ratio, density (still keyed to the global
+			// distance via ComputeSpawnInterval/DifficultyProgress01), and pickup rarity plateau at
+			// different distances instead of all freezing into one steady state together.
+			var rampDistance = entry.RampDistanceOverride > 0f ? entry.RampDistanceOverride : m_difficultyRampDistance;
+			var rawProgress = rampDistance > 0f ? DistanceTraveled / rampDistance : 1f;
+			var sampleT = entry.ClampProgressAtRampCap ? Mathf.Clamp01(rawProgress) : rawProgress;
 			return Mathf.Max(0f, entry.WeightCurve.Evaluate(sampleT));
+		}
+
+		private bool TryPickChunk(out SpawnChunk chunk)
+		{
+			if (m_chunks == null || m_chunks.Length == 0)
+			{
+				chunk = default;
+				return false;
+			}
+
+			var distance = DistanceTraveled;
+			var eligibleCount = 0;
+			for (var i = 0; i < m_chunks.Length; i++) if (distance >= m_chunks[i].MinDistance) eligibleCount++;
+
+			if (eligibleCount == 0)
+			{
+				chunk = default;
+				return false;
+			}
+
+			var pick = UnityEngine.Random.Range(0, eligibleCount);
+			for (var i = 0; i < m_chunks.Length; i++)
+			{
+				if (distance < m_chunks[i].MinDistance) continue;
+				if (pick == 0)
+				{
+					chunk = m_chunks[i];
+					return true;
+				}
+
+				pick--;
+			}
+
+			chunk = default;
+			return false;
 		}
 
 		private bool TryPickWeightedEntry(out SpawnableEntry picked)
@@ -169,10 +247,8 @@ namespace Opoint8182.Spawning
 			return true;
 		}
 
-		private void SpawnAt(float spawnZ)
+		private void PlaceEntry(SpawnableEntry entry, float spawnZ)
 		{
-			if (m_spawnables == null || m_spawnables.Length == 0) return;
-			if (!TryPickWeightedEntry(out var entry)) return;
 			if (entry.Prefab == null) return;
 
 			var lateral = UnityEngine.Random.Range(-m_lateralRange, m_lateralRange);
@@ -183,6 +259,44 @@ namespace Opoint8182.Spawning
 			var spawnedEntity = instance.AddComponent<SpawnedEntity>();
 			spawnedEntity.Initialize(entry.Kind);
 			m_activeEntities.Add(spawnedEntity);
+		}
+
+		// Pass 6: replaces the old one-entity-per-tick SpawnAt. Returns the chunk's max slot
+		// offset so the caller's schedule can add it on top of the normal interval, keeping a
+		// multi-slot chunk's own length from overlapping the next spawn event.
+		private float SpawnChunkAt(float anchorZ)
+		{
+			if (m_spawnables == null || m_spawnables.Length == 0) return 0f;
+
+			if (!TryPickChunk(out var chunk))
+			{
+				// No chunk eligible (e.g. m_chunks unauthored) - fall back to a single independent
+				// roll rather than spawning nothing. Not the normal path: the always-eligible
+				// "Solo" chunk (m_minDistance 0) covers this in authored data.
+				if (TryPickWeightedEntry(out var fallbackEntry)) PlaceEntry(fallbackEntry, anchorZ);
+				return 0f;
+			}
+
+			var maxOffset = 0f;
+			foreach (var slot in chunk.Slots)
+			{
+				var hasEntry = true;
+				var entry = default(SpawnableEntry);
+
+				if (slot.SpawnableIndex >= 0 && slot.SpawnableIndex < m_spawnables.Length)
+				{
+					entry = m_spawnables[slot.SpawnableIndex];
+				}
+				else
+				{
+					hasEntry = TryPickWeightedEntry(out entry);
+				}
+
+				if (hasEntry) PlaceEntry(entry, anchorZ + slot.ZOffset);
+				maxOffset = Mathf.Max(maxOffset, slot.ZOffset);
+			}
+
+			return maxOffset;
 		}
 
 		private void CullBehindPlane(float planeZ)
