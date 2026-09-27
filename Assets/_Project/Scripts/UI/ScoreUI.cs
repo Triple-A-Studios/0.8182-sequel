@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class ScoreUI : MonoBehaviour
     {
         [Title("References")]
@@ -14,39 +14,50 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private string m_comboLabelName = "combo-label";
         [FoldoutGroup("References")] [SerializeField] private string m_comboTimerFillElementName = "combo-timer-fill";
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private Label m_scoreLabel;
         private Label m_comboLabel;
         private VisualElement m_comboTimerFillElement;
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            m_scoreLabel = m_uiDocument.rootVisualElement.Q<Label>(m_scoreLabelName);
-            m_comboLabel = m_uiDocument.rootVisualElement.Q<Label>(m_comboLabelName);
-            m_comboTimerFillElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_comboTimerFillElementName);
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
 
             if (m_scoreSystem != null)
             {
                 m_scoreSystem.ScoreValue.AddListener(OnScoreChanged);
                 m_scoreSystem.MultiplierValue.AddListener(OnMultiplierChanged);
                 m_scoreSystem.ComboTimerValue.AddListener(OnComboTimerChanged);
-                SetScoreLabel(m_scoreSystem.CurrentScore);
-                SetComboLabel(m_scoreSystem.CurrentMultiplier);
-                SetComboTimerFill(m_scoreSystem.ComboTimerFraction);
             }
         }
 
         private void OnDisable()
         {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
             if (m_scoreSystem == null) return;
             m_scoreSystem.ScoreValue.RemoveListener(OnScoreChanged);
             m_scoreSystem.MultiplierValue.RemoveListener(OnMultiplierChanged);
             m_scoreSystem.ComboTimerValue.RemoveListener(OnComboTimerChanged);
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            m_scoreLabel = root.Q<Label>(m_scoreLabelName);
+            m_comboLabel = root.Q<Label>(m_comboLabelName);
+            m_comboTimerFillElement = root.Q<VisualElement>(m_comboTimerFillElementName);
+
+            if (m_scoreSystem != null)
+            {
+                SetScoreLabel(m_scoreSystem.CurrentScore);
+                SetComboLabel(m_scoreSystem.CurrentMultiplier);
+                SetComboTimerFill(m_scoreSystem.ComboTimerFraction);
+            }
         }
 
         private void OnScoreChanged(int score)

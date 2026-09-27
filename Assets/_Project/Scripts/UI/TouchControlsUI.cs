@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class TouchControlsUI : MonoBehaviour
     {
         [Title("References")]
@@ -14,19 +14,32 @@ namespace Opoint8182.UI
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_joystickMaxRadius = 50f;
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private VisualElement m_joystickBase;
         private VisualElement m_joystickHandle;
         private VisualElement m_boostButton;
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            var root = m_uiDocument.rootVisualElement;
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
+        }
+
+        private void OnDisable()
+        {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
+            UnregisterElementCallbacks();
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            UnregisterElementCallbacks();
+
             m_joystickBase = root.Q<VisualElement>("touch-joystick-background");
             m_joystickHandle = root.Q<VisualElement>("touch-joystick-handle");
             m_boostButton = root.Q<VisualElement>("touch-boost-button");
@@ -41,16 +54,25 @@ namespace Opoint8182.UI
             m_boostButton.RegisterCallback<PointerCancelEvent>(OnBoostPointerCancel);
         }
 
-        private void OnDisable()
+        // Guards against double-registration - OnUIReload can fire more than once per
+        // enable (e.g. a live asset reload), unlike the old UIDocument setup where a
+        // single OnEnable query only ever ran once per enable/disable cycle.
+        private void UnregisterElementCallbacks()
         {
-            m_joystickBase.UnregisterCallback<PointerDownEvent>(OnJoystickPointerDown);
-            m_joystickBase.UnregisterCallback<PointerMoveEvent>(OnJoystickPointerMove);
-            m_joystickBase.UnregisterCallback<PointerUpEvent>(OnJoystickPointerUp);
-            m_joystickBase.UnregisterCallback<PointerCancelEvent>(OnJoystickPointerCancel);
+            if (m_joystickBase != null)
+            {
+                m_joystickBase.UnregisterCallback<PointerDownEvent>(OnJoystickPointerDown);
+                m_joystickBase.UnregisterCallback<PointerMoveEvent>(OnJoystickPointerMove);
+                m_joystickBase.UnregisterCallback<PointerUpEvent>(OnJoystickPointerUp);
+                m_joystickBase.UnregisterCallback<PointerCancelEvent>(OnJoystickPointerCancel);
+            }
 
-            m_boostButton.UnregisterCallback<PointerDownEvent>(OnBoostPointerDown);
-            m_boostButton.UnregisterCallback<PointerUpEvent>(OnBoostPointerUp);
-            m_boostButton.UnregisterCallback<PointerCancelEvent>(OnBoostPointerCancel);
+            if (m_boostButton != null)
+            {
+                m_boostButton.UnregisterCallback<PointerDownEvent>(OnBoostPointerDown);
+                m_boostButton.UnregisterCallback<PointerUpEvent>(OnBoostPointerUp);
+                m_boostButton.UnregisterCallback<PointerCancelEvent>(OnBoostPointerCancel);
+            }
         }
 
         private void OnJoystickPointerDown(PointerDownEvent evt)

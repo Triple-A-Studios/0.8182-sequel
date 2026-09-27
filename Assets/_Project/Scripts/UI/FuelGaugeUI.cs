@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class FuelGaugeUI : MonoBehaviour
     {
         [FormerlySerializedAs("fuelSystem")]
@@ -14,28 +14,33 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private FuelSystem m_fuelSystem;
         [FoldoutGroup("References")] [SerializeField] private string m_fillElementName = "fuel-gauge-fill";
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private VisualElement m_fillElement;
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            m_fillElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_fillElementName);
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
 
-            if (m_fuelSystem != null)
-            {
-                m_fuelSystem.FuelValue.AddListener(OnFuelChanged);
-                SetFillWidth(m_fuelSystem.FuelFraction);
-            }
+            if (m_fuelSystem != null) m_fuelSystem.FuelValue.AddListener(OnFuelChanged);
         }
 
         private void OnDisable()
         {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
             if (m_fuelSystem != null) m_fuelSystem.FuelValue.RemoveListener(OnFuelChanged);
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            m_fillElement = root.Q<VisualElement>(m_fillElementName);
+
+            if (m_fuelSystem != null) SetFillWidth(m_fuelSystem.FuelFraction);
         }
 
         private void OnFuelChanged(float _)

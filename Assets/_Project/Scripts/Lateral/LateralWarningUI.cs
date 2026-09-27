@@ -5,40 +5,42 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class LateralWarningUI : MonoBehaviour
     {
         [Title("References")]
         [FoldoutGroup("References")] [SerializeField] private LateralSystem m_lateralSystem;
         [FoldoutGroup("References")] [SerializeField] private string m_rootElementName = "lateral-warning-root";
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private VisualElement m_rootElement;
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            m_rootElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_rootElementName);
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
 
-            if (m_lateralSystem != null)
-            {
-                m_lateralSystem.IsWarningValue.AddListener(OnIsWarningChanged);
-                SetVisible(m_lateralSystem.IsWarningValue.Value);
-            }
-            else
-            {
-                SetVisible(false);
-            }
+            if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.AddListener(OnIsWarningChanged);
         }
 
         private void OnDisable()
         {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
             if (m_lateralSystem == null) return;
             m_lateralSystem.IsWarningValue.RemoveListener(OnIsWarningChanged);
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            m_rootElement = root.Q<VisualElement>(m_rootElementName);
+
+            if (m_lateralSystem != null) SetVisible(m_lateralSystem.IsWarningValue.Value);
+            else SetVisible(false);
         }
 
         private void OnIsWarningChanged(bool isWarning)

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class GameOverUI : MonoBehaviour
     {
         [Title("References")]
@@ -16,7 +16,7 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private string m_scoreLabelName = "game-over-score-label";
         [FoldoutGroup("References")] [SerializeField] private string m_restartButtonName = "restart-button";
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private VisualElement m_rootElement;
         private Label m_scoreLabel;
         private Button m_restartButton;
@@ -24,18 +24,12 @@ namespace Opoint8182.UI
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            m_rootElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_rootElementName);
-            m_scoreLabel = m_uiDocument.rootVisualElement.Q<Label>(m_scoreLabelName);
-            m_restartButton = m_uiDocument.rootVisualElement.Q<Button>(m_restartButtonName);
-
-            SetVisible(false);
-
-            if (m_restartButton != null) m_restartButton.clicked += HandleRestartClicked;
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
 
             // m_hud (this object's parent) gets SetActive(false)/(true) across the
             // Bootstrap menu<->play transition (PlayerManager.HandleReturnedToMenu/
@@ -64,8 +58,26 @@ namespace Opoint8182.UI
 
         private void OnDisable()
         {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
             if (m_gameManager != null) m_gameManager.RunEnded -= HandleRunEnded;
             if (m_restartButton != null) m_restartButton.clicked -= HandleRestartClicked;
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            // Guards against double-registration - OnUIReload can fire more than once per
+            // enable (e.g. a live asset reload), unlike the old UIDocument setup where a
+            // single OnEnable query only ever ran once per enable/disable cycle.
+            if (m_restartButton != null) m_restartButton.clicked -= HandleRestartClicked;
+
+            m_rootElement = root.Q<VisualElement>(m_rootElementName);
+            m_scoreLabel = root.Q<Label>(m_scoreLabelName);
+            m_restartButton = root.Q<Button>(m_restartButtonName);
+
+            SetVisible(false);
+
+            if (m_restartButton != null) m_restartButton.clicked += HandleRestartClicked;
         }
 
         private void HandleRunEnded()

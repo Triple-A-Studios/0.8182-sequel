@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class MainMenuController : MonoBehaviour
     {
         [Title("References")]
@@ -43,7 +43,8 @@ namespace Opoint8182.UI
             "PATIENCE. ALPHA. SOON(ish).",
         };
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
+        private VisualElement m_rootElement;
         private VisualElement m_playButton;
         private VisualElement m_safeArea;
         private List<VisualElement> m_stubButtons;
@@ -56,12 +57,26 @@ namespace Opoint8182.UI
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            var root = m_uiDocument.rootVisualElement;
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
+        }
+
+        private void OnDisable()
+        {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
+            UnregisterElementCallbacks();
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            UnregisterElementCallbacks();
+
+            m_rootElement = root;
             m_playButton = root.Q<VisualElement>(m_playButtonElementName);
             m_safeArea = root.Q<VisualElement>(m_safeAreaElementName);
             m_stubToast = root.Q<VisualElement>(m_stubToastElementName);
@@ -85,15 +100,23 @@ namespace Opoint8182.UI
             }
         }
 
-        private void OnDisable()
+        // Guards against double-registration - OnUIReload can fire more than once per
+        // enable (e.g. a live asset reload), unlike the old UIDocument setup where a
+        // single OnEnable query only ever ran once per enable/disable cycle.
+        private void UnregisterElementCallbacks()
         {
-            m_playButton.UnregisterCallback<ClickEvent>(OnPlayClicked);
-            m_playButton.UnregisterCallback<PointerDownEvent>(OnPlayPointerDown);
-            m_playButton.UnregisterCallback<PointerUpEvent>(OnPlayPointerUp);
-            m_playButton.UnregisterCallback<PointerLeaveEvent>(OnPlayPointerUp);
-            m_playButton.UnregisterCallback<PointerCancelEvent>(OnPlayPointerUp);
-            m_safeArea.UnregisterCallback<GeometryChangedEvent>(ApplySafeAreaOnce);
+            if (m_playButton != null)
+            {
+                m_playButton.UnregisterCallback<ClickEvent>(OnPlayClicked);
+                m_playButton.UnregisterCallback<PointerDownEvent>(OnPlayPointerDown);
+                m_playButton.UnregisterCallback<PointerUpEvent>(OnPlayPointerUp);
+                m_playButton.UnregisterCallback<PointerLeaveEvent>(OnPlayPointerUp);
+                m_playButton.UnregisterCallback<PointerCancelEvent>(OnPlayPointerUp);
+            }
 
+            if (m_safeArea != null) m_safeArea.UnregisterCallback<GeometryChangedEvent>(ApplySafeAreaOnce);
+
+            if (m_stubButtons == null) return;
             foreach (var stubButton in m_stubButtons)
             {
                 stubButton.UnregisterCallback<ClickEvent>(OnStubButtonClicked);
@@ -111,7 +134,7 @@ namespace Opoint8182.UI
             // Hide immediately so there's no chance of a leftover-menu flash once gameplay
             // resumes - GameManager.EnterPlayingState only takes effect next frame (see
             // GameManager's own comment on why), unloading MainMenu is fire-and-forget.
-            m_uiDocument.rootVisualElement.style.display = DisplayStyle.None;
+            m_rootElement.style.display = DisplayStyle.None;
             GameManager.TryGetInstance()?.EnterPlayingState();
             SceneManager.UnloadSceneAsync(gameObject.scene);
         }

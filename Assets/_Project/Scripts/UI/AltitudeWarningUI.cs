@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-    [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(PanelRenderer))]
     public class AltitudeWarningUI : MonoBehaviour
     {
         [Title("References")]
@@ -13,24 +13,42 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private string m_rootElementName = "altitude-warning-root";
         [FoldoutGroup("References")] [SerializeField] private string m_fillElementName = "altitude-warning-fill";
 
-        private UIDocument m_uiDocument;
+        private PanelRenderer m_panelRenderer;
         private VisualElement m_rootElement;
         private VisualElement m_fillElement;
 
         private void Awake()
         {
-            m_uiDocument = GetComponent<UIDocument>();
+            m_panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            m_rootElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_rootElementName);
-            m_fillElement = m_uiDocument.rootVisualElement.Q<VisualElement>(m_fillElementName);
+            m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
 
             if (m_altitudeSystem != null)
             {
                 m_altitudeSystem.IsWarningValue.AddListener(OnIsWarningChanged);
                 m_altitudeSystem.WarningFractionValue.AddListener(OnFractionChanged);
+            }
+        }
+
+        private void OnDisable()
+        {
+            m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
+            if (m_altitudeSystem == null) return;
+            m_altitudeSystem.IsWarningValue.RemoveListener(OnIsWarningChanged);
+            m_altitudeSystem.WarningFractionValue.RemoveListener(OnFractionChanged);
+        }
+
+        private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
+        {
+            m_rootElement = root.Q<VisualElement>(m_rootElementName);
+            m_fillElement = root.Q<VisualElement>(m_fillElementName);
+
+            if (m_altitudeSystem != null)
+            {
                 SetVisible(m_altitudeSystem.IsWarningValue.Value);
                 SetFillWidth(m_altitudeSystem.WarningFractionValue.Value);
             }
@@ -38,13 +56,6 @@ namespace Opoint8182.UI
             {
                 SetVisible(false);
             }
-        }
-
-        private void OnDisable()
-        {
-            if (m_altitudeSystem == null) return;
-            m_altitudeSystem.IsWarningValue.RemoveListener(OnIsWarningChanged);
-            m_altitudeSystem.WarningFractionValue.RemoveListener(OnFractionChanged);
         }
 
         private void OnIsWarningChanged(bool isWarning)
