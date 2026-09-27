@@ -36,6 +36,15 @@ namespace Opoint8182.UI
             SetVisible(false);
 
             if (m_restartButton != null) m_restartButton.clicked += HandleRestartClicked;
+
+            // m_hud (this object's parent) gets SetActive(false)/(true) across the
+            // Bootstrap menu<->play transition (PlayerManager.HandleReturnedToMenu/
+            // HandleRunStarted), which re-fires OnEnable/OnDisable on every toggle but
+            // only ever fires Start() once. Subscribing here too (once m_gameManager is
+            // cached, see Start() below) is what makes the second and later re-enables
+            // still receive RunEnded - Start() alone missed a real bug where the menu
+            // round-trip silently dropped the subscription and Game Over never showed.
+            if (m_gameManager != null) m_gameManager.RunEnded += HandleRunEnded;
         }
 
         private void Start()
