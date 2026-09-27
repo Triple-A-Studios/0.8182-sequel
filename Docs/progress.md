@@ -112,7 +112,18 @@ Prototype phase complete — design doc: "Prototype is considered done here."
 
 Feel polish milestone complete — design-doc.md: "MVP is considered done here."
 
-## Phase: Alpha — Upcoming
+## Phase: Alpha
+
+### Milestone: MVP bug fix + backlog + engine upgrade — In Progress
+See [current-state.md](current-state.md) for live pass status.
+
+### Milestone: Live leaderboard — Upcoming
+See [plan.md](plan.md#phase-alpha) for scope.
+
+### Milestone: UI/art pass — Upcoming
+See [plan.md](plan.md#phase-alpha) for scope.
+
+### Milestone: Daily play structure — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
 
 ## Phase: Beta — Upcoming
