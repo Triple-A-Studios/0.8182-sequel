@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <Style src="TouchControls.uss" />
+    <ui:VisualElement name="touch-joystick-zone" class="touch-joystick-zone" />
     <ui:VisualElement name="touch-joystick-background" class="touch-joystick-background">
         <ui:VisualElement name="touch-joystick-handle" class="touch-joystick-handle" />
     </ui:VisualElement>

@@ -1,7 +1,20 @@
-.touch-joystick-background {
+/* Touch-capture area for the floating joystick - left half of the panel for now
+   (hardcoded; a later pass makes this a developer-facing side setting). Invisible,
+   just where PointerDown events are registered. */
+.touch-joystick-zone {
     position: absolute;
-    left: 40px;
-    bottom: 40px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+}
+
+.touch-joystick-background {
+    /* Repositioned via inline style.left/top on every touch-down - floats to
+       wherever the player touches within touch-joystick-zone instead of sitting at
+       a fixed rest position. Hidden until touched. */
+    display: none;
+    position: absolute;
     width: 140px;
     height: 140px;
     border-radius: 70px;

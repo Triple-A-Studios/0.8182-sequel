@@ -829,7 +829,7 @@ GameObject:
   - component: {fileID: 513890869}
   - component: {fileID: 513890870}
   m_Layer: 0
-  m_Name: UIDocument
+  m_Name: FuelGauge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1778,6 +1778,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_planeController: {fileID: 900000060005}
   m_joystickMaxRadius: 50
+  m_joystickBackgroundSize: 140
 --- !u!114 &900000060005 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8901983981539814019, guid: 552f6e0abd225d94f8bb3a327dee02a8, type: 3}
