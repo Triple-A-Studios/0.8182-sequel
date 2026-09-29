@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="GroundWarning.uss" />
+    <ui:VisualElement name="ground-warning-root" class="ground-warning-root">
+        <ui:Label name="ground-warning-label" text="TOO LOW - PULL UP!" class="ground-warning-label" />
+    </ui:VisualElement>
+</ui:UXML>

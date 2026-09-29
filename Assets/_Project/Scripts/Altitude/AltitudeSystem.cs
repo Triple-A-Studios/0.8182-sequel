@@ -3,6 +3,7 @@ using Alchemy.Inspector;
 using Opoint8182.Player;
 using TripleA.Utils.Observables.Primaries;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Opoint8182.Altitude
 {
@@ -11,7 +12,8 @@ namespace Opoint8182.Altitude
     {
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_ceilingY = 30f;
-        [FoldoutGroup("Tunables")] [SerializeField] private float m_groundY = -1f;
+        [FoldoutGroup("Tunables")] [FormerlySerializedAs("m_groundY")] [SerializeField] private float m_groundHardY = -1f;
+        [FoldoutGroup("Tunables")] [SerializeField] private float m_groundSoftY = 3f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_ceilingWarningSeconds = 4f;
 
         private bool m_ceilingExceeded;
@@ -20,6 +22,7 @@ namespace Opoint8182.Altitude
 
         private ObservableBool m_isWarning;
         private ObservableFloat m_warningFraction;
+        private ObservableBool m_isGroundWarning;
         private PlaneController m_planeController;
 
         public event Action CeilingExceeded;
@@ -29,9 +32,11 @@ namespace Opoint8182.Altitude
         // Unity doesn't guarantee Awake order across different GameObjects.
         private ObservableBool IsWarningObservable => m_isWarning ??= new ObservableBool(false);
         private ObservableFloat WarningFractionObservable => m_warningFraction ??= new ObservableFloat(1f);
+        private ObservableBool IsGroundWarningObservable => m_isGroundWarning ??= new ObservableBool(false);
 
         public ObservableBool IsWarningValue => IsWarningObservable;
         public ObservableFloat WarningFractionValue => WarningFractionObservable;
+        public ObservableBool IsGroundWarningValue => IsGroundWarningObservable;
 
         private void Awake()
         {
@@ -45,11 +50,15 @@ namespace Opoint8182.Altitude
 
             var altitude = transform.position.y;
 
-            if (altitude <= m_groundY)
+            if (altitude <= m_groundHardY)
             {
                 MarkGroundHit();
                 return;
             }
+
+            // Plain in/out warning, no countdown - mirrors LateralSystem's soft/hard bound
+            // pattern, deliberately not the ceiling's grace-period-timer pattern below.
+            IsGroundWarningObservable.Set(altitude <= m_groundSoftY);
 
             if (altitude >= m_ceilingY)
             {
@@ -85,6 +94,7 @@ namespace Opoint8182.Altitude
         private void MarkGroundHit()
         {
             m_groundHit = true;
+            IsGroundWarningObservable.Set(false);
             GroundHit?.Invoke();
         }
     }
