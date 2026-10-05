@@ -130,8 +130,8 @@ Feel polish milestone complete — design-doc.md: "MVP is considered done here."
 
 Milestone complete — plan.md's definition of done met; the Android on-device recheck of Pass 3's resolution/joystick change is still the developer's to confirm opportunistically.
 
-### Milestone: Live leaderboard — Upcoming
-See [plan.md](plan.md#phase-alpha) for scope.
+### Milestone: Live leaderboard — In Progress
+See [current-state.md](current-state.md) for live pass status; [plan.md](plan.md#phase-alpha) for scope.
 
 ### Milestone: UI/art pass — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.

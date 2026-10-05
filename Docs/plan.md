@@ -18,9 +18,9 @@ Milestones:
 ### Phase: Alpha
 Milestones:
 - **MVP bug fix + backlog + engine upgrade** — closes out issues found testing the MVP Android build before Alpha feature work starts. Evaluate the Unity 6.6 upgrade (better UITK support) and decide go/no-go. Fix three Android-only bugs: Game Over screen not appearing on run-end, main-menu stub-button press effects not visible, and a one-off unrecoverable 360°-roll when a finger slides off-screen mid-steer (needs ADB logcat repro). Two QoL items: update Panel Settings target resolution/aspect ratio off the outdated 1920x1080/16:9 assumption (visual polish itself deferred to the Alpha UI/art pass), and rework the static bottom-left touch joystick into a floating joystick (origin follows first-touch position; which screen half is enabled is a later-pass setting). Folds backlog #22 (low-altitude warning, mirrors `LateralSystem`) and #15 (healing building type). Done when the 6.6 decision is made and recorded, all three bugs are fixed and verified on an Android device, both QoL items have landed, and backlog #22/#15 are resolved.
-- **Live leaderboard** — backend not yet decided; Unity's own leaderboard service vs. a free third-party option is research needed, not resolved.
+- **Live leaderboard** — Unity Leaderboards (UGS) with anonymous sign-in, decided in Pass 1 research (see `design-doc.md`). Done when a run's score can be submitted and the top scores displayed, verified on Android and in a WebGL build.
 - **UI/art pass** — replace the prototype's placeholder visuals with real UI/art.
-- **Daily play structure** — 3 leaderboard attempts/day, a separate practice mode with a hard 30-minute/day cap (exact enforcement mechanics TBD), and a share-to-socials feature for posting a high-score screenshot.
+- **Daily play structure** — (also moves leaderboard score submission behind Cloud Code validation, client submit disabled — see `design-doc.md`) 3 leaderboard attempts/day, a separate practice mode with a hard 30-minute/day cap (exact enforcement mechanics TBD), and a share-to-socials feature for posting a high-score screenshot.
 
 ### Phase: Beta
 Milestones:
