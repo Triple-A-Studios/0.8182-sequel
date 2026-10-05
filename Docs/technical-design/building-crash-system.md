@@ -47,6 +47,12 @@ Boost (Milestone 2 Pass 2) raises the plane's real speed via `PlaneController.Sp
 
 **Resolved (Milestone 3 Pass 1):** [`FuelSystem`](fuel-system.md) and [`HealthSystem`](health-system.md) previously each hardcoded a single source reference (a Milestone-1 scaffold constraint), so only `Building_Tough` ever refueled/damaged the plane and `Building_Normal` had no subscribers. Both systems now take arrays and subscribe to every entry, mirroring [`ScoreSystem`](score-system.md)'s pre-existing `Bldng[] m_buildings` pattern — see fuel-system.md's "Multi-source wiring" section.
 
+## Heal building (Alpha "MVP bug fix" milestone, Pass 5)
+
+`HealBuilding.cs` (`Assets/_Project/Scripts/Building/HealBuilding.cs`), prefab `Building_Heal.prefab` (duplicate of `Building_Normal` with a green material). Backlog #15. Implements [`IRestorer`](common.md), **not** `ICrashSource`/`IDamageDealer` — so it never fires `CombatEvents.RaiseCrashed`, meaning no refuel, no score, no combo contribution.
+
+`OnTriggerEnter` repeats `Building`'s trigger-based weak-point test and speed-only quality (`hitWeakPoint ? Clamp01(speed / m_referenceMaxSpeed) : 0`), then fires `CombatEvents.RaiseRestored(this, quality * m_maxRestoreAmount)` (default 35, equal to a Tough mistimed hit's damage) and destroys itself. A weak-point miss heals zero (developer decision). `PlayerManager.HandleRestored` → `HealthSystem.Heal` (clamps to max) consumes it unchanged. The ~10 lines of weak-point/quality math are duplicated from `Building` rather than extracted. Spawned via `SpawnKind.BuildingHeal`; [`ScoreSystem`](score-system.md)'s missed-building filter only matches `BuildingNormal`/`BuildingTough`, so an unhit heal building doesn't penalize the combo timer.
+
 ## Damage dealing (Milestone 2 Pass 3)
 
 `Building` implements [`IDamageDealer`](common.md) (`Assets/_Project/Scripts/Common/IDamageDealer.cs`): a `Damage` property backed by its own `m_toughHitDamage` tunable, and `public event Action<float> DamageDealt`, fired with that value from the same `!canBreak` branch described above, right before the early `return`. A mistimed tough-building hit is a distinct outcome from `Crashed` (broke, refuel), so it gets its own event rather than overloading `Crashed` with a zero/negative quality value.

@@ -5,7 +5,6 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 
 | # | Item | Origin | Type |
 |---|---|---|---|
-| 15 | New building type: heals the plane on crash, same precision-matters feel as `Building`'s damage buildings — weak point + speed-gated crash-quality formula, but firing `CombatEvents.RaiseRestored` (scaled by quality) instead of `RaiseCrashed`. Needs its own component (`HealthSystem`/`Building`'s `IRestorer`/`ICrashSource` split means `HealthPickup`'s flat touch-heal can't be reused as-is) plus a new prefab and `SpawnKind` entry. | Developer note (2026-09-18) | Feature |
 | 19 | Post-plateau spawn oscillator (Left 4 Dead "AI Director" style: modulate spawn-rate/toughness with a slow sine after the ramp plateaus, instead of holding flat) — explicitly deferred out of Feel polish Pass 6 pending playtest results on the staggered-plateau + chunk-spawning rework. See `design-doc.md`'s "Difficulty ramp — engagement levers" parking lot. | Developer note (2026-09-26) | Design |
 | 20 | Chunk-spawning rework — Pass 6's `SpawnChunk`/`SpawnChunkSlot` starter set (`Solo`/`ToughPair`/`GauntletMixed`, fixed Z-offset slots, uniform pick among distance-eligible chunks) is a first cut; flagged post-playtest for better chunk variety/authoring. See [spawning.md](technical-design/spawning.md#chunkpattern-based-spawning-pass-6). | Developer note (2026-09-26) | Design |
 | 21 | Multi-lane spawn system (Subway Surfers-style) — lateral spawn position should snap to a fixed lane set with min/max variance instead of `SpawnManager`'s current continuous `Random.Range(-m_lateralRange, m_lateralRange)`; needs a matching height-lane axis too, for `BirdSmall`/`HealthPickup` (currently a per-entry vertical min/max range, not discrete lanes). | Developer note (2026-09-26) | Feature |
@@ -18,6 +17,7 @@ Bookkeeping only — items move here once addressed, keeping the table above to 
 
 | # | Item | Origin | Type | Status |
 |---|---|---|---|---|
+| 15 | ~~New building type: heals the plane on crash, same precision-matters feel as `Building`'s damage buildings.~~ Done: `HealBuilding` (`IRestorer`, fires `RaiseRestored(quality * 35)`, weak-point miss heals zero) + `Building_Heal.prefab` + `SpawnKind.BuildingHeal` (Pass 5, Milestone: MVP bug fix + backlog + engine upgrade). | Developer note (2026-09-18) | Feature | Resolved (Pass 5, Milestone: MVP bug fix + backlog + engine upgrade) |
 | 22 | ~~Low-altitude warning (ground proximity) — mirror `LateralSystem`'s soft/hard bound pattern instead of `AltitudeSystem`'s current ground behavior (instant run-end, no warning).~~ Done: `AltitudeSystem.IsGroundWarningValue` + `m_groundSoftY`/`m_groundHardY` (Pass 4, Milestone: MVP bug fix + backlog + engine upgrade). | Developer note (2026-09-26) | Feature | Resolved (Pass 4, Milestone: MVP bug fix + backlog + engine upgrade) |
 | 2 | ~~Extend the `IDamageDealer` pattern to other resource-affecting sources — a restore interface for future health/fuel pickups~~ Done: `IRestorer` (Pass 4, Milestone 3), consumed by `HealthSystem`, implemented by `HealthPickup`. | [Pass 3, Milestone: Building types + scoring](current-state.md) | Enhancement | Resolved (Pass 4, Milestone: Obstacles, combos, recovery) |
 | 3 | ~~A symmetric refuel-source interface for `Building.Crashed` (so `FuelSystem` doesn't hardcode `Building` as the crash-source type) is still open — only the pickup/restore half of the original idea was folded into Pass 4.~~ Done: `ICrashSource` (Pass 1, Milestone: Core systems refactor). | [Pass 3, Milestone: Building types + scoring](current-state.md) | Enhancement | Resolved (Pass 1, Milestone: Core systems refactor) |
@@ -115,8 +115,20 @@ Feel polish milestone complete — design-doc.md: "MVP is considered done here."
 
 ## Phase: Alpha
 
-### Milestone: MVP bug fix + backlog + engine upgrade — In Progress
-See [current-state.md](current-state.md) for live pass status.
+### Milestone: MVP bug fix + backlog + engine upgrade — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `5e8eaa3` | Unity 6.6 upgrade (6000.0.79f1 → 6000.6.3f1; tech stream over 6.3 LTS, developer's call) |
+| 2.a | Verified — Complete | `68473fc` | Game Over screen not appearing via Bootstrap — `GameOverUI` re-subscribes to `RunEnded` on every `OnEnable` |
+| 2.b | Verified — Complete | — | Main-menu button press effect not visible on Android — resolved incidentally by Pass 2.c, no separate commit |
+| 2.c | Verified — Complete | `9c43143` | `UIDocument` → `PanelRenderer` migration across all UI scripts (not originally scoped) |
+| 2.d | Verified — Complete | `a521b23` | Unrecoverable plane spin — froze Plane Rigidbody rotation (not Android-specific) |
+| 3 | Verified — Complete | `c22fcf1` | Touch UI QoL: reference resolution 1920x1080 → 2400x1080 + floating joystick |
+| 4 | Verified — Complete | `fb5291f` | Low-altitude warning (folds backlog #22) |
+| 5 | Verified — Complete | `2f1a1ac` | Heal building type (folds backlog #15) |
+
+Milestone complete — plan.md's definition of done met; the Android on-device recheck of Pass 3's resolution/joystick change is still the developer's to confirm opportunistically.
 
 ### Milestone: Live leaderboard — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.

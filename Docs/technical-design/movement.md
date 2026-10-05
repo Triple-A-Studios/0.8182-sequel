@@ -10,6 +10,8 @@ Pitch (`Move` Y) and bank (`Move` X) are both **purely cosmetic** — same patte
 
 Pitch was the only source of physical rotation until Pass 1 of the "Movement & fail-state rework" milestone made it cosmetic-only — this was a deliberate step to make crash-impact angle constant, since the crash-quality formula (see [building-crash-system.md](building-crash-system.md)) is being reworked to no longer depend on precise crash angle.
 
+**Rigidbody rotation is frozen** (`Plane.prefab` `m_Constraints: 112`, Freeze Rotation X/Y/Z — Alpha "MVP bug fix" milestone Pass 2.d). All visible rotation is cosmetic via `m_visualRoot`, so the physical body must never rotate. Without the constraint, steering while in solid contact with a non-trigger collider (the ground, `Obstacle_Large`) let PhysX resolve the contact with torque against the force-set `linearVelocity`, spinning the whole plane. Reproduced in-Editor, not Android-specific.
+
 ## Boost (Milestone 2 Pass 2)
 
 Reuses the existing `Sprint` action (`InputSystem_Actions.inputactions`, `Player` map — already bound to `<Keyboard>/leftShift`, `<Gamepad>/leftStickPress`, `<XRController>/trigger`) rather than adding a new action to that asset; `PlaneController.m_boostAction` just points at it. While held (`IsPressed()`, read once per `FixedUpdate` into the public `IsBoosting` property):

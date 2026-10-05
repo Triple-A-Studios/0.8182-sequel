@@ -4,7 +4,7 @@
 
 ## Two independent thresholds, two distinct events
 
-`m_ceilingY` (default `30`) and `m_groundY` (default `-1`, matching the scene's `Ground` mesh's actual top surface) are both plain `[SerializeField]` tunables, checked every `FixedUpdate` against `transform.position.y`. Crossing either raises its own parameterless event exactly once, guarded the same way `HealthSystem.MarkDepleted`/`FuelSystem.MarkDepleted` guard `Depleted`:
+`m_ceilingY` (default `30`) and `m_groundHardY` (default `-1`, matching the scene's `Ground` mesh's actual top surface; renamed from `m_groundY` in Alpha's "MVP bug fix" milestone Pass 4 via `[FormerlySerializedAs]`) are both plain `[SerializeField]` tunables, checked every `FixedUpdate` against `transform.position.y`. Ground additionally has `m_groundSoftY` (default `3`) — see [Ground soft warning](#ground-soft-warning) below. Crossing either raises its own parameterless event exactly once, guarded the same way `HealthSystem.MarkDepleted`/`FuelSystem.MarkDepleted` guard `Depleted`:
 
 - `public event Action GroundHit` — instant, no grace period.
 - `public event Action CeilingExceeded` — only after the ceiling warning countdown (below) expires.
@@ -24,6 +24,10 @@ While `transform.position.y >= m_ceilingY`, a countdown (`m_ceilingWarningSecond
 Descent detection reads `PlaneController.Velocity` (already public) rather than the raw input action directly — `AltitudeSystem` already requires `PlaneController` as a sibling, and velocity is a strictly simpler dependency than reaching into the Input System action asset.
 
 The countdown is exposed as `ObservableBool IsWarningValue` + `ObservableFloat WarningFractionValue` (both `TripleA.Utils.Observables.Primaries`, same lazy-construction pattern as `FuelSystem.Fuel`) — two observables rather than a fraction alone, since a fraction can't distinguish "freshly reset to 1.0" from "not warning at all" (both read `1.0`). [`AltitudeWarningUI`](ui.md#altitude-warning-movement--fail-state-rework-pass-4) binds to both.
+
+## Ground soft warning
+
+Added in Alpha's "MVP bug fix + backlog + engine upgrade" milestone, Pass 4 (backlog #22). Mirrors [`LateralSystem`](lateral-system.md)'s soft/hard pattern, deliberately **not** the ceiling's countdown: every `FixedUpdate`, after the hard-ground check, `IsGroundWarningValue` (`ObservableBool`) is set to `altitude <= m_groundSoftY` — a plain in/out state, no timer, no fraction. Crossing `m_groundHardY` still raises `GroundHit` instantly, unchanged, and clears the warning. No new event — the soft warning is continuous state consumed via `AddListener`, not a one-shot. [`GroundWarningUI`](ui.md#ground-warning-alpha-mvp-bug-fix-milestone-pass-4) binds to it. The ceiling countdown logic is untouched.
 
 ## Run end
 

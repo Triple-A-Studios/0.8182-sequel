@@ -4,7 +4,7 @@ Project convention: UI Toolkit (UITK), not uGUI (see [CLAUDE.md](../../CLAUDE.md
 
 ## Asset layout
 
-- `Assets/_Project/Settings/FuelGaugePanelSettings.asset` — `PanelSettings` ScriptableObject. **Created via the Editor menu** (`Assets > Create > UI Toolkit > Panel Settings Asset`), not hand-authored — it wires an internal default theme reference (`Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss`, Unity's own auto-generated default, committed as a normal dependency) that isn't safe to reconstruct by hand. Scale Mode = Scale With Screen Size, reference resolution ~1920x1080 (landscape, matching the project's landscape-only target), Match 0.5.
+- `Assets/_Project/Settings/FuelGaugePanelSettings.asset` — `PanelSettings` ScriptableObject. **Created via the Editor menu** (`Assets > Create > UI Toolkit > Panel Settings Asset`), not hand-authored — it wires an internal default theme reference (`Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss`, Unity's own auto-generated default, committed as a normal dependency) that isn't safe to reconstruct by hand. Scale Mode = Scale With Screen Size, reference resolution **2400x1080** (20:9 — bumped from 1920x1080 in Alpha's "MVP bug fix" milestone Pass 3, since most current Android phones are wider than 16:9 in landscape and the old reference rendered touch controls too small), Match 0.5. Shared by every `PanelRenderer` in the project (HUD and Main Menu).
 - `Assets/_Project/UI/FuelGauge.uxml` / `FuelGauge.uss` — plain text, hand-authored directly (safe, unlike PanelSettings — no embedded GUID fragility at this level).
 - `Assets/_Project/Scripts/UI/FuelGaugeUI.cs`, namespace `Opoint8182.UI`.
 
@@ -106,3 +106,23 @@ That 14px travel introduced a second bug, also developer-caught: `mode-tabs` ove
 **Out-of-phase placeholder chips**: the mockup includes UI for systems `plan.md` scopes to later phases — `currency-chip`/`shop-tile` (Beta: "Shop, currency, economy") and `attempts-chip`/mode tabs/`leaderboard-tile` (Alpha: "Live leaderboard", "Daily play structure"). Built now as pure static placeholders (hardcoded text/values, no backend, `picking-mode: Ignore`) per an explicit developer decision — they block out layout now so those phases don't have to redesign this screen from scratch later, but carry no logic until their actual phase lands.
 
 **Fonts**: Baloo 2 / Nunito (spec's requested fonts) aren't in the project and weren't fetched — falls back to the default UITK theme font, per the spec's own explicit contingency, flagged with `// TODO: font` / `/* TODO: font */` comments at each use.
+
+## PanelRenderer migration (Alpha "MVP bug fix" milestone, Pass 2.c)
+
+**Supersedes every `UIDocument` mention above.** Unity 6.5+ marks `UIDocument` frozen (Inspector warning surfaced by the 6.6 upgrade); all 9 UI scripts (`FuelGaugeUI`, `HealthGaugeUI`, `ScoreUI`, `AltitudeWarningUI`, `LateralWarningUI`, `GroundWarningUI`, `GameOverUI`, `TouchControlsUI`, `MainMenuController`) now use `[RequireComponent(typeof(PanelRenderer))]`. `PanelRenderer` is a real `Renderer` (better batching/culling) and keeps the visual tree alive across enable/disable instead of rebuilding it.
+
+Pattern every UI script follows:
+- `OnEnable`: `m_panelRenderer.RegisterUIReloadCallback(OnUIReload)`; `OnDisable`: unregister it.
+- `OnUIReload(PanelRenderer, VisualElement root, int version)` does the `root.Q<>()` queries and any initial push of current values. It fires immediately if the UI is already loaded and again on any reload, so it can run more than once per enable.
+- Subscriptions to game systems (`ObservableX.AddListener`, `GameManager` events) stay in `OnEnable`/`OnDisable`. Element-level callbacks (`RegisterCallback`, `Button.clicked`) are wired in `OnUIReload` behind an unregister-first guard (see `TouchControlsUI.UnregisterElementCallbacks`) to avoid double registration.
+- Scene setup: each UI GameObject has a `PanelRenderer` (Panel Settings = shared `FuelGaugePanelSettings.asset`, Visual Tree Asset = its UXML) instead of a `UIDocument`.
+
+**`GameOverUI` re-subscription bug (Pass 2.a):** `m_hud` (parent of the HUD scripts) gets `SetActive(false)`/`(true)` across the Bootstrap menu↔play transition, which re-fires `OnEnable`/`OnDisable` but runs `Start()` only once. `GameOverUI`'s `GameManager.RunEnded` subscription lived only in `Start()`, so `OnDisable` unsubscribed it and nothing restored it — Game Over never showed via Bootstrap (worked fine running `Prototype` directly, which has no menu phase). Fix: `GameManager` is cached in `Start()` as before, but the subscribe also happens in `OnEnable` once the cache is set.
+
+## Floating touch joystick (Alpha "MVP bug fix" milestone, Pass 3)
+
+**Supersedes the static-joystick description in [Touch controls](#touch-controls-feel-polish-pass-3).** `TouchControls.uxml` now has a `touch-joystick-zone` (invisible, `position: absolute`, left 50% of the panel, full height) that owns the pointer events. `touch-joystick-background` starts `display: none`. On `PointerDownEvent` in the zone, `TouchControlsUI` captures the pointer on the zone, caches `m_joystickOrigin = evt.position`, positions the background via inline `style.left/top` centered on that point (offset by `m_joystickBackgroundSize / 2`, a serialized value that must match the USS width — used instead of a live layout read because the element was just toggled from `display: none`), and shows it. Move computes `delta = pointer - m_joystickOrigin` (clamped to `m_joystickMaxRadius`) and feeds `PlaneController.TouchSteer` as before; Up/Cancel hide the background and zero `TouchSteer`. The boost button is unchanged (static, bottom-right). Left-half zone is hardcoded; a player-facing side/sensitivity/size setting is backlog #25.
+
+## Ground warning (Alpha "MVP bug fix" milestone, Pass 4)
+
+Eighth HUD element, `GroundWarning` GameObject: `PanelRenderer` (Visual Tree Asset = `GroundWarning.uxml`, shared Panel Settings) + `GroundWarningUI.cs` (in `Scripts/Altitude/`, namespace `Opoint8182.UI`), wired to the Plane's [`AltitudeSystem`](altitude-system.md#ground-soft-warning). A structural copy of `LateralWarningUI`: binds only `IsGroundWarningValue` to toggle `ground-warning-root`'s `display`, no fill bar. Banner text "TOO LOW - PULL UP!", `top: 160px` (stacked below altitude's 40px and lateral's 100px banners).

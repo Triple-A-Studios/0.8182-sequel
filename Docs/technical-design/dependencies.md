@@ -4,6 +4,7 @@ Third-party packages/plugins used by the project, beyond default Unity modules.
 
 | Package | Purpose | Notes |
 |---|---|---|
+| Unity Editor 6000.6.3f1 | Engine | Upgraded from 6000.0.79f1 (6.0 LTS, support ends 2026-10-16) in Alpha's "MVP bug fix" milestone Pass 1. 6.6 is a tech-stream release, not LTS (a developer call over 6.3 LTS). All private/third-party packages below compiled clean on upgrade |
 | `com.annulusgames.alchemy` | Inspector/attribute extensions | Pulled via git URL from `annulusgames/Alchemy` |
 | `com.triple-a-studios.core-setup` | Editor/project core setup utilities | Pulled from private repo `Triple-A-Studios/TripleA-CoreSetup` |
 | `com.triple-a-studios.utils` | Gameplay/editor helper utilities | Pulled via git URL from `Triple-A-Studios/TripleA-Utils` — `GenericSingleton<T>` backs `GameManager`/`SpawnManager` |
