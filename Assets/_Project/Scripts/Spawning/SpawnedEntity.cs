@@ -8,7 +8,8 @@ namespace Opoint8182.Spawning
 		BuildingTough,
 		ObstacleLarge,
 		BirdSmall,
-		HealthPickup
+		HealthPickup,
+		BuildingHeal
 	}
 
 	// Marker component added at runtime (AddComponent) to every instance SpawnManager spawns.

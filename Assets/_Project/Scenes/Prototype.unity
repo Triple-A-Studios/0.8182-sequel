@@ -431,6 +431,45 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_clampProgressAtRampCap: 0
     m_rampDistanceOverride: 0
+  - m_prefab: {fileID: 5038060288505121239, guid: 2fecb015c117e984ea03f1ec35b2a1a9, type: 3}
+    m_kind: 5
+    m_verticalMin: 0
+    m_verticalMax: 0
+    m_weightCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 3
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 3
+        inSlope: -0
+        outSlope: -2.5
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 2
+        value: 0.5
+        inSlope: -2.5
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_clampProgressAtRampCap: 1
+    m_rampDistanceOverride: 0
   m_chunks:
   - m_name: Solo
     m_minDistance: 0
