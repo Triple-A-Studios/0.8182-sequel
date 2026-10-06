@@ -53,6 +53,18 @@
     border-color: rgb(255, 110, 110);
 }
 
+.game-over-rank-retry-button {
+    display: none;
+    padding: 6px 20px;
+    margin-bottom: 24px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
 .restart-button {
     padding: 8px 24px;
     background-color: rgba(0, 0, 0, 0.5);

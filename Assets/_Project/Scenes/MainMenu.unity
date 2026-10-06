@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 100000002}
   - component: {fileID: 100000004}
   - component: {fileID: 100000005}
+  - component: {fileID: 100000006}
   m_Layer: 0
   m_Name: MainMenuUI
   m_TagString: Untagged
@@ -240,6 +241,26 @@ PanelRenderer:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_Position: 0
+--- !u!114 &100000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54aebd02124e49e58d3fa0ec72417115, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.UI.LeaderboardPanelUI
+  m_tileElementName: leaderboard-tile
+  m_panelElementName: leaderboard-panel
+  m_statusLabelName: leaderboard-status
+  m_rowsElementName: leaderboard-rows
+  m_retryButtonName: leaderboard-retry-button
+  m_closeButtonName: leaderboard-close-button
+  m_topLimit: 10
+  m_tilePressedScale: 0.95
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

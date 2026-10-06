@@ -45,6 +45,8 @@ The root `game-over-root` `VisualElement`'s `style.display` starts at `DisplaySt
 
 **Rank readout (Live leaderboard, Pass 3):** a `game-over-rank-label` sits under the score label (hidden until needed, same box style). After reading the score, `GameOverUI.HandleRunEnded` calls `LeaderboardService.TryGetInstance()?.SubmitScoreAsync(score)` — see [leaderboard.md](leaderboard.md) — and shows "Submitting...", then "Rank #N ▲/▼/–" (USS modifier classes `game-over-rank-label--up`/`--down` colour it; "same" stays white), or "Leaderboard unavailable" if the service is missing or the submit failed. Zero scores hide the label. A per-run token drops results that land after a newer run end or a Restart reload.
 
+**Retry (Pass 4):** a failed submit shows "Couldn't submit score" plus a `game-over-rank-retry-button` that re-sends the remembered score (`m_lastScore`) through the same token-guarded path; it hides again on success, a new run end, or Restart. A missing service (scene opened without Bootstrap) keeps the plain "Leaderboard unavailable" text with no Retry, since retrying can't help.
+
 The Restart `Button`'s `.clicked` event calls `SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex)` — a full scene reload, chosen over building manual `Reset()`/`ResetState()` methods on every system, since `GameManager`/`FuelSystem`/`HealthSystem`/`ScoreSystem`/`PlayerManager` are all scene-scoped with no persistent/`DontDestroyOnLoad` singleton behavior — a reload cleanly resets all of them for free.
 
 ## Altitude warning (Movement & fail-state rework, Pass 4)
@@ -108,6 +110,12 @@ That 14px travel introduced a second bug, also developer-caught: `mode-tabs` ove
 **Out-of-phase placeholder chips**: the mockup includes UI for systems `plan.md` scopes to later phases — `currency-chip`/`shop-tile` (Beta: "Shop, currency, economy") and `attempts-chip`/mode tabs/`leaderboard-tile` (Alpha: "Live leaderboard", "Daily play structure"). Built now as pure static placeholders (hardcoded text/values, no backend, `picking-mode: Ignore`) per an explicit developer decision — they block out layout now so those phases don't have to redesign this screen from scratch later, but carry no logic until their actual phase lands.
 
 **Fonts**: Baloo 2 / Nunito (spec's requested fonts) aren't in the project and weren't fetched — falls back to the default UITK theme font, per the spec's own explicit contingency, flagged with `// TODO: font` / `/* TODO: font */` comments at each use.
+
+## Leaderboard panel (Live leaderboard, Pass 4)
+
+`leaderboard-tile` is no longer a `stub-clickable` (no "IMPLEMENTED IN ALPHA" toast); it carries `bounce-clickable` instead, which shares the press-bounce transition with `.stub-clickable` in `MainMenu.uss`. It opens `leaderboard-panel`, a full-screen dim overlay with a centred card (flat colours from the `.root` tokens) declared in `MainMenu.uxml` before `stub-toast`.
+
+`LeaderboardPanelUI` (`Scripts/UI/`) is a second `PanelRenderer`-sharing component on the `MainMenuUI` GameObject beside `MainMenuController`, with its own `RegisterUIReloadCallback` and unregister-first guard. It owns the tile click + press scale, the Close and Retry buttons, and the states **Loading / Loaded / Empty ("No scores yet today") / Error ("Couldn't load leaderboard" + Retry)**. Every open (and Retry) refetches via `LeaderboardService.GetTopScoresAsync` — no caching, the board changes constantly — and a load token drops results that arrive after a close, reopen or retry. **Rows are built in code** (`.leaderboard-row` with rank / name / score cells; own row gets `--self`, an own row outside the top 10 is appended with a gap) because the count varies — the one menu element not fully authored in UXML. Playing hides the whole menu root, panel included. See [leaderboard.md](leaderboard.md).
 
 ## PanelRenderer migration (Alpha "MVP bug fix" milestone, Pass 2.c)
 

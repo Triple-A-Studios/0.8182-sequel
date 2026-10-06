@@ -11,6 +11,12 @@ A `PersistentSingleton<LeaderboardService>` (`TripleA.Utils.Singletons`) on the 
 - **UGS ranks are zero-based**; the service adds 1 for display.
 - Everything is `Task`-based on the main thread (no `Task.Run`/`.Wait()`/`.Result`), which is what WebGL needs.
 
+**Top scores (Pass 4):** `GetTopScoresAsync(limit = 10)` returns a `TopScoresResult` (`Success`, `Rows`, and `Self` — the player's own row only when it isn't already inside the top N). Own-row detection compares each entry's `PlayerId` to `AuthenticationService.Instance.PlayerId`; the extra `GetPlayerScoreAsync` call throws when the player has no entry yet, which is treated as "no own row", not an error.
+
+**Offline fast-fail (Pass 4):** both `SubmitScoreAsync` and `GetTopScoresAsync` return failure immediately when `Application.internetReachability == NotReachable`, so the UI never waits on a hanging request. 
+
+**Request timeout (Pass 4):** `SubmitScoreAsync` and `GetTopScoresAsync` race the whole operation (sign-in included) against `m_requestTimeoutSeconds` (default 10s) and return failure if the timer wins, so a hung request ends in the existing error/Retry states instead of an endless "Loading..."/"Submitting...". The timer is PrimeTween's `Tween.Delay` (unscaled time), not `Task.Delay`: `Task.Delay` is backed by a `System.Threading` timer that doesn't work on WebGL, while PrimeTween runs off its own update loop with no threads (its docs: tweens can be awaited on all platforms including WebGL). The abandoned request keeps running but is flagged timed-out so a late submit success doesn't write the cached rank/date (that would make the player's retry show "Same" instead of the real trend). If the timeout hits while UGS init is still in flight, the service drops the stuck init task and goes `Failed`, so the next call starts a fresh init (unverified: how UGS reacts to a second `InitializeAsync` while the first is hung).
+
 ## Board configuration
 
 One board, `daily_scores` (serialized `m_leaderboardId`), created in the Unity dashboard: High to Low, **Best Score** strategy, scheduled reset **daily at 00:00 UTC** (UGS archives prior days). Score submission is client-side via the SDK; Cloud Code validation is deferred to the Daily play structure milestone (design-doc.md).
@@ -27,4 +33,4 @@ UGS anonymous sign-in stores its token in local storage (PlayerPrefs / IndexedDB
 
 ## UI
 
-See the rank readout under [ui.md](ui.md#game-over-screen-movement--fail-state-rework-pass-3). Top-10 panel and offline/error states are Pass 4; the display-name field is deferred to the UI/art pass (the UGS auto-generated name is used).
+See the Game Over rank readout (with Retry on a failed submit) under [ui.md](ui.md#game-over-screen-movement--fail-state-rework-pass-3) and the Top-10 panel under [ui.md](ui.md#leaderboard-panel-live-leaderboard-pass-4). The display-name field is deferred to the UI/art pass (the UGS auto-generated name is used).

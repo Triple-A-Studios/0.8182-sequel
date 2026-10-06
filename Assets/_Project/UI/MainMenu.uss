@@ -71,7 +71,8 @@
 
 /* Bounce press feedback (scale, driven from MainMenuController) for every stub button -
    ease-out-back gives a small overshoot on the way back to full size, reading as "bouncy". */
-.stub-clickable {
+.stub-clickable,
+.bounce-clickable {
     transition-property: scale;
     transition-duration: 0.2s;
     transition-timing-function: ease-out-back;
@@ -508,4 +509,112 @@
     white-space: normal;
     max-width: 760px;
     -unity-text-align: middle-center;
+}
+
+/* ---- Leaderboard panel (Live leaderboard, Pass 4) ---- */
+/* Minimal flat blockout - real art is the UI/art pass. Opened by LeaderboardPanelUI; rows
+   (.leaderboard-row) are created in code since the count varies. */
+
+.leaderboard-panel {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(16, 24, 35, 0.8);
+}
+
+.leaderboard-card {
+    width: 980px;
+    padding: 28px 40px;
+    background-color: var(--panel);
+    border-radius: 28px;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.2);
+    border-bottom-width: 10px;
+    border-bottom-color: var(--panel-lip);
+}
+
+.leaderboard-title {
+    font-size: 48px;
+    color: var(--accent-light);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 12px;
+}
+
+.leaderboard-status {
+    display: none;
+    font-size: 32px;
+    color: var(--cream);
+    -unity-text-align: middle-center;
+    margin: 24px 0;
+}
+
+.leaderboard-rows {
+    flex-direction: column;
+}
+
+.leaderboard-row {
+    flex-direction: row;
+    align-items: center;
+    height: 52px;
+    padding: 0 16px;
+    margin-bottom: 4px;
+    border-radius: 12px;
+    background-color: var(--panel-inner);
+}
+
+.leaderboard-row--self {
+    background-color: var(--accent);
+}
+
+.leaderboard-row--gap {
+    margin-top: 14px;
+}
+
+.leaderboard-cell {
+    font-size: 30px;
+    color: var(--cream);
+    -unity-font-style: bold;
+}
+
+.leaderboard-row--self .leaderboard-cell {
+    color: var(--ink);
+}
+
+.leaderboard-cell-rank {
+    width: 110px;
+}
+
+.leaderboard-cell-name {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.leaderboard-cell-score {
+    -unity-text-align: middle-right;
+}
+
+.leaderboard-button-row {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.leaderboard-button {
+    min-width: 220px;
+    margin: 0 12px;
+    padding: 10px 24px;
+    background-color: var(--accent);
+    border-width: 0;
+    border-bottom-width: 8px;
+    border-bottom-color: var(--accent-lip);
+    border-radius: 18px;
+    color: var(--ink);
+    font-size: 32px;
+    -unity-font-style: bold;
 }

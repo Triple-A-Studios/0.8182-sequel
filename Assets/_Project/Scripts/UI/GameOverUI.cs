@@ -16,10 +16,12 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private string m_rootElementName = "game-over-root";
         [FoldoutGroup("References")] [SerializeField] private string m_scoreLabelName = "game-over-score-label";
         [FoldoutGroup("References")] [SerializeField] private string m_rankLabelName = "game-over-rank-label";
+        [FoldoutGroup("References")] [SerializeField] private string m_rankRetryButtonName = "game-over-rank-retry-button";
         [FoldoutGroup("References")] [SerializeField] private string m_restartButtonName = "restart-button";
 
         private const string k_SubmittingText = "Submitting...";
         private const string k_UnavailableText = "Leaderboard unavailable";
+        private const string k_SubmitFailedText = "Couldn't submit score";
         private const string k_RankUpClass = "game-over-rank-label--up";
         private const string k_RankDownClass = "game-over-rank-label--down";
         private const string k_RankSameClass = "game-over-rank-label--same";
@@ -28,9 +30,11 @@ namespace Opoint8182.UI
         private VisualElement m_rootElement;
         private Label m_scoreLabel;
         private Label m_rankLabel;
+        private Button m_rankRetryButton;
         private Button m_restartButton;
         private GameManager m_gameManager;
         private int m_submitToken;
+        private int m_lastScore;
 
         private void Awake()
         {
@@ -72,6 +76,7 @@ namespace Opoint8182.UI
 
             if (m_gameManager != null) m_gameManager.RunEnded -= HandleRunEnded;
             if (m_restartButton != null) m_restartButton.clicked -= HandleRestartClicked;
+            if (m_rankRetryButton != null) m_rankRetryButton.clicked -= HandleRetryClicked;
         }
 
         private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
@@ -80,15 +85,19 @@ namespace Opoint8182.UI
             // enable (e.g. a live asset reload), unlike the old UIDocument setup where a
             // single OnEnable query only ever ran once per enable/disable cycle.
             if (m_restartButton != null) m_restartButton.clicked -= HandleRestartClicked;
+            if (m_rankRetryButton != null) m_rankRetryButton.clicked -= HandleRetryClicked;
 
             m_rootElement = root.Q<VisualElement>(m_rootElementName);
             m_scoreLabel = root.Q<Label>(m_scoreLabelName);
             m_rankLabel = root.Q<Label>(m_rankLabelName);
+            m_rankRetryButton = root.Q<Button>(m_rankRetryButtonName);
             m_restartButton = root.Q<Button>(m_restartButtonName);
 
             SetVisible(false);
+            SetRetryVisible(false);
 
             if (m_restartButton != null) m_restartButton.clicked += HandleRestartClicked;
+            if (m_rankRetryButton != null) m_rankRetryButton.clicked += HandleRetryClicked;
         }
 
         private void HandleRunEnded()
@@ -100,14 +109,21 @@ namespace Opoint8182.UI
                 SetScoreLabel(score);
             }
             SetVisible(true);
+            m_lastScore = score;
             SubmitAndShowRank(score);
+        }
+
+        private void HandleRetryClicked()
+        {
+            SubmitAndShowRank(m_lastScore);
         }
 
         private async void SubmitAndShowRank(int score)
         {
-            // Each run end bumps the token so a result that lands after a newer run end
+            // Each run end (or retry) bumps the token so a result that lands after a newer attempt
             // (or after the scene reloaded under it) is dropped instead of overwriting the label.
             int token = ++m_submitToken;
+            SetRetryVisible(false);
 
             if (score <= 0)
             {
@@ -128,7 +144,8 @@ namespace Opoint8182.UI
 
             if (!result.Success)
             {
-                SetRankLabel(k_UnavailableText, null);
+                SetRankLabel(k_SubmitFailedText, null);
+                SetRetryVisible(true);
                 return;
             }
 
@@ -160,6 +177,12 @@ namespace Opoint8182.UI
         {
             if (m_scoreLabel == null) return;
             m_scoreLabel.text = $"Score: {score}";
+        }
+
+        private void SetRetryVisible(bool visible)
+        {
+            if (m_rankRetryButton == null) return;
+            m_rankRetryButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void SetRankLabel(string text, RankTrend? trend)

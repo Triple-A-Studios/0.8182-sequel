@@ -62,7 +62,7 @@
                     <ui:VisualElement class="shop-icon" />
                     <ui:Label text="SHOP" class="icon-tile-label" />
                 </ui:VisualElement>
-                <ui:VisualElement name="leaderboard-tile" class="chip icon-tile leaderboard-tile stub-clickable">
+                <ui:VisualElement name="leaderboard-tile" class="chip icon-tile leaderboard-tile bounce-clickable">
                     <ui:VisualElement class="leaderboard-bars">
                         <ui:VisualElement class="leaderboard-bar leaderboard-bar-short" />
                         <ui:VisualElement class="leaderboard-bar leaderboard-bar-tall" />
@@ -105,6 +105,19 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
+        </ui:VisualElement>
+
+        <!-- Top-10 panel (Live leaderboard, Pass 4): opened from leaderboard-tile by LeaderboardPanelUI. Rows are added in code. -->
+        <ui:VisualElement name="leaderboard-panel" class="leaderboard-panel">
+            <ui:VisualElement name="leaderboard-card" class="leaderboard-card">
+                <ui:Label text="TODAY'S TOP 10" class="leaderboard-title" />
+                <ui:Label name="leaderboard-status" text="Loading..." class="leaderboard-status" />
+                <ui:VisualElement name="leaderboard-rows" class="leaderboard-rows" />
+                <ui:VisualElement class="leaderboard-button-row">
+                    <ui:Button name="leaderboard-retry-button" text="RETRY" class="leaderboard-button" />
+                    <ui:Button name="leaderboard-close-button" text="CLOSE" class="leaderboard-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement name="stub-toast" class="stub-toast" picking-mode="Ignore">

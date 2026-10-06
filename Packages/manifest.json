@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.annulusgames.alchemy": "git+https://github.com/annulusgames/Alchemy.git?path=/Alchemy/Assets/Alchemy",
+    "com.kyrylokuzyk.primetween": "file:../Packages/com.kyrylokuzyk.primetween.tgz",
     "com.triple-a-studios.core-setup": "https://github.com/Triple-A-Studios/TripleA-CoreSetup.git",
     "com.triple-a-studios.statemachine": "git+https://github.com/Triple-A-Studios/TripleA-StateMachine.git",
     "com.triple-a-studios.utils": "git+https://github.com/Triple-A-Studios/TripleA-Utils.git",

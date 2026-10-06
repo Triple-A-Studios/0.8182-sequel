@@ -7,6 +7,12 @@
       "dependencies": {},
       "hash": "03caefed20b51ccab32f1751e6e26005f955eaf4"
     },
+    "com.kyrylokuzyk.primetween": {
+      "version": "file:../Packages/com.kyrylokuzyk.primetween.tgz",
+      "depth": 0,
+      "source": "local-tarball",
+      "dependencies": {}
+    },
     "com.triple-a-studios.core-setup": {
       "version": "https://github.com/Triple-A-Studios/TripleA-CoreSetup.git",
       "depth": 0,
