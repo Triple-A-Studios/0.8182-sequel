@@ -11,6 +11,7 @@ Open items only — once an item is addressed, its row moves to [Resolved Backlo
 | 23 | Cinematic side-view + slow-motion on a perfect Tough-building crash — upgrade to `CameraJuice`'s existing Tough-only hit-stop (`PlayerManager.HandleCrashed`'s `quality >= 1f && BuildingType.Tough` gate): switch to a side-view camera angle and slow time (not just a near-instant freeze) for the crash moment. | Developer note (2026-09-26) | Feature |
 | 24 | `PlaneController` movement itself feels like it's missing juice (separate from the camera-side juice `CameraJuice` added in Pass 7) — exact gap not yet identified, deferred until playtest feedback narrows down what's missing. | Developer note (2026-09-26) | Design |
 | 25 | Joystick sensitivity and size settings — player-facing options for `TouchControlsUI`'s `m_joystickMaxRadius`/`m_joystickBackgroundSize` (currently fixed serialized values). Targeted at the Alpha "UI/art pass" milestone, alongside the already-deferred screen-half setting from Pass 3's floating joystick rework. | Developer note (2026-09-28) | Feature |
+| 26 | Game Over rank trend glyphs (▲/▼/–, `GameOverUI.TrendGlyph`) don't render on the WebGL build — the default UITK font lacks them. Fix in the UI/art pass: either swap the glyphs for small arrow images/sprites (a `VisualElement` with a `background-image`, flipped via USS, no font dependency — recommended) or ship a font asset that includes those glyphs. Text fallback ("UP"/"DOWN") works if needed. Android build confirmed working by the developer. | Developer note (2026-10-06), Live leaderboard Pass 3/4 device test | Bug |
 
 ## Resolved Backlog
 Bookkeeping only — items move here once addressed, keeping the table above to open items.
@@ -130,8 +131,16 @@ Feel polish milestone complete — design-doc.md: "MVP is considered done here."
 
 Milestone complete — plan.md's definition of done met; the Android on-device recheck of Pass 3's resolution/joystick change is still the developer's to confirm opportunistically.
 
-### Milestone: Live leaderboard — In Progress
-See [current-state.md](current-state.md) for live pass status; [plan.md](plan.md#phase-alpha) for scope.
+### Milestone: Live leaderboard — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `91d5dca` | Backend research — Unity Leaderboards (UGS) with anonymous sign-in chosen over LootLocker; client-side submit now, Cloud Code validation deferred to Daily play structure |
+| 2 | Verified — Complete | `f890bab` | UGS spike (throwaway `LeaderboardSpike`) — anonymous sign-in, submit, fetch confirmed on Android + WebGL |
+| 3 | Verified — Complete | `2b03eca` | `LeaderboardService` (daily Best Score board `daily_scores`, reset 00:00 UTC), score submit on run end, Game Over rank + up/down trend. Spike deleted |
+| 4 | Verified — Complete | `005e412` | Menu Top-10 panel (`LeaderboardPanelUI`), Game Over submit Retry, offline fast-fail + 10s request timeout via PrimeTween `Tween.Delay` |
+
+Verified in Editor, Android and WebGL. Known gap: ▲/▼ glyphs don't render on WebGL (backlog #26, UI/art pass). Display-name field deferred to the UI/art pass.
 
 ### Milestone: UI/art pass — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
