@@ -31,6 +31,28 @@
     -unity-font-style: bold;
 }
 
+.game-over-rank-label {
+    display: none;
+    padding: 4px 10px;
+    margin-bottom: 24px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-width: 2px;
+    border-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    -unity-font-style: bold;
+}
+
+.game-over-rank-label--up {
+    color: rgb(120, 230, 120);
+    border-color: rgb(120, 230, 120);
+}
+
+.game-over-rank-label--down {
+    color: rgb(255, 110, 110);
+    border-color: rgb(255, 110, 110);
+}
+
 .restart-button {
     padding: 8px 24px;
     background-color: rgba(0, 0, 0, 0.5);

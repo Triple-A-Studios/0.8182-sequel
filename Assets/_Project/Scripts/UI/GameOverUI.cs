@@ -1,5 +1,6 @@
 using Alchemy.Inspector;
 using Opoint8182.Game;
+using Opoint8182.Leaderboard;
 using Opoint8182.Score;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,13 +15,22 @@ namespace Opoint8182.UI
         [FoldoutGroup("References")] [SerializeField] private ScoreSystem m_scoreSystem;
         [FoldoutGroup("References")] [SerializeField] private string m_rootElementName = "game-over-root";
         [FoldoutGroup("References")] [SerializeField] private string m_scoreLabelName = "game-over-score-label";
+        [FoldoutGroup("References")] [SerializeField] private string m_rankLabelName = "game-over-rank-label";
         [FoldoutGroup("References")] [SerializeField] private string m_restartButtonName = "restart-button";
+
+        private const string k_SubmittingText = "Submitting...";
+        private const string k_UnavailableText = "Leaderboard unavailable";
+        private const string k_RankUpClass = "game-over-rank-label--up";
+        private const string k_RankDownClass = "game-over-rank-label--down";
+        private const string k_RankSameClass = "game-over-rank-label--same";
 
         private PanelRenderer m_panelRenderer;
         private VisualElement m_rootElement;
         private Label m_scoreLabel;
+        private Label m_rankLabel;
         private Button m_restartButton;
         private GameManager m_gameManager;
+        private int m_submitToken;
 
         private void Awake()
         {
@@ -73,6 +83,7 @@ namespace Opoint8182.UI
 
             m_rootElement = root.Q<VisualElement>(m_rootElementName);
             m_scoreLabel = root.Q<Label>(m_scoreLabelName);
+            m_rankLabel = root.Q<Label>(m_rankLabelName);
             m_restartButton = root.Q<Button>(m_restartButtonName);
 
             SetVisible(false);
@@ -82,8 +93,56 @@ namespace Opoint8182.UI
 
         private void HandleRunEnded()
         {
-            if (m_scoreSystem != null) SetScoreLabel(m_scoreSystem.CurrentScore);
+            int score = 0;
+            if (m_scoreSystem != null)
+            {
+                score = m_scoreSystem.CurrentScore;
+                SetScoreLabel(score);
+            }
             SetVisible(true);
+            SubmitAndShowRank(score);
+        }
+
+        private async void SubmitAndShowRank(int score)
+        {
+            // Each run end bumps the token so a result that lands after a newer run end
+            // (or after the scene reloaded under it) is dropped instead of overwriting the label.
+            int token = ++m_submitToken;
+
+            if (score <= 0)
+            {
+                SetRankLabel(string.Empty, null);
+                return;
+            }
+
+            LeaderboardService service = LeaderboardService.TryGetInstance();
+            if (service == null)
+            {
+                SetRankLabel(k_UnavailableText, null);
+                return;
+            }
+
+            SetRankLabel(k_SubmittingText, null);
+            SubmitResult result = await service.SubmitScoreAsync(score);
+            if (this == null || token != m_submitToken) return;
+
+            if (!result.Success)
+            {
+                SetRankLabel(k_UnavailableText, null);
+                return;
+            }
+
+            SetRankLabel($"Rank #{result.Rank} {TrendGlyph(result.Trend)}", result.Trend);
+        }
+
+        private static string TrendGlyph(RankTrend trend)
+        {
+            return trend switch
+            {
+                RankTrend.Up => "▲",
+                RankTrend.Down => "▼",
+                _ => "–"
+            };
         }
 
         private void HandleRestartClicked()
@@ -101,6 +160,16 @@ namespace Opoint8182.UI
         {
             if (m_scoreLabel == null) return;
             m_scoreLabel.text = $"Score: {score}";
+        }
+
+        private void SetRankLabel(string text, RankTrend? trend)
+        {
+            if (m_rankLabel == null) return;
+            m_rankLabel.text = text;
+            m_rankLabel.style.display = string.IsNullOrEmpty(text) ? DisplayStyle.None : DisplayStyle.Flex;
+            m_rankLabel.EnableInClassList(k_RankUpClass, trend == RankTrend.Up);
+            m_rankLabel.EnableInClassList(k_RankDownClass, trend == RankTrend.Down);
+            m_rankLabel.EnableInClassList(k_RankSameClass, trend == RankTrend.Same);
         }
     }
 }
