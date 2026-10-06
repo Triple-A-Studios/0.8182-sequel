@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 200000002}
   - component: {fileID: 200000003}
+  - component: {fileID: 200000004}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -161,10 +162,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5a9e6ed3edcb45a6ab98342037c6e94e, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_mainMenuSceneName: MainMenu
   m_gameSceneName: Prototype
+--- !u!114 &200000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d2b86663749c8c4aafcb91ed87c6188, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.Leaderboard.LeaderboardSpike
+  m_leaderboardId: spike_test
+  m_topLimit: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

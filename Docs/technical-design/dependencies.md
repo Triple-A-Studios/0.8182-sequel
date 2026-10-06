@@ -12,6 +12,8 @@ Third-party packages/plugins used by the project, beyond default Unity modules.
 | `com.unity.inputsystem` | New Input System | Action map: `Assets/_Project/Settings/InputSystem_Actions.inputactions` |
 | `com.unity.render-pipelines.universal` | URP rendering | Separate PC/Mobile render pipeline assets in `Assets/_Project/Settings` |
 | `com.unity.cinemachine` (3.1.5) | Camera work | Third-person follow cam, crash-impact shake/juice |
+| `com.unity.services.authentication` (3.8.0) | Anonymous sign-in for the leaderboard | Live leaderboard milestone, Pass 2 spike. Anonymous ID lives in local storage — clearing it creates a new player. Pulls in `com.unity.services.core` (1.18.0). Needs a linked Unity Cloud project |
+| `com.unity.services.leaderboards` (2.3.4) | Unity Leaderboards (UGS) client | Backend chosen in Pass 1 (see [design-doc.md](../design-doc.md)). Verified on Android and WebGL in the Pass 2 spike |
 | `com.unity.modules.uielements` | UI Toolkit (UITK) runtime | Project's chosen UI framework — build screens with UITK, not uGUI |
 | `com.unity.ugui` | uGUI runtime | Present as an engine-level dependency only; not used to build UI screens (UITK is) |
 | `com.unity.ai.navigation` | NavMesh/AI navigation | Not yet used in any script |
