@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S02 main-menu — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S02 · MAIN-MENU
+S02 Main menu logo · flanking icon columns · top counter strip · mode tabs over oversized PLAY · overflow ≡
+
+VARIANTS / SUB-LABELS: overflow ≡ open SETTINGS HOW TO PLAY CREDITS QUIT GAME quit hidden on web build competitive attempt confirm — my recommendation SPEND AN ATTEMPT? This run counts toward today's leaderboard. You have 3 of 3 left — they reset at midnight. or fly it in Practice instead LET'S FLY CANCEL Don't ask again today
+
+NOTES:
+- Mode tabs swap the PLAY sub-label: competitive shows attempt pips, practice shows "28:14 left today" and never confirms. Icon glyphs are placeholders — swap for final 2D icon set.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S02">
+<div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+
+    <div style="position:relative;width:2400px;height:1080px;overflow:hidden;border-radius:26px;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#6b95b4,#3d6280 55%,#22364a);flex:none">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+
+      <div style="position:absolute;left:48px;top:40px;display:flex;align-items:flex-start;gap:18px">
+        <div style="display:flex;align-items:center;gap:16px;height:104px;padding:0 30px 0 14px;box-sizing:border-box;border-radius:26px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823,0 14px 22px rgba(0,0,0,.35)">
+          <div style="width:56px;height:56px;border-radius:16px;background:#1a2634;border:3px solid rgba(255,255,255,.14);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;overflow:hidden;box-sizing:border-box">
+            <div style="width:20px;height:20px;border-radius:50%;background:#f6efe2"></div>
+            <div style="width:36px;height:15px;border-radius:18px 18px 0 0;background:#f6efe2"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span style="font:800 28px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;line-height:1">OLIVE</span>
+            <span style="font:800 19px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.09em">LV 14 · PROFILE</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;height:104px;padding:0 30px;box-sizing:border-box;border-radius:26px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823,0 14px 22px rgba(0,0,0,.35)">
+          <span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.1em">ATTEMPTS</span>
+          <span style="display:flex;gap:9px"><span style="width:20px;height:20px;border-radius:50%;background:#f0a93b"></span><span style="width:20px;height:20px;border-radius:50%;background:#f0a93b"></span><span style="width:20px;height:20px;border-radius:50%;background:#f0a93b"></span></span>
+          <span style="font:800 32px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">3/3</span>
+        </div>
+        <div style="align-self:center;display:flex;align-items:center;gap:10px;font:700 22px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5);white-space:nowrap">
+          <span style="width:26px;height:3px;border-radius:2px;background:rgba(246,239,226,.35)"></span>
+          <span>SWAPS WITH PLAY-BUTTON MODE → PRACTICE 28:14</span>
+        </div>
+      </div>
+
+      <div style="position:absolute;right:48px;top:40px;display:flex;align-items:flex-start;gap:18px">
+        <div style="display:flex;align-items:center;gap:14px;height:104px;padding:0 20px 0 26px;border-radius:26px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823,0 14px 22px rgba(0,0,0,.35);box-sizing:border-box">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:inset 0 -5px 0 rgba(0,0,0,.2)"></div>
+          <div style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">12,480</div>
+          <div style="width:44px;height:44px;border-radius:14px;background:#4caf6d;border:3px solid rgba(255,255,255,.18);box-shadow:0 5px 0 #24603a;display:flex;align-items:center;justify-content:center;font:800 32px 'Baloo 2',system-ui,sans-serif;color:#fff;box-sizing:border-box">+</div>
+        </div>
+        <div style="width:104px;height:104px;border-radius:26px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823,0 14px 22px rgba(0,0,0,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;box-sizing:border-box;flex:none">
+          <div style="width:48px;height:7px;border-radius:4px;background:#f6efe2"></div>
+          <div style="width:48px;height:7px;border-radius:4px;background:#f6efe2"></div>
+          <div style="width:48px;height:7px;border-radius:4px;background:#f6efe2"></div>
+        </div>
+      </div>
+
+      <div style="position:absolute;left:0;right:0;top:180px;transform:rotate(-3deg);display:flex;flex-direction:column;align-items:center;gap:10px;white-space:nowrap">
+        <div style="font:800 128px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 10px 0 #e8603c,0 18px 0 rgba(16,24,35,.5);letter-spacing:.02em">OPOINT8182</div>
+        <div style="padding:8px 26px;background:#e8603c;border-radius:12px;font:800 32px Nunito,system-ui,sans-serif;color:#fff;letter-spacing:.24em">CRASH · REFUEL · REPEAT</div>
+      </div>
+
+      <div style="position:absolute;left:52px;top:50%;transform:translateY(-62%);display:flex;flex-direction:column;gap:26px">
+        <div style="width:212px;height:196px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.11);box-shadow:0 10px 0 #101823,0 18px 26px rgba(0,0,0,.38);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
+          <div style="width:86px;height:58px;border-radius:10px 10px 4px 4px;background:#f0a93b;box-shadow:inset 0 -8px 0 rgba(0,0,0,.18)"></div>
+          <div style="font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2;letter-spacing:.08em">SHOP</div>
+        </div>
+        <div style="width:212px;height:196px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.11);box-shadow:0 10px 0 #101823,0 18px 26px rgba(0,0,0,.38);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
+          <div style="display:flex;align-items:flex-end;gap:7px"><div style="width:20px;height:32px;border-radius:5px;background:rgba(246,239,226,.55)"></div><div style="width:20px;height:58px;border-radius:5px;background:#f0a93b"></div><div style="width:20px;height:44px;border-radius:5px;background:rgba(246,239,226,.75)"></div></div>
+          <div style="font:800 26px Nunito,system-ui,sans-serif;color:#f6efe2;letter-spacing:.06em">LEADERBOARD</div>
+        </div>
+      </div>
+
+      <div style="position:absolute;left:50%;top:556px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:16px;width:700px">
+        <div style="width:660px;height:230px;border:4px dashed rgba(246,239,226,.4);border-radius:22px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 15px,rgba(246,239,226,0) 15px 30px)"></div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:64px;height:64px;border-radius:50%;background:rgba(246,239,226,.2)"></div>
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(246,239,226,.16)"></div>
+          <div style="font:600 24px/1.35 ui-monospace,Menlo,monospace;color:rgba(246,239,226,.72);max-width:470px">3D: equipped plane on a rooftop,<br>idle bob + dust puffs</div>
+        </div>
+      </div>
+
+      <div style="position:absolute;right:56px;bottom:56px;display:flex;flex-direction:column;align-items:flex-end;gap:0">
+        <div style="display:flex;gap:6px;padding-right:14px">
+          <div style="padding:16px 34px 26px;border-radius:18px 18px 0 0;background:#e8603c;font:800 32px Nunito,system-ui,sans-serif;color:#fff;letter-spacing:.08em;box-shadow:0 -4px 0 rgba(255,255,255,.18) inset">COMPETITIVE</div>
+          <div style="padding:14px 30px 24px;border-radius:18px 18px 0 0;background:rgba(16,24,35,.55);font:800 30px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.62);letter-spacing:.08em">PRACTICE</div>
+        </div>
+        <div style="margin-top:-8px;padding:30px 66px;border-radius:30px;background:linear-gradient(#ffc76a,#f0a93b);border:6px solid rgba(255,255,255,.28);box-shadow:0 14px 0 #a2620f,0 26px 36px rgba(0,0,0,.45);display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="font:800 118px/0.92 'Baloo 2',system-ui,sans-serif;color:#2a1a06;letter-spacing:.03em">PLAY</div>
+          <div style="display:flex;align-items:center;gap:12px;font:800 28px Nunito,system-ui,sans-serif;color:rgba(42,26,6,.78);letter-spacing:.08em">
+            <span>3 ATTEMPTS LEFT TODAY</span>
+            <span style="display:flex;gap:8px"><span style="width:16px;height:16px;border-radius:50%;background:#2a1a06"></span><span style="width:16px;height:16px;border-radius:50%;background:#2a1a06"></span><span style="width:16px;height:16px;border-radius:50%;background:#2a1a06"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:40px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 18px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">overflow ≡ open</div>
+        <div style="position:relative;width:760px;height:520px;border-radius:26px;overflow:hidden;background:linear-gradient(#3d6280,#22364a);box-shadow:0 20px 44px rgba(0,0,0,.5);flex:none">
+          <div style="position:absolute;inset:0;background:rgba(10,16,24,.5)"></div>
+          <div style="position:absolute;right:40px;top:40px;width:420px;display:flex;flex-direction:column;gap:16px;padding:26px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.12);box-shadow:0 12px 0 #101823">
+            <div style="display:flex;align-items:center;gap:18px;padding:20px 24px;border-radius:16px;background:#1a2634;font:800 32px Nunito,system-ui,sans-serif;color:#f6efe2">
+              <span style="width:32px;height:32px;border-radius:50%;border:7px solid #f6efe2;box-sizing:border-box;flex:none"></span>
+              <span>SETTINGS</span>
+            </div>
+            <div style="padding:20px 24px;border-radius:16px;background:#1a2634;font:800 32px Nunito,system-ui,sans-serif;color:#f6efe2">HOW TO PLAY</div>
+            <div style="padding:20px 24px;border-radius:16px;background:#1a2634;font:800 32px Nunito,system-ui,sans-serif;color:#f6efe2">CREDITS</div>
+            <div style="padding:20px 24px;border-radius:16px;background:rgba(232,96,60,.2);border:3px solid rgba(232,96,60,.6);font:800 32px Nunito,system-ui,sans-serif;color:#ffb8a3">QUIT GAME</div>
+            <div style="font:600 20px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">quit hidden on web build</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="font:600 18px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">competitive attempt confirm — my recommendation</div>
+        <div style="position:relative;width:1020px;height:640px;border-radius:26px;overflow:hidden;background:linear-gradient(#3d6280,#22364a);box-shadow:0 20px 44px rgba(0,0,0,.5);flex:none">
+          <div style="position:absolute;inset:0;background:rgba(10,16,24,.62)"></div>
+          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-1.5deg);width:820px;padding:44px 48px;border-radius:28px;background:#223247;border:5px solid rgba(255,255,255,.14);box-shadow:0 16px 0 #101823,0 30px 50px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:26px;box-sizing:border-box">
+            <div style="font:800 62px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2">SPEND AN ATTEMPT?</div>
+            <div style="font:600 30px/1.4 Nunito,system-ui,sans-serif;color:rgba(246,239,226,.82)">This run counts toward today's leaderboard. You have <strong style="color:#f0a93b">3 of 3</strong> left — they reset at midnight.</div>
+            <div style="display:flex;gap:16px;align-items:center">
+              <span style="width:26px;height:26px;border-radius:50%;background:#f0a93b"></span><span style="width:26px;height:26px;border-radius:50%;background:#f0a93b"></span><span style="width:26px;height:26px;border-radius:50%;background:#f0a93b"></span>
+              <span style="font:600 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);margin-left:10px">or fly it in Practice instead</span>
+            </div>
+            <div style="display:flex;gap:20px;align-items:center">
+              <div style="flex:1;padding:22px 0;border-radius:20px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 9px 0 #a2620f;text-align:center;font:800 44px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">LET'S FLY</div>
+              <div style="padding:22px 38px;border-radius:20px;background:#1a2634;box-shadow:0 9px 0 #0d141d;font:800 34px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.8)">CANCEL</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="width:44px;height:44px;border-radius:12px;border:4px solid rgba(246,239,226,.5)"></div>
+              <span style="font:600 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.65)">Don't ask again today</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S01 loading — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S01 · LOADING
+S01 Loading progress bar · percentage · random destruction line
+
+VARIANTS / SUB-LABELS: KEY ART — plane mid-crash through a skyline "Structural engineers hate this one weak point." 62% OPOINT8182
+
+NOTES:
+- Web build: this screen doubles as the rotate-your-device gate — if portrait is detected, art swaps for a rotate prompt and progress holds.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S01">
+<div style="position:relative;width:2400px;height:1080px;overflow:hidden;border-radius:26px;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#5b86a6,#2c465e 60%,#1b2937);flex:none">
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(246,239,226,.07) 0 22px,rgba(246,239,226,0) 22px 44px)"></div>
+    <div style="position:absolute;left:0;right:0;top:40%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:18px">
+      <div style="width:1080px;height:420px;border:4px dashed rgba(246,239,226,.42);border-radius:24px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 16px,rgba(246,239,226,0) 16px 32px)"></div>
+      <div style="font:600 28px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.78);letter-spacing:.06em">KEY ART — plane mid-crash through a skyline</div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:96px;display:flex;flex-direction:column;align-items:center;gap:30px">
+      <div style="font:600 34px/1.3 Nunito,system-ui,sans-serif;color:rgba(246,239,226,.82);font-style:italic;max-width:1200px;text-align:center">"Structural engineers hate this one weak point."</div>
+      <div style="display:flex;align-items:center;gap:32px">
+        <div style="width:1180px;height:46px;border-radius:23px;background:rgba(10,16,24,.5);box-shadow:inset 0 4px 0 rgba(0,0,0,.35);padding:7px;box-sizing:border-box">
+          <div style="width:62%;height:100%;border-radius:18px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:inset 0 -7px 0 rgba(0,0,0,.18)"></div>
+        </div>
+        <div style="font:800 58px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;min-width:150px">62%</div>
+      </div>
+    </div>
+    <div style="position:absolute;left:56px;top:48px;font:800 34px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.14em">OPOINT8182</div>
+  </div>
+</div>
+</body></html>

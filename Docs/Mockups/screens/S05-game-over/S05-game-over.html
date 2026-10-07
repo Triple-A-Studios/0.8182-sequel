@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S05 game-over — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S05 · GAME-OVER
+S05 Game over score → stats → rank → buttons, cascade order marked ①②③④
+
+THREE STATES (top to bottom):
+- a · attempt 1 of 3 — placed well. Rank is provisional; BANK IT is primary so the player can save the other two attempts.
+- b · attempt 1 of 3 — did not place. Same chip, neutral styling with the gap to beat; RETRY stays primary.
+- c · attempt 3 of 3 — final. Rank locks, delta vs yesterday appears, attempt count is replaced by the reset timer.
+
+NOTES:
+- ① score slams in at ~1.3× and settles (0.25s) ② stat chips pop in left→right, 60ms apart, currency counts up ③ rank chip fades up — it submits on death, so it holds a "RANKING…" skeleton (same chip, pulsing grey bars) until the server answers; it never blocks ④, which rises from the bottom edge on its own schedule. Rank is tappable and opens the leaderboard scrolled to the player's row. A negative delta shows the rank only — no red ▼ — so a bad day never reads as a punishment. Cause chip text swaps: OUT OF FUEL / WRECKED / FLEW TOO HIGH / HIT THE DECK / OUT OF BOUNDS. Practice mode drops the attempt row and the share button keeps a "practice" tag.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI (the frozen gameplay HUD is shown dimmed behind the cascade).
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S05">
+<div style="font:700 21px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.04em">a · attempt 1 of 3 — placed well. Rank is provisional; BANK IT is primary so the player can save the other two attempts.</div>
+<div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);flex:none">
+    <div style="">
+<div style="position:relative;width:2400px;height:1080px;overflow:hidden;background:linear-gradient(#5b86a6 0%,#3d6280 46%,#243a4f 62%,#1b2937 100%);font-family:Nunito,system-ui,sans-serif">
+
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 12px,rgba(0,0,0,0) 12px 24px)"></div>
+  <div style="position:absolute;left:0;right:0;top:600px;height:480px;background:linear-gradient(#2a4257,#16212d);border-top:4px solid rgba(255,255,255,.07)"></div>
+  <div style="position:absolute;left:50%;top:498px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.55">
+    <div style="width:520px;height:196px;border:3px dashed rgba(246,239,226,.45);border-radius:18px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.10) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+    <div style="font:600 26px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.8);letter-spacing:.06em">UNITY 3D VIEW · third-person follow cam</div>
+  </div>
+
+  
+
+  <div style="position:absolute;left:44px;top:40px;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+    <div style="font:800 28px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.16em;padding-left:5px">SCORE</div>
+    <div style="font:800 96px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 7px 0 rgba(16,24,35,.75);white-space:nowrap">184,920</div>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px;top:56px" data-stack="top">
+    
+    
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <div style="display:flex;gap:7px;padding:9px;border-radius:20px;background:rgba(10,16,24,.34);box-shadow:inset 0 3px 0 rgba(0,0,0,.3)">
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+        </div>
+        <div style="font:800 24px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.72);letter-spacing:.24em">FUEL</div>
+      </div>
+    
+
+    
+      <div style="width:520px;height:26px;border-radius:13px;background:rgba(10,16,24,.5);box-shadow:0 0 0 4px rgba(224,69,47,.5),0 0 34px 10px rgba(224,69,47,.55);overflow:hidden">
+        <div style="width:22%;height:100%;border-radius:13px;background:linear-gradient(#f07a5a,#e0452f)"></div>
+      </div>
+    
+    
+
+  </div>
+
+  <div style="position:absolute;right:56px;top:48px;width:104px;height:104px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 9px 0 #101823,0 16px 26px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:11px">
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+  </div>
+
+  <div style="position:absolute;left:124px;bottom:104px;width:300px;height:300px;border-radius:50%;background:rgba(10,16,24,.3);border:7px solid rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center">
+    <div style="width:132px;height:132px;border-radius:50%;background:linear-gradient(#f6efe2,#cdc3b2);box-shadow:0 9px 0 rgba(16,24,35,.45);transform:translate(34px,-20px)"></div>
+  </div>
+  <div style="position:absolute;left:124px;bottom:56px;width:300px;text-align:center;font:600 24px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">steer</div>
+
+  <div style="position:absolute;right:140px;bottom:112px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="width:186px;height:186px;border-radius:50%;background:linear-gradient(#f0a93b,#d1861f);border:6px solid rgba(255,255,255,.22);box-shadow:0 10px 0 #a2620f,0 18px 28px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:800 42px 'Baloo 2',system-ui,sans-serif;color:#2a1a06;letter-spacing:.04em">BOOST</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 220px 80px rgba(16,24,35,.6)">
+      <div style="position:absolute;left:240px;top:120px;width:640px;height:7px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.85),rgba(255,255,255,0));transform:rotate(24deg)"></div>
+      <div style="position:absolute;left:420px;top:300px;width:420px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(-38deg)"></div>
+      <div style="position:absolute;left:1500px;top:180px;width:560px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0));transform:rotate(-16deg)"></div>
+      <div style="position:absolute;left:1720px;top:420px;width:380px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.65),rgba(255,255,255,0));transform:rotate(42deg)"></div>
+      <div style="position:absolute;left:1000px;top:760px;width:480px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(12deg)"></div>
+    </div>
+    <div style="position:absolute;left:1340px;top:520px;display:flex;gap:18px;align-items:flex-end;opacity:.75">
+      <div style="width:120px;height:120px;border-radius:50%;background:rgba(246,239,226,.28);border:3px dashed rgba(246,239,226,.5)"></div>
+      <div style="width:86px;height:86px;border-radius:50%;background:rgba(246,239,226,.22);border:3px dashed rgba(246,239,226,.45)"></div>
+      <div style="font:600 22px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.7);padding-bottom:10px">smoke VFX + plane wear (3D pass)</div>
+    </div>
+    <div style="position:absolute;left:50%;top:880px;transform:translateX(-50%) rotate(-4deg);padding:16px 36px;border-radius:14px;background:#e0452f;border:5px solid #f6efe2;box-shadow:0 10px 0 rgba(16,24,35,.5);font:800 54px 'Baloo 2',system-ui,sans-serif;color:#fff">−1 HEALTH</div>
+  
+
+  
+</div>
+
+</div>
+    <div style="position:absolute;inset:0;background:rgba(10,16,24,.72)"></div>
+
+    <div style="position:absolute;left:0;right:0;top:54px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="transform:rotate(-3deg);font:800 112px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 9px 0 #a83a20">GAME OVER</div>
+      <div style="padding:10px 30px;border-radius:14px;background:#e8603c;font:800 34px Nunito,system-ui,sans-serif;color:#fff;letter-spacing:.14em;white-space:nowrap">OUT OF FUEL</div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:268px;display:flex;align-items:center;justify-content:center;gap:34px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">1</div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="font:800 34px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.2em;white-space:nowrap">FINAL SCORE</div>
+        <div style="font:800 188px/0.92 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 12px 0 rgba(16,24,35,.7)">184,920</div>
+      </div>
+      <div style="transform:rotate(9deg);padding:14px 30px;border-radius:14px;background:#5fc26a;border:5px solid #f6efe2;box-shadow:0 9px 0 rgba(16,24,35,.5);font:800 44px 'Baloo 2',system-ui,sans-serif;color:#14300f">NEW BEST!</div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:548px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">2</div>
+      <div style="display:flex;gap:20px">
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">DISTANCE</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">2.4 km</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">FLATTENED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">38</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">BEST COMBO</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">×7</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:rgba(240,169,59,.16);border:3px solid rgba(240,169,59,.5);box-shadow:0 8px 0 rgba(16,24,35,.6);display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(240,169,59,.9);letter-spacing:.12em">EARNED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">+286 ◉</span></div>
+      </div>
+    </div>
+
+
+    <div style="position:absolute;left:0;right:0;top:716px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">3</div>
+      <div style="display:flex;align-items:center;gap:28px;padding:18px 40px;border-radius:24px;background:#223247;border:3px solid rgba(240,169,59,.45);box-shadow:0 10px 0 #101823;white-space:nowrap">
+        <span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.16em">TODAY'S RANK</span>
+        <span style="font:800 76px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2">#412</span>
+        <span style="font:800 36px 'Baloo 2',system-ui,sans-serif;color:#5fc26a">▲ 38</span>
+        <span style="width:3px;height:52px;border-radius:2px;background:rgba(246,239,226,.18)"></span>
+        <span style="font:800 28px Nunito,system-ui,sans-serif;color:#f0a93b;letter-spacing:.1em">PROVISIONAL · 2 LEFT</span>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:48px;display:flex;align-items:center;justify-content:center;gap:22px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">4</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="padding:26px 70px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);border:5px solid rgba(255,255,255,.28);box-shadow:0 12px 0 #a2620f;font:800 68px/1 'Baloo 2',system-ui,sans-serif;color:#2a1a06;white-space:nowrap">BANK IT</div>
+        <span style="font:700 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.08em;white-space:nowrap">keep 2 attempts for later today</span>
+      </div>
+      <div style="padding:24px 44px;border-radius:22px;background:#223247;border:3px solid rgba(255,255,255,.12);box-shadow:0 10px 0 #101823;font:800 40px Nunito,system-ui,sans-serif;color:#f6efe2;white-space:nowrap">RETRY NOW</div>
+      <div style="padding:24px 40px;border-radius:22px;background:#223247;box-shadow:0 10px 0 #101823;font:800 36px Nunito,system-ui,sans-serif;color:#f6efe2;white-space:nowrap">LEADERBOARD</div>
+      <div style="width:104px;height:104px;border-radius:22px;background:#223247;box-shadow:0 10px 0 #101823;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:40px;height:40px;border-radius:9px;border:5px solid #f6efe2;box-sizing:border-box"></div><span style="font:800 18px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">SHARE</span></div>
+    </div>
+  </div>
+<div style="font:700 21px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.04em">b · attempt 1 of 3 — did not place. Same chip, neutral styling with the gap to beat; RETRY stays primary.</div>
+<div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);flex:none">
+    <div style="">
+<div style="position:relative;width:2400px;height:1080px;overflow:hidden;background:linear-gradient(#5b86a6 0%,#3d6280 46%,#243a4f 62%,#1b2937 100%);font-family:Nunito,system-ui,sans-serif">
+
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 12px,rgba(0,0,0,0) 12px 24px)"></div>
+  <div style="position:absolute;left:0;right:0;top:600px;height:480px;background:linear-gradient(#2a4257,#16212d);border-top:4px solid rgba(255,255,255,.07)"></div>
+  <div style="position:absolute;left:50%;top:498px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.55">
+    <div style="width:520px;height:196px;border:3px dashed rgba(246,239,226,.45);border-radius:18px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.10) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+    <div style="font:600 26px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.8);letter-spacing:.06em">UNITY 3D VIEW · third-person follow cam</div>
+  </div>
+
+  
+
+  <div style="position:absolute;left:44px;top:40px;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+    <div style="font:800 28px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.16em;padding-left:5px">SCORE</div>
+    <div style="font:800 96px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 7px 0 rgba(16,24,35,.75);white-space:nowrap">96,310</div>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px;top:56px" data-stack="top">
+    
+    
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <div style="display:flex;gap:7px;padding:9px;border-radius:20px;background:rgba(10,16,24,.34);box-shadow:inset 0 3px 0 rgba(0,0,0,.3)">
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+        </div>
+        <div style="font:800 24px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.72);letter-spacing:.24em">FUEL</div>
+      </div>
+    
+
+    
+      <div style="width:520px;height:26px;border-radius:13px;background:rgba(10,16,24,.5);box-shadow:0 0 0 4px rgba(224,69,47,.5),0 0 34px 10px rgba(224,69,47,.55);overflow:hidden">
+        <div style="width:22%;height:100%;border-radius:13px;background:linear-gradient(#f07a5a,#e0452f)"></div>
+      </div>
+    
+    
+
+  </div>
+
+  <div style="position:absolute;right:56px;top:48px;width:104px;height:104px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 9px 0 #101823,0 16px 26px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:11px">
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+  </div>
+
+  <div style="position:absolute;left:124px;bottom:104px;width:300px;height:300px;border-radius:50%;background:rgba(10,16,24,.3);border:7px solid rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center">
+    <div style="width:132px;height:132px;border-radius:50%;background:linear-gradient(#f6efe2,#cdc3b2);box-shadow:0 9px 0 rgba(16,24,35,.45);transform:translate(34px,-20px)"></div>
+  </div>
+  <div style="position:absolute;left:124px;bottom:56px;width:300px;text-align:center;font:600 24px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">steer</div>
+
+  <div style="position:absolute;right:140px;bottom:112px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="width:186px;height:186px;border-radius:50%;background:linear-gradient(#f0a93b,#d1861f);border:6px solid rgba(255,255,255,.22);box-shadow:0 10px 0 #a2620f,0 18px 28px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:800 42px 'Baloo 2',system-ui,sans-serif;color:#2a1a06;letter-spacing:.04em">BOOST</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 220px 80px rgba(16,24,35,.6)">
+      <div style="position:absolute;left:240px;top:120px;width:640px;height:7px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.85),rgba(255,255,255,0));transform:rotate(24deg)"></div>
+      <div style="position:absolute;left:420px;top:300px;width:420px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(-38deg)"></div>
+      <div style="position:absolute;left:1500px;top:180px;width:560px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0));transform:rotate(-16deg)"></div>
+      <div style="position:absolute;left:1720px;top:420px;width:380px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.65),rgba(255,255,255,0));transform:rotate(42deg)"></div>
+      <div style="position:absolute;left:1000px;top:760px;width:480px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(12deg)"></div>
+    </div>
+    <div style="position:absolute;left:1340px;top:520px;display:flex;gap:18px;align-items:flex-end;opacity:.75">
+      <div style="width:120px;height:120px;border-radius:50%;background:rgba(246,239,226,.28);border:3px dashed rgba(246,239,226,.5)"></div>
+      <div style="width:86px;height:86px;border-radius:50%;background:rgba(246,239,226,.22);border:3px dashed rgba(246,239,226,.45)"></div>
+      <div style="font:600 22px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.7);padding-bottom:10px">smoke VFX + plane wear (3D pass)</div>
+    </div>
+    <div style="position:absolute;left:50%;top:880px;transform:translateX(-50%) rotate(-4deg);padding:16px 36px;border-radius:14px;background:#e0452f;border:5px solid #f6efe2;box-shadow:0 10px 0 rgba(16,24,35,.5);font:800 54px 'Baloo 2',system-ui,sans-serif;color:#fff">−1 HEALTH</div>
+  
+
+  
+</div>
+
+</div>
+    <div style="position:absolute;inset:0;background:rgba(10,16,24,.72)"></div>
+
+    <div style="position:absolute;left:0;right:0;top:54px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="transform:rotate(-3deg);font:800 112px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 9px 0 #a83a20">GAME OVER</div>
+      <div style="padding:10px 30px;border-radius:14px;background:#e8603c;font:800 34px Nunito,system-ui,sans-serif;color:#fff;letter-spacing:.14em;white-space:nowrap">OUT OF FUEL</div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:268px;display:flex;align-items:center;justify-content:center;gap:34px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">1</div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="font:800 34px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.2em;white-space:nowrap">FINAL SCORE</div>
+        <div style="font:800 188px/0.92 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 12px 0 rgba(16,24,35,.7)">96,310</div>
+      </div>
+      <div style="padding:14px 30px;border-radius:14px;background:#223247;border:3px solid rgba(255,255,255,.12);box-shadow:0 9px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap"><span style="font:800 22px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.12em">YOUR BEST</span><span style="font:800 40px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">184,920</span></div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:548px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">2</div>
+      <div style="display:flex;gap:20px">
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">DISTANCE</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">1.3 km</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">FLATTENED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">19</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">BEST COMBO</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">×4</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:rgba(240,169,59,.16);border:3px solid rgba(240,169,59,.5);box-shadow:0 8px 0 rgba(16,24,35,.6);display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(240,169,59,.9);letter-spacing:.12em">EARNED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">+148 ◉</span></div>
+      </div>
+    </div>
+
+
+    <div style="position:absolute;left:0;right:0;top:716px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">3</div>
+      <div style="display:flex;align-items:center;gap:28px;padding:18px 40px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823;white-space:nowrap">
+        <span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.16em">TODAY'S RANK</span>
+        <span style="font:800 30px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5);letter-spacing:.08em">UNRANKED</span>
+        <span style="width:3px;height:52px;border-radius:2px;background:rgba(246,239,226,.18)"></span>
+        <span style="font:800 28px Nunito,system-ui,sans-serif;color:#f0a93b;letter-spacing:.1em">143,690 TO TOP 500</span>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:48px;display:flex;align-items:center;justify-content:center;gap:22px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">4</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="padding:26px 78px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);border:5px solid rgba(255,255,255,.28);box-shadow:0 12px 0 #a2620f;font:800 68px/1 'Baloo 2',system-ui,sans-serif;color:#2a1a06;white-space:nowrap">RETRY</div>
+        <span style="font:700 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.08em;white-space:nowrap">2 attempts left today</span>
+      </div>
+      <div style="padding:24px 44px;border-radius:22px;background:#223247;border:3px solid rgba(255,255,255,.12);box-shadow:0 10px 0 #101823;font:800 40px Nunito,system-ui,sans-serif;color:#f6efe2;white-space:nowrap">MAIN MENU</div>
+      <div style="padding:24px 40px;border-radius:22px;background:#223247;box-shadow:0 10px 0 #101823;font:800 36px Nunito,system-ui,sans-serif;color:#f6efe2;white-space:nowrap">LEADERBOARD</div>
+      <div style="width:104px;height:104px;border-radius:22px;background:#223247;box-shadow:0 10px 0 #101823;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:40px;height:40px;border-radius:9px;border:5px solid #f6efe2;box-sizing:border-box"></div><span style="font:800 18px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">SHARE</span></div>
+    </div>
+  </div>
+<div style="font:700 21px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.04em">c · attempt 3 of 3 — final. Rank locks, delta vs yesterday appears, attempt count is replaced by the reset timer.</div>
+<div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);flex:none">
+    <div style="">
+<div style="position:relative;width:2400px;height:1080px;overflow:hidden;background:linear-gradient(#5b86a6 0%,#3d6280 46%,#243a4f 62%,#1b2937 100%);font-family:Nunito,system-ui,sans-serif">
+
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 12px,rgba(0,0,0,0) 12px 24px)"></div>
+  <div style="position:absolute;left:0;right:0;top:600px;height:480px;background:linear-gradient(#2a4257,#16212d);border-top:4px solid rgba(255,255,255,.07)"></div>
+  <div style="position:absolute;left:50%;top:498px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.55">
+    <div style="width:520px;height:196px;border:3px dashed rgba(246,239,226,.45);border-radius:18px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.10) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+    <div style="font:600 26px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.8);letter-spacing:.06em">UNITY 3D VIEW · third-person follow cam</div>
+  </div>
+
+  
+
+  <div style="position:absolute;left:44px;top:40px;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+    <div style="font:800 28px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.16em;padding-left:5px">SCORE</div>
+    <div style="font:800 96px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 7px 0 rgba(16,24,35,.75);white-space:nowrap">184,920</div>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px;top:56px" data-stack="top">
+    
+    
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <div style="display:flex;gap:7px;padding:9px;border-radius:20px;background:rgba(10,16,24,.34);box-shadow:inset 0 3px 0 rgba(0,0,0,.3)">
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+        </div>
+        <div style="font:800 24px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.72);letter-spacing:.24em">FUEL</div>
+      </div>
+    
+
+    
+      <div style="width:520px;height:26px;border-radius:13px;background:rgba(10,16,24,.5);box-shadow:0 0 0 4px rgba(224,69,47,.5),0 0 34px 10px rgba(224,69,47,.55);overflow:hidden">
+        <div style="width:22%;height:100%;border-radius:13px;background:linear-gradient(#f07a5a,#e0452f)"></div>
+      </div>
+    
+    
+
+  </div>
+
+  <div style="position:absolute;right:56px;top:48px;width:104px;height:104px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 9px 0 #101823,0 16px 26px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:11px">
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+  </div>
+
+  <div style="position:absolute;left:124px;bottom:104px;width:300px;height:300px;border-radius:50%;background:rgba(10,16,24,.3);border:7px solid rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center">
+    <div style="width:132px;height:132px;border-radius:50%;background:linear-gradient(#f6efe2,#cdc3b2);box-shadow:0 9px 0 rgba(16,24,35,.45);transform:translate(34px,-20px)"></div>
+  </div>
+  <div style="position:absolute;left:124px;bottom:56px;width:300px;text-align:center;font:600 24px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">steer</div>
+
+  <div style="position:absolute;right:140px;bottom:112px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="width:186px;height:186px;border-radius:50%;background:linear-gradient(#f0a93b,#d1861f);border:6px solid rgba(255,255,255,.22);box-shadow:0 10px 0 #a2620f,0 18px 28px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:800 42px 'Baloo 2',system-ui,sans-serif;color:#2a1a06;letter-spacing:.04em">BOOST</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 220px 80px rgba(16,24,35,.6)">
+      <div style="position:absolute;left:240px;top:120px;width:640px;height:7px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.85),rgba(255,255,255,0));transform:rotate(24deg)"></div>
+      <div style="position:absolute;left:420px;top:300px;width:420px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(-38deg)"></div>
+      <div style="position:absolute;left:1500px;top:180px;width:560px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8),rgba(255,255,255,0));transform:rotate(-16deg)"></div>
+      <div style="position:absolute;left:1720px;top:420px;width:380px;height:5px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.65),rgba(255,255,255,0));transform:rotate(42deg)"></div>
+      <div style="position:absolute;left:1000px;top:760px;width:480px;height:6px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));transform:rotate(12deg)"></div>
+    </div>
+    <div style="position:absolute;left:1340px;top:520px;display:flex;gap:18px;align-items:flex-end;opacity:.75">
+      <div style="width:120px;height:120px;border-radius:50%;background:rgba(246,239,226,.28);border:3px dashed rgba(246,239,226,.5)"></div>
+      <div style="width:86px;height:86px;border-radius:50%;background:rgba(246,239,226,.22);border:3px dashed rgba(246,239,226,.45)"></div>
+      <div style="font:600 22px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.7);padding-bottom:10px">smoke VFX + plane wear (3D pass)</div>
+    </div>
+    <div style="position:absolute;left:50%;top:880px;transform:translateX(-50%) rotate(-4deg);padding:16px 36px;border-radius:14px;background:#e0452f;border:5px solid #f6efe2;box-shadow:0 10px 0 rgba(16,24,35,.5);font:800 54px 'Baloo 2',system-ui,sans-serif;color:#fff">−1 HEALTH</div>
+  
+
+  
+</div>
+
+</div>
+    <div style="position:absolute;inset:0;background:rgba(10,16,24,.72)"></div>
+
+    <div style="position:absolute;left:0;right:0;top:54px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="transform:rotate(-3deg);font:800 112px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 9px 0 #a83a20">GAME OVER</div>
+      <div style="padding:10px 30px;border-radius:14px;background:#e8603c;font:800 34px Nunito,system-ui,sans-serif;color:#fff;letter-spacing:.14em;white-space:nowrap">OUT OF FUEL</div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:268px;display:flex;align-items:center;justify-content:center;gap:34px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">1</div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="font:800 34px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.2em;white-space:nowrap">FINAL SCORE</div>
+        <div style="font:800 188px/0.92 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 12px 0 rgba(16,24,35,.7)">184,920</div>
+      </div>
+      <div style="transform:rotate(9deg);padding:14px 30px;border-radius:14px;background:#5fc26a;border:5px solid #f6efe2;box-shadow:0 9px 0 rgba(16,24,35,.5);font:800 44px 'Baloo 2',system-ui,sans-serif;color:#14300f">NEW BEST!</div>
+    </div>
+
+    <div style="position:absolute;left:0;right:0;top:548px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">2</div>
+      <div style="display:flex;gap:20px">
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">DISTANCE</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">2.4 km</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">FLATTENED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">38</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">BEST COMBO</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">×7</span></div>
+        <div style="padding:20px 34px;border-radius:20px;background:rgba(240,169,59,.16);border:3px solid rgba(240,169,59,.5);box-shadow:0 8px 0 rgba(16,24,35,.6);display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap"><span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(240,169,59,.9);letter-spacing:.12em">EARNED</span><span style="font:800 48px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">+286 ◉</span></div>
+      </div>
+    </div>
+
+
+    <div style="position:absolute;left:0;right:0;top:716px;display:flex;align-items:center;justify-content:center;gap:26px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">3</div>
+      <div style="display:flex;align-items:center;gap:28px;padding:18px 40px;border-radius:24px;background:#223247;border:3px solid rgba(95,194,106,.55);box-shadow:0 10px 0 #101823;white-space:nowrap">
+        <span style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.16em">FINAL RANK</span>
+        <span style="font:800 76px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2">#412</span>
+        <span style="font:800 36px 'Baloo 2',system-ui,sans-serif;color:#5fc26a">▲ 38 <span style="font:700 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5)">vs yesterday</span></span>
+        <span style="width:3px;height:52px;border-radius:2px;background:rgba(246,239,226,.18)"></span>
+        <span style="font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.1em">LOCKED FOR TODAY</span>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;right:0;bottom:48px;display:flex;align-items:center;justify-content:center;gap:22px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 30px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">4</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="padding:26px 60px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);border:5px solid rgba(255,255,255,.28);box-shadow:0 12px 0 #a2620f;font:800 60px/1 'Baloo 2',system-ui,sans-serif;color:#2a1a06;white-space:nowrap">LEADERBOARD</div>
+        <span style="font:700 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55);letter-spacing:.08em;white-space:nowrap">next attempts in 6h 12m</span>
+      </div>
+      <div style="padding:24px 44px;border-radius:22px;background:#223247;border:3px solid rgba(255,255,255,.12);box-shadow:0 10px 0 #101823;font:800 40px Nunito,system-ui,sans-serif;color:#f6efe2;white-space:nowrap">MAIN MENU</div>
+      <div style="padding:24px 40px;border-radius:22px;background:rgba(34,50,71,.6);box-shadow:0 10px 0 rgba(16,24,35,.6);font:800 36px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.35);white-space:nowrap">PRACTICE</div>
+      <div style="width:104px;height:104px;border-radius:22px;background:#223247;box-shadow:0 10px 0 #101823;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:40px;height:40px;border-radius:9px;border:5px solid #f6efe2;box-sizing:border-box"></div><span style="font:800 18px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">SHARE</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

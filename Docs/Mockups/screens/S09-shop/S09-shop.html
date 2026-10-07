@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S09 shop — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S09 · SHOP
+S09 Shop planes live now · crash FX + skins land in Beta
+
+VARIANTS / SUB-LABELS: crash FX / skins tab — Beta placeholder PLANES CRASH FX BUILDING SKINS COMING IN BETA Keep stacking ◉ — you'll need it
+
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S09">
+<div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+    <div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#3d6280,#22364a);flex:none">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+      <div style="position:absolute;left:48px;top:40px;display:flex;align-items:center;gap:26px">
+        <div style="width:92px;height:92px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;align-items:center;justify-content:center;font:800 54px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">‹</div>
+        <div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-1.5deg);white-space:nowrap">HANGAR SHOP</div>
+      </div>
+      <div style="position:absolute;right:48px;top:52px;display:flex;align-items:center;gap:16px;padding:18px 30px;border-radius:20px;background:rgba(240,169,59,.16);border:4px solid rgba(240,169,59,.5);box-shadow:0 8px 0 rgba(16,24,35,.6)">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(#ffc76a,#f0a93b)"></div>
+        <span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">12,480</span>
+      </div>
+      <div style="position:absolute;left:48px;top:168px;display:flex;gap:10px;padding:8px;border-radius:22px;background:rgba(16,24,35,.5)">
+        <div style="padding:18px 44px;border-radius:16px;background:#f0a93b;font:800 32px Nunito,system-ui,sans-serif;color:#2a1a06;letter-spacing:.06em">PLANES</div>
+        <div style="padding:18px 44px;border-radius:16px;font:800 32px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5);letter-spacing:.06em">CRASH FX <span style="font-size:22px;color:#f0a93b">BETA</span></div>
+        <div style="padding:18px 44px;border-radius:16px;font:800 32px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5);letter-spacing:.06em">BUILDING SKINS <span style="font-size:22px;color:#f0a93b">BETA</span></div>
+      </div>
+      <div style="position:absolute;left:48px;right:48px;top:288px;display:grid;grid-template-columns:repeat(4,1fr);gap:26px">
+        <div style="padding:24px;border-radius:26px;background:#223247;border:4px solid #5fc26a;box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:16px">
+          <div style="height:250px;border-radius:18px;border:4px dashed rgba(246,239,226,.4);background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+          <div style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">Crop Duster Mk.II</div>
+          <div style="font:600 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">Slow, forgiving, huge nose</div>
+          <div style="padding:18px 0;border-radius:16px;background:rgba(95,194,106,.2);border:3px solid #5fc26a;text-align:center;font:800 30px Nunito,system-ui,sans-serif;color:#bff0c3">EQUIPPED</div>
+        </div>
+        <div style="padding:24px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.12);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:16px">
+          <div style="height:250px;border-radius:18px;border:4px dashed rgba(246,239,226,.4);background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+          <div style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">Jet Lunchbox</div>
+          <div style="font:600 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">Fast, twitchy, thirsty</div>
+          <div style="padding:18px 0;border-radius:16px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 7px 0 #a2620f;text-align:center;font:800 30px Nunito,system-ui,sans-serif;color:#2a1a06">BUY · 8,000 ◉</div>
+        </div>
+        <div style="padding:24px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.12);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:16px">
+          <div style="height:250px;border-radius:18px;border:4px dashed rgba(246,239,226,.4);background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+          <div style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">Flying Bathtub</div>
+          <div style="font:600 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">Heavy. Tough buildings fear it</div>
+          <div style="padding:18px 0;border-radius:16px;background:#1a2634;border:3px solid rgba(246,239,226,.2);text-align:center;font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55)">18,000 ◉ — NOT ENOUGH</div>
+        </div>
+        <div style="padding:24px;border-radius:26px;background:#1a2634;border:4px dashed rgba(246,239,226,.3);display:flex;flex-direction:column;gap:16px;opacity:.9">
+          <div style="height:250px;border-radius:18px;background:rgba(10,16,24,.5);display:flex;align-items:center;justify-content:center;font:800 90px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.35)">?</div>
+          <div style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6)">LOCKED</div>
+          <div style="font:600 24px/1.4 Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">Unlocks at 5 km in a single run</div>
+          <div style="padding:18px 0;border-radius:16px;background:rgba(246,239,226,.08);text-align:center;font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.5)">2.4 / 5.0 km</div>
+        </div>
+      </div>
+      <div style="position:absolute;left:48px;bottom:48px;font:600 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">Earn ◉ by crashing well — perfect crashes and long combos pay the most. Nothing here is buyable with real money.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 18px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">crash FX / skins tab — Beta placeholder</div>
+      <div style="position:relative;width:1200px;height:760px;border-radius:26px;overflow:hidden;background:linear-gradient(#3d6280,#22364a);box-shadow:0 20px 44px rgba(0,0,0,.5);flex:none">
+        <div style="position:absolute;left:40px;top:36px;display:flex;gap:8px;padding:7px;border-radius:20px;background:rgba(16,24,35,.5)">
+          <div style="padding:14px 30px;border-radius:14px;font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55)">PLANES</div>
+          <div style="padding:14px 30px;border-radius:14px;background:#f0a93b;font:800 26px Nunito,system-ui,sans-serif;color:#2a1a06">CRASH FX</div>
+          <div style="padding:14px 30px;border-radius:14px;font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55)">BUILDING SKINS</div>
+        </div>
+        <div style="position:absolute;left:50%;top:56%;transform:translate(-50%,-50%) rotate(-3deg);width:880px;padding:40px 0;background:repeating-linear-gradient(45deg,#f0a93b 0 34px,#1b2330 34px 68px);box-shadow:0 14px 0 rgba(16,24,35,.5);display:flex;align-items:center;justify-content:center">
+          <div style="padding:24px 54px;background:#1b2330;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:10px">
+            <div style="font:800 76px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">COMING IN BETA</div>
+            <div style="font:600 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">Keep stacking ◉ — you'll need it</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

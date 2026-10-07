@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S08 profile — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S08 · PROFILE
+S08 Player profile identity left · stats right · auto-generated name, rename anytime
+
+VARIANTS / SUB-LABELS: ‹ PROFILE 3D portrait — equipped plane,slow turntable DISPLAY NAME RustyBiplane47 ✎ ID #2VULYCQUJ · no account 12,480 HIGH SCORE184,920 DISTANCE FLOWN418 km BUILDINGS DOWN6,204 BEST COMBO×11 RUNS FLOWN312 PERFECT CRASHES1,088 EQUIPPED PLANECrop Duster Mk.II CRASH FXConfetti Blast BADGES 3 / 12 FIRSTBLOOD ×10COMBO 1000CRASHES ? ? locked badges show theircondition on tap
+
+NOTES:
+- Name is generated on first launch (adjective + plane + number) so nobody is ever blocked by a naming step; ✎ turns the field into an inline text input with a 14-character cap and a dice button to re-roll.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S08">
+<div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#3d6280,#22364a);flex:none">
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+    <div style="position:absolute;left:48px;top:40px;display:flex;align-items:center;gap:26px">
+      <div style="width:92px;height:92px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;align-items:center;justify-content:center;font:800 54px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">‹</div>
+      <div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-1.5deg)">PROFILE</div>
+    </div>
+
+    <div style="position:absolute;left:48px;top:176px;bottom:48px;width:640px;display:flex;flex-direction:column;gap:22px">
+      <div style="flex:1;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+        <div style="width:420px;height:300px;border:4px dashed rgba(246,239,226,.4);border-radius:20px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+        <div style="font:600 24px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.7);text-align:center">3D portrait — equipped plane,<br>slow turntable</div>
+      </div>
+      <div style="padding:26px 30px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:18px">
+        <div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.14em">DISPLAY NAME</div>
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 24px;border-radius:18px;background:#1a2634;border:3px solid rgba(240,169,59,.5)">
+          <span style="flex:1;font:800 44px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">RustyBiplane47</span>
+          <div style="width:64px;height:64px;border-radius:16px;background:#f0a93b;display:flex;align-items:center;justify-content:center;font:800 32px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">✎</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font:600 26px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.55)">ID #2VULYCQUJ · no account</span>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 22px;border-radius:16px;background:rgba(240,169,59,.16);border:3px solid rgba(240,169,59,.45)">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(#ffc76a,#f0a93b)"></div>
+            <span style="font:800 32px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">12,480</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;left:720px;right:48px;top:176px;bottom:48px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+        <div style="padding:26px 28px;border-radius:24px;background:rgba(240,169,59,.16);border:4px solid rgba(240,169,59,.5);box-shadow:0 10px 0 rgba(16,24,35,.6)"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(240,169,59,.95);letter-spacing:.12em">HIGH SCORE</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">184,920</div></div>
+        <div style="padding:26px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">DISTANCE FLOWN</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">418 km</div></div>
+        <div style="padding:26px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">BUILDINGS DOWN</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">6,204</div></div>
+        <div style="padding:26px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">BEST COMBO</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">×11</div></div>
+        <div style="padding:26px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">RUNS FLOWN</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">312</div></div>
+        <div style="padding:26px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823"><div style="font:800 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">PERFECT CRASHES</div><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">1,088</div></div>
+      </div>
+      <div style="display:flex;gap:20px">
+        <div style="flex:1;padding:24px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823;display:flex;align-items:center;gap:20px">
+          <div style="width:96px;height:96px;border-radius:18px;border:4px dashed rgba(246,239,226,.4);background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 10px,rgba(246,239,226,0) 10px 20px)"></div>
+          <div><div style="font:800 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">EQUIPPED PLANE</div><div style="font:800 42px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">Crop Duster Mk.II</div></div>
+        </div>
+        <div style="flex:1;padding:24px 28px;border-radius:24px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 10px 0 #101823;display:flex;align-items:center;gap:20px">
+          <div style="width:96px;height:96px;border-radius:18px;border:4px dashed rgba(246,239,226,.4);background:repeating-linear-gradient(135deg,rgba(246,239,226,.1) 0 10px,rgba(246,239,226,0) 10px 20px)"></div>
+          <div><div style="font:800 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.12em">CRASH FX</div><div style="font:800 42px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">Confetti Blast</div></div>
+        </div>
+      </div>
+      <div style="flex:1;padding:26px 30px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:18px">
+        <div style="font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.14em">BADGES <span style="color:#f0a93b">3 / 12</span></div>
+        <div style="display:flex;gap:18px;align-items:center">
+          <div style="width:118px;height:118px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 8px 0 #a2620f;display:flex;align-items:center;justify-content:center;font:800 22px Nunito,system-ui,sans-serif;color:#2a1a06;text-align:center">FIRST<br>BLOOD</div>
+          <div style="width:118px;height:118px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 8px 0 #a2620f;display:flex;align-items:center;justify-content:center;font:800 22px Nunito,system-ui,sans-serif;color:#2a1a06;text-align:center">×10<br>COMBO</div>
+          <div style="width:118px;height:118px;border-radius:26px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 8px 0 #a2620f;display:flex;align-items:center;justify-content:center;font:800 22px Nunito,system-ui,sans-serif;color:#2a1a06;text-align:center">1000<br>CRASHES</div>
+          <div style="width:118px;height:118px;border-radius:26px;background:#1a2634;border:4px dashed rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center;font:800 40px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.4)">?</div>
+          <div style="width:118px;height:118px;border-radius:26px;background:#1a2634;border:4px dashed rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center;font:800 40px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.4)">?</div>
+          <div style="font:600 24px/1.5 ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">locked badges show their<br>condition on tap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

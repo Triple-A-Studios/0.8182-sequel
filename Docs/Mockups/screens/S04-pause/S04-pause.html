@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S04 pause — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S04 · PAUSE
+S04 Pause popup over frozen gameplay · inline audio/feel · attempt warning · 3-2-1 resume
+
+VARIANTS / SUB-LABELS: resume countdown 3 GET READY
+
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S04">
+<div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+    <div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);flex:none">
+      <div style="">
+<div style="position:relative;width:2400px;height:1080px;overflow:hidden;background:linear-gradient(#5b86a6 0%,#3d6280 46%,#243a4f 62%,#1b2937 100%);font-family:Nunito,system-ui,sans-serif">
+
+  <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 12px,rgba(0,0,0,0) 12px 24px)"></div>
+  <div style="position:absolute;left:0;right:0;top:600px;height:480px;background:linear-gradient(#2a4257,#16212d);border-top:4px solid rgba(255,255,255,.07)"></div>
+  <div style="position:absolute;left:50%;top:498px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.55">
+    <div style="width:520px;height:196px;border:3px dashed rgba(246,239,226,.45);border-radius:18px;background:repeating-linear-gradient(135deg,rgba(246,239,226,.10) 0 14px,rgba(246,239,226,0) 14px 28px)"></div>
+    <div style="font:600 26px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.8);letter-spacing:.06em">UNITY 3D VIEW · third-person follow cam</div>
+  </div>
+
+  
+
+  <div style="position:absolute;left:44px;top:40px;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+    <div style="font:800 28px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.16em;padding-left:5px">SCORE</div>
+    <div style="font:800 96px/0.9 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 7px 0 rgba(16,24,35,.75);white-space:nowrap">184,920</div>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px;top:56px" data-stack="top">
+    
+    
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <div style="display:flex;gap:7px;padding:9px;border-radius:20px;background:rgba(10,16,24,.34);box-shadow:inset 0 3px 0 rgba(0,0,0,.3)">
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:#f0a93b;box-shadow:inset 0 -6px 0 rgba(0,0,0,.22)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+          <div style="width:46px;height:40px;border-radius:7px;background:rgba(10,16,24,.55)"></div>
+        </div>
+        <div style="font:800 24px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.72);letter-spacing:.24em">FUEL</div>
+      </div>
+    
+
+    
+    
+      <div style="width:520px;height:26px;border-radius:13px;background:rgba(10,16,24,.45);box-shadow:inset 0 3px 0 rgba(0,0,0,.3);overflow:hidden">
+        <div style="width:76%;height:100%;border-radius:13px;background:linear-gradient(#86d98d,#5fc26a)"></div>
+      </div>
+    
+
+  </div>
+
+  <div style="position:absolute;right:56px;top:48px;width:104px;height:104px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 9px 0 #101823,0 16px 26px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:11px">
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+    <div style="width:15px;height:44px;border-radius:4px;background:#f6efe2"></div>
+  </div>
+
+  <div style="position:absolute;left:124px;bottom:104px;width:300px;height:300px;border-radius:50%;background:rgba(10,16,24,.3);border:7px solid rgba(246,239,226,.3);display:flex;align-items:center;justify-content:center">
+    <div style="width:132px;height:132px;border-radius:50%;background:linear-gradient(#f6efe2,#cdc3b2);box-shadow:0 9px 0 rgba(16,24,35,.45);transform:translate(34px,-20px)"></div>
+  </div>
+  <div style="position:absolute;left:124px;bottom:56px;width:300px;text-align:center;font:600 24px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">steer</div>
+
+  <div style="position:absolute;right:140px;bottom:112px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="width:186px;height:186px;border-radius:50%;background:linear-gradient(#f0a93b,#d1861f);border:6px solid rgba(255,255,255,.22);box-shadow:0 10px 0 #a2620f,0 18px 28px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font:800 42px 'Baloo 2',system-ui,sans-serif;color:#2a1a06;letter-spacing:.04em">BOOST</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</div>
+
+</div>
+      <div style="position:absolute;inset:0;background:rgba(10,16,24,.7)"></div>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1120px;padding:48px 54px;border-radius:32px;background:#223247;border:6px solid rgba(255,255,255,.14);box-shadow:0 18px 0 #101823,0 34px 60px rgba(0,0,0,.55);box-sizing:border-box;display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;align-items:baseline;gap:24px">
+          <div style="font:800 82px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-2deg)">PAUSED</div>
+          <div style="font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6);letter-spacing:.1em">COMPETITIVE · ATTEMPT 2/3</div>
+        </div>
+        <div style="display:flex;gap:34px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:20px">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.78)"><span>SOUND</span><span style="color:#f0a93b">80</span></div>
+              <div style="height:24px;border-radius:12px;background:#1a2634;position:relative"><div style="width:80%;height:100%;border-radius:12px;background:#f0a93b"></div><div style="position:absolute;left:80%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;justify-content:space-between;font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.78)"><span>SCREEN SHAKE</span><span style="color:#f0a93b">120</span></div>
+              <div style="height:24px;border-radius:12px;background:#1a2634;position:relative"><div style="width:60%;height:100%;border-radius:12px;background:#f0a93b"></div><div style="position:absolute;left:60%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.78)">HAPTICS</span>
+              <div style="width:124px;height:58px;border-radius:29px;background:#5fc26a;box-shadow:inset 0 4px 0 rgba(0,0,0,.2);display:flex;align-items:center;justify-content:flex-end;padding:6px;box-sizing:border-box"><div style="width:46px;height:46px;border-radius:50%;background:#f6efe2"></div></div>
+            </div>
+            <div style="font:600 22px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">full list lives in Settings (S06)</div>
+          </div>
+          <div style="width:440px;display:flex;flex-direction:column;gap:18px">
+            <div style="padding:26px 0;border-radius:22px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 10px 0 #a2620f;text-align:center;font:800 52px 'Baloo 2',system-ui,sans-serif;color:#2a1a06">RESUME</div>
+            <div style="padding:20px 0;border-radius:20px;background:#1a2634;box-shadow:0 8px 0 #0d141d;text-align:center;font:800 34px Nunito,system-ui,sans-serif;color:#f6efe2">RESTART RUN</div>
+            <div style="padding:20px 0;border-radius:20px;background:rgba(232,96,60,.18);border:3px solid rgba(232,96,60,.6);text-align:center;font:800 34px Nunito,system-ui,sans-serif;color:#ffb8a3">QUIT TO MENU</div>
+            <div style="padding:16px 20px;border-radius:16px;background:rgba(232,96,60,.14);font:600 24px/1.4 Nunito,system-ui,sans-serif;color:#ffcbb9">Quitting still burns attempt 2 of 3.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 18px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">resume countdown</div>
+      <div style="position:relative;width:860px;height:560px;border-radius:26px;overflow:hidden;background:linear-gradient(#3d6280,#22364a);box-shadow:0 20px 44px rgba(0,0,0,.5);flex:none">
+        <div style="position:absolute;inset:0;background:rgba(10,16,24,.45)"></div>
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:16px">
+          <div style="font:800 260px/1 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-shadow:0 12px 0 #e8603c">3</div>
+          <div style="font:800 34px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.72);letter-spacing:.16em">GET READY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

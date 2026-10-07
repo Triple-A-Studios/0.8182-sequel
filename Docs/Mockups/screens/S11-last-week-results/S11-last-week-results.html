@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S11 last week's results — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S11 · LAST WEEK'S RESULTS
+S11 Last week's results shown on launch after a weekly reset · winners · your rank · share · skipped-week variant
+
+VARIANTS / SUB-LABELS: no ranked run last week (no share) — same layout, rank "–", score "–", no SHARE button, CONTINUE only
+
+NOTES:
+- Shown once, on the first launch after a weekly reset (never mid-session), between splash and main menu. Data = the board that just closed, locked as FINAL; it then becomes the newest entry reachable via ‹ on S07.
+- Left: top 5 winners (top 3 large, medal tints). Right: player card — big rank, "of N pilots · top X%", best score. SHARE MY RESULT exports a rank card (rank, score, week range). CONTINUE → S01.
+- No-ranked-run variant: identical layout, rank shown as "–", no share.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md.
+-->
+<div class="stage" data-screen="S11">
+<div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+    <div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#3d6280,#22364a);flex:none">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+      <div style="position:absolute;left:48px;top:40px;display:flex;align-items:center;gap:26px"><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-1.5deg)">LAST WEEK'S RESULTS</div></div>
+      <div style="position:absolute;right:48px;top:56px;padding:18px 30px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2">SEP 29 – OCT 5 · <span style="color:#f0a93b">FINAL</span></div>
+      <div style="position:absolute;left:48px;top:176px;width:1360px;display:flex;flex-direction:column;gap:12px">
+        <div style="font:800 28px Nunito,system-ui,sans-serif;letter-spacing:.1em;color:rgba(246,239,226,.6);margin:0 0 4px 8px">TOP CRASHERS</div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(240,169,59,.18);border:3px solid rgba(240,169,59,.55)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">1</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">TurboMoose</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">612,480</span></div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(246,239,226,.12);border:3px solid rgba(246,239,226,.28)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.8)">2</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">CementDust</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">588,105</span></div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(232,96,60,.16);border:3px solid rgba(232,96,60,.4)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#ffb8a3">3</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">WingedIdiot</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">540,332</span></div><div style="display:flex;align-items:center;gap:28px;padding:12px 34px;border-radius:20px;background:#223247;"><span style="width:80px;font:800 38px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6)">4</span><span style="flex:1;font:600 38px Nunito,system-ui,sans-serif;color:#f6efe2">RebarRhonda</span><span style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">498,770</span></div><div style="display:flex;align-items:center;gap:28px;padding:12px 34px;border-radius:20px;background:#223247;"><span style="width:80px;font:800 38px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6)">5</span><span style="flex:1;font:600 38px Nunito,system-ui,sans-serif;color:#f6efe2">HangarQueen</span><span style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">455,190</span></div>
+      </div>
+      <div style="position:absolute;right:48px;top:176px;bottom:48px;width:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px;border-radius:32px;background:#1a2634;border:5px solid #f0a93b;box-shadow:0 14px 0 rgba(16,24,35,.7)">
+        <div style="font:800 30px Nunito,system-ui,sans-serif;letter-spacing:.1em;color:rgba(246,239,226,.65)">YOU FINISHED</div>
+        <div style="font:800 190px/1 'Baloo 2',system-ui,sans-serif;color:#f0a93b;transform:rotate(-2deg)">#31</div>
+        <div style="font:600 32px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">of 2,418 pilots · top 2%</div>
+        <div style="font:800 64px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;margin-top:6px">412,880</div>
+        <div style="font:600 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">RustyBiplane47 · best run of the week</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:22px;align-items:stretch;width:100%"><div style="padding:24px 54px;border-radius:24px;background:linear-gradient(#ffc76a,#f0a93b);box-shadow:0 10px 0 #a2620f;font:800 52px 'Baloo 2',system-ui,sans-serif;color:#2a1a06;text-align:center">SHARE MY RESULT</div><div style="padding:22px 54px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-align:center">CONTINUE</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 18px ui-monospace,Menlo,monospace;color:rgba(246,239,226,.5)">variant · no ranked run last week (rank –, no share)</div>
+      <div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#3d6280,#22364a);flex:none">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+      <div style="position:absolute;left:48px;top:40px;display:flex;align-items:center;gap:26px"><div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-1.5deg)">LAST WEEK'S RESULTS</div></div>
+      <div style="position:absolute;right:48px;top:56px;padding:18px 30px;border-radius:20px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2">SEP 29 – OCT 5 · <span style="color:#f0a93b">FINAL</span></div>
+      <div style="position:absolute;left:48px;top:176px;width:1360px;display:flex;flex-direction:column;gap:12px">
+        <div style="font:800 28px Nunito,system-ui,sans-serif;letter-spacing:.1em;color:rgba(246,239,226,.6);margin:0 0 4px 8px">TOP CRASHERS</div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(240,169,59,.18);border:3px solid rgba(240,169,59,.55)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f0a93b">1</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">TurboMoose</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">612,480</span></div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(246,239,226,.12);border:3px solid rgba(246,239,226,.28)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.8)">2</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">CementDust</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">588,105</span></div><div style="display:flex;align-items:center;gap:28px;padding:14px 34px;border-radius:20px;background:rgba(232,96,60,.16);border:3px solid rgba(232,96,60,.4)"><span style="width:80px;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#ffb8a3">3</span><span style="flex:1;font:800 42px Nunito,system-ui,sans-serif;color:#f6efe2">WingedIdiot</span><span style="font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">540,332</span></div><div style="display:flex;align-items:center;gap:28px;padding:12px 34px;border-radius:20px;background:#223247;"><span style="width:80px;font:800 38px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6)">4</span><span style="flex:1;font:600 38px Nunito,system-ui,sans-serif;color:#f6efe2">RebarRhonda</span><span style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">498,770</span></div><div style="display:flex;align-items:center;gap:28px;padding:12px 34px;border-radius:20px;background:#223247;"><span style="width:80px;font:800 38px 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.6)">5</span><span style="flex:1;font:600 38px Nunito,system-ui,sans-serif;color:#f6efe2">HangarQueen</span><span style="font:800 38px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">455,190</span></div>
+      </div>
+      <div style="position:absolute;right:48px;top:176px;bottom:48px;width:820px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px;border-radius:32px;background:#1a2634;border:5px solid rgba(246,239,226,.28);box-shadow:0 14px 0 rgba(16,24,35,.7)">
+        <div style="font:800 30px Nunito,system-ui,sans-serif;letter-spacing:.1em;color:rgba(246,239,226,.65)">YOU FINISHED</div>
+        <div style="font:800 190px/1 'Baloo 2',system-ui,sans-serif;color:rgba(246,239,226,.5);transform:rotate(-2deg)">–</div>
+        <div style="font:600 32px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.75)">no ranked run last week</div>
+        <div style="font:800 64px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;margin-top:6px">–</div>
+        <div style="font:600 26px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">RustyBiplane47 · fly a ranked run to place</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:22px;align-items:stretch;width:100%"><div style="padding:22px 54px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;font:800 46px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;text-align:center">CONTINUE</div></div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+</body></html>

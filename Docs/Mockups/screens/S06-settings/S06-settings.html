@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>S06 settings — Opoint8182</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--h:'Baloo 2',system-ui,sans-serif;--b:Nunito,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1620;font-family:var(--b)}
+a{color:#f0a93b}a:hover{color:#ffc76a}
+@keyframes obFlash{0%,100%{opacity:.25}50%{opacity:.85}}@keyframes obPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.stage{display:flex;flex-direction:column;gap:56px;padding:48px;width:max-content}
+</style>
+</head>
+<body>
+<!--
+S06 · SETTINGS
+S06 Settings full screen from the menu · same controls as a popup in-game
+
+VARIANTS / SUB-LABELS: ‹ SETTINGS AUDIO SOUND80 FEEL HAPTICS SCREEN SHAKE120%0% for motion-sensitive players · 150% for maximum chaos CONTROLS JOYSTICK SIDE LEFTRIGHT JOYSTICK SIZEM SENSITIVITY0.9 INVERT STEERING live preview — drag it to setsize and side, snaps to thechosen corner
+
+NOTES:
+- Same three panels render as a centred popup in-game (S04 shows the abbreviated version). Language, graphics quality, reset progress and FPS were cut per your picks — the panels have room if you add them back.
+
+Reference frame: 2400×1080 (20:9) landscape, one frame = one Unity canvas at reference resolution.
+All colours / type come from DESIGN.md. Every "UNITY 3D VIEW" box is a placeholder for the camera render behind the UI.
+Flat shapes (circles, bars, rounded squares) are icon placeholders — swap for the final 2D icon set.
+-->
+<div class="stage" data-screen="S06">
+<div style="position:relative;width:2400px;height:1080px;border-radius:26px;overflow:hidden;box-shadow:0 26px 60px rgba(0,0,0,.55);background:linear-gradient(#3d6280,#22364a);flex:none">
+    <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 26px,rgba(0,0,0,0) 26px 52px)"></div>
+    <div style="position:absolute;left:48px;top:40px;display:flex;align-items:center;gap:26px">
+      <div style="width:92px;height:92px;border-radius:24px;background:#223247;border:3px solid rgba(255,255,255,.1);box-shadow:0 8px 0 #101823;display:flex;align-items:center;justify-content:center;font:800 54px 'Baloo 2',system-ui,sans-serif;color:#f6efe2">‹</div>
+      <div style="font:800 72px 'Baloo 2',system-ui,sans-serif;color:#f6efe2;transform:rotate(-1.5deg)">SETTINGS</div>
+    </div>
+    <div style="position:absolute;left:48px;right:48px;top:184px;display:flex;gap:40px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:26px">
+        <div style="padding:34px 36px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:30px">
+          <div style="font:800 32px 'Baloo 2',system-ui,sans-serif;color:#f0a93b;letter-spacing:.16em">AUDIO</div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2"><span>SOUND</span><span style="color:#f0a93b">80</span></div><div style="height:26px;border-radius:13px;background:#1a2634;position:relative"><div style="width:80%;height:100%;border-radius:13px;background:#f0a93b"></div><div style="position:absolute;left:80%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div></div>
+        </div>
+        <div style="padding:34px 36px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:30px">
+          <div style="font:800 32px 'Baloo 2',system-ui,sans-serif;color:#f0a93b;letter-spacing:.16em">FEEL</div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2">HAPTICS</span><div style="width:132px;height:62px;border-radius:31px;background:#5fc26a;display:flex;align-items:center;justify-content:flex-end;padding:7px;box-sizing:border-box"><div style="width:48px;height:48px;border-radius:50%;background:#f6efe2;box-shadow:0 4px 0 rgba(16,24,35,.35)"></div></div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2"><span>SCREEN SHAKE</span><span style="color:#f0a93b">120%</span></div><div style="height:26px;border-radius:13px;background:#1a2634;position:relative"><div style="width:60%;height:100%;border-radius:13px;background:#f0a93b"></div><div style="position:absolute;left:60%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div><div style="font:600 24px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.55)">0% for motion-sensitive players · 150% for maximum chaos</div></div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:26px">
+        <div style="padding:34px 36px;border-radius:26px;background:#223247;border:4px solid rgba(255,255,255,.1);box-shadow:0 12px 0 #101823;display:flex;flex-direction:column;gap:28px">
+          <div style="font:800 32px 'Baloo 2',system-ui,sans-serif;color:#f0a93b;letter-spacing:.16em">CONTROLS</div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2">JOYSTICK SIDE</span>
+            <div style="display:flex;gap:8px;padding:7px;border-radius:18px;background:#1a2634"><div style="padding:14px 32px;border-radius:13px;background:#f0a93b;font:800 28px Nunito,system-ui,sans-serif;color:#2a1a06">LEFT</div><div style="padding:14px 32px;border-radius:13px;font:800 28px Nunito,system-ui,sans-serif;color:rgba(246,239,226,.6)">RIGHT</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2"><span>JOYSTICK SIZE</span><span style="color:#f0a93b">M</span></div><div style="height:26px;border-radius:13px;background:#1a2634;position:relative"><div style="width:52%;height:100%;border-radius:13px;background:#f0a93b"></div><div style="position:absolute;left:52%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2"><span>SENSITIVITY</span><span style="color:#f0a93b">0.9</span></div><div style="height:26px;border-radius:13px;background:#1a2634;position:relative"><div style="width:44%;height:100%;border-radius:13px;background:#f0a93b"></div><div style="position:absolute;left:44%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:#f6efe2;box-shadow:0 6px 0 rgba(16,24,35,.5)"></div></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:800 30px Nunito,system-ui,sans-serif;color:#f6efe2">INVERT STEERING</span><div style="width:132px;height:62px;border-radius:31px;background:#1a2634;display:flex;align-items:center;padding:7px;box-sizing:border-box"><div style="width:48px;height:48px;border-radius:50%;background:rgba(246,239,226,.72)"></div></div></div>
+        </div>
+        <div style="padding:30px 36px;border-radius:26px;background:rgba(16,24,35,.4);border:4px dashed rgba(246,239,226,.28);display:flex;align-items:center;gap:30px">
+          <div style="width:190px;height:190px;border-radius:50%;background:rgba(10,16,24,.4);border:6px solid rgba(246,239,226,.35);display:flex;align-items:center;justify-content:center"><div style="width:86px;height:86px;border-radius:50%;background:#f6efe2"></div></div>
+          <div style="font:600 24px/1.5 ui-monospace,Menlo,monospace;color:rgba(246,239,226,.66)">live preview — drag it to set<br>size and side, snaps to the<br>chosen corner</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

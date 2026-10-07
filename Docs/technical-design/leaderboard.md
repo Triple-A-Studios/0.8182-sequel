@@ -1,5 +1,7 @@
 # Leaderboard
 
+> **Superseded in design (2026-10-07):** the board shape below (single daily `daily_scores`, daily rank trend) is what shipped in the Live leaderboard milestone. It is being replaced by a weekly (archived) + all-time structure — see [design-doc.md](../design-doc.md#leaderboards--daily-attempts-decided-2026-10-07) and backlog #28 in [progress.md](../progress.md). No code has changed yet; this document describes the current code until that work lands.
+
 `LeaderboardService` (`Assets/_Project/Scripts/Leaderboard/LeaderboardService.cs`, namespace `Opoint8182.Leaderboard`) is a thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in. Backend choice and the reasoning behind it are in [design-doc.md](../design-doc.md) (Alpha section); packages in [dependencies.md](dependencies.md).
 
 ## Service (Live leaderboard, Pass 3)
