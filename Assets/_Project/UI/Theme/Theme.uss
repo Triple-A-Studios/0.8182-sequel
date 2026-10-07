@@ -1,0 +1,576 @@
+/* ==========================================================================
+   Opoint8182 UI theme (UI/art pass, Pass 2)
+   Source of truth: Docs/Mockups/mockup-instructions.md (palette, type, component rules).
+   Include from every screen UXML:  <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+   and give the screen's root element the class "theme" (the variables and default font cascade from there).
+   Reference resolution 2400x1080; minimum text 24px at that size (the one 19px exception is the profile sub-label).
+   ========================================================================== */
+
+:root,
+.theme {
+    /* Palette */
+    --sky: #3D6280;
+    --sky-top: #5B86A6;
+    --sky-deep: #1B2937;
+    --panel: #223247;
+    --panel-lip: #101823;
+    --panel-inner: #1A2634;
+    --ink: #F6EFE2;
+    --ink-dark: #2A1A06;
+    --amber: #F0A93B;
+    --amber-light: #FFC76A;
+    --amber-lip: #A2620F;
+    --coral: #E8603C;
+    --coral-lip: #A83A20;
+    --green: #5FC26A;
+    --green-lip: #24603A;
+    --health-low: #E0452F;
+    --danger-face: #4A3B47;
+    --danger-text: #FFAE9A;
+    --danger-border: #B5503A;
+    --backdrop: rgba(8, 14, 22, 0.72);
+
+    /* Secondary text = ink at 55-70% alpha, disabled = ink at 35% */
+    --ink-70: rgba(246, 239, 226, 0.7);
+    --ink-55: rgba(246, 239, 226, 0.55);
+    --ink-35: rgba(246, 239, 226, 0.35);
+
+    /* Shape */
+    --radius-chip: 26px;
+    --radius-popup: 36px;
+    --border-soft: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.28);
+
+    /* Default text: Nunito Bold, cream */
+    -unity-font-definition: url("../../Art/Fonts/Nunito-Bold.ttf");
+    color: var(--ink);
+    font-size: 28px;
+}
+
+/* ==========================================================================
+   Typography
+   Baloo 2: titles, numbers, score, stickers, button labels.  Nunito: labels, body, tabs.
+   One font file per weight (UITK can't pick a weight from a variable font). Uppercase labels must be
+   typed in uppercase: USS has no text-transform.
+   ========================================================================== */
+
+.t-baloo-semibold { -unity-font-definition: url("../../Art/Fonts/Baloo2-SemiBold.ttf"); }
+.t-baloo-bold { -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf"); }
+.t-baloo-extrabold { -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf"); }
+
+.t-nunito-regular { -unity-font-definition: url("../../Art/Fonts/Nunito-Regular.ttf"); }
+.t-nunito-medium { -unity-font-definition: url("../../Art/Fonts/Nunito-Medium.ttf"); }
+.t-nunito-semibold { -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf"); }
+.t-nunito-bold { -unity-font-definition: url("../../Art/Fonts/Nunito-Bold.ttf"); }
+.t-nunito-extrabold { -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf"); }
+
+/* Roles */
+.t-logo {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 128px;
+    color: var(--ink);
+}
+
+.t-score {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 96px;
+    color: var(--ink);
+}
+
+.t-title {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 64px;
+    color: var(--ink);
+}
+
+.t-heading {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 48px;
+    color: var(--ink);
+}
+
+.t-number-lg {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.t-number {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 32px;
+    color: var(--ink);
+}
+
+.t-label {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 24px;
+    letter-spacing: 3px;
+    color: var(--ink-70);
+}
+
+.t-body {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 28px;
+    color: var(--ink);
+}
+
+.t-body-secondary {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 28px;
+    color: var(--ink-70);
+}
+
+.t-accent { color: var(--amber); }
+.t-dark { color: var(--ink-dark); }
+
+.t-shadow {
+    text-shadow: 0 6px 0 var(--coral-lip);
+}
+
+/* Sizes (reference px) */
+.fs-24 { font-size: 24px; }
+.fs-28 { font-size: 28px; }
+.fs-32 { font-size: 32px; }
+.fs-38 { font-size: 38px; }
+.fs-48 { font-size: 48px; }
+.fs-64 { font-size: 64px; }
+.fs-96 { font-size: 96px; }
+.fs-118 { font-size: 118px; }
+.fs-128 { font-size: 128px; }
+
+/* ==========================================================================
+   Backgrounds
+   USS has no linear-gradient(): the sky gradient and the amber button gradient are baked textures
+   (Tools/generate_ui_textures.py), the diagonal stripes tile with background-repeat.
+   ========================================================================== */
+
+.screen-bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--sky);
+    background-image: url("../../Art/Textures/UI/Tex_UiBgGradient.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.screen-stripes {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("../../Art/Textures/UI/Tex_UiBgStripes.png");
+    background-repeat: repeat repeat;
+    background-size: 64px 64px;
+    background-position: left top;
+}
+
+/* Full-screen container whose padding SafeAreaHelper sets from Screen.safeArea. */
+.ui-safe-area {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    padding: 24px;
+}
+
+/* ==========================================================================
+   LipBox / LipButton - chunky bevelled chip with a hard lip
+   Structure (built by LipBox.cs): .lipbox > .lipbox__lip + .lipbox__face(children)
+   The wrapper reserves the lip height as bottom padding; the lip is absolutely positioned so that it
+   peeks out below the face. Height set on the .lipbox includes the lip.
+   ========================================================================== */
+
+.lipbox {
+    flex-direction: column;
+    padding-bottom: 10px;
+}
+
+.lipbox__lip {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 10px;
+    bottom: 0;
+    border-radius: var(--radius-chip);
+    background-color: var(--panel-lip);
+}
+
+.lipbox__face {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-chip);
+    border-width: 4px;
+    border-color: var(--border-soft);
+    background-color: var(--panel);
+    transition-property: translate;
+    transition-duration: 0.08s;
+    transition-timing-function: ease-out;
+}
+
+.lipbox__label {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 36px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+}
+
+/* Lip sizes: small 6 / medium 10 (default) / large 14 */
+.lipbox--lip-sm { padding-bottom: 6px; }
+.lipbox--lip-sm > .lipbox__lip { top: 6px; }
+.lipbox--lip-lg { padding-bottom: 14px; }
+.lipbox--lip-lg > .lipbox__lip { top: 14px; }
+
+/* Variants */
+.lipbox--primary > .lipbox__face {
+    border-width: 5px;
+    border-color: var(--border-strong);
+    background-color: var(--amber);
+    background-image: url("../../Art/Textures/UI/Tex_UiGradAmber.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+.lipbox--primary > .lipbox__lip { background-color: var(--amber-lip); }
+.lipbox--primary .lipbox__label { color: var(--ink-dark); }
+
+.lipbox--secondary > .lipbox__face {
+    border-width: 3px;
+    border-color: var(--border-soft);
+    background-color: var(--panel);
+}
+.lipbox--secondary > .lipbox__lip { background-color: var(--panel-lip); }
+
+.lipbox--danger > .lipbox__face {
+    border-width: 3px;
+    border-color: var(--danger-border);
+    background-color: var(--danger-face);
+}
+.lipbox--danger > .lipbox__lip { background-color: var(--panel-lip); }
+.lipbox--danger .lipbox__label { color: var(--danger-text); }
+
+.lipbox--positive > .lipbox__face {
+    border-width: 3px;
+    border-color: var(--border-strong);
+    background-color: var(--green);
+}
+.lipbox--positive > .lipbox__lip { background-color: var(--green-lip); }
+
+/* Press state: the face travels down and the lip collapses to about 4px (lip height - 4). */
+.lipbox.is-pressed > .lipbox__face { translate: 0 6px; }
+.lipbox--lip-sm.is-pressed > .lipbox__face { translate: 0 2px; }
+.lipbox--lip-lg.is-pressed > .lipbox__face { translate: 0 10px; }
+
+.lipbutton:disabled { opacity: 0.35; }
+
+/* ==========================================================================
+   TabBar - WEEKLY / ALL-TIME, COMPETITIVE / PRACTICE, shop tabs, settings L/R
+   ========================================================================== */
+
+.tabbar {
+    flex-direction: row;
+    padding: 6px;
+    border-radius: 24px;
+    background-color: var(--panel-inner);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+.tabbar__tab {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 40px;
+    border-radius: 18px;
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+
+.tabbar__tab.is-pressed { scale: 0.97 0.97; }
+
+.tabbar__label {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--ink-55);
+}
+
+.tabbar__tab--active { background-color: var(--amber); }
+.tabbar__tab--active .tabbar__label { color: var(--ink-dark); }
+
+.tabbar--coral .tabbar__tab--active { background-color: var(--coral); }
+.tabbar--coral .tabbar__tab--active .tabbar__label { color: var(--ink); }
+
+/* ==========================================================================
+   Popup (attempt confirm, quit confirm, pause, overflow menu)
+   .popup-layer is the full-screen dim backdrop ScreenRouter shows/hides; popups are its children.
+   ========================================================================== */
+
+.popup-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--backdrop);
+    align-items: center;
+    justify-content: center;
+}
+
+.popup {
+    padding: 48px;
+    border-radius: var(--radius-popup);
+    border-width: 4px;
+    border-color: var(--border-soft);
+    border-bottom-width: 14px;
+    border-bottom-color: var(--panel-lip);
+    background-color: var(--panel);
+}
+
+.popup__title {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    margin-bottom: 16px;
+}
+
+.popup__body {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 30px;
+    color: var(--ink-70);
+    white-space: normal;
+}
+
+.popup__actions {
+    flex-direction: row;
+    margin-top: 32px;
+}
+
+/* ==========================================================================
+   Screen header: back button + title (+ optional right-hand chip), used by every full screen
+   ========================================================================== */
+
+.screen-header {
+    flex-direction: row;
+    align-items: center;
+    height: 124px;
+}
+
+.screen-header__back {
+    width: 104px;
+    height: 104px;
+    margin-right: 28px;
+}
+
+.screen-header__back .lipbox__label {
+    font-size: 56px;
+    margin-bottom: 6px;
+}
+
+.screen-title {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    -unity-text-align: middle-left;
+}
+
+.screen-header__spacer { flex-grow: 1; }
+
+/* ==========================================================================
+   Pips (attempts) and progress bars (loading, fuel/health base)
+   ========================================================================== */
+
+.pips {
+    flex-direction: row;
+    align-items: center;
+}
+
+.pip {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 10px;
+    background-color: var(--amber);
+}
+
+.pip--off { background-color: var(--panel-inner); }
+
+.bar {
+    height: 28px;
+    border-radius: 14px;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--panel-inner);
+    overflow: hidden;
+}
+
+.bar__fill {
+    height: 100%;
+    border-radius: 14px;
+    background-color: var(--amber);
+    background-image: url("../../Art/Textures/UI/Tex_UiGradAmber.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.bar--health .bar__fill {
+    background-color: var(--green);
+    background-image: none;
+}
+
+/* ==========================================================================
+   Sticker (taped-on labels: NEW BEST!, combo, damage hit)
+   ========================================================================== */
+
+.sticker {
+    padding: 6px 22px;
+    border-radius: 14px;
+    border-width: 4px;
+    border-color: var(--ink);
+    background-color: var(--coral);
+    rotate: -3deg;
+}
+
+.sticker__label {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.sticker--green { background-color: var(--green); }
+.sticker--green .sticker__label { color: var(--ink-dark); }
+
+/* ==========================================================================
+   Slider (ThemedSlider.cs adds .themed-slider__fill inside the tracker)
+   ========================================================================== */
+
+.themed-slider {
+    flex-grow: 1;
+    height: 56px;
+    margin: 0;
+    padding: 0;
+}
+
+.themed-slider #unity-drag-container {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.themed-slider #unity-tracker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 18px;
+    height: 20px;
+    border-radius: 10px;
+    border-width: 0;
+    background-color: var(--panel-inner);
+    overflow: hidden;
+}
+
+.themed-slider__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background-color: var(--amber);
+}
+
+.themed-slider #unity-dragger {
+    width: 44px;
+    height: 44px;
+    top: 6px;
+    margin: 0;
+    border-radius: 22px;
+    background-color: var(--ink);
+    border-width: 0;
+}
+
+.themed-slider #unity-dragger-border { display: none; }
+
+/* ==========================================================================
+   Toggle: .switch (pill, HAPTICS / INVERT) and .checkbox (square, "Don't ask again")
+   ========================================================================== */
+
+.switch {
+    width: 104px;
+    height: 56px;
+    margin: 0;
+    padding: 0;
+}
+
+.switch > .unity-toggle__input {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    width: 104px;
+    min-width: 104px;
+    height: 56px;
+    min-height: 56px;
+    margin: 0;
+    padding: 0;
+    border-radius: 28px;
+    background-color: var(--panel-inner);
+    justify-content: center;
+}
+
+.switch .unity-toggle__checkmark {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    border-radius: 22px;
+    border-width: 0;
+    background-image: none;
+    background-color: var(--ink-55);
+    transition-property: left, background-color;
+    transition-duration: 0.12s;
+}
+
+.switch:checked > .unity-toggle__input { background-color: var(--green); }
+
+.switch:checked .unity-toggle__checkmark {
+    left: 54px;
+    background-color: var(--ink);
+}
+
+.checkbox {
+    width: 56px;
+    height: 56px;
+    margin: 0;
+    padding: 0;
+}
+
+.checkbox > .unity-toggle__input {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+    min-height: 56px;
+    margin: 0;
+    border-radius: 14px;
+    border-width: 4px;
+    border-color: var(--border-strong);
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox .unity-toggle__checkmark {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    border-radius: 6px;
+    border-width: 0;
+    background-image: none;
+    background-color: transparent;
+}
+
+.checkbox:checked .unity-toggle__checkmark { background-color: var(--amber); }

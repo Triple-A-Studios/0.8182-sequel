@@ -1,0 +1,124 @@
+/* Layout for the dev-only component gallery. Component looks live in Theme.uss. */
+
+.gallery-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.gallery-screen {
+    flex-grow: 1;
+}
+
+.gallery-scroll {
+    flex-grow: 1;
+    margin-top: 8px;
+}
+
+.gallery-scroll .unity-scroll-view__content-container {
+    padding-bottom: 64px;
+}
+
+.g-section {
+    margin-top: 28px;
+    margin-bottom: 14px;
+}
+
+.g-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.g-row-top { align-items: flex-start; }
+
+.g-col {
+    flex-direction: column;
+    margin-right: 56px;
+}
+
+.g-header-button {
+    width: 340px;
+    height: 104px;
+    margin-left: 20px;
+}
+
+.g-btn-xl {
+    width: 420px;
+    height: 150px;
+    margin-right: 28px;
+}
+
+.g-btn-xl .lipbox__label { font-size: 96px; }
+
+.g-btn {
+    width: 360px;
+    height: 104px;
+    margin-right: 28px;
+}
+
+.g-btn-square {
+    width: 72px;
+    height: 72px;
+    margin-right: 28px;
+}
+
+.g-chip {
+    height: 114px;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-right: 24px;
+}
+
+.g-chip .lipbox__face { padding: 0 24px; }
+.g-chip-label { margin-right: 16px; }
+.g-chip-value { margin-left: 14px; }
+
+.g-tabs { margin-right: 32px; }
+
+.g-bar {
+    width: 520px;
+    margin-bottom: 18px;
+}
+
+.g-slider-col { width: 520px; }
+
+.g-slider-head {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.g-toggle-label { margin-top: 10px; }
+.g-sticker-gap { margin-top: 18px; }
+.g-type-col { flex-shrink: 1; }
+
+.g-logo-full {
+    width: 420px;
+    height: 420px;
+    margin-right: 48px;
+    border-radius: 24px;
+    background-color: rgba(255, 255, 255, 0.9);
+    background-image: url("../../Art/Textures/UI/Tex_Logo.png");
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* The supplied PNG is a 2160x2160 square; the mark (alpha bounds x 561-1582, y 801-1552) fills under half of it.
+   Zoom to ~170% of the box width and centre on the mark (centre y = 54.5% of the image). */
+.g-logo-zoomed {
+    width: 640px;
+    height: 420px;
+    border-radius: 24px;
+    background-color: rgba(255, 255, 255, 0.9);
+    background-image: url("../../Art/Textures/UI/Tex_Logo.png");
+    background-size: 169% auto;
+    background-position: center 57%;
+    background-repeat: no-repeat;
+}
+
+.g-detail-text { margin-top: 24px; }
+
+.g-popup { width: 1100px; }
+.g-popup-primary { width: 520px; height: 124px; margin-right: 24px; }
+.g-popup-secondary { width: 320px; height: 124px; }

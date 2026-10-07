@@ -88,7 +88,7 @@ namespace Opoint8182.UI
             m_playButton.RegisterCallback<PointerUpEvent>(OnPlayPointerUp);
             m_playButton.RegisterCallback<PointerLeaveEvent>(OnPlayPointerUp);
             m_playButton.RegisterCallback<PointerCancelEvent>(OnPlayPointerUp);
-            m_safeArea.RegisterCallback<GeometryChangedEvent>(ApplySafeAreaOnce);
+            SafeAreaHelper.Apply(m_safeArea, m_baseSafeAreaPadding);
 
             foreach (var stubButton in m_stubButtons)
             {
@@ -113,8 +113,6 @@ namespace Opoint8182.UI
                 m_playButton.UnregisterCallback<PointerLeaveEvent>(OnPlayPointerUp);
                 m_playButton.UnregisterCallback<PointerCancelEvent>(OnPlayPointerUp);
             }
-
-            if (m_safeArea != null) m_safeArea.UnregisterCallback<GeometryChangedEvent>(ApplySafeAreaOnce);
 
             if (m_stubButtons == null) return;
             foreach (var stubButton in m_stubButtons)
@@ -198,28 +196,6 @@ namespace Opoint8182.UI
             yield return new WaitForSecondsRealtime(m_stubToastDuration);
             m_stubToast.style.display = DisplayStyle.None;
             m_hideStubToastCoroutine = null;
-        }
-
-        // One-shot: the panel's resolved size (needed to convert Screen.safeArea into panel-space
-        // padding) isn't known until the first layout pass, so this fires once off GeometryChangedEvent
-        // and immediately unregisters rather than recomputing every layout change.
-        private void ApplySafeAreaOnce(GeometryChangedEvent evt)
-        {
-            m_safeArea.UnregisterCallback<GeometryChangedEvent>(ApplySafeAreaOnce);
-
-            var safeArea = Screen.safeArea;
-            var insetLeftNorm = safeArea.xMin / Screen.width;
-            var insetRightNorm = (Screen.width - safeArea.xMax) / Screen.width;
-            var insetTopNorm = (Screen.height - safeArea.yMax) / Screen.height;
-            var insetBottomNorm = safeArea.yMin / Screen.height;
-
-            var panelWidth = evt.newRect.width;
-            var panelHeight = evt.newRect.height;
-
-            m_safeArea.style.paddingLeft = m_baseSafeAreaPadding + insetLeftNorm * panelWidth;
-            m_safeArea.style.paddingRight = m_baseSafeAreaPadding + insetRightNorm * panelWidth;
-            m_safeArea.style.paddingTop = m_baseSafeAreaPadding + insetTopNorm * panelHeight;
-            m_safeArea.style.paddingBottom = m_baseSafeAreaPadding + insetBottomNorm * panelHeight;
         }
     }
 }

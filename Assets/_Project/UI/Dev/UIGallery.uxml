@@ -1,0 +1,133 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+    <Style src="UIGallery.uss" />
+    <ui:VisualElement name="root" class="theme gallery-root">
+        <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
+        <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
+
+        <ui:VisualElement name="safe-area" class="ui-safe-area" picking-mode="Ignore">
+
+            <!-- Screen 1: every component and state -->
+            <ui:VisualElement name="screen-gallery" class="gallery-screen">
+                <ui:VisualElement class="screen-header">
+                    <op:LipButton name="gallery-back" class="screen-header__back" text="&#8249;" />
+                    <ui:Label text="UI GALLERY" class="screen-title" />
+                    <ui:VisualElement class="screen-header__spacer" />
+                    <op:LipButton name="open-detail" text="OPEN 2ND SCREEN" class="g-header-button" />
+                    <op:LipButton name="open-popup" text="OPEN POPUP" variant="Primary" class="g-header-button" />
+                </ui:VisualElement>
+
+                <ui:ScrollView name="gallery-scroll" class="gallery-scroll" mode="Vertical">
+
+                    <ui:Label text="BUTTONS (HEIGHT INCLUDES THE LIP; TAP TO CHECK THE PRESS STATE)" class="t-label g-section" />
+                    <ui:VisualElement class="g-row">
+                        <op:LipButton name="btn-primary" text="PLAY" variant="Primary" lip-size="Large" class="g-btn-xl" />
+                        <op:LipButton name="btn-secondary" text="RESTART RUN" variant="Secondary" class="g-btn" />
+                        <op:LipButton name="btn-danger" text="QUIT TO MENU" variant="Danger" class="g-btn" />
+                        <op:LipButton name="btn-positive" text="+" variant="Positive" lip-size="Small" class="g-btn-square" />
+                        <op:LipButton name="btn-disabled" text="DISABLED" variant="Secondary" class="g-btn" />
+                    </ui:VisualElement>
+
+                    <ui:Label text="CHIP WITH CONTENT (NON-PRESSABLE LIPBOX) + PIPS" class="t-label g-section" />
+                    <ui:VisualElement class="g-row">
+                        <op:LipBox class="g-chip">
+                            <ui:Label text="ATTEMPTS" class="t-label g-chip-label" />
+                            <ui:VisualElement class="pips">
+                                <ui:VisualElement class="pip" />
+                                <ui:VisualElement class="pip" />
+                                <ui:VisualElement class="pip pip--off" />
+                            </ui:VisualElement>
+                            <ui:Label text="2/3" class="t-number g-chip-value" />
+                        </op:LipBox>
+                        <op:LipBox class="g-chip">
+                            <ui:Label text="12,480" class="t-number-lg" />
+                        </op:LipBox>
+                    </ui:VisualElement>
+
+                    <ui:Label text="TABS (AMBER, CORAL, SEGMENTED)" class="t-label g-section" />
+                    <ui:VisualElement class="g-row">
+                        <op:TabBar name="tabs-amber" choices="WEEKLY,ALL-TIME" class="g-tabs" />
+                        <op:TabBar name="tabs-coral" choices="COMPETITIVE,PRACTICE" accent="Coral" class="g-tabs" />
+                        <op:TabBar name="tabs-segmented" choices="LEFT,RIGHT" class="g-tabs" />
+                        <ui:Label name="tabs-readout" text="selected: WEEKLY" class="t-body-secondary" />
+                    </ui:VisualElement>
+
+                    <ui:Label text="BARS, SLIDER, SWITCH, CHECKBOX, STICKERS" class="t-label g-section" />
+                    <ui:VisualElement class="g-row">
+                        <ui:VisualElement class="g-col">
+                            <ui:VisualElement class="bar g-bar"><ui:VisualElement class="bar__fill" style="width: 62%;" /></ui:VisualElement>
+                            <ui:VisualElement class="bar bar--health g-bar"><ui:VisualElement class="bar__fill" style="width: 40%;" /></ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="g-col g-slider-col">
+                            <ui:VisualElement class="g-slider-head">
+                                <ui:Label text="SOUND" class="t-body" />
+                                <ui:Label name="slider-readout" text="80" class="t-number t-accent" />
+                            </ui:VisualElement>
+                            <op:ThemedSlider name="slider-sound" low-value="0" high-value="100" value="80" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="g-col">
+                            <ui:Toggle name="toggle-haptics" class="switch" value="true" />
+                            <ui:Label text="HAPTICS" class="t-label g-toggle-label" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="g-col">
+                            <ui:Toggle name="toggle-dont-ask" class="checkbox" />
+                            <ui:Label text="DON'T ASK AGAIN" class="t-label g-toggle-label" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="g-col">
+                            <ui:VisualElement class="sticker"><ui:Label text="x3 COMBO!" class="sticker__label" /></ui:VisualElement>
+                            <ui:VisualElement class="sticker sticker--green g-sticker-gap"><ui:Label text="NEW BEST!" class="sticker__label" /></ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:Label text="TYPE: BALOO 2 (TITLES, NUMBERS) / NUNITO (LABELS, BODY)" class="t-label g-section" />
+                    <ui:VisualElement class="g-row g-row-top">
+                        <ui:VisualElement class="g-col">
+                            <ui:Label text="OPOINT8182" class="t-logo" />
+                            <ui:Label text="184,920" class="t-score" />
+                            <ui:Label text="GAME OVER" class="t-title" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="g-col g-type-col">
+                            <ui:Label text="Heading 48 - Baloo 2 ExtraBold" class="t-heading" />
+                            <ui:Label text="Number 38 - 12,480 x11 2.4 km" class="t-number-lg" />
+                            <ui:Label text="LABEL 24 + TRACKING - NUNITO EXTRABOLD" class="t-label" />
+                            <ui:Label text="Body 28 - Nunito SemiBold: This run counts toward this week's board." class="t-body" />
+                            <ui:Label text="Secondary body at 70% - Nunito SemiBold" class="t-body-secondary" />
+                            <ui:Label text="Regular / Medium / Bold / ExtraBold weights" class="t-nunito-regular fs-28" />
+                            <ui:Label text="Glyph check:  &#215;  &#183;  &#8249;  &#8250;  &#9650;  &#9660;  &#8211;  &#10005;  &#10003;  (Baloo 2 then Nunito)" class="t-baloo-bold fs-32" />
+                            <ui:Label text="Glyph check:  &#215;  &#183;  &#8249;  &#8250;  &#9650;  &#9660;  &#8211;  &#10005;  &#10003;" class="t-nunito-bold fs-32" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <ui:Label text="STUDIO LOGO (SUPPLIED ASSET, STANDS IN FOR KEY ART)" class="t-label g-section" />
+                    <ui:VisualElement class="g-row">
+                        <ui:VisualElement name="logo-full" class="g-logo-full" />
+                        <ui:VisualElement name="logo-zoomed" class="g-logo-zoomed" />
+                    </ui:VisualElement>
+
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <!-- Screen 2: proves the router's push / back -->
+            <ui:VisualElement name="screen-detail" class="gallery-screen">
+                <ui:VisualElement class="screen-header">
+                    <op:LipButton name="detail-back" class="screen-header__back" text="&#8249;" />
+                    <ui:Label text="SECOND SCREEN" class="screen-title" />
+                </ui:VisualElement>
+                <ui:Label text="Back returns one level. Escape closes an open popup first, then goes back." class="t-body-secondary g-detail-text" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- Popup layer (ScreenRouter shows/hides it) -->
+        <ui:VisualElement name="popup-layer" class="popup-layer">
+            <ui:VisualElement name="popup-confirm" class="popup g-popup">
+                <ui:Label text="SPEND AN ATTEMPT?" class="popup__title" />
+                <ui:Label text="This run counts toward this week's leaderboard. You have 3 of 3 left." class="popup__body" />
+                <ui:VisualElement class="popup__actions">
+                    <op:LipButton name="popup-confirm-yes" text="LET'S FLY" variant="Primary" class="g-popup-primary" />
+                    <op:LipButton name="popup-confirm-no" text="CANCEL" variant="Secondary" class="g-popup-secondary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
