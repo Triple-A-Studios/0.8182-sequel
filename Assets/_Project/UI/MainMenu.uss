@@ -1,20 +1,7 @@
-/* Design tokens - custom properties cascade from .root down to every child. */
-.root {
-    --bg-top: #6B95B4;
-    --bg-mid: #3D6280;
-    --bg-bottom: #22364A;
-    --panel: #223247;
-    --panel-lip: #101823;
-    --panel-inner: #1A2634;
-    --cream: #F6EFE2;
-    --accent: #F0A93B;
-    --accent-light: #FFC76A;
-    --accent-lip: #A2620F;
-    --red: #E8603C;
-    --green: #4CAF6D;
-    --green-lip: #24603A;
-    --ink: #2A1A06;
+/* Main menu layout (UI/art pass, Pass 3). Colours, fonts and the chip/button/popup/tab looks live in
+   Theme/Theme.uss; this file only positions the S02 elements and tunes theme components for this screen. */
 
+.menu-root {
     position: absolute;
     left: 0;
     right: 0;
@@ -22,61 +9,22 @@
     bottom: 0;
 }
 
-/* TODO: replace with a real vertical gradient texture (--bg-top -> --bg-mid -> --bg-bottom) -
-   UITK USS has no linear-gradient() background support, approximated as a flat mid-tone for
-   this MVP blockout. */
-.background {
+.menu-screen {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: var(--bg-mid);
 }
 
-/* TODO: real 45deg diagonal stripe texture at ~4% white - approximated as a flat, very faint
-   white tint for this blockout. */
-.stripe-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.04);
+/* ---- Chips (LipBox height includes the lip: 114 = 104 face + 10 lip) ---- */
+
+.menu-chip {
+    height: 114px;
+    margin-right: 18px;
 }
 
-.safe-area {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    padding: 24px;
-}
-
-/* Shared chip look: rounded, subtle light border. The spec's drop-shadow "lip" (a duplicate
-   backing element offset 8-14px) is approximated here as a thick, dark bottom border instead -
-   good enough for a blockout without doubling every chip's element count; play-button and the
-   logo (the two most prominent elements) get the real duplicate-element treatment below. */
-.chip {
-    background-color: var(--panel);
-    border-radius: 26px;
-    border-width: 4px;
-    border-color: rgba(255, 255, 255, 0.12);
-    border-bottom-width: 10px;
-    border-bottom-color: var(--panel-lip);
-    flex-direction: row;
-    align-items: center;
-}
-
-/* Bounce press feedback (scale, driven from MainMenuController) for every stub button -
-   ease-out-back gives a small overshoot on the way back to full size, reading as "bouncy". */
-.stub-clickable,
-.bounce-clickable {
-    transition-property: scale;
-    transition-duration: 0.2s;
-    transition-timing-function: ease-out-back;
-}
+.menu-chip .lipbox__face { padding: 0 26px; }
 
 /* ---- Top-left cluster ---- */
 
@@ -87,66 +35,61 @@
     flex-direction: row;
 }
 
-.profile-chip {
-    height: 104px;
-    padding: 0 18px;
-    margin-right: 18px;
-}
+.menu-profile-chip .lipbox__face { padding: 0 30px 0 14px; }
 
-.profile-avatar {
+.menu-avatar {
     width: 56px;
     height: 56px;
-    border-radius: 12px;
+    margin-right: 16px;
+    border-radius: 16px;
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.14);
     background-color: var(--panel-inner);
-    margin-right: 14px;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
 }
 
-.profile-text-column {
-    flex-direction: column;
-}
-
-.profile-name {
-    font-size: 28px;
-    color: var(--cream);
-    -unity-font-style: bold;
-    /* TODO: font - Baloo 2 not available, using default theme font */
-}
-
-.profile-meta {
-    font-size: 19px;
-    color: rgba(246, 239, 226, 0.55);
-    /* TODO: font - Nunito not available, using default theme font */
-}
-
-.attempts-chip {
-    height: 104px;
-    padding: 0 18px;
-}
-
-.attempts-label {
-    font-size: 26px;
-    color: rgba(246, 239, 226, 0.6);
-    margin-right: 12px;
-}
-
-.attempts-pips {
-    flex-direction: row;
-    margin-right: 12px;
-}
-
-.attempts-pip {
+.menu-avatar__head {
     width: 20px;
     height: 20px;
+    margin-bottom: 2px;
     border-radius: 10px;
-    background-color: var(--accent);
-    margin-right: 6px;
+    background-color: var(--ink);
 }
 
-.attempts-value {
-    font-size: 32px;
-    color: var(--cream);
-    -unity-font-style: bold;
+.menu-avatar__body {
+    width: 36px;
+    height: 15px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    background-color: var(--ink);
 }
+
+.menu-profile-text { flex-direction: column; }
+
+.menu-profile-name {
+    font-size: 28px;
+    color: var(--ink);
+    -unity-text-align: middle-left;
+}
+
+/* The one 19px exception to the 24px minimum (mockup spec). */
+.menu-profile-sub {
+    font-size: 19px;
+    letter-spacing: 2px;
+    color: var(--ink-55);
+}
+
+.menu-status-chip .lipbox__face { padding: 0 30px; }
+
+.menu-status-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.menu-status-label { margin-right: 16px; }
+.menu-status-pips { margin-right: 8px; }
 
 /* ---- Top-right cluster ---- */
 
@@ -155,75 +98,54 @@
     right: 48px;
     top: 40px;
     flex-direction: row;
+    align-items: flex-start;
 }
 
-.currency-chip {
-    height: 104px;
-    padding: 0 18px;
-    margin-right: 18px;
-}
+.menu-currency-chip .lipbox__face { padding: 0 20px 0 26px; }
 
-.currency-coin {
+.menu-coin {
     width: 40px;
     height: 40px;
+    margin-right: 14px;
     border-radius: 20px;
-    background-color: var(--accent);
-    margin-right: 12px;
+    background-color: var(--amber);
+    background-image: url("../Art/Textures/UI/Tex_UiGradAmber.png");
+    -unity-background-scale-mode: stretch-to-fill;
 }
 
-.currency-value {
+.menu-currency-value {
     font-size: 38px;
-    color: var(--cream);
-    -unity-font-style: bold;
-    margin-right: 12px;
+    margin-right: 14px;
+    color: var(--ink);
 }
 
-.currency-add-button {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background-color: var(--green);
-    border-bottom-width: 4px;
-    border-bottom-color: var(--green-lip);
-    align-items: center;
-    justify-content: center;
+.menu-currency-add {
+    width: 54px;
+    height: 54px;
+    margin-right: 0;
 }
 
-.currency-add-label {
-    font-size: 28px;
-    color: var(--cream);
-    -unity-font-style: bold;
+.menu-currency-add .lipbox__label {
+    font-size: 36px;
+    color: var(--ink);
 }
 
-.menu-button {
-    width: 104px;
-    height: 104px;
+.menu-hamburger {
+    width: 114px;
+    margin-right: 0;
+}
+
+.menu-hamburger .lipbox__face {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
 }
 
 .menu-bar {
     width: 48px;
     height: 7px;
-    background-color: var(--cream);
-    margin-bottom: 8px;
-}
-
-.overflow-menu {
-    display: none;
-    position: absolute;
-    right: 48px;
-    top: 152px;
-    background-color: var(--panel);
-    border-radius: 18px;
-    padding: 12px;
-}
-
-.overflow-menu-item {
-    font-size: 24px;
-    color: var(--cream);
-    padding: 8px 16px;
+    margin: 4px 0;
+    border-radius: 4px;
+    background-color: var(--ink);
 }
 
 /* ---- Logo block ---- */
@@ -237,39 +159,36 @@
     rotate: -3deg;
 }
 
-.logo-label {
-    position: absolute;
-    font-size: 128px;
-    -unity-font-style: bold;
+.menu-logo-label {
+    -unity-text-align: middle-center;
+    letter-spacing: 2px;
 }
 
-.logo-shadow-back {
+.menu-logo-shadow-back {
+    position: absolute;
     color: var(--panel-lip);
     translate: 0 28px;
 }
 
-.logo-shadow-mid {
-    color: var(--red);
+.menu-logo-shadow-mid {
+    position: absolute;
+    color: var(--coral);
     translate: 0 10px;
 }
 
-.logo-front {
-    position: relative;
-    color: var(--cream);
-}
+.menu-logo-front { color: var(--ink); }
 
-.tagline-pill {
+.menu-tagline {
     margin-top: 16px;
-    background-color: var(--red);
+    padding: 6px 26px;
     border-radius: 12px;
-    padding: 6px 24px;
+    background-color: var(--coral);
 }
 
-.tagline-label {
+.menu-tagline-label {
     font-size: 32px;
-    color: rgb(255, 255, 255);
-    -unity-font-style: bold;
     letter-spacing: 7px;
+    color: rgb(255, 255, 255);
 }
 
 /* ---- Left icon column ---- */
@@ -281,96 +200,83 @@
     flex-direction: column;
 }
 
-.icon-tile {
-    width: 212px;
-    height: 196px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.menu-tile {
+    width: 222px;
+    height: 216px;
     margin-bottom: 26px;
 }
 
-.shop-icon {
+.menu-tile .lipbox__face {
+    flex-direction: column;
+    border-radius: var(--radius-chip);
+}
+
+.menu-tile-label {
+    font-size: 30px;
+    letter-spacing: 2px;
+    color: var(--ink);
+}
+
+.menu-tile-label--small { font-size: 26px; }
+
+.menu-shop-icon {
     width: 86px;
     height: 58px;
-    border-radius: 10px;
-    background-color: var(--accent);
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    background-color: var(--amber);
 }
 
-.icon-tile-label {
-    font-size: 30px;
-    color: var(--cream);
-}
-
-.leaderboard-bars {
+.menu-lb-bars {
     flex-direction: row;
     align-items: flex-end;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
-.leaderboard-bar {
+.menu-lb-bar {
     width: 20px;
-    margin-right: 6px;
-    background-color: var(--cream);
+    margin-right: 7px;
+    border-radius: 5px;
+    background-color: var(--ink-70);
 }
 
-.leaderboard-bar-short {
-    height: 32px;
-}
+.menu-lb-bar--short { height: 32px; }
+.menu-lb-bar--tall { height: 58px; background-color: var(--amber); }
+.menu-lb-bar--mid { height: 44px; }
 
-.leaderboard-bar-tall {
-    height: 58px;
-    background-color: var(--accent);
-}
+/* ---- Centre 3D slot (flex-centred; was a fixed-width auto-margin that did not centre) ---- */
 
-.leaderboard-bar-mid {
-    height: 44px;
-}
-
-/* ---- Center 3D slot ---- */
-
-/* TODO: not centered correctly (confirmed on-device) - UITK's auto-margin centering trick for
-   absolutely-positioned elements doesn't behave like browser CSS here. Revisit later (e.g. drop
-   the fixed width/auto-margins and center via a flex row wrapper instead), not blocking for now. */
-.plane-slot {
+.plane-slot-block {
     position: absolute;
     left: 0;
     right: 0;
     top: 556px;
+    align-items: center;
+}
+
+.plane-slot {
     width: 660px;
     height: 230px;
-    margin-left: auto;
-    margin-right: auto;
     border-width: 4px;
+    border-radius: 22px;
     border-color: rgba(246, 239, 226, 0.4);
-    /* TODO: real dashed border - UITK border-style has no "dashed" keyword, this is a solid
-       approximation for the blockout. */
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(246, 239, 226, 0.06);
 }
 
 .plane-slot-caption {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 800px;
+    margin-top: 16px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
 }
 
-/* DELETE before shipping - dev annotation only, per spec. */
-.caption-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 7px;
-    background-color: rgba(150, 150, 150, 0.6);
-    margin-right: 8px;
-}
-
+/* DELETE before shipping - dev annotation for the 3D half, per mockup spec. */
 .caption-label {
-    font-size: 20px;
-    color: rgba(255, 255, 255, 0.4);
+    font-size: 24px;
+    color: var(--ink-55);
 }
 
 /* ---- Bottom-right PLAY cluster ---- */
@@ -378,113 +284,179 @@
 .play-cluster {
     position: absolute;
     right: 56px;
-    bottom: 56px;
+    bottom: 44px;
     align-items: flex-end;
 }
 
-/* Overlap must survive play-button's full 14px press-travel (MainMenuController.
-   m_playButtonPressTravelY) or a gap opens between the tabs and the button while pressed - the
-   tabs themselves don't move, only play-button does, so the rest-state overlap needs to be
-   bigger than the spec's plain ~8px to leave a few px to spare once pressed. */
-.mode-tabs {
-    flex-direction: row;
-    margin-bottom: -18px;
+/* TabBar bent into mockup tabs that sit behind the PLAY button: no pill background, top-rounded tabs. */
+.menu-mode-tabs {
+    padding: 0 14px 0 0;
+    border-width: 0;
+    background-color: transparent;
 }
 
-.mode-tab {
-    background-color: rgba(16, 24, 35, 0.55);
+.menu-mode-tabs .tabbar__tab {
+    margin-left: 6px;
+    padding: 16px 34px 32px 34px;
+    border-radius: 0;
     border-top-left-radius: 18px;
     border-top-right-radius: 18px;
-    padding: 10px 28px;
+    background-color: rgba(16, 24, 35, 0.55);
 }
 
-.mode-tab--active {
-    background-color: var(--red);
-}
-
-.mode-tab-label {
+.menu-mode-tabs .tabbar__label {
     font-size: 30px;
-    color: rgba(246, 239, 226, 0.62);
+    letter-spacing: 3px;
 }
 
-.mode-tab-label--active {
+.menu-mode-tabs .tabbar__tab--active { background-color: var(--coral); }
+
+.menu-mode-tabs .tabbar__tab--active .tabbar__label {
     font-size: 32px;
     color: rgb(255, 255, 255);
 }
 
-/* Sizes to play-button exactly (the lip is position:absolute so it's excluded from this
-   wrapper's auto-sizing - only play-button, in normal flow, drives its size). UITK positions an
-   absolute child against its immediate parent (not the nearest "positioned" ancestor like CSS),
-   so the lip needed its own tightly-scoped parent rather than sharing play-cluster with the mode
-   tabs - it was picking up the whole cluster's height (tabs + button) and covering the tabs. */
-.play-button-wrapper {
-    align-items: flex-end;
+.menu-play {
+    min-width: 600px;
+    margin-top: -26px;
 }
 
-.play-button-lip {
-    position: absolute;
-    right: 0;
-    bottom: -14px;
-    width: 100%;
-    height: 100%;
+.menu-play .lipbox__face {
+    flex-direction: column;
     border-radius: 30px;
-    background-color: var(--accent-lip);
+    padding: 24px 66px 28px 66px;
 }
 
-.play-button {
-    background-color: var(--accent);
-    /* TODO: replace with real --accent-light -> --accent vertical gradient */
-    border-width: 6px;
-    border-color: rgba(255, 255, 255, 0.28);
-    border-radius: 30px;
-    padding: 30px 66px;
-    align-items: center;
-    transition-property: translate;
-    transition-duration: 0.2s;
-    transition-timing-function: ease-out-back;
-}
-
-/* Press state is driven from MainMenuController via pointer events, not :active - matches
-   TouchControlsUI's pointer-event approach from Pass 3 rather than relying on the :active
-   pseudo-class, which is less predictable under touch/pointer capture. Travels straight down by
-   the lip's full offset (translate, not scale) so it completely covers play-button-lip on press -
-   scaling down shrinks the button from its center and exposes the lip on every side, not just the
-   bottom (confirmed visually, direct developer correction). ease-out-back gives the release a
-   slight overshoot past rest before settling, same "bouncy" feel as every .stub-clickable. */
-
-.play-label {
+.menu-play-label {
     font-size: 118px;
-    color: var(--ink);
-    -unity-font-style: bold;
+    letter-spacing: 3px;
+    color: var(--ink-dark);
+    -unity-text-align: middle-center;
 }
 
-.play-sublabel-row {
+.menu-play-sub {
     flex-direction: row;
     align-items: center;
+    margin-top: -10px;
 }
 
-.play-sublabel {
+.menu-play-sublabel {
     font-size: 28px;
+    letter-spacing: 2px;
     color: rgba(42, 26, 6, 0.78);
     margin-right: 12px;
 }
 
-.play-pips {
-    flex-direction: row;
-}
+.menu-play-pips { flex-direction: row; }
 
-.play-pip {
+.menu-play-pips .pip {
     width: 16px;
     height: 16px;
+    margin-right: 8px;
     border-radius: 8px;
-    background-color: rgba(42, 26, 6, 0.78);
-    margin-right: 6px;
+    background-color: var(--ink-dark);
 }
 
+/* ---- Popups ---- */
+
+.menu-popup-attempt { width: 1020px; }
+.menu-popup-quit { width: 900px; }
+
+.menu-attempt-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.menu-attempt-row .pip {
+    width: 26px;
+    height: 26px;
+    margin-right: 14px;
+    border-radius: 13px;
+}
+
+.menu-attempt-link {
+    font-size: 26px;
+    margin-left: 6px;
+    color: var(--ink-70);
+}
+
+.menu-attempt-actions { margin-top: 32px; }
+
+.menu-popup-primary {
+    width: 520px;
+    height: 124px;
+    margin-right: 24px;
+}
+
+.menu-popup-secondary {
+    width: 320px;
+    height: 124px;
+}
+
+.menu-dont-ask {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 32px;
+}
+
+.menu-dont-ask-label {
+    font-size: 26px;
+    margin-left: 16px;
+}
+
+/* Overflow dropdown: absolutely placed under the hamburger inside the popup layer. */
+.menu-popup-overflow {
+    position: absolute;
+    right: 72px;
+    top: 168px;
+    width: 460px;
+    padding: 26px;
+    border-radius: 24px;
+    border-bottom-width: 12px;
+}
+
+.menu-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    background-color: var(--panel-inner);
+    transition-property: scale;
+    transition-duration: 0.08s;
+}
+
+.menu-row:last-child { margin-bottom: 0; }
+
+.menu-row.is-pressed { scale: 0.97 0.97; }
+
+.menu-row__icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 18px;
+    border-radius: 16px;
+    border-width: 7px;
+    border-color: var(--ink);
+}
+
+.menu-row__label {
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--ink);
+}
+
+.menu-row--danger {
+    border-width: 3px;
+    border-color: rgba(232, 96, 60, 0.6);
+    background-color: rgba(232, 96, 60, 0.2);
+}
+
+.menu-row--danger .menu-row__label { color: var(--danger-text); }
+
 /* ---- Stub-button toast ---- */
-/* Every non-PLAY chip/tile/tab (.stub-clickable, wired in MainMenuController) shows this on
-   click - a placeholder "not built yet" affordance for playtesting, since every other button on
-   this screen is currently visual-only. */
+/* Placeholder "not built yet" affordance for chips/tiles/overflow items whose screen lands in a later pass.
+   Deleted with the rest of the stub machinery in Pass 8. */
 
 .stub-toast {
     display: none;
@@ -498,22 +470,21 @@
 }
 
 .stub-toast-label {
-    background-color: rgba(16, 24, 35, 0.85);
+    padding: 20px 40px;
+    max-width: 760px;
     border-radius: 20px;
     border-width: 3px;
-    border-color: rgba(255, 255, 255, 0.2);
-    padding: 20px 40px;
+    border-color: var(--border-soft);
+    background-color: rgba(16, 24, 35, 0.9);
+    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
     font-size: 34px;
-    color: var(--cream);
-    -unity-font-style: bold;
+    color: var(--ink);
     white-space: normal;
-    max-width: 760px;
     -unity-text-align: middle-center;
 }
 
-/* ---- Leaderboard panel (Live leaderboard, Pass 4) ---- */
-/* Minimal flat blockout - real art is the UI/art pass. Opened by LeaderboardPanelUI; rows
-   (.leaderboard-row) are created in code since the count varies. */
+/* ---- Leaderboard panel (Live leaderboard, Pass 4; replaced by the full screen in Pass 6) ---- */
+/* Opened by LeaderboardPanelUI; rows (.leaderboard-row) are created in code since the count varies. */
 
 .leaderboard-panel {
     display: none;
@@ -524,80 +495,69 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba(16, 24, 35, 0.8);
+    background-color: var(--backdrop);
 }
 
 .leaderboard-card {
     width: 980px;
     padding: 28px 40px;
-    background-color: var(--panel);
-    border-radius: 28px;
-    border-width: 3px;
-    border-color: rgba(255, 255, 255, 0.2);
-    border-bottom-width: 10px;
+    border-radius: var(--radius-popup);
+    border-width: 4px;
+    border-color: var(--border-soft);
+    border-bottom-width: 14px;
     border-bottom-color: var(--panel-lip);
+    background-color: var(--panel);
 }
 
 .leaderboard-title {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
     font-size: 48px;
-    color: var(--accent-light);
-    -unity-font-style: bold;
+    color: var(--amber-light);
     -unity-text-align: middle-center;
     margin-bottom: 12px;
 }
 
 .leaderboard-status {
     display: none;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
     font-size: 32px;
-    color: var(--cream);
+    color: var(--ink);
     -unity-text-align: middle-center;
     margin: 24px 0;
 }
 
-.leaderboard-rows {
-    flex-direction: column;
-}
+.leaderboard-rows { flex-direction: column; }
 
 .leaderboard-row {
     flex-direction: row;
     align-items: center;
-    height: 52px;
+    height: 56px;
     padding: 0 16px;
     margin-bottom: 4px;
     border-radius: 12px;
     background-color: var(--panel-inner);
 }
 
-.leaderboard-row--self {
-    background-color: var(--accent);
-}
+.leaderboard-row--self { background-color: var(--amber); }
 
-.leaderboard-row--gap {
-    margin-top: 14px;
-}
+.leaderboard-row--gap { margin-top: 14px; }
 
 .leaderboard-cell {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
     font-size: 30px;
-    color: var(--cream);
-    -unity-font-style: bold;
-}
-
-.leaderboard-row--self .leaderboard-cell {
     color: var(--ink);
 }
 
-.leaderboard-cell-rank {
-    width: 110px;
-}
+.leaderboard-row--self .leaderboard-cell { color: var(--ink-dark); }
+
+.leaderboard-cell-rank { width: 110px; }
 
 .leaderboard-cell-name {
     flex-grow: 1;
     overflow: hidden;
 }
 
-.leaderboard-cell-score {
-    -unity-text-align: middle-right;
-}
+.leaderboard-cell-score { -unity-text-align: middle-right; }
 
 .leaderboard-button-row {
     flex-direction: row;
@@ -609,12 +569,12 @@
     min-width: 220px;
     margin: 0 12px;
     padding: 10px 24px;
-    background-color: var(--accent);
     border-width: 0;
     border-bottom-width: 8px;
-    border-bottom-color: var(--accent-lip);
+    border-bottom-color: var(--amber-lip);
     border-radius: 18px;
-    color: var(--ink);
-    font-size: 32px;
-    -unity-font-style: bold;
+    background-color: var(--amber);
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 36px;
+    color: var(--ink-dark);
 }

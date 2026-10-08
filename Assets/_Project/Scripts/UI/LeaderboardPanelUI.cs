@@ -22,7 +22,6 @@ namespace Opoint8182.UI
 
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private int m_topLimit = 10;
-        [FoldoutGroup("Tunables")] [SerializeField] private float m_tilePressedScale = 0.95f;
 
         private const string k_LoadingText = "Loading...";
         private const string k_EmptyText = "No scores yet today";
@@ -68,10 +67,6 @@ namespace Opoint8182.UI
             if (m_tile != null)
             {
                 m_tile.RegisterCallback<ClickEvent>(OnTileClicked);
-                m_tile.RegisterCallback<PointerDownEvent>(OnTilePointerDown);
-                m_tile.RegisterCallback<PointerUpEvent>(OnTilePointerUp);
-                m_tile.RegisterCallback<PointerLeaveEvent>(OnTilePointerUp);
-                m_tile.RegisterCallback<PointerCancelEvent>(OnTilePointerUp);
             }
             if (m_retryButton != null) m_retryButton.clicked += Load;
             if (m_closeButton != null) m_closeButton.clicked += Close;
@@ -85,10 +80,6 @@ namespace Opoint8182.UI
             if (m_tile != null)
             {
                 m_tile.UnregisterCallback<ClickEvent>(OnTileClicked);
-                m_tile.UnregisterCallback<PointerDownEvent>(OnTilePointerDown);
-                m_tile.UnregisterCallback<PointerUpEvent>(OnTilePointerUp);
-                m_tile.UnregisterCallback<PointerLeaveEvent>(OnTilePointerUp);
-                m_tile.UnregisterCallback<PointerCancelEvent>(OnTilePointerUp);
             }
             if (m_retryButton != null) m_retryButton.clicked -= Load;
             if (m_closeButton != null) m_closeButton.clicked -= Close;
@@ -99,16 +90,6 @@ namespace Opoint8182.UI
             evt.StopPropagation();
             SetPanelVisible(true);
             Load();
-        }
-
-        private void OnTilePointerDown(PointerDownEvent evt)
-        {
-            m_tile.style.scale = new StyleScale(new Scale(new Vector3(m_tilePressedScale, m_tilePressedScale, 1f)));
-        }
-
-        private void OnTilePointerUp(IPointerEvent evt)
-        {
-            m_tile.style.scale = new StyleScale(new Scale(Vector3.one));
         }
 
         private void Close()

@@ -160,3 +160,20 @@ The shared layer every redesigned screen builds on (mockup source of truth: `Doc
 **Panel settings** stay the single shared `FuelGaugePanelSettings.asset` (2400x1080, Scale With Screen Size, Match 0.5). Renaming it was skipped: every `PanelRenderer` in every scene references its GUID, so a rename buys nothing. In a 16:9 Game view the panel resolves to 2133x1200 reference px.
 
 **Editor-driving notes (verifying UI from outside the Editor).** A backgrounded Editor does not advance play mode (`Time.frameCount` stays at 1), so screenshots come back blank; set `Application.runInBackground = true` at runtime (not saved to the project). `simulate_pointer` takes game-view pixel coordinates with the **origin at the bottom-left**. Editing UXML/USS/PNG assets while in Play Mode can blank the `PanelRenderer`; stop and re-enter Play Mode after asset changes.
+
+## Main menu (UI/art pass, Pass 3)
+
+The main menu (`Assets/_Project/UI/MainMenu.uxml/.uss`, `Scripts/UI/MainMenuController.cs`) is rebuilt on the Pass 2 foundation to match mockup S02 (menu, overflow-open, attempt-confirm). Same scene, same `PanelRenderer`, same UXML asset GUID.
+
+**Structure.** Root `.theme .menu-root` > `screen-bg` + `screen-stripes` + `safe-area` (`SafeAreaHelper`) holding the menu screen (`screen-menu`, the `ScreenRouter` root), then siblings: the old Top-10 `leaderboard-panel` (still driven by `LeaderboardPanelUI`, replaced by the full screen in Pass 6), the router's `popup-layer` (three popups: `popup-attempt`, `popup-quit`, `popup-overflow`) and the `stub-toast`. Chips, tiles and PLAY are `LipBox`es with a `PressedClassManipulator` added in code; the hamburger, `+` and popup buttons are `LipButton`s. The mode tabs are the shared `TabBar` (coral) bent into mockup-style tabs behind the PLAY button in `MainMenu.uss` (`.menu-mode-tabs` overrides; PLAY has a fixed `min-width` so the tabs never overhang it). The title keeps the 3-layer text trick (back shadow, coral mid, cream front) because USS has a single `text-shadow`.
+
+**Behaviour.**
+- COMPETITIVE / PRACTICE swaps the top-left chip (ATTEMPTS pips 3/3 vs PRACTICE 28:14) and the PLAY sub-label.
+- PLAY in competitive opens the attempt-confirm popup (LET'S FLY, CANCEL, "or fly it in Practice instead" switches the tab, "Don't ask again today" checkbox); in practice it starts the run directly. The checkbox sets a **static** field (`m_s_dontAskAttemptConfirm`): it survives scene loads for the whole play session and is deliberately not persisted (decision 4; the Daily play structure milestone owns persistence). Note the game's Restart reloads only the active game scene, so the menu is currently seen once per session until the Game Over "MAIN MENU" button (Pass 5).
+- Hamburger opens the overflow dropdown (SETTINGS, HOW TO PLAY, CREDITS show a "coming in a later pass" toast; QUIT GAME opens the quit-confirm popup and is hidden on WebGL). Quit uses `EditorApplication.isPlaying = false` in the Editor and `Application.Quit()` in players.
+- Escape (the Android back button in the Input System) calls `ScreenRouter.HandleBackRequested()`: closes a popup, nothing at the root.
+- Profile chip, `+` and SHOP keep the stub toast (rapid-click jokes retained); the LEADERBOARD tile opens the existing Top-10 panel. The whole stub-toast machinery is deleted in Pass 8.
+
+**Placeholder data.** One block of `k_Placeholder*` constants at the top of `MainMenuController` (name OLIVE, coins 12,480, attempts 3/3, practice clock 28:14). Real values arrive with the "Daily play structure" and "Player profile & run stats" milestones. The "LV 14" level text from the mockup is cut (no experience system); the sub-label reads PROFILE.
+
+**Gotchas.** `ScreenRouter.ShowPopup` only hides the popup it closes, so every popup starts `display: none` (set in `OnUIReload`). A synthetic `ClickEvent` does not toggle a `Toggle` (it listens to pointer events); drive checkboxes by setting `.value` when testing from outside the Editor.
