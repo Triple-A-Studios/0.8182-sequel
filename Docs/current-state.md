@@ -7,7 +7,7 @@
 
 - **Previous pass:** Pass 3 — main menu (S02) (`1fcf74e`), **verified in the Editor by the developer** (2026-10-08). Menu, overflow menu, attempt-confirm and quit-confirm popups rebuilt on the foundation with placeholder data; PLAY still starts a run. Android/WebGL fonts, the hidden Quit entry on WebGL and touch input are still unchecked (Pass 8). Details in [technical-design/ui.md](technical-design/ui.md#main-menu-uiart-pass-pass-3).
 
-- **Next pass:** Pass 4b — touch controls re-homed into the Hud panel (not started).
+- **Last landed (4b):** Pass 4b — touch controls re-homed into the Hud panel, restyled (`33a1703`), **verified in the Editor by the developer** (2026-10-08). Next: Pass 4c bounds warnings (not started). Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
 - **Last landed (4a):** Pass 4a — HUD shell + core elements (`654410b`), **verified in the Editor by the developer** (2026-10-08). Merged `Hud` panel (score, 10-pip fuel, health bar, combo sticker, PRACTICE tag, inert pause button), `HudGallery` dev scene; old fuel/health/score panels removed. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4). Pass 4 is split into 4a-4g (table below; detail in the approved plan: one merged HUD panel, `HudView`/`HudPresenter`, `HudGallery` state harness).
 
@@ -22,7 +22,7 @@ Rules for every pass: stays on `milestone/ui-art-pass`; Play-mode verification i
 | 3 | Verified — Complete (`1fcf74e`) | **Main menu (S02)** — restyle on the foundation; profile chip (name + "PROFILE", no level); mode-tab swap shell (competitive/practice flips the PLAY sub-label and top-left chip, static 3/3 and 28:14); overflow menu that really opens/closes and routes (Settings, Credits to their screens as they land, How to Play to a "coming later" toast, Quit hidden on WebGL); **attempt-confirm popup** (competitive PLAY opens it, practice skips it; "Don't ask again today" remembered in-session only, no persistence until the Daily play structure milestone, decision 4); **quit-confirm popup** (`Application.Quit`, Editor-stop aware); the OPOINT8182 title is rebuilt as text on the new type styles (the supplied logo is the studio logo, not the game wordmark); leaderboard tile keeps opening the existing Top-10 panel until Pass 6; shop/profile tiles keep the stub toast until Pass 6/7. Done when the menu matches S02 + its two popups and PLAY still starts a run |
 | 4 | Approved, split into 4a-4g (2026-10-08) | **Merged HUD (S03 a-h) + pause popup visuals (S04)** — one `Hud.uxml` + one PanelRenderer under the existing `HUD` GameObject replaces the 7 prototype HUD panels. View/presenter split (`HudView` pure UI, `HudPresenter` binds the game systems) plus a dev scene `HudGallery` with a state driver (hotkeys a-h) for states that are hard to reach in play. Each sub-pass retires the old panels it replaces and is verified and committed on its own. Functional pause stays the later "Pause, settings & audio" milestone (pause button inert with a toast; popup verified in the gallery only). Detail below |
 | 4a | Verified — Complete (`654410b`) | HUD shell + core: score, 10-pip fuel (fractional boundary pip), health bar, PRACTICE tag (static), combo sticker (S03 a, b, combo part of c), inert pause button, safe-area layer, `HudGallery`. Deletes FuelGauge / HealthGauge / ScoreDisplay panels and scripts |
-| 4b | Approved | Touch controls re-homed into the Hud input layer + restyled (floating joystick ring 300 px / handle 132 px, boost 186 px). Same `PlaneController.TouchSteer/TouchBoost` logic. Deletes the TouchControls panel |
+| 4b | Verified — Complete (`33a1703`) | Touch controls re-homed into the Hud input layer + restyled (floating joystick ring 300 px / handle 132 px, boost 186 px). Same `PlaneController.TouchSteer/TouchBoost` logic. Deletes the TouchControls panel |
 | 4c | Approved | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
 | 4d | Approved | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
 | 4e | Approved | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource`/`IDamageDealer`, new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, popup pool |
@@ -51,6 +51,14 @@ Inputs received: **Baloo 2** and **Nunito** fonts, and the studio logo (`Art/Tex
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing in; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY tab = real Top-10 from the existing daily board (mislabelled until #28); ALL-TIME = static sample data.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
+
+### Pass 4b - how to verify
+1. HudGallery: press `J` for a static joystick preview and compare the bottom-left ring/handle and the bottom-right BOOST button with `S03.a-*.png`. Tap BOOST: the face drops and the lip collapses.
+2. Play from `Bootstrap` (PLAY, LET'S FLY) with the mouse or a touch device: press and drag in the left half of the screen. A ring appears under the pointer, the handle follows, the plane steers exactly as before (full steer at about 50 px of drag). Release: ring disappears, plane levels. Hold BOOST (bottom right): plane boosts and fuel drains faster; release stops it.
+3. Slide the pointer off the screen/ring mid-drag and release: no stuck steer or boost.
+4. The pause button (top right) still toasts. Game Over still appears.
+5. Old warning banners (altitude / lateral / ground) are unchanged until 4c.
+6. Not verified by me: real mouse/touch feel and Android (4g quick Android look).
 
 ### Pass 4a - how to verify
 1. Open `Assets/_Project/Scenes/Dev/HudGallery.unity` and press Play (Game view 16:9 or 20:9). Compare with `Docs/Mockups/screens/S03-gameplay-hud/S03.a-*.png`: SCORE + 184,920 top left, 10 fuel pips (7 full + a partial one) with FUEL label, health bar under it, pause button top right. Hotkeys: `B` practice tag under the score, `C` combo sticker (tilted, left), `V` drains the combo timer (sticker shrinks and desaturates, then disappears), `F` cycles fuel levels, `H` cycles health, `A` resets.
