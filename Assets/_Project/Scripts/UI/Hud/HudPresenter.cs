@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using Opoint8182.Fuel;
 using Opoint8182.Health;
+using Opoint8182.Player;
 using Opoint8182.Score;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace Opoint8182.UI
 		[FoldoutGroup("References")] [SerializeField] private FuelSystem m_fuelSystem;
 		[FoldoutGroup("References")] [SerializeField] private HealthSystem m_healthSystem;
 		[FoldoutGroup("References")] [SerializeField] private ScoreSystem m_scoreSystem;
+		[FoldoutGroup("References")] [SerializeField] private PlaneController m_planeController;
 
 		protected override void OnEnable()
 		{
@@ -42,12 +44,21 @@ namespace Opoint8182.UI
 				m_scoreSystem.ComboTimerValue.RemoveListener(OnComboTimerChanged);
 			}
 
+			// A held finger must not keep steering or boosting once the HUD is gone (run ended, back to menu).
+			if (m_planeController != null)
+			{
+				m_planeController.TouchSteer = Vector2.zero;
+				m_planeController.TouchBoost = false;
+			}
+
 			base.OnDisable();
 		}
 
 		protected override void OnViewReady(HudView view)
 		{
 			view.SetPractice(HudPlaceholderData.IsPractice);
+			view.SteerChanged += OnSteerChanged;
+			view.BoostChanged += OnBoostChanged;
 
 			if (m_fuelSystem != null) view.SetFuel(m_fuelSystem.FuelFraction);
 			if (m_healthSystem != null) view.SetHealth(m_healthSystem.HealthFraction);
@@ -56,6 +67,16 @@ namespace Opoint8182.UI
 				view.SetScore(m_scoreSystem.CurrentScore);
 				view.SetCombo(m_scoreSystem.CurrentMultiplier, m_scoreSystem.ComboTimerFraction);
 			}
+		}
+
+		private void OnSteerChanged(Vector2 steer)
+		{
+			if (m_planeController != null) m_planeController.TouchSteer = steer;
+		}
+
+		private void OnBoostChanged(bool isBoosting)
+		{
+			if (m_planeController != null) m_planeController.TouchBoost = isBoosting;
 		}
 
 		private void OnFuelChanged(float _) => View?.SetFuel(m_fuelSystem.FuelFraction);

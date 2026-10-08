@@ -1,9 +1,18 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
     <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
     <Style src="Hud.uss" />
-    <!-- One merged HUD panel (UI/art pass, Pass 4). Everything here ignores pointer events except the pause button,
-         so the touch-control panels (and later the input layer) underneath keep receiving input. -->
+    <!-- One merged HUD panel (UI/art pass, Pass 4). Everything ignores pointer events except the pause button, the boost
+         button and the joystick zone, so nothing else in the panel blocks input. -->
     <ui:VisualElement name="hud-root" class="theme hud-root" picking-mode="Ignore">
+
+        <!-- Input layer: full panel, NOT safe-area inset (the joystick math is in panel space). Sits below everything
+             else; only the joystick zone picks pointer events, so the layers above stay click-through. -->
+        <ui:VisualElement name="hud-input" class="hud-input" picking-mode="Ignore">
+            <ui:VisualElement name="touch-joystick-zone" class="hud-joy-zone" />
+            <ui:VisualElement name="touch-joystick-background" class="hud-joy-base" picking-mode="Ignore">
+                <ui:VisualElement name="touch-joystick-handle" class="hud-joy-handle" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
 
         <!-- Safe-area layer: HudView applies SafeAreaHelper to this element; hud-content fills its padding box,
              so absolutely positioned HUD pieces are inset by the device safe area. -->
@@ -31,6 +40,10 @@
                     <ui:VisualElement class="hud-pause-bar" picking-mode="Ignore" />
                     <ui:VisualElement class="hud-pause-bar" picking-mode="Ignore" />
                 </op:LipButton>
+
+                <op:LipBox name="touch-boost-button" variant="Primary" class="hud-boost">
+                    <ui:Label text="BOOST" class="lipbox__label hud-boost-label" picking-mode="Ignore" />
+                </op:LipBox>
 
                 <ui:VisualElement name="combo-sticker" class="hud-combo-sticker" picking-mode="Ignore">
                     <ui:Label name="combo-label" text="x3 COMBO!" class="t-baloo-extrabold hud-combo-label" picking-mode="Ignore" />

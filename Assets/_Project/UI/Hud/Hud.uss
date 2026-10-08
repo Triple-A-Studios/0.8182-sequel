@@ -9,6 +9,45 @@
     bottom: 0;
 }
 
+.hud-input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Touch-capture area for the floating joystick: left half of the panel (a later settings pass makes the side configurable). */
+.hud-joy-zone {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+}
+
+/* Repositioned to the touch point on every touch-down; hidden until touched. Size must match HudTouchControls.BaseSize. */
+.hud-joy-base {
+    display: none;
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-width: 7px;
+    border-radius: 150px;
+    border-color: rgba(246, 239, 226, 0.3);
+    background-color: rgba(10, 16, 24, 0.3);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Handle size must match HudTouchControls.HandleMaxTravel: (300 - 132) / 2. */
+.hud-joy-handle {
+    width: 132px;
+    height: 132px;
+    border-radius: 66px;
+    background-color: #EAE1D0;
+}
+
 .hud-safe {
     position: absolute;
     left: 0;
@@ -145,6 +184,24 @@
     margin: 0 5px;
     border-radius: 4px;
     background-color: var(--ink);
+}
+
+/* ---- Boost button (bottom right). A pressable LipBox bent into a circle; height includes the 10 px lip. ---- */
+
+.hud-boost {
+    position: absolute;
+    right: 140px;
+    bottom: 102px;
+    width: 186px;
+    height: 196px;
+}
+
+.hud-boost .lipbox__face { border-radius: 93px; }
+.hud-boost > .lipbox__lip { border-radius: 93px; }
+
+.hud-boost-label {
+    font-size: 42px;
+    letter-spacing: 2px;
 }
 
 /* ---- Combo sticker (screen left). HudView drives scale / colours from the combo timer. ---- */

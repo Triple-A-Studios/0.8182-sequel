@@ -27,6 +27,7 @@ namespace Opoint8182.UI
 		private readonly Label m_comboLabel;
 		private readonly VisualElement m_toast;
 		private readonly Label m_toastLabel;
+		private readonly HudTouchControls m_touchControls;
 		private IVisualElementScheduledItem m_toastHide;
 
 		private float m_lastFuelFraction = -1f;
@@ -36,6 +37,12 @@ namespace Opoint8182.UI
 
 		/// <summary>Raised when the (inert) pause button is tapped.</summary>
 		public event Action PauseClicked;
+
+		/// <summary>Floating-joystick steer, -1..1 per axis, up positive. Zero when released.</summary>
+		public event Action<Vector2> SteerChanged;
+
+		/// <summary>Boost button held / released.</summary>
+		public event Action<bool> BoostChanged;
 
 		public HudView(VisualElement root)
 		{
@@ -53,6 +60,10 @@ namespace Opoint8182.UI
 			SafeAreaHelper.Apply(root.Q<VisualElement>("hud-safe"), 0f);
 
 			BuildFuelPips(root.Q<VisualElement>("fuel-pips"));
+
+			m_touchControls = new HudTouchControls(root);
+			m_touchControls.SteerChanged += steer => SteerChanged?.Invoke(steer);
+			m_touchControls.BoostChanged += boost => BoostChanged?.Invoke(boost);
 			root.Q<LipButton>("pause-button").clicked += OnPauseClicked;
 
 			SetFuel(1f);
@@ -121,6 +132,17 @@ namespace Opoint8182.UI
 
 			m_toastHide?.Pause();
 			m_toastHide = m_toast.schedule.Execute(() => m_toast.style.display = DisplayStyle.None).StartingIn(k_ToastDurationMs);
+		}
+
+		/// <summary>Shows the joystick base at <paramref name="origin"/> (panel px) with the handle offset, without input. Gallery only.</summary>
+		public void PreviewJoystick(Vector2 origin, Vector2 handleOffset)
+		{
+			m_touchControls.ShowPreview(origin, handleOffset);
+		}
+
+		public void HideJoystickPreview()
+		{
+			m_touchControls.HidePreview();
 		}
 
 		/// <summary>

@@ -6,7 +6,8 @@ namespace Opoint8182.UI
 	/// <summary>
 	/// Dev-only harness for the merged HUD: jumps the view to each mockup state (S03 a-h) with hotkeys so states that are
 	/// hard to reach in play can be checked. Lives in the HudGallery scene only. Each HUD sub-pass adds its states here.
-	/// Keys: A clean early run, B practice mode, C combo, V drain the combo timer, F cycle fuel, H cycle health.
+	/// Keys: A clean early run, B practice mode, C combo, V drain the combo timer, F cycle fuel, H cycle health,
+	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half).
 	/// </summary>
 	public class HudStateDriver : HudHost
 	{
@@ -20,6 +21,7 @@ namespace Opoint8182.UI
 		private int m_healthIndex = 1;
 		private int m_comboMultiplier = 1;
 		private float m_comboTimer;
+		private bool m_joystickPreview;
 
 		protected override void OnViewReady(HudView view)
 		{
@@ -39,6 +41,7 @@ namespace Opoint8182.UI
 				if (keyboard.vKey.wasPressedThisFrame) StartComboDrain();
 				if (keyboard.fKey.wasPressedThisFrame) CycleFuel();
 				if (keyboard.hKey.wasPressedThisFrame) CycleHealth();
+				if (keyboard.jKey.wasPressedThisFrame) ToggleJoystickPreview();
 			}
 
 			if (m_comboTimer > 0f)
@@ -78,6 +81,20 @@ namespace Opoint8182.UI
 		{
 			if (m_comboMultiplier < 2) m_comboMultiplier = 3;
 			m_comboTimer = k_ComboDrainSeconds;
+		}
+
+		// Mockup S03: ring centre 274 px from the left and 254 px up from the bottom, handle nudged (34, -20).
+		private void ToggleJoystickPreview()
+		{
+			m_joystickPreview = !m_joystickPreview;
+			if (!m_joystickPreview)
+			{
+				View.HideJoystickPreview();
+				return;
+			}
+
+			var origin = new Vector2(274f, View.Root.layout.height - 254f);
+			View.PreviewJoystick(origin, new Vector2(34f, -20f));
 		}
 
 		private void CycleFuel()
