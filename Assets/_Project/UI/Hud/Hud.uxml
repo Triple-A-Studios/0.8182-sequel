@@ -1,0 +1,47 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+    <Style src="Hud.uss" />
+    <!-- One merged HUD panel (UI/art pass, Pass 4). Everything here ignores pointer events except the pause button,
+         so the touch-control panels (and later the input layer) underneath keep receiving input. -->
+    <ui:VisualElement name="hud-root" class="theme hud-root" picking-mode="Ignore">
+
+        <!-- Safe-area layer: HudView applies SafeAreaHelper to this element; hud-content fills its padding box,
+             so absolutely positioned HUD pieces are inset by the device safe area. -->
+        <ui:VisualElement name="hud-safe" class="hud-safe" picking-mode="Ignore">
+            <ui:VisualElement name="hud-content" class="hud-content" picking-mode="Ignore">
+
+                <ui:VisualElement name="score-block" class="hud-score-block" picking-mode="Ignore">
+                    <ui:Label text="SCORE" class="t-baloo-extrabold hud-score-label" picking-mode="Ignore" />
+                    <ui:Label name="score-value" text="0" class="t-baloo-extrabold hud-score-value" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:Label name="practice-tag" text="PRACTICE" class="t-nunito-extrabold hud-practice-tag" picking-mode="Ignore" />
+
+                <ui:VisualElement name="top-stack" class="hud-top-stack" picking-mode="Ignore">
+                    <ui:VisualElement name="fuel-cluster" class="hud-fuel-cluster" picking-mode="Ignore">
+                        <ui:VisualElement name="fuel-pips" class="hud-fuel-pips" picking-mode="Ignore" />
+                        <ui:Label text="FUEL" class="t-baloo-extrabold hud-fuel-label" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="health-bar" class="hud-health-bar" picking-mode="Ignore">
+                        <ui:VisualElement name="health-fill" class="hud-health-fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <op:LipButton name="pause-button" class="hud-pause-button" lip-size="Small">
+                    <ui:VisualElement class="hud-pause-bar" picking-mode="Ignore" />
+                    <ui:VisualElement class="hud-pause-bar" picking-mode="Ignore" />
+                </op:LipButton>
+
+                <ui:VisualElement name="combo-sticker" class="hud-combo-sticker" picking-mode="Ignore">
+                    <ui:Label name="combo-label" text="x3 COMBO!" class="t-baloo-extrabold hud-combo-label" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="hud-toast" class="hud-toast" picking-mode="Ignore">
+            <ui:Label name="hud-toast-label" text="" class="hud-toast-label" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

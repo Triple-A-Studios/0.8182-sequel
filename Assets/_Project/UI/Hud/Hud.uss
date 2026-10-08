@@ -1,0 +1,196 @@
+/* Merged gameplay HUD layout (UI/art pass, Pass 4). Colours, fonts and shared components come from Theme/Theme.uss;
+   this file positions the S03 pieces. Reference frame 2400x1080 (mockup S03). */
+
+.hud-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.hud-safe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Fills the safe-area padding box, so absolute children below are inset by the device safe area. */
+.hud-content { flex-grow: 1; }
+
+/* ---- Score (top left) ---- */
+
+.hud-score-block {
+    position: absolute;
+    left: 44px;
+    top: 24px;
+    align-items: flex-start;
+}
+
+.hud-score-label {
+    font-size: 28px;
+    letter-spacing: 5px;
+    margin-left: 5px;
+    color: var(--ink-70);
+}
+
+.hud-score-value {
+    font-size: 96px;
+    margin-top: -22px;
+    color: var(--ink);
+    text-shadow: 0 7px 0 rgba(16, 24, 35, 0.75);
+    white-space: nowrap;
+}
+
+.hud-practice-tag {
+    position: absolute;
+    left: 44px;
+    top: 196px;
+    padding: 9px 20px;
+    border-width: 2px;
+    border-radius: 12px;
+    border-color: rgba(246, 239, 226, 0.22);
+    background-color: rgba(10, 16, 24, 0.35);
+    font-size: 24px;
+    letter-spacing: 5px;
+    color: var(--ink-70);
+    white-space: nowrap;
+}
+
+/* ---- Top-centre stack: fuel pips + health bar ---- */
+
+.hud-top-stack {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 56px;
+    align-items: center;
+}
+
+.hud-fuel-cluster { align-items: center; }
+
+.hud-fuel-pips {
+    flex-direction: row;
+    padding: 9px;
+    border-radius: 20px;
+    background-color: rgba(10, 16, 24, 0.34);
+}
+
+.hud-pip {
+    width: 46px;
+    height: 40px;
+    margin-right: 7px;
+    border-radius: 7px;
+    background-color: rgba(10, 16, 24, 0.55);
+    overflow: hidden;
+}
+
+.hud-pip--last { margin-right: 0; }
+
+.hud-pip__fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-radius: 7px;
+    border-bottom-width: 6px;
+    border-bottom-color: rgba(0, 0, 0, 0.22);
+    background-color: var(--amber);
+}
+
+.hud-fuel-label {
+    margin-top: 6px;
+    font-size: 24px;
+    letter-spacing: 6px;
+    color: var(--ink-70);
+}
+
+.hud-health-bar {
+    width: 520px;
+    height: 26px;
+    margin-top: 14px;
+    border-radius: 13px;
+    background-color: rgba(10, 16, 24, 0.45);
+    overflow: hidden;
+}
+
+.hud-health-fill {
+    width: 100%;
+    height: 100%;
+    border-radius: 13px;
+    background-color: var(--green);
+}
+
+/* ---- Pause button (top right). Height includes the small lip: 110 = 104 face + 6 lip. ---- */
+
+.hud-pause-button {
+    position: absolute;
+    right: 56px;
+    top: 48px;
+    width: 104px;
+    height: 110px;
+}
+
+.hud-pause-button .lipbox__face {
+    flex-direction: row;
+    border-width: 4px;
+}
+
+.hud-pause-bar {
+    width: 15px;
+    height: 44px;
+    margin: 0 5px;
+    border-radius: 4px;
+    background-color: var(--ink);
+}
+
+/* ---- Combo sticker (screen left). HudView drives scale / colours from the combo timer. ---- */
+
+.hud-combo-sticker {
+    display: none;
+    position: absolute;
+    left: 150px;
+    top: 392px;
+    padding: 22px 40px 14px 40px;
+    border-width: 6px;
+    border-bottom-width: 14px;
+    border-radius: 14px;
+    border-color: var(--ink);
+    border-bottom-color: rgba(16, 24, 35, 0.55);
+    background-color: var(--coral);
+    rotate: -8deg;
+    transform-origin: left center;
+}
+
+.hud-combo-label {
+    font-size: 86px;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 5px 0 rgba(0, 0, 0, 0.28);
+    white-space: nowrap;
+}
+
+/* ---- Toast (inert pause button) ---- */
+
+.hud-toast {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 230px;
+    align-items: center;
+}
+
+.hud-toast-label {
+    padding: 18px 38px;
+    border-width: 3px;
+    border-radius: 20px;
+    border-color: var(--border-soft);
+    background-color: rgba(16, 24, 35, 0.9);
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 34px;
+    color: var(--ink);
+    white-space: nowrap;
+}
