@@ -7,9 +7,13 @@
 
 - **Previous pass:** Pass 3 — main menu (S02) (`1fcf74e`), **verified in the Editor by the developer** (2026-10-08). Menu, overflow menu, attempt-confirm and quit-confirm popups rebuilt on the foundation with placeholder data; PLAY still starts a run. Android/WebGL fonts, the hidden Quit entry on WebGL and touch input are still unchecked (Pass 8). Details in [technical-design/ui.md](technical-design/ui.md#main-menu-uiart-pass-pass-3).
 
-- **Last landed (4b):** Pass 4b — touch controls re-homed into the Hud panel, restyled (`33a1703`), **verified in the Editor by the developer** (2026-10-08). Next: Pass 4c bounds warnings (not started). Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+- **Previous pass (4b):** Pass 4b — touch controls re-homed into the Hud panel, restyled (`33a1703`), **verified in the Editor by the developer** (2026-10-08). Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
-- **Last landed (4a):** Pass 4a — HUD shell + core elements (`654410b`), **verified in the Editor by the developer** (2026-10-08). Merged `Hud` panel (score, 10-pip fuel, health bar, combo sticker, PRACTICE tag, inert pause button), `HudGallery` dev scene; old fuel/health/score panels removed. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4). Pass 4 is split into 4a-4g (table below; detail in the approved plan: one merged HUD panel, `HudView`/`HudPresenter`, `HudGallery` state harness).
+- **Previous pass (4a):** Pass 4a — HUD shell + core elements (`654410b`), **verified in the Editor by the developer** (2026-10-08). Merged `Hud` panel (score, 10-pip fuel, health bar, combo sticker, PRACTICE tag, inert pause button), `HudGallery` dev scene; old fuel/health/score panels removed. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4). Pass 4 is split into 4a-4g (table below; detail in the approved plan: one merged HUD panel, `HudView`/`HudPresenter`, `HudGallery` state harness).
+
+- **Last landed:** Pass 4c — bounds warnings (`da3bf97`), **verified in the Editor by the developer** (2026-10-09). Ceiling banner with countdown, lateral tape on the offending edge, ground vignette + PULL UP in the merged Hud; the old altitude/lateral/ground panels are gone. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+
+- **Next pass:** Pass 4d — low-fuel / health states, damage overlay and effect arbiter (not started).
 
 ### UI/art pass — passes
 
@@ -23,7 +27,7 @@ Rules for every pass: stays on `milestone/ui-art-pass`; Play-mode verification i
 | 4 | Approved, split into 4a-4g (2026-10-08) | **Merged HUD (S03 a-h) + pause popup visuals (S04)** — one `Hud.uxml` + one PanelRenderer under the existing `HUD` GameObject replaces the 7 prototype HUD panels. View/presenter split (`HudView` pure UI, `HudPresenter` binds the game systems) plus a dev scene `HudGallery` with a state driver (hotkeys a-h) for states that are hard to reach in play. Each sub-pass retires the old panels it replaces and is verified and committed on its own. Functional pause stays the later "Pause, settings & audio" milestone (pause button inert with a toast; popup verified in the gallery only). Detail below |
 | 4a | Verified — Complete (`654410b`) | HUD shell + core: score, 10-pip fuel (fractional boundary pip), health bar, PRACTICE tag (static), combo sticker (S03 a, b, combo part of c), inert pause button, safe-area layer, `HudGallery`. Deletes FuelGauge / HealthGauge / ScoreDisplay panels and scripts |
 | 4b | Verified — Complete (`33a1703`) | Touch controls re-homed into the Hud input layer + restyled (floating joystick ring 300 px / handle 132 px, boost 186 px). Same `PlaneController.TouchSteer/TouchBoost` logic. Deletes the TouchControls panel |
-| 4c | Approved | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
+| 4c | Verified — Complete (`da3bf97`) | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
 | 4d | Approved | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
 | 4e | Approved | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource`/`IDamageDealer`, new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, popup pool |
 | 4f | Approved | Pause popup visuals (S04) + 3-2-1 resume countdown, built on `ScreenRouter`; verified in the gallery only, inert in play |
@@ -51,6 +55,12 @@ Inputs received: **Baloo 2** and **Nunito** fonts, and the studio logo (`Art/Tex
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing in; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY tab = real Top-10 from the existing daily board (mislabelled until #28); ALL-TIME = static sample data.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
+
+### Pass 4c - how to verify
+1. HudGallery: `E` cycles the ceiling banner (3, 2, 1, off) - compare with `S03.e-*.png`: taped banner at the top with TOO HIGH - DESCEND! and the countdown circle, fuel/health stack shifts down. `L` shows the lateral tape on the right, then the left, then off (`S03.f-*.png`, text reads "TURN BACK" without a number). `G` shows the flashing red vignette + PULL UP! (`S03.g-*.png`). `A` clears everything.
+2. Play from `Bootstrap`: fly above the ceiling (y 30) - banner slides down and counts down while you stay above (S pauses it), disappears when you drop below; sideways past the soft limit - tape on that edge, gone when you return; low to the ground (y < 3) - red vignette + PULL UP! flashing, gone when you climb.
+3. Old altitude/lateral/ground banners are gone; steering, boost, fuel, health, combo and Game Over still work.
+4. Not verified by me: touch, Android/WebGL fonts (the dash in the ceiling text), the flashing look on device.
 
 ### Pass 4b - how to verify
 1. HudGallery: press `J` for a static joystick preview and compare the bottom-left ring/handle and the bottom-right BOOST button with `S03.a-*.png`. Tap BOOST: the face drops and the lip collapses.
