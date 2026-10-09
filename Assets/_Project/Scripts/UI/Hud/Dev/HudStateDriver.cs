@@ -7,7 +7,8 @@ namespace Opoint8182.UI
 	/// Dev-only harness for the merged HUD: jumps the view to each mockup state (S03 a-h) with hotkeys so states that are
 	/// hard to reach in play can be checked. Lives in the HudGallery scene only. Each HUD sub-pass adds its states here.
 	/// Keys: A clean early run, B practice mode, C combo, V drain the combo timer, F cycle fuel, H cycle health,
-	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half).
+	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half),
+	/// E cycle the ceiling banner (off, 3, 2, 1), L cycle the lateral tape (off, right, left), G toggle the ground warning.
 	/// </summary>
 	public class HudStateDriver : HudHost
 	{
@@ -22,6 +23,9 @@ namespace Opoint8182.UI
 		private int m_comboMultiplier = 1;
 		private float m_comboTimer;
 		private bool m_joystickPreview;
+		private int m_ceilingStep;
+		private int m_lateralStep;
+		private bool m_ground;
 
 		protected override void OnViewReady(HudView view)
 		{
@@ -42,6 +46,9 @@ namespace Opoint8182.UI
 				if (keyboard.fKey.wasPressedThisFrame) CycleFuel();
 				if (keyboard.hKey.wasPressedThisFrame) CycleHealth();
 				if (keyboard.jKey.wasPressedThisFrame) ToggleJoystickPreview();
+				if (keyboard.eKey.wasPressedThisFrame) CycleCeiling();
+				if (keyboard.lKey.wasPressedThisFrame) CycleLateral();
+				if (keyboard.gKey.wasPressedThisFrame) ToggleGround();
 			}
 
 			if (m_comboTimer > 0f)
@@ -62,6 +69,12 @@ namespace Opoint8182.UI
 			View.SetHealth(m_S_HealthLevels[m_healthIndex]);
 			View.SetPractice(false);
 			View.SetCombo(1, 0f);
+			m_ceilingStep = 0;
+			m_lateralStep = 0;
+			m_ground = false;
+			View.SetCeilingWarning(false, 0);
+			View.SetLateralWarning(0);
+			View.SetGroundWarning(false);
 		}
 
 		private void ApplyPractice()
@@ -95,6 +108,26 @@ namespace Opoint8182.UI
 
 			var origin = new Vector2(274f, View.Root.layout.height - 254f);
 			View.PreviewJoystick(origin, new Vector2(34f, -20f));
+		}
+
+		// Steps: 0 off, then 3, 2, 1 seconds left.
+		private void CycleCeiling()
+		{
+			m_ceilingStep = (m_ceilingStep + 1) % 4;
+			View.SetCeilingWarning(m_ceilingStep > 0, 4 - m_ceilingStep);
+		}
+
+		// Steps: 0 off, 1 right edge, 2 left edge.
+		private void CycleLateral()
+		{
+			m_lateralStep = (m_lateralStep + 1) % 3;
+			View.SetLateralWarning(m_lateralStep == 0 ? 0 : (m_lateralStep == 1 ? 1 : -1));
+		}
+
+		private void ToggleGround()
+		{
+			m_ground = !m_ground;
+			View.SetGroundWarning(m_ground);
 		}
 
 		private void CycleFuel()

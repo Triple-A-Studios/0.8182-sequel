@@ -52,6 +52,34 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- Full-frame effects (state g): above the content, click-through. -->
+        <ui:VisualElement name="hud-fx" class="hud-fx" picking-mode="Ignore">
+            <ui:VisualElement name="ground-vignette" class="hud-vignette-red" picking-mode="Ignore" />
+            <ui:Label name="ground-text" text="PULL UP!" class="t-baloo-extrabold hud-ground-text" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <!-- Edge layer (full panel, not safe-area inset): taped banners that own the screen edges (states e, f). -->
+        <ui:VisualElement name="hud-edge" class="hud-edge" picking-mode="Ignore">
+            <ui:VisualElement name="ceiling-banner" class="hud-tape hud-ceiling-banner" picking-mode="Ignore">
+                <ui:VisualElement class="hud-tape-plate hud-ceiling-plate" picking-mode="Ignore">
+                    <ui:Label text="TOO HIGH &#8211; DESCEND!" class="t-baloo-extrabold hud-tape-text hud-ceiling-text" picking-mode="Ignore" />
+                    <ui:VisualElement class="hud-ceiling-count" picking-mode="Ignore">
+                        <ui:Label name="ceiling-count" text="3" class="t-baloo-extrabold hud-ceiling-count-label" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="lateral-tape-left" class="hud-tape hud-lateral-tape hud-lateral-tape--left" picking-mode="Ignore">
+                <ui:VisualElement class="hud-tape-plate hud-lateral-plate" picking-mode="Ignore">
+                    <ui:Label text="TURN BACK" class="t-baloo-extrabold hud-tape-text hud-lateral-text" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="lateral-tape-right" class="hud-tape hud-lateral-tape hud-lateral-tape--right" picking-mode="Ignore">
+                <ui:VisualElement class="hud-tape-plate hud-lateral-plate" picking-mode="Ignore">
+                    <ui:Label text="TURN BACK" class="t-baloo-extrabold hud-tape-text hud-lateral-text" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <ui:VisualElement name="hud-toast" class="hud-toast" picking-mode="Ignore">
             <ui:Label name="hud-toast-label" text="" class="hud-toast-label" picking-mode="Ignore" />
         </ui:VisualElement>

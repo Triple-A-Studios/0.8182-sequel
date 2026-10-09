@@ -16,6 +16,9 @@ namespace Opoint8182.UI
 		private const float k_ComboMinScale = 0.78f;
 		private const float k_ComboMinOpacity = 0.7f;
 		private const long k_ToastDurationMs = 2500;
+		private const long k_GroundFlashPeriodMs = 350;
+		private const float k_GroundFlashHigh = 0.85f;
+		private const float k_GroundFlashLow = 0.25f;
 		private static readonly Color m_S_ComboFadedColor = new(0.49f, 0.416f, 0.388f);
 		private static readonly Color m_S_ComboActiveColor = new(0.91f, 0.376f, 0.235f);
 
@@ -28,6 +31,16 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_toast;
 		private readonly Label m_toastLabel;
 		private readonly HudTouchControls m_touchControls;
+		private readonly VisualElement m_topStack;
+		private readonly VisualElement m_ceilingBanner;
+		private readonly Label m_ceilingCount;
+		private readonly VisualElement m_lateralLeft;
+		private readonly VisualElement m_lateralRight;
+		private readonly VisualElement m_groundVignette;
+		private readonly VisualElement m_groundText;
+		private IVisualElementScheduledItem m_groundFlash;
+		private bool m_groundActive;
+		private bool m_groundFlashHigh;
 		private IVisualElementScheduledItem m_toastHide;
 
 		private float m_lastFuelFraction = -1f;
@@ -54,6 +67,13 @@ namespace Opoint8182.UI
 			m_comboSticker = root.Q<VisualElement>("combo-sticker");
 			m_comboLabel = root.Q<Label>("combo-label");
 			m_toast = root.Q<VisualElement>("hud-toast");
+			m_topStack = root.Q<VisualElement>("top-stack");
+			m_ceilingBanner = root.Q<VisualElement>("ceiling-banner");
+			m_ceilingCount = root.Q<Label>("ceiling-count");
+			m_lateralLeft = root.Q<VisualElement>("lateral-tape-left");
+			m_lateralRight = root.Q<VisualElement>("lateral-tape-right");
+			m_groundVignette = root.Q<VisualElement>("ground-vignette");
+			m_groundText = root.Q<VisualElement>("ground-text");
 			m_toastLabel = root.Q<Label>("hud-toast-label");
 
 			// No base padding: positions in Hud.uss are measured from the screen edge like the mockup, the helper only adds device insets.
@@ -125,6 +145,46 @@ namespace Opoint8182.UI
 			m_comboSticker.style.backgroundColor = Color.Lerp(m_S_ComboFadedColor, m_S_ComboActiveColor, fraction);
 		}
 
+		/// <summary>
+		/// Ceiling warning (S03 e): the taped banner slides down with the countdown number and the fuel / health stack
+		/// moves out of its way. <paramref name="secondsLeft"/> is only read while <paramref name="active"/>.
+		/// </summary>
+		public void SetCeilingWarning(bool active, int secondsLeft)
+		{
+			m_ceilingBanner.EnableInClassList("is-visible", active);
+			m_topStack.EnableInClassList("hud-top-stack--shifted", active);
+			if (active) m_ceilingCount.text = Mathf.Max(0, secondsLeft).ToString();
+		}
+
+		/// <summary>Lateral soft limit (S03 f): slides the tape in on the offending edge. -1 left, 1 right, 0 none.</summary>
+		public void SetLateralWarning(int side)
+		{
+			m_lateralLeft.EnableInClassList("is-visible", side < 0);
+			m_lateralRight.EnableInClassList("is-visible", side > 0);
+		}
+
+		/// <summary>Ground proximity (S03 g): flashing red vignette and PULL UP!.</summary>
+		public void SetGroundWarning(bool active)
+		{
+			if (active == m_groundActive) return;
+			m_groundActive = active;
+
+			var display = active ? DisplayStyle.Flex : DisplayStyle.None;
+			m_groundVignette.style.display = display;
+			m_groundText.style.display = display;
+
+			if (!active)
+			{
+				m_groundFlash?.Pause();
+				return;
+			}
+
+			m_groundFlashHigh = true;
+			ApplyGroundFlash();
+			m_groundFlash ??= Root.schedule.Execute(ToggleGroundFlash).Every(k_GroundFlashPeriodMs);
+			m_groundFlash.Resume();
+		}
+
 		public void ShowToast(string message)
 		{
 			m_toastLabel.text = message;
@@ -170,6 +230,19 @@ namespace Opoint8182.UI
 				container.Add(pip);
 				m_pipFills[i] = fill;
 			}
+		}
+
+		private void ToggleGroundFlash()
+		{
+			m_groundFlashHigh = !m_groundFlashHigh;
+			ApplyGroundFlash();
+		}
+
+		private void ApplyGroundFlash()
+		{
+			var opacity = m_groundFlashHigh ? k_GroundFlashHigh : k_GroundFlashLow;
+			m_groundVignette.style.opacity = opacity;
+			m_groundText.style.opacity = opacity;
 		}
 
 		private void OnPauseClicked()

@@ -34,6 +34,9 @@ namespace Opoint8182.Altitude
         private ObservableFloat WarningFractionObservable => m_warningFraction ??= new ObservableFloat(1f);
         private ObservableBool IsGroundWarningObservable => m_isGroundWarning ??= new ObservableBool(false);
 
+        /// <summary>Total grace period of the ceiling warning; the HUD multiplies <see cref="WarningFractionValue"/> by it for the countdown number.</summary>
+        public float CeilingWarningSeconds => m_ceilingWarningSeconds;
+
         public ObservableBool IsWarningValue => IsWarningObservable;
         public ObservableFloat WarningFractionValue => WarningFractionObservable;
         public ObservableBool IsGroundWarningValue => IsGroundWarningObservable;

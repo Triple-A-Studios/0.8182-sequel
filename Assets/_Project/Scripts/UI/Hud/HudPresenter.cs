@@ -1,6 +1,8 @@
 using Alchemy.Inspector;
+using Opoint8182.Altitude;
 using Opoint8182.Fuel;
 using Opoint8182.Health;
+using Opoint8182.Lateral;
 using Opoint8182.Player;
 using Opoint8182.Score;
 using UnityEngine;
@@ -18,6 +20,8 @@ namespace Opoint8182.UI
 		[FoldoutGroup("References")] [SerializeField] private HealthSystem m_healthSystem;
 		[FoldoutGroup("References")] [SerializeField] private ScoreSystem m_scoreSystem;
 		[FoldoutGroup("References")] [SerializeField] private PlaneController m_planeController;
+		[FoldoutGroup("References")] [SerializeField] private AltitudeSystem m_altitudeSystem;
+		[FoldoutGroup("References")] [SerializeField] private LateralSystem m_lateralSystem;
 
 		protected override void OnEnable()
 		{
@@ -31,6 +35,13 @@ namespace Opoint8182.UI
 				m_scoreSystem.MultiplierValue.AddListener(OnMultiplierChanged);
 				m_scoreSystem.ComboTimerValue.AddListener(OnComboTimerChanged);
 			}
+			if (m_altitudeSystem != null)
+			{
+				m_altitudeSystem.IsWarningValue.AddListener(OnCeilingWarningChanged);
+				m_altitudeSystem.WarningFractionValue.AddListener(OnCeilingFractionChanged);
+				m_altitudeSystem.IsGroundWarningValue.AddListener(OnGroundWarningChanged);
+			}
+			if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.AddListener(OnLateralWarningChanged);
 		}
 
 		protected override void OnDisable()
@@ -43,6 +54,13 @@ namespace Opoint8182.UI
 				m_scoreSystem.MultiplierValue.RemoveListener(OnMultiplierChanged);
 				m_scoreSystem.ComboTimerValue.RemoveListener(OnComboTimerChanged);
 			}
+			if (m_altitudeSystem != null)
+			{
+				m_altitudeSystem.IsWarningValue.RemoveListener(OnCeilingWarningChanged);
+				m_altitudeSystem.WarningFractionValue.RemoveListener(OnCeilingFractionChanged);
+				m_altitudeSystem.IsGroundWarningValue.RemoveListener(OnGroundWarningChanged);
+			}
+			if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.RemoveListener(OnLateralWarningChanged);
 
 			// A held finger must not keep steering or boosting once the HUD is gone (run ended, back to menu).
 			if (m_planeController != null)
@@ -67,6 +85,12 @@ namespace Opoint8182.UI
 				view.SetScore(m_scoreSystem.CurrentScore);
 				view.SetCombo(m_scoreSystem.CurrentMultiplier, m_scoreSystem.ComboTimerFraction);
 			}
+			if (m_altitudeSystem != null)
+			{
+				SyncCeilingWarning(view);
+				view.SetGroundWarning(m_altitudeSystem.IsGroundWarningValue.Value);
+			}
+			if (m_lateralSystem != null) view.SetLateralWarning(m_lateralSystem.IsWarningValue.Value ? LateralSide() : 0);
 		}
 
 		private void OnSteerChanged(Vector2 steer)
@@ -77,6 +101,29 @@ namespace Opoint8182.UI
 		private void OnBoostChanged(bool isBoosting)
 		{
 			if (m_planeController != null) m_planeController.TouchBoost = isBoosting;
+		}
+
+		private void OnCeilingWarningChanged(bool _) => SyncCeilingWarning(View);
+
+		private void OnCeilingFractionChanged(float _) => SyncCeilingWarning(View);
+
+		private void OnGroundWarningChanged(bool isWarning) => View?.SetGroundWarning(isWarning);
+
+		private void OnLateralWarningChanged(bool isWarning) => View?.SetLateralWarning(isWarning ? LateralSide() : 0);
+
+		// Countdown number = whole seconds left of the ceiling grace period (rounded up so it never shows 0 while still alive).
+		private void SyncCeilingWarning(HudView view)
+		{
+			if (view == null || m_altitudeSystem == null) return;
+
+			var seconds = Mathf.CeilToInt(m_altitudeSystem.WarningFractionValue.Value * m_altitudeSystem.CeilingWarningSeconds);
+			view.SetCeilingWarning(m_altitudeSystem.IsWarningValue.Value, seconds);
+		}
+
+		// The lateral system only says "soft limit crossed"; the offending edge is the side of the plane's x position.
+		private int LateralSide()
+		{
+			return m_planeController != null && m_planeController.transform.position.x < 0f ? -1 : 1;
 		}
 
 		private void OnFuelChanged(float _) => View?.SetFuel(m_fuelSystem.FuelFraction);

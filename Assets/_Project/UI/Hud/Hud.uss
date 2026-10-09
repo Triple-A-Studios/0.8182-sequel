@@ -229,6 +229,170 @@
     white-space: nowrap;
 }
 
+/* ---- Bounds warnings (states e, f, g) ---- */
+
+.hud-fx {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.hud-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Ground proximity: red edge vignette + flashing PULL UP!. HudView toggles display and flashes the opacity. */
+.hud-vignette-red {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    background-image: url("../../Art/Textures/UI/Tex_UiVignetteRed.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    transition-property: opacity;
+    transition-duration: 0.35s;
+}
+
+.hud-ground-text {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 58%;
+    font-size: 132px;
+    letter-spacing: 4px;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 8px 0 var(--coral-lip);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+    rotate: -3deg;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.35s;
+}
+
+/* Hazard tape: baked stripes repeated at their natural size (same trick as the screen stripes). */
+.hud-tape {
+    background-color: var(--amber);
+    background-image: url("../../Art/Textures/UI/Tex_UiHazardTape.png");
+    background-repeat: repeat repeat;
+    background-size: 108px 108px;
+    background-position: left top;
+    transition-property: translate;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+}
+
+.hud-tape.is-visible { translate: 0 0; }
+
+.hud-tape-plate {
+    padding: 16px 46px;
+    border-radius: 14px;
+    background-color: #1B2330;
+    align-items: center;
+}
+
+.hud-tape-text {
+    font-size: 60px;
+    letter-spacing: 2px;
+    color: var(--amber);
+    white-space: nowrap;
+}
+
+.hud-ceiling-banner {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1300px;
+    margin-left: -650px;
+    padding: 22px 0 26px 0;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    border-bottom-width: 14px;
+    border-bottom-color: rgba(16, 24, 35, 0.5);
+    align-items: center;
+    translate: 0 -320px;
+}
+
+.hud-ceiling-plate { flex-direction: row; }
+
+.hud-ceiling-count {
+    width: 84px;
+    height: 84px;
+    margin-left: 28px;
+    border-radius: 42px;
+    background-color: var(--coral);
+    align-items: center;
+    justify-content: center;
+}
+
+.hud-ceiling-count-label {
+    font-size: 56px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+}
+
+/* While the ceiling banner is down the fuel / health stack makes room under it. */
+.hud-top-stack {
+    transition-property: translate;
+    transition-duration: 0.25s;
+}
+
+.hud-top-stack--shifted { translate: 0 168px; }
+
+.hud-lateral-tape {
+    position: absolute;
+    top: 50%;
+    width: 132px;
+    height: 700px;
+    margin-top: -350px;
+    align-items: center;
+    justify-content: center;
+}
+
+.hud-lateral-tape--right {
+    right: 0;
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-left-width: 14px;
+    border-left-color: rgba(16, 24, 35, 0.45);
+    translate: 190px 0;
+}
+
+.hud-lateral-tape--left {
+    left: 0;
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
+    border-right-width: 14px;
+    border-right-color: rgba(16, 24, 35, 0.45);
+    translate: -190px 0;
+}
+
+/* The plate is laid out unrotated, so it gets a fixed size centred in the tape and is then rotated around its centre. */
+.hud-lateral-plate {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 360px;
+    height: 78px;
+    margin-left: -180px;
+    margin-top: -39px;
+    padding: 0;
+    justify-content: center;
+}
+.hud-lateral-tape--right .hud-lateral-plate { rotate: 90deg; }
+.hud-lateral-tape--left .hud-lateral-plate { rotate: -90deg; }
+.hud-lateral-text { font-size: 46px; }
+
 /* ---- Toast (inert pause button) ---- */
 
 .hud-toast {
