@@ -8,7 +8,8 @@ namespace Opoint8182.UI
 	/// hard to reach in play can be checked. Lives in the HudGallery scene only. Each HUD sub-pass adds its states here.
 	/// Keys: A clean early run, B practice mode, C combo, V drain the combo timer, F cycle fuel, H cycle health,
 	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half),
-	/// E cycle the ceiling banner (off, 3, 2, 1), L cycle the lateral tape (off, right, left), G toggle the ground warning.
+	/// E cycle the ceiling banner (off, 3, 2, 1), L cycle the lateral tape (off, right, left), G toggle the ground warning,
+	/// D low-fuel + low-health state (S03 d), X take 35 damage (S03 h; press G first to see the cracks defer to the ground vignette).
 	/// </summary>
 	public class HudStateDriver : HudHost
 	{
@@ -17,6 +18,7 @@ namespace Opoint8182.UI
 
 		private const float k_ComboDrainSeconds = 3f;
 		private const float k_ComboStaticFraction = 0.8f;
+		private const float k_DemoDamage = 35f;
 
 		private int m_fuelIndex = 1;
 		private int m_healthIndex = 1;
@@ -49,6 +51,8 @@ namespace Opoint8182.UI
 				if (keyboard.eKey.wasPressedThisFrame) CycleCeiling();
 				if (keyboard.lKey.wasPressedThisFrame) CycleLateral();
 				if (keyboard.gKey.wasPressedThisFrame) ToggleGround();
+				if (keyboard.dKey.wasPressedThisFrame) ApplyLowResources();
+				if (keyboard.xKey.wasPressedThisFrame) View.ShowDamage(k_DemoDamage);
 			}
 
 			if (m_comboTimer > 0f)
@@ -65,16 +69,35 @@ namespace Opoint8182.UI
 			m_comboMultiplier = 1;
 			m_comboTimer = 0f;
 			View.SetScore(184920);
-			View.SetFuel(m_S_FuelLevels[m_fuelIndex]);
-			View.SetHealth(m_S_HealthLevels[m_healthIndex]);
+			PushResources();
 			View.SetPractice(false);
 			View.SetCombo(1, 0f);
 			m_ceilingStep = 0;
 			m_lateralStep = 0;
 			m_ground = false;
 			View.SetCeilingWarning(false, 0);
+			View.HideDamage();
 			View.SetLateralWarning(0);
 			View.SetGroundWarning(false);
+		}
+
+		// Mockup S03 d: 2 of 10 pips lit, health lerped to red.
+		private void ApplyLowResources()
+		{
+			ApplyCleanRun();
+			m_fuelIndex = 3;
+			m_healthIndex = 3;
+			PushResources();
+		}
+
+		private void PushResources()
+		{
+			var fuel = m_S_FuelLevels[m_fuelIndex];
+			var health = m_S_HealthLevels[m_healthIndex];
+			View.SetFuel(fuel);
+			View.SetLowFuel(fuel <= HudView.DefaultLowFuelThreshold);
+			View.SetHealth(health);
+			View.SetLowHealth(health <= HudView.DefaultLowHealthThreshold);
 		}
 
 		private void ApplyPractice()
@@ -133,13 +156,13 @@ namespace Opoint8182.UI
 		private void CycleFuel()
 		{
 			m_fuelIndex = (m_fuelIndex + 1) % m_S_FuelLevels.Length;
-			View.SetFuel(m_S_FuelLevels[m_fuelIndex]);
+			PushResources();
 		}
 
 		private void CycleHealth()
 		{
 			m_healthIndex = (m_healthIndex + 1) % m_S_HealthLevels.Length;
-			View.SetHealth(m_S_HealthLevels[m_healthIndex]);
+			PushResources();
 		}
 	}
 }

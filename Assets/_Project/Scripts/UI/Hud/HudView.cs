@@ -13,12 +13,26 @@ namespace Opoint8182.UI
 	{
 		public const int FuelPipCount = 10;
 
+		/// <summary>Fuel fraction at or below which the low-fuel state shows (HudPresenter exposes it as a tunable).</summary>
+		public const float DefaultLowFuelThreshold = 0.25f;
+
+		/// <summary>Health fraction at or below which the low-health glow shows (HudPresenter exposes it as a tunable).</summary>
+		public const float DefaultLowHealthThreshold = 0.3f;
+
 		private const float k_ComboMinScale = 0.78f;
 		private const float k_ComboMinOpacity = 0.7f;
 		private const long k_ToastDurationMs = 2500;
 		private const long k_GroundFlashPeriodMs = 350;
 		private const float k_GroundFlashHigh = 0.85f;
 		private const float k_GroundFlashLow = 0.25f;
+		private const long k_LowFuelFlashPeriodMs = 500;
+		private const long k_DamageDurationMs = 1500;
+
+		// Health bar colour: full green above 75%, full red at 25% and below, lerped in between.
+		private const float k_HealthRedAt = 0.25f;
+		private const float k_HealthGreenAt = 0.75f;
+		private static readonly Color m_S_HealthGreen = new(0.373f, 0.761f, 0.416f);
+		private static readonly Color m_S_HealthRed = new(0.878f, 0.271f, 0.184f);
 		private static readonly Color m_S_ComboFadedColor = new(0.49f, 0.416f, 0.388f);
 		private static readonly Color m_S_ComboActiveColor = new(0.91f, 0.376f, 0.235f);
 
@@ -41,6 +55,18 @@ namespace Opoint8182.UI
 		private IVisualElementScheduledItem m_groundFlash;
 		private bool m_groundActive;
 		private bool m_groundFlashHigh;
+		private readonly VisualElement m_fuelCluster;
+		private readonly Label m_fuelLabel;
+		private readonly VisualElement m_healthWrap;
+		private readonly VisualElement m_damageOverlay;
+		private readonly VisualElement m_hitWrap;
+		private readonly Label m_hitLabel;
+		private IVisualElementScheduledItem m_lowFuelFlash;
+		private IVisualElementScheduledItem m_damageHide;
+		private bool m_lowFuel;
+		private bool m_lowFuelInitialized;
+		private bool m_lowFuelFlashHigh;
+		private bool m_damageRequested;
 		private IVisualElementScheduledItem m_toastHide;
 
 		private float m_lastFuelFraction = -1f;
@@ -74,6 +100,12 @@ namespace Opoint8182.UI
 			m_lateralRight = root.Q<VisualElement>("lateral-tape-right");
 			m_groundVignette = root.Q<VisualElement>("ground-vignette");
 			m_groundText = root.Q<VisualElement>("ground-text");
+			m_fuelCluster = root.Q<VisualElement>("fuel-cluster");
+			m_fuelLabel = root.Q<Label>("fuel-label");
+			m_healthWrap = root.Q<VisualElement>("health-wrap");
+			m_damageOverlay = root.Q<VisualElement>("damage-overlay");
+			m_hitWrap = root.Q<VisualElement>("hit-wrap");
+			m_hitLabel = root.Q<Label>("hit-label");
 			m_toastLabel = root.Q<Label>("hud-toast-label");
 
 			// No base padding: positions in Hud.uss are measured from the screen edge like the mockup, the helper only adds device insets.
@@ -88,6 +120,8 @@ namespace Opoint8182.UI
 
 			SetFuel(1f);
 			SetHealth(1f);
+			SetLowFuel(false);
+			SetLowHealth(false);
 			SetScore(0);
 			SetPractice(false);
 			SetCombo(1, 0f);
@@ -119,6 +153,62 @@ namespace Opoint8182.UI
 			m_lastHealthFraction = fraction;
 
 			m_healthFill.style.width = new StyleLength(Length.Percent(fraction * 100f));
+
+			var green = Mathf.InverseLerp(k_HealthRedAt, k_HealthGreenAt, fraction);
+			m_healthFill.style.backgroundColor = Color.Lerp(m_S_HealthRed, m_S_HealthGreen, green);
+		}
+
+		/// <summary>Low-fuel state (S03 d): glow ring around the pips, tinted tray, flashing LOW FUEL in place of FUEL.</summary>
+		public void SetLowFuel(bool low)
+		{
+			if (low == m_lowFuel && m_lowFuelInitialized) return;
+			m_lowFuelInitialized = true;
+			m_lowFuel = low;
+
+			m_fuelCluster.EnableInClassList("hud-fuel-cluster--low", low);
+			m_fuelLabel.text = low ? "LOW FUEL" : "FUEL";
+
+			if (!low)
+			{
+				m_lowFuelFlash?.Pause();
+				m_fuelLabel.style.opacity = 1f;
+				return;
+			}
+
+			m_lowFuelFlashHigh = true;
+			m_fuelLabel.style.opacity = k_GroundFlashHigh;
+			m_lowFuelFlash ??= Root.schedule.Execute(ToggleLowFuelFlash).Every(k_LowFuelFlashPeriodMs);
+			m_lowFuelFlash.Resume();
+		}
+
+		/// <summary>Low-health state (S03 d): red glow ring around the health bar.</summary>
+		public void SetLowHealth(bool low)
+		{
+			m_healthWrap.EnableInClassList("hud-health-wrap--low", low);
+		}
+
+		/// <summary>
+		/// Damage taken (S03 h): cracks + dark vignette over the frame and a health-hit sticker with the HP lost. Restarts the
+		/// timer on every hit. The cracks defer to the ground warning (one full-frame effect at a time).
+		/// </summary>
+		public void ShowDamage(float hpLost)
+		{
+			m_hitLabel.text = $"-{Mathf.Max(1, Mathf.RoundToInt(hpLost))} HEALTH";
+			m_hitWrap.style.display = DisplayStyle.Flex;
+			m_damageRequested = true;
+			RefreshFrameEffects();
+
+			m_damageHide?.Pause();
+			m_damageHide = m_hitWrap.schedule.Execute(HideDamage).StartingIn(k_DamageDurationMs);
+		}
+
+		/// <summary>Clears the damage state immediately (gallery reset).</summary>
+		public void HideDamage()
+		{
+			m_damageRequested = false;
+			m_hitWrap.style.display = DisplayStyle.None;
+			m_damageHide?.Pause();
+			RefreshFrameEffects();
 		}
 
 		public void SetPractice(bool isPractice)
@@ -172,6 +262,7 @@ namespace Opoint8182.UI
 			var display = active ? DisplayStyle.Flex : DisplayStyle.None;
 			m_groundVignette.style.display = display;
 			m_groundText.style.display = display;
+			RefreshFrameEffects();
 
 			if (!active)
 			{
@@ -230,6 +321,18 @@ namespace Opoint8182.UI
 				container.Add(pip);
 				m_pipFills[i] = fill;
 			}
+		}
+
+		// Full-frame effects: the ground vignette owns the frame, so the damage cracks wait until it clears.
+		private void RefreshFrameEffects()
+		{
+			m_damageOverlay.EnableInClassList("is-visible", m_damageRequested && !m_groundActive);
+		}
+
+		private void ToggleLowFuelFlash()
+		{
+			m_lowFuelFlashHigh = !m_lowFuelFlashHigh;
+			m_fuelLabel.style.opacity = m_lowFuelFlashHigh ? k_GroundFlashHigh : k_GroundFlashLow;
 		}
 
 		private void ToggleGroundFlash()

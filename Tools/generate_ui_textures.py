@@ -78,10 +78,54 @@ def edge_vignette(path, color, strength=0.9, width=512, height=288, inner=0.45, 
     img.save(os.path.join(OUT, path))
 
 
+def cracks(path, width=1200, height=540, seed=11):
+    """Screen-crack overlay for the damage state: white jagged lines that taper and fade along their length.
+    Layout follows the S03 h mockup (five cracks at fixed positions/angles), drawn at half the 2400x1080 reference,
+    4x supersampled. Deterministic (fixed seed) so regenerating gives the same file."""
+    import math
+    import random
+    from PIL import ImageDraw
+    rng = random.Random(seed)
+    ss = 2
+    mask = Image.new("L", (width * ss, height * ss), 0)
+    draw = ImageDraw.Draw(mask)
+    # (left, top, length, angle in degrees clockwise) in 2400x1080 reference px, from the mockup
+    specs = [(240, 120, 640, 24), (420, 300, 420, -38), (1500, 180, 560, -16), (1720, 420, 380, 42), (1000, 760, 480, 12)]
+    k = 0.5 * ss
+
+    def crack(x, y, angle, length, base_width, alpha0, depth):
+        steps = max(4, int(length / 34))
+        for i in range(steps):
+            t = i / steps
+            seg = length / steps
+            a = angle + rng.uniform(-16, 16)
+            nx = x + math.cos(math.radians(a)) * seg
+            ny = y + math.sin(math.radians(a)) * seg
+            w = max(1, round(base_width * (1 - t * 0.7)))
+            alpha = round(alpha0 * (1 - t * 0.85))
+            draw.line([(x * k, y * k), (nx * k, ny * k)], fill=alpha, width=w * ss)
+            if depth < 2 and rng.random() < 0.28:
+                crack(nx, ny, angle + rng.choice((-1, 1)) * rng.uniform(25, 55), length * 0.35, base_width * 0.6, alpha, depth + 1)
+            x, y, angle = nx, ny, a
+
+    for left, top, length, angle in specs:
+        cx = left + length / 2
+        cy = top + 3
+        sx = cx - math.cos(math.radians(angle)) * length / 2
+        sy = cy - math.sin(math.radians(angle)) * length / 2
+        crack(sx, sy, angle, length, 7, 235, 0)
+    mask = mask.resize((width, height), Image.LANCZOS)
+    img = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+    img.putalpha(mask)
+    img.save(os.path.join(OUT, path))
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
     stripes("Tex_UiBgStripes.png")
     hazard_tape("Tex_UiHazardTape.png")
     edge_vignette("Tex_UiVignetteRed.png", "#E0452F", 0.9)
+    edge_vignette("Tex_UiVignetteDark.png", "#101823", 0.75)
+    cracks("Tex_UiCracks.png")
     print("ok")

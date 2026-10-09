@@ -147,10 +147,11 @@
     color: var(--ink-70);
 }
 
+.hud-health-wrap { margin-top: 14px; }
+
 .hud-health-bar {
     width: 520px;
     height: 26px;
-    margin-top: 14px;
     border-radius: 13px;
     background-color: rgba(10, 16, 24, 0.45);
     overflow: hidden;
@@ -392,6 +393,115 @@
 .hud-lateral-tape--right .hud-lateral-plate { rotate: 90deg; }
 .hud-lateral-tape--left .hud-lateral-plate { rotate: -90deg; }
 .hud-lateral-text { font-size: 46px; }
+
+/* ---- Resource states + damage (states d, h) ---- */
+
+/* Low-resource halo: USS has no blur, so the glow is a translucent rounded plate behind the element plus a ring border. */
+.hud-glow {
+    display: none;
+    position: absolute;
+    border-radius: 36px;
+}
+
+.hud-fuel-glow {
+    left: -30px;
+    right: -30px;
+    top: -22px;
+    bottom: -20px;
+    border-width: 5px;
+    border-radius: 26px;
+    border-color: rgba(240, 169, 59, 0.55);
+    background-color: rgba(224, 69, 47, 0.16);
+}
+
+.hud-fuel-cluster--low .hud-glow { display: flex; }
+
+.hud-fuel-cluster--low .hud-fuel-label {
+    font-size: 30px;
+    letter-spacing: 7px;
+    color: var(--amber);
+    transition-property: opacity;
+    transition-duration: 0.5s;
+}
+
+.hud-health-glow {
+    left: -18px;
+    right: -18px;
+    top: -14px;
+    bottom: -14px;
+    border-radius: 27px;
+    background-color: rgba(224, 69, 47, 0.3);
+}
+
+.hud-health-wrap--low .hud-glow { display: flex; }
+
+.hud-health-wrap--low .hud-health-bar {
+    border-width: 4px;
+    border-color: rgba(224, 69, 47, 0.5);
+}
+
+/* Damage overlay: fast fade in, slow fade out (the transition of the state being entered applies). */
+.hud-damage-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.6s;
+}
+
+.hud-damage-overlay.is-visible {
+    opacity: 1;
+    transition-duration: 0.08s;
+}
+
+.hud-damage-vignette {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("../../Art/Textures/UI/Tex_UiVignetteDark.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.hud-damage-cracks {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-image: url("../../Art/Textures/UI/Tex_UiCracks.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.hud-hit-wrap {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 78%;
+    align-items: center;
+}
+
+.hud-hit-sticker {
+    padding: 14px 36px 8px 36px;
+    border-width: 5px;
+    border-bottom-width: 11px;
+    border-radius: 14px;
+    border-color: var(--ink);
+    border-bottom-color: rgba(16, 24, 35, 0.5);
+    background-color: var(--health-low);
+    rotate: -4deg;
+}
+
+.hud-hit-label {
+    font-size: 54px;
+    color: rgb(255, 255, 255);
+    white-space: nowrap;
+}
 
 /* ---- Toast (inert pause button) ---- */
 

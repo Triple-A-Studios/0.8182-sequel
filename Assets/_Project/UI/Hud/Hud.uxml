@@ -28,11 +28,15 @@
 
                 <ui:VisualElement name="top-stack" class="hud-top-stack" picking-mode="Ignore">
                     <ui:VisualElement name="fuel-cluster" class="hud-fuel-cluster" picking-mode="Ignore">
+                        <ui:VisualElement name="fuel-glow" class="hud-glow hud-fuel-glow" picking-mode="Ignore" />
                         <ui:VisualElement name="fuel-pips" class="hud-fuel-pips" picking-mode="Ignore" />
-                        <ui:Label text="FUEL" class="t-baloo-extrabold hud-fuel-label" picking-mode="Ignore" />
+                        <ui:Label name="fuel-label" text="FUEL" class="t-baloo-extrabold hud-fuel-label" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="health-bar" class="hud-health-bar" picking-mode="Ignore">
-                        <ui:VisualElement name="health-fill" class="hud-health-fill" picking-mode="Ignore" />
+                    <ui:VisualElement name="health-wrap" class="hud-health-wrap" picking-mode="Ignore">
+                        <ui:VisualElement name="health-glow" class="hud-glow hud-health-glow" picking-mode="Ignore" />
+                        <ui:VisualElement name="health-bar" class="hud-health-bar" picking-mode="Ignore">
+                            <ui:VisualElement name="health-fill" class="hud-health-fill" picking-mode="Ignore" />
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -45,6 +49,12 @@
                     <ui:Label text="BOOST" class="lipbox__label hud-boost-label" picking-mode="Ignore" />
                 </op:LipBox>
 
+                <ui:VisualElement name="hit-wrap" class="hud-hit-wrap" picking-mode="Ignore">
+                    <ui:VisualElement name="hit-sticker" class="hud-hit-sticker" picking-mode="Ignore">
+                        <ui:Label name="hit-label" text="-1 HEALTH" class="t-baloo-extrabold hud-hit-label" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
                 <ui:VisualElement name="combo-sticker" class="hud-combo-sticker" picking-mode="Ignore">
                     <ui:Label name="combo-label" text="x3 COMBO!" class="t-baloo-extrabold hud-combo-label" picking-mode="Ignore" />
                 </ui:VisualElement>
@@ -54,6 +64,11 @@
 
         <!-- Full-frame effects (state g): above the content, click-through. -->
         <ui:VisualElement name="hud-fx" class="hud-fx" picking-mode="Ignore">
+            <!-- Damage (state h): dark vignette + cracks; HudView suppresses it while the ground warning owns the frame. -->
+            <ui:VisualElement name="damage-overlay" class="hud-damage-overlay" picking-mode="Ignore">
+                <ui:VisualElement class="hud-damage-vignette" picking-mode="Ignore" />
+                <ui:VisualElement class="hud-damage-cracks" picking-mode="Ignore" />
+            </ui:VisualElement>
             <ui:VisualElement name="ground-vignette" class="hud-vignette-red" picking-mode="Ignore" />
             <ui:Label name="ground-text" text="PULL UP!" class="t-baloo-extrabold hud-ground-text" picking-mode="Ignore" />
         </ui:VisualElement>

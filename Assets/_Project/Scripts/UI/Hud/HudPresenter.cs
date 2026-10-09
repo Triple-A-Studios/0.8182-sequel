@@ -23,6 +23,12 @@ namespace Opoint8182.UI
 		[FoldoutGroup("References")] [SerializeField] private AltitudeSystem m_altitudeSystem;
 		[FoldoutGroup("References")] [SerializeField] private LateralSystem m_lateralSystem;
 
+		[Title("Tunables")]
+		[FoldoutGroup("Tunables")] [SerializeField] [Range(0f, 1f)] private float m_lowFuelThreshold = HudView.DefaultLowFuelThreshold;
+		[FoldoutGroup("Tunables")] [SerializeField] [Range(0f, 1f)] private float m_lowHealthThreshold = HudView.DefaultLowHealthThreshold;
+
+		private float m_lastHealth = -1f;
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -78,8 +84,17 @@ namespace Opoint8182.UI
 			view.SteerChanged += OnSteerChanged;
 			view.BoostChanged += OnBoostChanged;
 
-			if (m_fuelSystem != null) view.SetFuel(m_fuelSystem.FuelFraction);
-			if (m_healthSystem != null) view.SetHealth(m_healthSystem.HealthFraction);
+			if (m_fuelSystem != null)
+			{
+				view.SetFuel(m_fuelSystem.FuelFraction);
+				view.SetLowFuel(m_fuelSystem.FuelFraction <= m_lowFuelThreshold);
+			}
+			if (m_healthSystem != null)
+			{
+				view.SetHealth(m_healthSystem.HealthFraction);
+				view.SetLowHealth(m_healthSystem.HealthFraction <= m_lowHealthThreshold);
+				m_lastHealth = m_healthSystem.HealthValue.Value;
+			}
 			if (m_scoreSystem != null)
 			{
 				view.SetScore(m_scoreSystem.CurrentScore);
@@ -126,9 +141,23 @@ namespace Opoint8182.UI
 			return m_planeController != null && m_planeController.transform.position.x < 0f ? -1 : 1;
 		}
 
-		private void OnFuelChanged(float _) => View?.SetFuel(m_fuelSystem.FuelFraction);
+		private void OnFuelChanged(float _)
+		{
+			if (View == null) return;
+			View.SetFuel(m_fuelSystem.FuelFraction);
+			View.SetLowFuel(m_fuelSystem.FuelFraction <= m_lowFuelThreshold);
+		}
 
-		private void OnHealthChanged(float _) => View?.SetHealth(m_healthSystem.HealthFraction);
+		// A drop in health is damage taken (any source, whatever its multiplier): show cracks and a sticker with the HP lost.
+		private void OnHealthChanged(float health)
+		{
+			if (View == null) return;
+			View.SetHealth(m_healthSystem.HealthFraction);
+			View.SetLowHealth(m_healthSystem.HealthFraction <= m_lowHealthThreshold);
+
+			if (m_lastHealth >= 0f && health < m_lastHealth) View.ShowDamage(m_lastHealth - health);
+			m_lastHealth = health;
+		}
 
 		private void OnScoreChanged(int score) => View?.SetScore(score);
 
