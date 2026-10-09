@@ -11,9 +11,11 @@
 
 - **Previous pass (4a):** Pass 4a — HUD shell + core elements (`654410b`), **verified in the Editor by the developer** (2026-10-08). Merged `Hud` panel (score, 10-pip fuel, health bar, combo sticker, PRACTICE tag, inert pause button), `HudGallery` dev scene; old fuel/health/score panels removed. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4). Pass 4 is split into 4a-4g (table below; detail in the approved plan: one merged HUD panel, `HudView`/`HudPresenter`, `HudGallery` state harness).
 
-- **Last landed:** Pass 4c — bounds warnings (`da3bf97`), **verified in the Editor by the developer** (2026-10-09). Ceiling banner with countdown, lateral tape on the offending edge, ground vignette + PULL UP in the merged Hud; the old altitude/lateral/ground panels are gone. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+- **Previous pass (4c):** Pass 4c — bounds warnings (`da3bf97`), **verified in the Editor by the developer** (2026-10-09). Ceiling banner with countdown, lateral tape on the offending edge, ground vignette + PULL UP in the merged Hud; the old altitude/lateral/ground panels are gone. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
-- **Next pass:** Pass 4d — low-fuel / health states, damage overlay and effect arbiter (not started).
+- **Last landed:** Pass 4d — resource states, damage overlay and effect arbiter (`b51b719`), **verified in the Editor by the developer** (2026-10-09). Low-fuel glow, health colour lerp, damage cracks + sticker (real HP lost), one full-frame effect at a time. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+
+- **Next pass:** Pass 4e — impact popups (+score, PERFECT CRASH) with world-to-panel conversion (not started).
 
 ### UI/art pass — passes
 
@@ -28,7 +30,7 @@ Rules for every pass: stays on `milestone/ui-art-pass`; Play-mode verification i
 | 4a | Verified — Complete (`654410b`) | HUD shell + core: score, 10-pip fuel (fractional boundary pip), health bar, PRACTICE tag (static), combo sticker (S03 a, b, combo part of c), inert pause button, safe-area layer, `HudGallery`. Deletes FuelGauge / HealthGauge / ScoreDisplay panels and scripts |
 | 4b | Verified — Complete (`33a1703`) | Touch controls re-homed into the Hud input layer + restyled (floating joystick ring 300 px / handle 132 px, boost 186 px). Same `PlaneController.TouchSteer/TouchBoost` logic. Deletes the TouchControls panel |
 | 4c | Verified — Complete (`da3bf97`) | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
-| 4d | Approved | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
+| 4d | Verified — Complete (`b51b719`) | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
 | 4e | Approved | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource`/`IDamageDealer`, new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, popup pool |
 | 4f | Approved | Pause popup visuals (S04) + 3-2-1 resume countdown, built on `ScreenRouter`; verified in the gallery only, inert in play |
 | 4g | Approved | Close-out: all-state regression, leftover reference cleanup, `ui.md` HUD section, developer's quick Android look (touch, safe area, fonts) |
@@ -55,6 +57,12 @@ Inputs received: **Baloo 2** and **Nunito** fonts, and the studio logo (`Art/Tex
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing in; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY tab = real Top-10 from the existing daily board (mislabelled until #28); ALL-TIME = static sample data.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
+
+### Pass 4d - how to verify
+1. HudGallery: `D` shows the low-fuel state (compare `S03.d-*.png`): the fuel pips sit in an amber-ringed, red-tinted plate with a flashing LOW FUEL label, the health bar is red with a red halo. `F` / `H` cycle fuel and health levels (the low state switches on at 25% fuel / 30% health, the health colour fades from green through red). `X` takes 35 damage: cracks + dark vignette over the frame and a "-35 HEALTH" sticker for about 1.5 s (compare `S03.h-*.png`). `G` then `X`: the ground vignette stays and the cracks do not show (the sticker still does).
+2. Play from `Bootstrap`: get hit by a bird/obstacle or mistime a tough building - cracks + sticker with the real HP lost; health bar shortens and shifts toward red; below 30% health the halo shows. As fuel drops to 25% the low-fuel state comes on and LOW FUEL flashes; refuelling (a good crash) clears it.
+3. Everything from earlier sub-passes still behaves (warnings, steering, boost, combo, Game Over).
+4. Not verified by me: the look on a device; the cracks are a generated texture, tell me if you want a different crack style.
 
 ### Pass 4c - how to verify
 1. HudGallery: `E` cycles the ceiling banner (3, 2, 1, off) - compare with `S03.e-*.png`: taped banner at the top with TOO HIGH - DESCEND! and the countdown circle, fuel/health stack shifts down. `L` shows the lateral tape on the right, then the left, then off (`S03.f-*.png`, text reads "TURN BACK" without a number). `G` shows the flashing red vignette + PULL UP! (`S03.g-*.png`). `A` clears everything.
