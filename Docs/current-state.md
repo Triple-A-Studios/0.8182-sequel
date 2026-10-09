@@ -13,9 +13,11 @@
 
 - **Previous pass (4c):** Pass 4c — bounds warnings (`da3bf97`), **verified in the Editor by the developer** (2026-10-09). Ceiling banner with countdown, lateral tape on the offending edge, ground vignette + PULL UP in the merged Hud; the old altitude/lateral/ground panels are gone. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
-- **Last landed:** Pass 4d — resource states, damage overlay and effect arbiter (`b51b719`), **verified in the Editor by the developer** (2026-10-09). Low-fuel glow, health colour lerp, damage cracks + sticker (real HP lost), one full-frame effect at a time. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+- **Last landed:** Pass 4e — impact popups (`c142969`), **verified in the Editor by the developer** (2026-10-09). Pooled +points / PERFECT CRASH popups at the crash point via `ScoreSystem.PointsAwarded` and world-to-panel conversion; coin line built but off. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
-- **Next pass:** Pass 4e — impact popups (+score, PERFECT CRASH) with world-to-panel conversion (not started).
+- **Previous pass (4d):** Pass 4d — resource states, damage overlay and effect arbiter (`b51b719`), **verified in the Editor by the developer** (2026-10-09). Low-fuel glow, health colour lerp, damage cracks + sticker (real HP lost), one full-frame effect at a time.
+
+- **Next pass:** Pass 4f — pause popup visuals (S04) + 3-2-1 resume countdown, gallery-only, inert in play (not started).
 
 ### UI/art pass — passes
 
@@ -31,7 +33,7 @@ Rules for every pass: stays on `milestone/ui-art-pass`; Play-mode verification i
 | 4b | Verified — Complete (`33a1703`) | Touch controls re-homed into the Hud input layer + restyled (floating joystick ring 300 px / handle 132 px, boost 186 px). Same `PlaneController.TouchSteer/TouchBoost` logic. Deletes the TouchControls panel |
 | 4c | Verified — Complete (`da3bf97`) | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
 | 4d | Verified — Complete (`b51b719`) | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
-| 4e | Approved | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource`/`IDamageDealer`, new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, popup pool |
+| 4e | Verified — Complete (`c142969`) | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource` (not `IDamageDealer`: hazards spawn no popup), new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, pooled popups |
 | 4f | Approved | Pause popup visuals (S04) + 3-2-1 resume countdown, built on `ScreenRouter`; verified in the gallery only, inert in play |
 | 4g | Approved | Close-out: all-state regression, leftover reference cleanup, `ui.md` HUD section, developer's quick Android look (touch, safe area, fonts) |
 | 5 | Approved | **Game Over (S05 a/b/c)** — rebuild on the foundation: score slam, stat chips pop left to right, rank chip fade, buttons rise (PrimeTween), cause chip, NEW BEST sticker, rank chip states (RANKING skeleton, provisional, final, neutral "gap to beat") plus the existing submit-failed Retry restyled into the chip, button row (BANK IT / RETRY NOW / LEADERBOARD / MAIN MENU / PRACTICE / SHARE — attempt-driven primary swap shown via a debug state override, since attempts don't exist yet; RETRY = existing scene reload, MAIN MENU = existing return-to-menu). Folds **backlog #26**: ▲ becomes an arrow image (USS-tinted, no font dependency), no red ▼ and no loss framing. Rank chip copy stays neutral ("RANK") until the leaderboard rework (#28) supplies weekly wording. **Run-end cause is real:** add a `RunEndCause` enum to `GameManager.RunEnded` (five call sites: fuel, health, ceiling, ground, lateral) so the cause chip is truthful (decision 2). Stat chips (distance, flattened, best combo, earned) and NEW BEST stay flagged static placeholders until "Player profile & run stats" |
@@ -57,6 +59,13 @@ Inputs received: **Baloo 2** and **Nunito** fonts, and the studio logo (`Art/Tex
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing in; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY tab = real Top-10 from the existing daily board (mislabelled until #28); ALL-TIME = static sample data.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
+
+### Pass 4e - how to verify
+1. HudGallery: `C` shows the mockup state c popup (compare `S03.c-*.png`): "+4,500" in cream, PERFECT CRASH in green above it, the coin line below. `P` repeats it, `O` shows a plain popup (no PERFECT tag, no coin line), `I` fires 9 popups at once (only 6 fit the pool, the oldest get reused). Each pops in, floats up and fades in about 1.15 s.
+2. Play from `Bootstrap`: crash into a building - a "+N" popup appears where the crash happened on screen (at the building's weak point) and floats up; PERFECT CRASH shows when the crash quality is 1.00 (weak point hit at 25+ speed). Several crashes in a row each get a popup; the score total and combo behave exactly as before.
+3. The coin line is built but off (no currency yet): flag `HudPlaceholderData.ShowCoinPopup`.
+4. Judgement calls to check: the popup is placed once at the impact and does not follow the building as the camera moves (the plane flies through it, so tracking would slide it away); normal buildings give quality 1.00 on almost every weak-point hit, so PERFECT CRASH will show often.
+5. Not verified by me: the look on a device.
 
 ### Pass 4d - how to verify
 1. HudGallery: `D` shows the low-fuel state (compare `S03.d-*.png`): the fuel pips sit in an amber-ringed, red-tinted plate with a flashing LOW FUEL label, the health bar is red with a red halo. `F` / `H` cycle fuel and health levels (the low state switches on at 25% fuel / 30% health, the health colour fades from green through red). `X` takes 35 damage: cracks + dark vignette over the frame and a "-35 HEALTH" sticker for about 1.5 s (compare `S03.h-*.png`). `G` then `X`: the ground vignette stays and the cracks do not show (the sticker still does).
