@@ -10,7 +10,8 @@ namespace Opoint8182.UI
 	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half),
 	/// E cycle the ceiling banner (off, 3, 2, 1), L cycle the lateral tape (off, right, left), G toggle the ground warning,
 	/// D low-fuel + low-health state (S03 d), X take 35 damage (S03 h; press G first to see the cracks defer to the ground vignette),
-/// P perfect-crash popup with the coin line, O plain popup, I burst of 9 popups (pool reuse). C also fires the S03 c popup.
+	/// P perfect-crash popup with the coin line, O plain popup, I burst of 9 popups (pool reuse). C also fires the S03 c popup,
+	/// T opens the pause popup (the pause button does too, here only), R runs the 3-2-1 countdown on its own.
 	/// </summary>
 	public class HudStateDriver : HudHost
 	{
@@ -34,6 +35,7 @@ namespace Opoint8182.UI
 
 		protected override void OnViewReady(HudView view)
 		{
+			view.PauseOpensPopup = true;
 			ApplyCleanRun();
 		}
 
@@ -59,6 +61,8 @@ namespace Opoint8182.UI
 				if (keyboard.pKey.wasPressedThisFrame) ShowDemoPopup(true, k_DemoCoins);
 				if (keyboard.oKey.wasPressedThisFrame) ShowDemoPopup(false, 0);
 				if (keyboard.iKey.wasPressedThisFrame) ShowPopupBurst();
+				if (keyboard.tKey.wasPressedThisFrame) View.PausePopup.Show();
+				if (keyboard.rKey.wasPressedThisFrame) View.PausePopup.StartCountdown();
 			}
 
 			if (m_comboTimer > 0f)
@@ -84,6 +88,8 @@ namespace Opoint8182.UI
 			View.SetCeilingWarning(false, 0);
 			View.HideDamage();
 			View.ClearPopups();
+			View.PausePopup.Hide();
+			View.PausePopup.CancelCountdown();
 			View.SetLateralWarning(0);
 			View.SetGroundWarning(false);
 		}

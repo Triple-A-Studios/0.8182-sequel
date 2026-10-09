@@ -102,5 +102,47 @@
             <ui:Label name="hud-toast-label" text="" class="hud-toast-label" picking-mode="Ignore" />
         </ui:VisualElement>
 
+
+        <!-- Pause popup (S04): ScreenRouter popup layer, opened by HudPausePopup. Dev-gallery only for now: the pause button
+             stays inert in play (functional pause is the later "Pause, settings & audio" milestone). -->
+        <ui:VisualElement name="hud-popup-layer" class="popup-layer">
+            <ui:VisualElement name="hud-pause-popup" class="popup hud-pause-card">
+                <ui:VisualElement class="hud-pause-head" picking-mode="Ignore">
+                    <ui:Label text="PAUSED" class="t-baloo-extrabold hud-pause-title" picking-mode="Ignore" />
+                    <ui:Label name="pause-mode-line" text="" class="t-nunito-extrabold hud-pause-mode" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement class="hud-pause-body">
+                    <ui:VisualElement class="hud-pause-left">
+                        <ui:VisualElement class="hud-pause-row" picking-mode="Ignore">
+                            <ui:Label text="SOUND" class="t-nunito-extrabold hud-pause-row-label" picking-mode="Ignore" />
+                            <ui:Label name="pause-sound-value" text="80" class="t-nunito-extrabold hud-pause-row-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="pause-sound" low-value="0" high-value="100" value="80" />
+                        <ui:VisualElement class="hud-pause-row hud-pause-row--second" picking-mode="Ignore">
+                            <ui:Label text="SCREEN SHAKE" class="t-nunito-extrabold hud-pause-row-label" picking-mode="Ignore" />
+                            <ui:Label name="pause-shake-value" text="120" class="t-nunito-extrabold hud-pause-row-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="pause-shake" low-value="0" high-value="200" value="120" />
+                        <ui:VisualElement class="hud-pause-switch-row">
+                            <ui:Label text="HAPTICS" class="t-nunito-extrabold hud-pause-row-label" picking-mode="Ignore" />
+                            <ui:Toggle name="pause-haptics" class="switch" />
+                        </ui:VisualElement>
+                        <ui:Label text="Full list lives in Settings." class="t-nunito-semibold hud-pause-hint" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="hud-pause-right">
+                        <op:LipButton name="pause-resume" text="RESUME" variant="Primary" class="hud-pause-resume" />
+                        <op:LipButton name="pause-restart" text="RESTART RUN" variant="Secondary" class="hud-pause-secondary" />
+                        <op:LipButton name="pause-quit" text="QUIT TO MENU" variant="Danger" class="hud-pause-secondary" />
+                        <ui:Label name="pause-quit-note" text="" class="t-nunito-semibold hud-pause-quit-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- 3-2-1 resume countdown (S04): dims the frame while it runs, so it blocks input like the popup. -->
+        <ui:VisualElement name="hud-countdown" class="hud-countdown">
+            <ui:Label name="hud-countdown-number" text="3" class="t-baloo-extrabold hud-countdown-number" picking-mode="Ignore" />
+            <ui:Label text="GET READY" class="t-nunito-extrabold hud-countdown-text" picking-mode="Ignore" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

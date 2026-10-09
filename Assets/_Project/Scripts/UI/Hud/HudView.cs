@@ -72,11 +72,21 @@ namespace Opoint8182.UI
 		private bool m_damageRequested;
 		private IVisualElementScheduledItem m_toastHide;
 		private readonly HudImpactPopups m_popups;
+		private readonly HudPausePopup m_pausePopup;
 
 		private float m_lastFuelFraction = -1f;
 		private float m_lastHealthFraction = -1f;
 
 		public VisualElement Root { get; }
+
+		/// <summary>Pause popup + resume countdown (S04). Visuals only until the "Pause, settings and audio" milestone.</summary>
+		public HudPausePopup PausePopup => m_pausePopup;
+
+		/// <summary>
+		/// When true the pause button opens the pause popup instead of showing the "arrives later" toast. Only the HudGallery
+		/// sets it: in play the button stays inert.
+		/// </summary>
+		public bool PauseOpensPopup { get; set; }
 
 		/// <summary>Raised when the (inert) pause button is tapped.</summary>
 		public event Action PauseClicked;
@@ -117,6 +127,7 @@ namespace Opoint8182.UI
 
 			BuildFuelPips(root.Q<VisualElement>("fuel-pips"));
 			m_popups = new HudImpactPopups(root.Q<VisualElement>("hud-popups"));
+			m_pausePopup = new HudPausePopup(root);
 
 			m_touchControls = new HudTouchControls(root);
 			m_touchControls.SteerChanged += steer => SteerChanged?.Invoke(steer);
@@ -375,7 +386,8 @@ namespace Opoint8182.UI
 
 		private void OnPauseClicked()
 		{
-			ShowToast(HudPlaceholderData.PauseToastMessage);
+			if (PauseOpensPopup) m_pausePopup.Show();
+			else ShowToast(HudPlaceholderData.PauseToastMessage);
 			PauseClicked?.Invoke();
 		}
 	}

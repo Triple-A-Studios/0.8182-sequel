@@ -595,3 +595,134 @@
     color: var(--ink);
     white-space: nowrap;
 }
+
+/* ---- Pause popup (S04) and 3-2-1 countdown. The popup layer / card base come from Theme.uss (.popup-layer, .popup). ---- */
+
+.hud-pause-card {
+    width: 1120px;
+    padding: 44px 54px 40px 54px;
+}
+
+.hud-pause-head {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: -24px;
+    margin-bottom: 14px;
+}
+
+.hud-pause-title {
+    font-size: 82px;
+    color: var(--ink);
+    rotate: -2deg;
+}
+
+.hud-pause-mode {
+    margin-left: 24px;
+    margin-bottom: 18px;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: rgba(246, 239, 226, 0.6);
+}
+
+.hud-pause-body {
+    flex-direction: row;
+}
+
+.hud-pause-left {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 34px;
+}
+
+.hud-pause-right {
+    width: 440px;
+    flex-shrink: 0;
+}
+
+/* Theme gives .themed-slider flex-grow 1 (for row layouts); in this column it would stretch the sliders. */
+.hud-pause-left .themed-slider {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.hud-pause-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hud-pause-row--second { margin-top: 14px; }
+
+.hud-pause-row-label {
+    font-size: 28px;
+    color: rgba(246, 239, 226, 0.78);
+}
+
+.hud-pause-row-value {
+    font-size: 28px;
+    color: var(--amber);
+}
+
+.hud-pause-switch-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.hud-pause-hint {
+    margin-top: 18px;
+    font-size: 24px;
+    color: var(--ink-55);
+}
+
+.hud-pause-resume {
+    height: 130px;
+    margin-bottom: 18px;
+}
+
+.hud-pause-resume .lipbox__label { font-size: 52px; }
+
+.hud-pause-secondary {
+    height: 98px;
+    margin-bottom: 18px;
+}
+
+.hud-pause-secondary .lipbox__label {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 34px;
+}
+
+.hud-pause-quit-note {
+    padding: 16px 20px;
+    border-radius: 16px;
+    background-color: rgba(232, 96, 60, 0.14);
+    font-size: 24px;
+    color: rgb(255, 203, 185);
+    white-space: normal;
+}
+
+.hud-countdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(10, 16, 24, 0.45);
+    align-items: center;
+    justify-content: center;
+}
+
+.hud-countdown-number {
+    font-size: 260px;
+    color: var(--ink);
+    text-shadow: 0 12px 0 var(--coral);
+}
+
+.hud-countdown-text {
+    margin-top: -56px;
+    font-size: 34px;
+    letter-spacing: 5px;
+    color: rgba(246, 239, 226, 0.72);
+}
