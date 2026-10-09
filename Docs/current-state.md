@@ -13,11 +13,13 @@
 
 - **Previous pass (4c):** Pass 4c — bounds warnings (`da3bf97`), **verified in the Editor by the developer** (2026-10-09). Ceiling banner with countdown, lateral tape on the offending edge, ground vignette + PULL UP in the merged Hud; the old altitude/lateral/ground panels are gone. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
-- **Last landed:** Pass 4e — impact popups (`c142969`), **verified in the Editor by the developer** (2026-10-09). Pooled +points / PERFECT CRASH popups at the crash point via `ScoreSystem.PointsAwarded` and world-to-panel conversion; coin line built but off. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+- **Last landed:** Pass 4f — pause popup + resume countdown (`54a2973`), **verified in the Editor by the developer** (2026-10-09). S04 popup on `ScreenRouter` and the 3-2-1 GET READY overlay; visuals only, the pause button still toasts in play (popup opens in the HudGallery only). Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
+
+- **Previous pass (4e):** Pass 4e — impact popups (`c142969`), **verified in the Editor by the developer** (2026-10-09). Pooled +points / PERFECT CRASH popups at the crash point via `ScoreSystem.PointsAwarded` and world-to-panel conversion; coin line built but off. Details in [technical-design/ui.md](technical-design/ui.md#hud-uiart-pass-pass-4).
 
 - **Previous pass (4d):** Pass 4d — resource states, damage overlay and effect arbiter (`b51b719`), **verified in the Editor by the developer** (2026-10-09). Low-fuel glow, health colour lerp, damage cracks + sticker (real HP lost), one full-frame effect at a time.
 
-- **Next pass:** Pass 4f — pause popup visuals (S04) + 3-2-1 resume countdown, gallery-only, inert in play (not started).
+- **Next pass:** Pass 4g — close-out: all-state regression, leftover reference cleanup, `ui.md` HUD section finalised, developer's quick Android look (touch, safe area, fonts) (not started).
 
 ### UI/art pass — passes
 
@@ -34,7 +36,7 @@ Rules for every pass: stays on `milestone/ui-art-pass`; Play-mode verification i
 | 4c | Verified — Complete (`da3bf97`) | Bounds warnings (S03 e, f, g): ceiling taped banner + countdown, lateral tape on the offending edge (no countdown number, system has none), ground vignette + PULL UP. New hazard-tape and red-vignette textures. Deletes Altitude / Lateral / Ground panels and scripts |
 | 4d | Verified — Complete (`b51b719`) | Low-fuel glow, health colour lerp, damage overlay (vignette + cracks) + health-hit sticker showing real HP lost, full-frame effect arbiter (ground vignette suppresses cracks) (S03 d, h) |
 | 4e | Verified — Complete (`c142969`) | Impact popups (+score, PERFECT CRASH; coin popup built but disabled): `WorldPosition` on `ICrashSource` (not `IDamageDealer`: hazards spawn no popup), new `ScoreSystem.PointsAwarded` event, world-to-panel conversion, pooled popups |
-| 4f | Approved | Pause popup visuals (S04) + 3-2-1 resume countdown, built on `ScreenRouter`; verified in the gallery only, inert in play |
+| 4f | Verified — Complete (`54a2973`) | Pause popup visuals (S04) + 3-2-1 resume countdown, built on `ScreenRouter`; verified in the gallery only, inert in play |
 | 4g | Approved | Close-out: all-state regression, leftover reference cleanup, `ui.md` HUD section, developer's quick Android look (touch, safe area, fonts) |
 | 5 | Approved | **Game Over (S05 a/b/c)** — rebuild on the foundation: score slam, stat chips pop left to right, rank chip fade, buttons rise (PrimeTween), cause chip, NEW BEST sticker, rank chip states (RANKING skeleton, provisional, final, neutral "gap to beat") plus the existing submit-failed Retry restyled into the chip, button row (BANK IT / RETRY NOW / LEADERBOARD / MAIN MENU / PRACTICE / SHARE — attempt-driven primary swap shown via a debug state override, since attempts don't exist yet; RETRY = existing scene reload, MAIN MENU = existing return-to-menu). Folds **backlog #26**: ▲ becomes an arrow image (USS-tinted, no font dependency), no red ▼ and no loss framing. Rank chip copy stays neutral ("RANK") until the leaderboard rework (#28) supplies weekly wording. **Run-end cause is real:** add a `RunEndCause` enum to `GameManager.RunEnded` (five call sites: fuel, health, ceiling, ground, lateral) so the cause chip is truthful (decision 2). Stat chips (distance, flattened, best combo, earned) and NEW BEST stay flagged static placeholders until "Player profile & run stats" |
 | 6 | Approved | **Settings (S06), Leaderboard (S07), Profile (S08)** as full screens on the screen router. Settings: sound slider, haptics toggle, screen-shake %, joystick side L/R, size, sensitivity, invert toggle, live joystick preview — values held in-memory only, **not applied** (that is "Pause, settings & audio", which also owns backlog #25). Leaderboard: WEEKLY / ALL-TIME tabs, gold/silver/bronze rows, sticky own row, SHARE MY RANK (tap-only), reset chip (neutral wording), ‹ › past-week buttons (UI only, disabled until #28), empty state. Replaces the Pass-4 popup. The WEEKLY tab shows the real Top-10 of the existing (daily) board with a code comment that the label is wrong until backlog #28; ALL-TIME is flagged static sample data (decision 3). Profile: identity card, 6 stat tiles, equipped plane/FX cards, badges row, display-name field with pencil/dice states — all placeholder data (real logic is "Player profile & run stats") |
@@ -59,6 +61,13 @@ Inputs received: **Baloo 2** and **Nunito** fonts, and the studio logo (`Art/Tex
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing in; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY tab = real Top-10 from the existing daily board (mislabelled until #28); ALL-TIME = static sample data.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
+
+### Pass 4f - how to verify
+1. HudGallery (press Play in the scene): press `T` or click the pause button - the pause popup opens over the dimmed HUD (compare `S04-pause.png`): PAUSED title (slightly tilted) with the "COMPETITIVE · ATTEMPT 2/3" line, SOUND (80) and SCREEN SHAKE (120) sliders whose numbers follow the drag, a HAPTICS switch, RESUME / RESTART RUN / QUIT TO MENU and the "Quitting still burns attempt 2 of 3." note. Tapping the dim area does nothing (only the buttons leave it).
+2. RESUME closes the popup and runs the 3-2-1 overlay with GET READY (compare `S04-pause-resume-countdown.png`): each number pops in, about 1 s apart, then the overlay disappears. RESTART RUN and QUIT TO MENU just close the popup. `R` runs the countdown on its own.
+3. Play from `Bootstrap`: the pause button still only shows the "PAUSE ARRIVES LATER" toast; nothing opens, the game does not pause, and steering / boost / everything else behave as before.
+4. Judgement calls: the "Full list lives in Settings." hint drops the mockup's annotation "(S06)"; all values (80, 120, haptics on, attempt 2/3) are static placeholders (`HudPlaceholderData`) and the sliders/switch change nothing.
+5. Not verified by me: 20:9 (I only had a 16:9 Game view; the card is a fixed 1120 px box centred, so it should hold), and the look on a device.
 
 ### Pass 4e - how to verify
 1. HudGallery: `C` shows the mockup state c popup (compare `S03.c-*.png`): "+4,500" in cream, PERFECT CRASH in green above it, the coin line below. `P` repeats it, `O` shows a plain popup (no PERFECT tag, no coin line), `I` fires 9 popups at once (only 6 fit the pool, the oldest get reused). Each pops in, floats up and fades in about 1.15 s.
