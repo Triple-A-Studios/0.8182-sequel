@@ -18,15 +18,15 @@ Drain rate is multiplied by `m_boostDrainMultiplier` (default `2`) whenever [`Pl
 
 ## Value storage — `ObservableFloat`
 
-The current fuel value is backed by `TripleA.Utils.Observables.Primaries.ObservableFloat` (an existing project dependency) instead of a plain float, so [FuelGaugeUI](ui.md) can react to changes via `AddListener` rather than polling every frame.
+The current fuel value is backed by `TripleA.Utils.Observables.Primaries.ObservableFloat` (an existing project dependency) instead of a plain float, so [HudPresenter](ui.md#hud-uiart-pass-pass-4) (formerly `FuelGaugeUI`) can react to changes via `AddListener` rather than polling every frame.
 
 It's exposed through a **lazily-constructed private property**, not built in `Awake`:
 ```csharp
 private ObservableFloat Fuel => _fuel ??= new ObservableFloat(maxFuel);
 ```
-This matters because Unity does not guarantee `Awake` order across different GameObjects — only that a component's own `Awake` runs before its own `OnEnable`. `FuelGaugeUI` (on a separate `HUD` object) reading `FuelSystem.FuelValue` in its own `OnEnable` could run before `FuelSystem.Awake` executes, and did in practice during testing (NullReferenceException). Lazy construction sidesteps the ordering question entirely — safe on first access regardless of which object initializes first, since serialized fields like `maxFuel` are already deserialized before any script's `Awake`/`OnEnable` runs.
+This matters because Unity does not guarantee `Awake` order across different GameObjects — only that a component's own `Awake` runs before its own `OnEnable`. `HudPresenter` (formerly `FuelGaugeUI`, on a separate `HUD` object) reading `FuelSystem.FuelValue` in its own `OnEnable` could run before `FuelSystem.Awake` executes, and did in practice during testing (NullReferenceException). Lazy construction sidesteps the ordering question entirely — safe on first access regardless of which object initializes first, since serialized fields like `maxFuel` are already deserialized before any script's `Awake`/`OnEnable` runs.
 
-`ObservableFloat` has no built-in clamping — `FuelSystem` always clamps before calling `Set`. Its `Value` setter is public, so anything holding the object could technically bypass the clamping (the only actual consumer, `FuelGaugeUI`, only reads `FuelFraction` and subscribes via `AddListener` — never touches `.Value` directly). Not worth wrapping further at this scale.
+`ObservableFloat` has no built-in clamping — `FuelSystem` always clamps before calling `Set`. Its `Value` setter is public, so anything holding the object could technically bypass the clamping (the only actual consumer, `HudPresenter`, only reads `FuelFraction` and subscribes via `AddListener` — never touches `.Value` directly). Not worth wrapping further at this scale.
 
 ## Run end
 

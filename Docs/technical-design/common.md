@@ -59,7 +59,10 @@ Same shape as `IDamageDealer`, inverted — a resource-restoring source instead 
 public interface ICrashSource
 {
     int ScoreValue { get; }
+    Vector3 WorldPosition { get; }   // UI/art pass 4e
 }
 ```
+
+`WorldPosition` (added in the UI/art pass, 4e) is where the crash happened, for effects that anchor to the impact (the HUD's `+points` popup). `Building` returns its weak point position (falling back to its own transform). Read it synchronously from the `Crashed` event: the building destroys itself right after raising it. `IDamageDealer` deliberately has no such property (hazard hits spawn no popup).
 
 The symmetric "what broke and how much is it worth" contract for `CombatEvents.Crashed` — resolves the backlog item that used to be flagged here as open (a refuel-source interface for `Building.Crashed` so `FuelSystem` didn't hardcode `Building` as the crash-source type). [`Building`](building-crash-system.md) is the only implementation today; any future crashable/destructible source implements this and raises `CombatEvents.RaiseCrashed(this, quality)` with no changes needed on `ScoreSystem`'s or `PlayerManager`'s end.
