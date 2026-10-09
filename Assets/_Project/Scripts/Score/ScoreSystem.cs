@@ -1,3 +1,4 @@
+using System;
 using Alchemy.Inspector;
 using Opoint8182.Common;
 using Opoint8182.Spawning;
@@ -34,6 +35,9 @@ namespace Opoint8182.Score
         public ObservableFloat ComboTimerValue => ComboTimer;
         public float ComboTimerFraction => m_comboWindow > 0f ? Mathf.Clamp01(ComboTimer.Value / m_comboWindow) : 0f;
 
+        /// <summary>Raised after each crash is scored: points added (multiplier included), the impact point, and whether it was a perfect (quality 1) crash.</summary>
+        public event Action<int, Vector3, bool> PointsAwarded;
+
         private void OnEnable()
         {
             CombatEvents.Crashed += HandleCrashed;
@@ -59,6 +63,7 @@ namespace Opoint8182.Score
             var bonus = Mathf.RoundToInt(quality * scoreValue);
             var crashScore = (scoreValue + bonus) * Multiplier.Value;
             Score.Set(Score.Value + crashScore);
+            PointsAwarded?.Invoke(crashScore, source.WorldPosition, quality >= 1f);
 
             if (!countsForCombo) return;
 

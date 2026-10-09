@@ -95,6 +95,9 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <!-- Impact popups (state c): pooled labels HudImpactPopups adds here, full panel so positions are panel px. -->
+        <ui:VisualElement name="hud-popups" class="hud-popups" picking-mode="Ignore" />
+
         <ui:VisualElement name="hud-toast" class="hud-toast" picking-mode="Ignore">
             <ui:Label name="hud-toast-label" text="" class="hud-toast-label" picking-mode="Ignore" />
         </ui:VisualElement>

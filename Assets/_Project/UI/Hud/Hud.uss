@@ -503,6 +503,76 @@
     white-space: nowrap;
 }
 
+/* ---- Impact popups (state c). HudImpactPopups drives scale / translate / opacity. The anchor is a zero-size box at the
+   impact point; the fixed-width stack hangs from it (absolute edges, since centring inside a zero-size box is unreliable). ---- */
+
+.hud-popups {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.hud-popup {
+    display: none;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.hud-popup__stack {
+    position: absolute;
+    left: -450px;
+    width: 900px;
+    bottom: -70px;
+    align-items: center;
+    rotate: -6deg;
+}
+
+.hud-popup__perfect {
+    flex-shrink: 0;
+    margin-bottom: -18px;
+    font-size: 46px;
+    color: var(--green);
+    text-shadow: 0 4px 0 rgba(16, 24, 35, 0.6);
+    white-space: nowrap;
+}
+
+.hud-popup__score {
+    flex-shrink: 0;
+    margin-bottom: -22px;
+    font-size: 88px;
+    color: var(--ink);
+    text-shadow: 0 6px 0 rgba(16, 24, 35, 0.6);
+    white-space: nowrap;
+}
+
+.hud-popup__coin-row {
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud-popup__coin {
+    flex-shrink: 0;
+    font-size: 40px;
+    color: var(--amber);
+    text-shadow: 0 4px 0 rgba(16, 24, 35, 0.6);
+    white-space: nowrap;
+}
+
+.hud-popup__coin-dot {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    margin-left: 10px;
+    border-width: 6px;
+    border-radius: 17px;
+    border-color: var(--amber);
+    background-color: var(--amber-light);
+}
+
 /* ---- Toast (inert pause button) ---- */
 
 .hud-toast {

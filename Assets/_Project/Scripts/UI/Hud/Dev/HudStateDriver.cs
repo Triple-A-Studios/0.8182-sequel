@@ -9,7 +9,8 @@ namespace Opoint8182.UI
 	/// Keys: A clean early run, B practice mode, C combo, V drain the combo timer, F cycle fuel, H cycle health,
 	/// J toggle a static joystick preview (the live joystick floats under the first touch in the left half),
 	/// E cycle the ceiling banner (off, 3, 2, 1), L cycle the lateral tape (off, right, left), G toggle the ground warning,
-	/// D low-fuel + low-health state (S03 d), X take 35 damage (S03 h; press G first to see the cracks defer to the ground vignette).
+	/// D low-fuel + low-health state (S03 d), X take 35 damage (S03 h; press G first to see the cracks defer to the ground vignette),
+/// P perfect-crash popup with the coin line, O plain popup, I burst of 9 popups (pool reuse). C also fires the S03 c popup.
 	/// </summary>
 	public class HudStateDriver : HudHost
 	{
@@ -19,6 +20,8 @@ namespace Opoint8182.UI
 		private const float k_ComboDrainSeconds = 3f;
 		private const float k_ComboStaticFraction = 0.8f;
 		private const float k_DemoDamage = 35f;
+		private const int k_DemoCoins = 12;
+		private const int k_BurstCount = 9;
 
 		private int m_fuelIndex = 1;
 		private int m_healthIndex = 1;
@@ -53,6 +56,9 @@ namespace Opoint8182.UI
 				if (keyboard.gKey.wasPressedThisFrame) ToggleGround();
 				if (keyboard.dKey.wasPressedThisFrame) ApplyLowResources();
 				if (keyboard.xKey.wasPressedThisFrame) View.ShowDamage(k_DemoDamage);
+				if (keyboard.pKey.wasPressedThisFrame) ShowDemoPopup(true, k_DemoCoins);
+				if (keyboard.oKey.wasPressedThisFrame) ShowDemoPopup(false, 0);
+				if (keyboard.iKey.wasPressedThisFrame) ShowPopupBurst();
 			}
 
 			if (m_comboTimer > 0f)
@@ -77,6 +83,7 @@ namespace Opoint8182.UI
 			m_ground = false;
 			View.SetCeilingWarning(false, 0);
 			View.HideDamage();
+			View.ClearPopups();
 			View.SetLateralWarning(0);
 			View.SetGroundWarning(false);
 		}
@@ -111,6 +118,25 @@ namespace Opoint8182.UI
 			ApplyCleanRun();
 			m_comboMultiplier = 3;
 			View.SetCombo(m_comboMultiplier, k_ComboStaticFraction);
+			ShowDemoPopup(true, k_DemoCoins);
+		}
+
+		// Mockup S03 c: "+4,500" right of centre with PERFECT CRASH above it and a coin line below.
+		private void ShowDemoPopup(bool perfect, int coins)
+		{
+			var size = View.Root.layout.size;
+			View.ShowImpactPopup(new Vector2(size.x * 0.65f, size.y * 0.47f), 4500, perfect, coins);
+		}
+
+		// Pool check: more popups than the pool holds, spread over the frame; the oldest ones get reused.
+		private void ShowPopupBurst()
+		{
+			var size = View.Root.layout.size;
+			for (var i = 0; i < k_BurstCount; i++)
+			{
+				var position = new Vector2(size.x * Random.Range(0.25f, 0.75f), size.y * Random.Range(0.3f, 0.6f));
+				View.ShowImpactPopup(position, Random.Range(1, 9) * 500, i % 2 == 0, 0);
+			}
 		}
 
 		private void StartComboDrain()

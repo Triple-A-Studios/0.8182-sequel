@@ -27,6 +27,9 @@ namespace Opoint8182.UI
 		private const float k_GroundFlashLow = 0.25f;
 		private const long k_LowFuelFlashPeriodMs = 500;
 		private const long k_DamageDurationMs = 1500;
+		private const float k_PopupMarginX = 300f;
+		private const float k_PopupMarginTop = 300f;
+		private const float k_PopupMarginBottom = 200f;
 
 		// Health bar colour: full green above 75%, full red at 25% and below, lerped in between.
 		private const float k_HealthRedAt = 0.25f;
@@ -68,6 +71,7 @@ namespace Opoint8182.UI
 		private bool m_lowFuelFlashHigh;
 		private bool m_damageRequested;
 		private IVisualElementScheduledItem m_toastHide;
+		private readonly HudImpactPopups m_popups;
 
 		private float m_lastFuelFraction = -1f;
 		private float m_lastHealthFraction = -1f;
@@ -112,6 +116,7 @@ namespace Opoint8182.UI
 			SafeAreaHelper.Apply(root.Q<VisualElement>("hud-safe"), 0f);
 
 			BuildFuelPips(root.Q<VisualElement>("fuel-pips"));
+			m_popups = new HudImpactPopups(root.Q<VisualElement>("hud-popups"));
 
 			m_touchControls = new HudTouchControls(root);
 			m_touchControls.SteerChanged += steer => SteerChanged?.Invoke(steer);
@@ -275,6 +280,26 @@ namespace Opoint8182.UI
 			m_groundFlash ??= Root.schedule.Execute(ToggleGroundFlash).Every(k_GroundFlashPeriodMs);
 			m_groundFlash.Resume();
 		}
+
+		/// <summary>
+		/// Floating "+points" popup (S03 c) at a panel-space position, with a PERFECT CRASH tag and an optional coin line.
+		/// The position is kept inside the frame so a crash at the screen edge still shows a whole popup.
+		/// </summary>
+		/// <param name="coins">Coin line amount; 0 hides it (no currency yet, see <see cref="HudPlaceholderData"/>).</param>
+		public void ShowImpactPopup(Vector2 panelPosition, int points, bool perfect, int coins = 0)
+		{
+			var size = Root.layout.size;
+			if (size.x > 0f && size.y > 0f)
+			{
+				panelPosition.x = Mathf.Clamp(panelPosition.x, k_PopupMarginX, size.x - k_PopupMarginX);
+				panelPosition.y = Mathf.Clamp(panelPosition.y, k_PopupMarginTop, size.y - k_PopupMarginBottom);
+			}
+
+			m_popups.Show(panelPosition, points, perfect, coins);
+		}
+
+		/// <summary>Removes any popups still on screen (gallery reset).</summary>
+		public void ClearPopups() => m_popups.Clear();
 
 		public void ShowToast(string message)
 		{

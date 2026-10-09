@@ -6,6 +6,7 @@ using Opoint8182.Lateral;
 using Opoint8182.Player;
 using Opoint8182.Score;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
@@ -40,6 +41,7 @@ namespace Opoint8182.UI
 				m_scoreSystem.ScoreValue.AddListener(OnScoreChanged);
 				m_scoreSystem.MultiplierValue.AddListener(OnMultiplierChanged);
 				m_scoreSystem.ComboTimerValue.AddListener(OnComboTimerChanged);
+				m_scoreSystem.PointsAwarded += OnPointsAwarded;
 			}
 			if (m_altitudeSystem != null)
 			{
@@ -59,6 +61,7 @@ namespace Opoint8182.UI
 				m_scoreSystem.ScoreValue.RemoveListener(OnScoreChanged);
 				m_scoreSystem.MultiplierValue.RemoveListener(OnMultiplierChanged);
 				m_scoreSystem.ComboTimerValue.RemoveListener(OnComboTimerChanged);
+				m_scoreSystem.PointsAwarded -= OnPointsAwarded;
 			}
 			if (m_altitudeSystem != null)
 			{
@@ -160,6 +163,26 @@ namespace Opoint8182.UI
 		}
 
 		private void OnScoreChanged(int score) => View?.SetScore(score);
+
+		// Anchors the popup where the crash happened on screen. The point is converted once, at the impact: the plane flies
+		// through it, so tracking the world point would slide the popup away instead of reading as a hit marker.
+		private void OnPointsAwarded(int points, Vector3 worldPosition, bool perfect)
+		{
+			if (View == null || View.Root.panel == null) return;
+
+			var coins = HudPlaceholderData.ShowCoinPopup ? HudPlaceholderData.CoinPopupAmount : 0;
+			var camera = Camera.main;
+			if (camera == null || camera.WorldToViewportPoint(worldPosition).z <= 0f)
+			{
+				// Impact behind the camera: fall back to the middle of the frame.
+				var size = View.Root.layout.size;
+				View.ShowImpactPopup(new Vector2(size.x * 0.5f, size.y * 0.4f), points, perfect, coins);
+				return;
+			}
+
+			var panelPosition = RuntimePanelUtils.CameraTransformWorldToPanel(View.Root.panel, worldPosition, camera);
+			View.ShowImpactPopup(panelPosition, points, perfect, coins);
+		}
 
 		private void OnMultiplierChanged(int _) => View?.SetCombo(m_scoreSystem.CurrentMultiplier, m_scoreSystem.ComboTimerFraction);
 
