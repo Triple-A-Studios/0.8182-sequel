@@ -39,3 +39,9 @@ Two states, `Assets/_Project/Scripts/Game/States/MainMenuState.cs` / `PlayingSta
 ## `MainMenuController`'s Play click
 
 `OnPlayClicked` now, alongside its existing log: hides the menu's own UI immediately (`rootVisualElement.style.display = DisplayStyle.None`, so there's no leftover-menu flash while `GameManager`'s one-frame-delayed transition catches up), calls `GameManager.TryGetInstance()?.EnterPlayingState()`, and fires `SceneManager.UnloadSceneAsync(gameObject.scene)` (fire-and-forget — nothing in this method depends on the unload finishing).
+
+## `RunEnded` carries a cause (UI/art pass, Pass 5a)
+
+`GameManager.RunEnded` is `event Action<RunEndCause>` (`Scripts/Game/RunEndCause.cs`: `OutOfFuel`, `Wrecked`, `FlewTooHigh`, `HitTheDeck`, `OutOfBounds`). Each of the five triggers has its own tiny handler that calls `EndRun(cause)`: `FuelSystem.Depleted` -> `OutOfFuel`, `HealthSystem.Depleted` -> `Wrecked`, `AltitudeSystem.CeilingExceeded` -> `FlewTooHigh`, `AltitudeSystem.GroundHit` -> `HitTheDeck`, `LateralSystem.HardBoundExceeded` -> `OutOfBounds`. `EndRun` keeps the old `IsRunActive` guard, so the first trigger wins and a second one in the same frame cannot overwrite the cause. Subscribers: `GameOverUI` (cause chip), `HudPresenter` (freezes the HUD), `SpawnManager` (stops spawning, ignores the payload). `PlayerManager` still reacts to the underlying system events directly, not to `RunEnded`.
+
+**Lethal hits read WRECKED.** `PlayerManager.HandleDamageDealt` applies the health damage **before** the fuel drain. A hit that empties both (Obstacle_Large deals 10000) used to raise `FuelSystem.Depleted` first, so the first-trigger-wins cause said OUT OF FUEL for a hit that killed the plane. A hit that only empties the fuel (low fuel, small hit) still reads OUT OF FUEL, which is true.
