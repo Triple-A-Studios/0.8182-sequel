@@ -50,14 +50,14 @@
                 </op:LipBox>
 
                 <ui:VisualElement name="hit-wrap" class="hud-hit-wrap" picking-mode="Ignore">
-                    <ui:VisualElement name="hit-sticker" class="hud-hit-sticker" picking-mode="Ignore">
+                    <op:LipBox name="hit-sticker" class="hud-hit-sticker" picking-mode="Ignore">
                         <ui:Label name="hit-label" text="-1 HEALTH" class="t-baloo-extrabold hud-hit-label" picking-mode="Ignore" />
-                    </ui:VisualElement>
+                    </op:LipBox>
                 </ui:VisualElement>
 
-                <ui:VisualElement name="combo-sticker" class="hud-combo-sticker" picking-mode="Ignore">
+                <op:LipBox name="combo-sticker" class="hud-combo-sticker" picking-mode="Ignore">
                     <ui:Label name="combo-label" text="x3 COMBO!" class="t-baloo-extrabold hud-combo-label" picking-mode="Ignore" />
-                </ui:VisualElement>
+                </op:LipBox>
 
             </ui:VisualElement>
         </ui:VisualElement>
@@ -106,7 +106,7 @@
         <!-- Pause popup (S04): ScreenRouter popup layer, opened by HudPausePopup. Dev-gallery only for now: the pause button
              stays inert in play (functional pause is the later "Pause, settings & audio" milestone). -->
         <ui:VisualElement name="hud-popup-layer" class="popup-layer">
-            <ui:VisualElement name="hud-pause-popup" class="popup hud-pause-card">
+            <op:LipBox name="hud-pause-popup" class="popup hud-pause-card">
                 <ui:VisualElement class="hud-pause-head" picking-mode="Ignore">
                     <ui:Label text="PAUSED" class="t-baloo-extrabold hud-pause-title" picking-mode="Ignore" />
                     <ui:Label name="pause-mode-line" text="" class="t-nunito-extrabold hud-pause-mode" picking-mode="Ignore" />
@@ -136,7 +136,7 @@
                         <ui:Label name="pause-quit-note" text="" class="t-nunito-semibold hud-pause-quit-note" picking-mode="Ignore" />
                     </ui:VisualElement>
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </op:LipBox>
         </ui:VisualElement>
 
         <!-- 3-2-1 resume countdown (S04): dims the frame while it runs, so it blocks input like the popup. -->

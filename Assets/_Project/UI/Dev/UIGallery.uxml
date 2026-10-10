@@ -120,14 +120,14 @@
 
         <!-- Popup layer (ScreenRouter shows/hides it) -->
         <ui:VisualElement name="popup-layer" class="popup-layer">
-            <ui:VisualElement name="popup-confirm" class="popup g-popup">
+            <op:LipBox name="popup-confirm" class="popup g-popup">
                 <ui:Label text="SPEND AN ATTEMPT?" class="popup__title" />
                 <ui:Label text="This run counts toward this week's leaderboard. You have 3 of 3 left." class="popup__body" />
                 <ui:VisualElement class="popup__actions">
                     <op:LipButton name="popup-confirm-yes" text="LET'S FLY" variant="Primary" class="g-popup-primary" />
                     <op:LipButton name="popup-confirm-no" text="CANCEL" variant="Secondary" class="g-popup-secondary" />
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </op:LipBox>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

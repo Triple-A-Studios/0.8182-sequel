@@ -14,7 +14,8 @@ namespace Opoint8182.Game
     {
         public bool IsRunActive { get; private set; } = true;
 
-        public event Action RunEnded;
+        /// <summary>Raised once when the run ends, with what ended it.</summary>
+        public event Action<RunEndCause> RunEnded;
         public event Action RunStarted;
         public event Action ReturnedToMenu;
 
@@ -95,34 +96,46 @@ namespace Opoint8182.Game
             m_altitudeSystem = FindAnyObjectByType<AltitudeSystem>();
             m_lateralSystem = FindAnyObjectByType<LateralSystem>();
 
-            if (m_fuelSystem != null) m_fuelSystem.Depleted += HandleRunEnded;
-            if (m_healthSystem != null) m_healthSystem.Depleted += HandleRunEnded;
+            if (m_fuelSystem != null) m_fuelSystem.Depleted += HandleFuelDepleted;
+            if (m_healthSystem != null) m_healthSystem.Depleted += HandleHealthDepleted;
             if (m_altitudeSystem != null)
             {
-                m_altitudeSystem.CeilingExceeded += HandleRunEnded;
-                m_altitudeSystem.GroundHit += HandleRunEnded;
+                m_altitudeSystem.CeilingExceeded += HandleCeilingExceeded;
+                m_altitudeSystem.GroundHit += HandleGroundHit;
             }
-            if (m_lateralSystem != null) m_lateralSystem.HardBoundExceeded += HandleRunEnded;
+            if (m_lateralSystem != null) m_lateralSystem.HardBoundExceeded += HandleHardBoundExceeded;
         }
 
         private void OnDisable()
         {
-            if (m_fuelSystem != null) m_fuelSystem.Depleted -= HandleRunEnded;
-            if (m_healthSystem != null) m_healthSystem.Depleted -= HandleRunEnded;
+            if (m_fuelSystem != null) m_fuelSystem.Depleted -= HandleFuelDepleted;
+            if (m_healthSystem != null) m_healthSystem.Depleted -= HandleHealthDepleted;
             if (m_altitudeSystem != null)
             {
-                m_altitudeSystem.CeilingExceeded -= HandleRunEnded;
-                m_altitudeSystem.GroundHit -= HandleRunEnded;
+                m_altitudeSystem.CeilingExceeded -= HandleCeilingExceeded;
+                m_altitudeSystem.GroundHit -= HandleGroundHit;
             }
-            if (m_lateralSystem != null) m_lateralSystem.HardBoundExceeded -= HandleRunEnded;
+            if (m_lateralSystem != null) m_lateralSystem.HardBoundExceeded -= HandleHardBoundExceeded;
         }
 
-        private void HandleRunEnded()
+        private void HandleFuelDepleted() => EndRun(RunEndCause.OutOfFuel);
+
+        private void HandleHealthDepleted() => EndRun(RunEndCause.Wrecked);
+
+        private void HandleCeilingExceeded() => EndRun(RunEndCause.FlewTooHigh);
+
+        private void HandleGroundHit() => EndRun(RunEndCause.HitTheDeck);
+
+        private void HandleHardBoundExceeded() => EndRun(RunEndCause.OutOfBounds);
+
+        // First trigger wins: a second one in the same frame (fuel and health, ground and fuel) must not
+        // overwrite the cause the player is about to be shown.
+        private void EndRun(RunEndCause cause)
         {
             if (!IsRunActive) return;
 
             IsRunActive = false;
-            RunEnded?.Invoke();
+            RunEnded?.Invoke(cause);
         }
     }
 }

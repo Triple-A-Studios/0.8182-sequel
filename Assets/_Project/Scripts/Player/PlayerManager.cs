@@ -124,8 +124,11 @@ namespace Opoint8182.Player
         {
             if (m_isRunEnded) return;
 
-            m_fuelSystem.Drain(damage * source.FuelDamageMultiplier);
+            // Health first: a hit that empties both (Obstacle_Large) must end the run as WRECKED. Draining fuel first
+            // raised FuelSystem.Depleted ahead of HealthSystem.Depleted, so GameManager's first-trigger-wins cause
+            // read OUT OF FUEL for a hit that killed the plane.
             m_healthSystem.TakeDamage(damage * source.HealthDamageMultiplier);
+            m_fuelSystem.Drain(damage * source.FuelDamageMultiplier);
             m_cameraJuice?.ShakeForHit();
         }
 

@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using Opoint8182.Altitude;
 using Opoint8182.Fuel;
+using Opoint8182.Game;
 using Opoint8182.Health;
 using Opoint8182.Lateral;
 using Opoint8182.Player;
@@ -29,6 +30,7 @@ namespace Opoint8182.UI
 		[FoldoutGroup("Tunables")] [SerializeField] [Range(0f, 1f)] private float m_lowHealthThreshold = HudView.DefaultLowHealthThreshold;
 
 		private float m_lastHealth = -1f;
+		private GameManager m_gameManager;
 
 		protected override void OnEnable()
 		{
@@ -50,6 +52,17 @@ namespace Opoint8182.UI
 				m_altitudeSystem.IsGroundWarningValue.AddListener(OnGroundWarningChanged);
 			}
 			if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.AddListener(OnLateralWarningChanged);
+
+			// The HUD object is toggled across the menu <-> play transition, so OnEnable runs again later; subscribing
+			// here too (once Start has cached the manager) keeps RunEnded from being dropped, same as GameOverUI.
+			if (m_gameManager != null) m_gameManager.RunEnded += OnRunEnded;
+		}
+
+		// GameManager is a GenericSingleton set up in Awake; Start is the first point where it is guaranteed to exist.
+		private void Start()
+		{
+			m_gameManager = GameManager.TryGetInstance();
+			if (m_gameManager != null) m_gameManager.RunEnded += OnRunEnded;
 		}
 
 		protected override void OnDisable()
@@ -70,6 +83,7 @@ namespace Opoint8182.UI
 				m_altitudeSystem.IsGroundWarningValue.RemoveListener(OnGroundWarningChanged);
 			}
 			if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.RemoveListener(OnLateralWarningChanged);
+			if (m_gameManager != null) m_gameManager.RunEnded -= OnRunEnded;
 
 			// A held finger must not keep steering or boosting once the HUD is gone (run ended, back to menu).
 			if (m_planeController != null)
@@ -110,6 +124,8 @@ namespace Opoint8182.UI
 			}
 			if (m_lateralSystem != null) view.SetLateralWarning(m_lateralSystem.IsWarningValue.Value ? LateralSide() : 0);
 		}
+
+		private void OnRunEnded(RunEndCause _) => View?.SetRunEnded(true);
 
 		private void OnSteerChanged(Vector2 steer)
 		{

@@ -26,6 +26,7 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_handle;
 		private readonly VisualElement m_boostButton;
 		private Vector2 m_origin;
+		private bool m_enabled = true;
 
 		/// <summary>Steer in -1..1 per axis, up positive (matches PlaneController.TouchSteer).</summary>
 		public event Action<Vector2> SteerChanged;
@@ -50,6 +51,26 @@ namespace Opoint8182.UI
 			m_boostButton.RegisterCallback<PointerCancelEvent>(OnBoostPointerCancel);
 		}
 
+		/// <summary>
+		/// Turns the controls off (run ended) or back on. Disabling releases any held finger, so steer and boost fall back
+		/// to zero and the joystick base disappears; while off, new touches are ignored.
+		/// </summary>
+		public void SetEnabled(bool enabled)
+		{
+			if (m_enabled == enabled) return;
+			m_enabled = enabled;
+			if (enabled) return;
+
+			for (var i = 0; i < PointerId.maxPointers; i++)
+			{
+				if (m_zone.HasPointerCapture(i)) m_zone.ReleasePointer(i);
+				if (m_boostButton.HasPointerCapture(i)) m_boostButton.ReleasePointer(i);
+			}
+
+			ResetJoystick();
+			BoostChanged?.Invoke(false);
+		}
+
 		/// <summary>Shows the joystick base at <paramref name="origin"/> (panel px) with the handle offset; used by the gallery preview.</summary>
 		public void ShowPreview(Vector2 origin, Vector2 handleOffset)
 		{
@@ -64,6 +85,7 @@ namespace Opoint8182.UI
 
 		private void OnJoystickPointerDown(PointerDownEvent evt)
 		{
+			if (!m_enabled) return;
 			m_zone.CapturePointer(evt.pointerId);
 
 			m_origin = evt.position;
@@ -129,6 +151,7 @@ namespace Opoint8182.UI
 
 		private void OnBoostPointerDown(PointerDownEvent evt)
 		{
+			if (!m_enabled) return;
 			m_boostButton.CapturePointer(evt.pointerId);
 			BoostChanged?.Invoke(true);
 		}

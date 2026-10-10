@@ -1,76 +1,331 @@
-.game-over-root {
+/* Game Over (UI/art pass, Pass 5, mockup S05). Reference frame 2400 x 1080; positions are measured from the frame edge.
+   Tokens and type classes come from Theme.uss. Absolute children ignore parent padding, so the safe-area wrapper is a
+   padded absolute fill (go-safe) holding a flex-grow child (go-content) that the pieces are positioned inside. */
+
+.go-root {
+    display: none;
     position: absolute;
     left: 0;
-    top: 0;
     right: 0;
+    top: 0;
     bottom: 0;
+    background-color: rgba(10, 16, 24, 0.72);
+}
+
+.go-safe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.go-content {
+    flex-grow: 1;
+    align-items: center;
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+/* ---- Title + cause chip (top centre) ---- */
+
+.go-head {
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.go-title {
+    flex-shrink: 0;
+    margin-top: -22px;
+    margin-bottom: -34px;
+    font-size: 112px;
+    color: var(--ink);
+    text-shadow: 0 9px 0 var(--coral-lip);
+    rotate: -3deg;
+}
+
+.go-cause {
+    flex-shrink: 0;
+    margin-top: 0;
+    padding: 8px 30px 4px 30px;
+    border-radius: 14px;
+    background-color: var(--coral);
+}
+
+.go-cause-label {
+    font-size: 34px;
+    letter-spacing: 5px;
+    color: rgb(255, 255, 255);
+    white-space: nowrap;
+}
+
+/* ---- Final score row ---- */
+
+.go-score-row {
+    flex-shrink: 0;
+    margin-top: 6px;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.7);
 }
 
-.game-over-title {
-    padding: 6px 24px;
-    margin-bottom: 16px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 2px;
-    border-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
+.go-score-col { align-items: center; }
+
+.go-score-caption {
+    flex-shrink: 0;
+    margin-top: -6px;
+    font-size: 34px;
+    letter-spacing: 7px;
+    color: var(--ink-55);
+    white-space: nowrap;
+}
+
+.go-score {
+    flex-shrink: 0;
+    margin-top: -70px;
+    margin-bottom: -92px;
+    font-size: 188px;
+    color: var(--ink);
+    text-shadow: 0 12px 0 rgba(16, 24, 35, 0.7);
+    white-space: nowrap;
+}
+
+.go-new-best {
+    display: none;
+    margin-left: 34px;
+    padding-bottom: 12px;
+    rotate: 9deg;
+}
+
+/* Chips and stickers are LipBoxes: a uniform border on the face and the lip as a backing element under it (the
+   mockup's solid box-shadow), not a thick, differently coloured bottom border. */
+.go-new-best > .lipbox__lip {
+    top: 12px;
+    border-radius: 14px;
+    background-color: rgba(16, 24, 35, 0.5);
+}
+
+.go-new-best > .lipbox__face {
+    padding: 14px 30px 6px 30px;
+    border-width: 5px;
+    border-radius: 14px;
+    border-color: var(--ink);
+    background-color: var(--green);
+}
+
+.go-new-best-label {
+    font-size: 44px;
+    color: rgb(20, 48, 15);
+    white-space: nowrap;
+}
+
+/* ---- Stat chips ---- */
+
+.go-stats-row {
+    flex-shrink: 0;
+    margin-top: 22px;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.go-stat {
+    margin: 0 10px;
+    padding-bottom: 8px;
+}
+
+.go-stat > .lipbox__lip {
+    top: 8px;
+    border-radius: 20px;
+}
+
+.go-stat > .lipbox__face {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px 34px 6px 34px;
+    border-width: 3px;
+    border-radius: 20px;
+}
+
+.go-stat-caption {
+    margin-top: -2px;
+    font-size: 26px;
+    letter-spacing: 3px;
+    color: var(--ink-55);
+    white-space: nowrap;
+}
+
+.go-stat-value {
+    margin-top: -10px;
+    margin-bottom: -14px;
     font-size: 48px;
-    -unity-font-style: bold;
+    color: var(--ink);
+    white-space: nowrap;
 }
 
-.game-over-score-label {
-    padding: 4px 10px;
-    margin-bottom: 24px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 2px;
-    border-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
-    font-size: 24px;
-    -unity-font-style: bold;
+/* The mockup's translucent amber over the dark panel, flattened to an opaque colour so the lip behind the face does not show through. */
+.go-stat--earned > .lipbox__face {
+    border-color: rgba(240, 169, 59, 0.5);
+    background-color: rgb(74, 68, 62);
 }
 
-.game-over-rank-label {
+.go-stat--earned .go-stat-caption { color: rgba(240, 169, 59, 0.9); }
+.go-stat--earned .go-stat-value { color: var(--amber); }
+
+.go-earned-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.go-coin-dot {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    margin-top: -6px;
+    border-width: 6px;
+    border-radius: 15px;
+    border-color: var(--amber);
+    background-color: var(--amber-light);
+}
+
+/* ---- Rank chip ---- */
+
+.go-rank-chip {
+    flex-shrink: 0;
+    margin-top: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+}
+
+.go-rank-chip > .lipbox__lip {
+    top: 10px;
+    border-radius: 24px;
+}
+
+.go-rank-chip > .lipbox__face {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 40px 4px 40px;
+    border-width: 3px;
+    border-radius: 24px;
+    border-color: rgba(240, 169, 59, 0.45);
+}
+
+.go-rank-caption {
+    margin-right: 26px;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: var(--ink-55);
+    white-space: nowrap;
+}
+
+.go-rank-text {
+    margin-top: -8px;
+    margin-bottom: -12px;
+    font-size: 60px;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.go-rank-text--up { color: var(--green); }
+
+.go-rank-retry {
     display: none;
-    padding: 4px 10px;
-    margin-bottom: 24px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 2px;
-    border-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
+    width: 150px;
+    height: 70px;
+    margin-left: 26px;
+}
+
+.go-rank-retry .lipbox__label { font-size: 30px; }
+
+/* ---- Buttons ---- */
+
+.go-actions {
+    flex-shrink: 0;
+    margin-top: auto;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.go-primary-col {
+    align-items: center;
+    margin-right: 22px;
+}
+
+.go-retry {
+    width: 480px;
+    height: 126px;
+}
+
+.go-retry .lipbox__label { font-size: 68px; }
+
+.go-retry-note {
+    margin-top: 0;
     font-size: 24px;
-    -unity-font-style: bold;
+    letter-spacing: 2px;
+    color: var(--ink-55);
+    white-space: nowrap;
 }
 
-.game-over-rank-label--up {
-    color: rgb(120, 230, 120);
-    border-color: rgb(120, 230, 120);
+.go-secondary {
+    height: 100px;
+    margin-top: 14px;
+    margin-right: 22px;
 }
 
-.game-over-rank-label--down {
-    color: rgb(255, 110, 110);
-    border-color: rgb(255, 110, 110);
+.go-secondary .lipbox__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 38px;
 }
 
-.game-over-rank-retry-button {
+.go-secondary--menu { width: 340px; }
+.go-secondary--board { width: 400px; }
+
+.go-share {
+    width: 112px;
+    height: 112px;
+    margin-top: 16px;
+}
+
+.go-share-inner {
+    align-items: center;
+    justify-content: center;
+}
+
+.go-share-icon {
+    width: 40px;
+    height: 40px;
+    border-width: 5px;
+    border-radius: 9px;
+    border-color: var(--ink);
+}
+
+.go-share-label {
+    margin-top: 4px;
+    font-size: 18px;
+    color: rgba(246, 239, 226, 0.75);
+}
+
+/* ---- Toast (stub buttons) ---- */
+
+.go-toast {
     display: none;
-    padding: 6px 20px;
-    margin-bottom: 24px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 2px;
-    border-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
-    font-size: 20px;
-    -unity-font-style: bold;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 24px;
+    align-items: center;
 }
 
-.restart-button {
-    padding: 8px 24px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-width: 2px;
-    border-color: rgb(255, 255, 255);
-    color: rgb(255, 255, 255);
-    font-size: 20px;
-    -unity-font-style: bold;
+.go-toast-label {
+    padding: 18px 38px;
+    border-width: 3px;
+    border-radius: 20px;
+    border-color: var(--border-soft);
+    background-color: rgba(16, 24, 35, 0.9);
+    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 34px;
+    color: var(--ink);
+    white-space: nowrap;
 }

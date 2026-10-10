@@ -411,9 +411,17 @@
     right: 72px;
     top: 168px;
     width: 460px;
+    padding-bottom: 12px;
+}
+
+.menu-popup-overflow > .lipbox__lip {
+    top: 12px;
+    border-radius: 24px;
+}
+
+.menu-popup-overflow > .lipbox__face {
     padding: 26px;
     border-radius: 24px;
-    border-bottom-width: 12px;
 }
 
 .menu-row {

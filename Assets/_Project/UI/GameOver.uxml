@@ -1,10 +1,82 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
     <Style src="GameOver.uss" />
-    <ui:VisualElement name="game-over-root" class="game-over-root">
-        <ui:Label name="game-over-title" text="GAME OVER" class="game-over-title" />
-        <ui:Label name="game-over-score-label" text="Score: 0" class="game-over-score-label" />
-        <ui:Label name="game-over-rank-label" text="" class="game-over-rank-label" />
-        <ui:Button name="game-over-rank-retry-button" text="Retry" class="game-over-rank-retry-button" />
-        <ui:Button name="restart-button" text="Restart" class="restart-button" />
+    <!-- Game Over (UI/art pass, Pass 5, mockup S05). One full-panel backdrop that picks pointer events, so the frozen HUD
+         underneath (shared runtime panel) cannot be touched while it shows. Content is centred and inset by the safe area. -->
+    <ui:VisualElement name="game-over-root" class="theme go-root">
+        <ui:VisualElement name="go-safe" class="go-safe" picking-mode="Ignore">
+            <ui:VisualElement name="go-content" class="go-content" picking-mode="Ignore">
+
+                <!-- Title + cause chip -->
+                <ui:VisualElement class="go-head" picking-mode="Ignore">
+                    <ui:Label text="GAME OVER" class="t-baloo-extrabold go-title" picking-mode="Ignore" />
+                    <ui:VisualElement class="go-cause" picking-mode="Ignore">
+                        <ui:Label name="go-cause-label" text="OUT OF FUEL" class="t-nunito-extrabold go-cause-label" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Final score + NEW BEST sticker -->
+                <ui:VisualElement class="go-score-row" picking-mode="Ignore">
+                    <ui:VisualElement class="go-score-col" picking-mode="Ignore">
+                        <ui:Label text="FINAL SCORE" class="t-nunito-extrabold go-score-caption" picking-mode="Ignore" />
+                        <ui:Label name="go-score" text="0" class="t-baloo-extrabold go-score" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <op:LipBox name="go-new-best" class="go-new-best" picking-mode="Ignore">
+                        <ui:Label text="NEW BEST!" class="t-baloo-extrabold go-new-best-label" picking-mode="Ignore" />
+                    </op:LipBox>
+                </ui:VisualElement>
+
+                <!-- Stat chips -->
+                <ui:VisualElement class="go-stats-row" picking-mode="Ignore">
+                    <op:LipBox class="go-stat" picking-mode="Ignore">
+                        <ui:Label text="DISTANCE" class="t-nunito-extrabold go-stat-caption" picking-mode="Ignore" />
+                        <ui:Label name="go-stat-distance" text="" class="t-baloo-extrabold go-stat-value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="go-stat" picking-mode="Ignore">
+                        <ui:Label text="FLATTENED" class="t-nunito-extrabold go-stat-caption" picking-mode="Ignore" />
+                        <ui:Label name="go-stat-flattened" text="" class="t-baloo-extrabold go-stat-value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="go-stat" picking-mode="Ignore">
+                        <ui:Label text="BEST COMBO" class="t-nunito-extrabold go-stat-caption" picking-mode="Ignore" />
+                        <ui:Label name="go-stat-combo" text="" class="t-baloo-extrabold go-stat-value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="go-stat go-stat--earned" picking-mode="Ignore">
+                        <ui:Label text="EARNED" class="t-nunito-extrabold go-stat-caption" picking-mode="Ignore" />
+                        <ui:VisualElement class="go-earned-row" picking-mode="Ignore">
+                            <ui:Label name="go-stat-earned" text="" class="t-baloo-extrabold go-stat-value" picking-mode="Ignore" />
+                            <ui:VisualElement class="go-coin-dot" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </op:LipBox>
+                </ui:VisualElement>
+
+                <!-- Rank chip: neutral copy until the leaderboard rework (backlog #28). Text-only here, states come in 5b. -->
+                <op:LipBox name="go-rank-chip" class="go-rank-chip" picking-mode="Ignore">
+                    <ui:Label text="RANK" class="t-nunito-extrabold go-rank-caption" picking-mode="Ignore" />
+                    <ui:Label name="go-rank-text" text="" class="t-baloo-extrabold go-rank-text" picking-mode="Ignore" />
+                    <op:LipButton name="go-rank-retry" text="RETRY" variant="Secondary" lip-size="Small" class="go-rank-retry" />
+                </op:LipBox>
+
+                <!-- Button row -->
+                <ui:VisualElement class="go-actions" picking-mode="Ignore">
+                    <ui:VisualElement class="go-primary-col" picking-mode="Ignore">
+                        <op:LipButton name="go-retry" text="RETRY" variant="Primary" lip-size="Large" class="go-retry" />
+                        <ui:Label name="go-retry-note" text="" class="t-nunito-bold go-retry-note" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <op:LipButton name="go-main-menu" text="MAIN MENU" variant="Secondary" class="go-secondary go-secondary--menu" />
+                    <op:LipButton name="go-leaderboard" text="LEADERBOARD" variant="Secondary" class="go-secondary go-secondary--board" />
+                    <op:LipButton name="go-share" variant="Secondary" class="go-share">
+                        <ui:VisualElement class="go-share-inner" picking-mode="Ignore">
+                            <ui:VisualElement class="go-share-icon" picking-mode="Ignore" />
+                            <ui:Label text="SHARE" class="t-nunito-extrabold go-share-label" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </op:LipButton>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="go-toast" class="go-toast" picking-mode="Ignore">
+            <ui:Label name="go-toast-label" text="" class="go-toast-label" picking-mode="Ignore" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

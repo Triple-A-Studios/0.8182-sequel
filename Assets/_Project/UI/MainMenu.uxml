@@ -111,7 +111,7 @@
         <!-- Popup layer (ScreenRouter shows/hides it; popups are its children) -->
         <ui:VisualElement name="popup-layer" class="popup-layer">
 
-            <ui:VisualElement name="popup-attempt" class="popup menu-popup-attempt">
+            <op:LipBox name="popup-attempt" class="popup menu-popup-attempt">
                 <ui:Label text="SPEND AN ATTEMPT?" class="popup__title" />
                 <ui:Label name="attempt-body" text="This run counts toward this week's leaderboard. You have 3 of 3 attempts left today." class="popup__body" />
                 <ui:VisualElement class="menu-attempt-row">
@@ -126,18 +126,18 @@
                     <ui:Toggle name="toggle-dont-ask" class="checkbox" />
                     <ui:Label text="Don't ask again today" class="t-body-secondary menu-dont-ask-label" />
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </op:LipBox>
 
-            <ui:VisualElement name="popup-quit" class="popup menu-popup-quit">
+            <op:LipBox name="popup-quit" class="popup menu-popup-quit">
                 <ui:Label text="QUIT GAME?" class="popup__title" />
                 <ui:Label text="Close Opoint8182 and return to your device." class="popup__body" />
                 <ui:VisualElement class="popup__actions menu-attempt-actions">
                     <op:LipButton name="quit-yes" text="QUIT" variant="Danger" class="menu-popup-primary" />
                     <op:LipButton name="quit-no" text="CANCEL" variant="Secondary" class="menu-popup-secondary" />
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </op:LipBox>
 
-            <ui:VisualElement name="popup-overflow" class="popup menu-popup-overflow">
+            <op:LipBox name="popup-overflow" class="popup menu-popup-overflow">
                 <ui:VisualElement name="overflow-settings" class="menu-row">
                     <ui:VisualElement class="menu-row__icon" picking-mode="Ignore" />
                     <ui:Label text="SETTINGS" class="t-nunito-extrabold menu-row__label" picking-mode="Ignore" />
@@ -151,7 +151,7 @@
                 <ui:VisualElement name="overflow-quit" class="menu-row menu-row--danger">
                     <ui:Label text="QUIT GAME" class="t-nunito-extrabold menu-row__label" picking-mode="Ignore" />
                 </ui:VisualElement>
-            </ui:VisualElement>
+            </op:LipBox>
 
         </ui:VisualElement>
 

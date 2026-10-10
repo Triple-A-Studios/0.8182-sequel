@@ -323,7 +323,7 @@ namespace Opoint8182.Spawning
 			}
 		}
 
-		private void HandleRunEnded()
+		private void HandleRunEnded(RunEndCause _)
 		{
 			m_spawningActive = false;
 		}

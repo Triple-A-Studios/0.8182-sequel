@@ -44,6 +44,7 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_healthFill;
 		private readonly VisualElement m_practiceTag;
 		private readonly VisualElement m_comboSticker;
+		private readonly VisualElement m_comboFace;
 		private readonly Label m_comboLabel;
 		private readonly VisualElement m_toast;
 		private readonly Label m_toastLabel;
@@ -70,9 +71,11 @@ namespace Opoint8182.UI
 		private bool m_lowFuelInitialized;
 		private bool m_lowFuelFlashHigh;
 		private bool m_damageRequested;
+		private bool m_runEnded;
 		private IVisualElementScheduledItem m_toastHide;
 		private readonly HudImpactPopups m_popups;
 		private readonly HudPausePopup m_pausePopup;
+		private readonly LipButton m_pauseButton;
 
 		private float m_lastFuelFraction = -1f;
 		private float m_lastHealthFraction = -1f;
@@ -105,6 +108,7 @@ namespace Opoint8182.UI
 			m_healthFill = root.Q<VisualElement>("health-fill");
 			m_practiceTag = root.Q<VisualElement>("practice-tag");
 			m_comboSticker = root.Q<VisualElement>("combo-sticker");
+			m_comboFace = root.Q<LipBox>("combo-sticker").Face;
 			m_comboLabel = root.Q<Label>("combo-label");
 			m_toast = root.Q<VisualElement>("hud-toast");
 			m_topStack = root.Q<VisualElement>("top-stack");
@@ -132,7 +136,8 @@ namespace Opoint8182.UI
 			m_touchControls = new HudTouchControls(root);
 			m_touchControls.SteerChanged += steer => SteerChanged?.Invoke(steer);
 			m_touchControls.BoostChanged += boost => BoostChanged?.Invoke(boost);
-			root.Q<LipButton>("pause-button").clicked += OnPauseClicked;
+			m_pauseButton = root.Q<LipButton>("pause-button");
+			m_pauseButton.clicked += OnPauseClicked;
 
 			SetFuel(1f);
 			SetHealth(1f);
@@ -248,7 +253,7 @@ namespace Opoint8182.UI
 			m_comboLabel.text = $"×{multiplier} COMBO!";
 			m_comboSticker.style.scale = new StyleScale(new Scale(new Vector3(scale, scale, 1f)));
 			m_comboSticker.style.opacity = Mathf.Lerp(k_ComboMinOpacity, 1f, fraction);
-			m_comboSticker.style.backgroundColor = Color.Lerp(m_S_ComboFadedColor, m_S_ComboActiveColor, fraction);
+			m_comboFace.style.backgroundColor = Color.Lerp(m_S_ComboFadedColor, m_S_ComboActiveColor, fraction);
 		}
 
 		/// <summary>
@@ -257,6 +262,7 @@ namespace Opoint8182.UI
 		/// </summary>
 		public void SetCeilingWarning(bool active, int secondsLeft)
 		{
+			active &= !m_runEnded;
 			m_ceilingBanner.EnableInClassList("is-visible", active);
 			m_topStack.EnableInClassList("hud-top-stack--shifted", active);
 			if (active) m_ceilingCount.text = Mathf.Max(0, secondsLeft).ToString();
@@ -265,6 +271,7 @@ namespace Opoint8182.UI
 		/// <summary>Lateral soft limit (S03 f): slides the tape in on the offending edge. -1 left, 1 right, 0 none.</summary>
 		public void SetLateralWarning(int side)
 		{
+			if (m_runEnded) side = 0;
 			m_lateralLeft.EnableInClassList("is-visible", side < 0);
 			m_lateralRight.EnableInClassList("is-visible", side > 0);
 		}
@@ -272,6 +279,7 @@ namespace Opoint8182.UI
 		/// <summary>Ground proximity (S03 g): flashing red vignette and PULL UP!.</summary>
 		public void SetGroundWarning(bool active)
 		{
+			active &= !m_runEnded;
 			if (active == m_groundActive) return;
 			m_groundActive = active;
 
@@ -311,6 +319,25 @@ namespace Opoint8182.UI
 
 		/// <summary>Removes any popups still on screen (gallery reset).</summary>
 		public void ClearPopups() => m_popups.Clear();
+
+		/// <summary>
+		/// The run ended: the HUD stays on screen (dimmed by the Game Over backdrop) but is frozen. Live warnings are cleared
+		/// and stay off, touch input is released and ignored, and the pause button stops responding. Passing false (gallery
+		/// reset) undoes it; a real run never un-ends, the scene reloads.
+		/// </summary>
+		public void SetRunEnded(bool ended)
+		{
+			if (m_runEnded == ended) return;
+			m_runEnded = ended;
+
+			m_touchControls.SetEnabled(!ended);
+			m_pauseButton.SetEnabled(!ended);
+			if (!ended) return;
+
+			SetCeilingWarning(false, 0);
+			SetLateralWarning(0);
+			SetGroundWarning(false);
+		}
 
 		public void ShowToast(string message)
 		{

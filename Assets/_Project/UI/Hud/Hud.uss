@@ -212,15 +212,24 @@
     position: absolute;
     left: 150px;
     top: 392px;
-    padding: 22px 40px 14px 40px;
-    border-width: 6px;
-    border-bottom-width: 14px;
-    border-radius: 14px;
-    border-color: var(--ink);
-    border-bottom-color: rgba(16, 24, 35, 0.55);
-    background-color: var(--coral);
+    padding-bottom: 12px;
     rotate: -8deg;
     transform-origin: left center;
+}
+
+/* LipBox: the lip is a backing element under the face (HudView tints the face as the combo timer drains). */
+.hud-combo-sticker > .lipbox__lip {
+    top: 12px;
+    border-radius: 14px;
+    background-color: rgba(16, 24, 35, 0.55);
+}
+
+.hud-combo-sticker > .lipbox__face {
+    padding: 22px 40px 6px 40px;
+    border-width: 6px;
+    border-radius: 14px;
+    border-color: var(--ink);
+    background-color: var(--coral);
 }
 
 .hud-combo-label {
@@ -487,14 +496,22 @@
 }
 
 .hud-hit-sticker {
-    padding: 14px 36px 8px 36px;
+    padding-bottom: 10px;
+    rotate: -4deg;
+}
+
+.hud-hit-sticker > .lipbox__lip {
+    top: 10px;
+    border-radius: 14px;
+    background-color: rgba(16, 24, 35, 0.5);
+}
+
+.hud-hit-sticker > .lipbox__face {
+    padding: 14px 36px 6px 36px;
     border-width: 5px;
-    border-bottom-width: 11px;
     border-radius: 14px;
     border-color: var(--ink);
-    border-bottom-color: rgba(16, 24, 35, 0.5);
     background-color: var(--health-low);
-    rotate: -4deg;
 }
 
 .hud-hit-label {
@@ -598,10 +615,9 @@
 
 /* ---- Pause popup (S04) and 3-2-1 countdown. The popup layer / card base come from Theme.uss (.popup-layer, .popup). ---- */
 
-.hud-pause-card {
-    width: 1120px;
-    padding: 44px 54px 40px 54px;
-}
+.hud-pause-card { width: 1120px; }
+
+.hud-pause-card > .lipbox__face { padding: 44px 54px 40px 54px; }
 
 .hud-pause-head {
     flex-direction: row;
