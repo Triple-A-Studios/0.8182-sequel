@@ -49,10 +49,24 @@
                     </op:LipBox>
                 </ui:VisualElement>
 
-                <!-- Rank chip: neutral copy until the leaderboard rework (backlog #28). Text-only here, states come in 5b. -->
-                <op:LipBox name="go-rank-chip" class="go-rank-chip" picking-mode="Ignore">
-                    <ui:Label text="RANK" class="t-nunito-extrabold go-rank-caption" picking-mode="Ignore" />
-                    <ui:Label name="go-rank-text" text="" class="t-baloo-extrabold go-rank-text" picking-mode="Ignore" />
+                <!-- Rank chip (S05 step 3): one chip, several states set by GameOverView (RANKING skeleton, ranked + arrow image,
+                     unranked + gap, failed + retry, unavailable). Neutral "RANK" copy until the leaderboard rework (backlog #28).
+                     Only the arrow is an image (Tex_UiArrowUp, tinted in USS) so no glyph needs a font fallback. -->
+                <op:LipBox name="go-rank-chip" class="go-rank-chip">
+                    <ui:Label name="go-rank-caption" text="RANK" class="t-nunito-extrabold go-rank-caption" picking-mode="Ignore" />
+                    <ui:Label name="go-rank-value" text="" class="t-baloo-extrabold go-rank-value" picking-mode="Ignore" />
+                    <ui:VisualElement name="go-rank-delta" class="go-rank-delta" picking-mode="Ignore">
+                        <ui:VisualElement class="go-rank-arrow" picking-mode="Ignore" />
+                        <ui:Label name="go-rank-delta-text" text="" class="t-baloo-extrabold go-rank-delta-text" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="go-rank-sep" class="go-rank-sep" picking-mode="Ignore" />
+                    <ui:Label name="go-rank-status" text="" class="t-nunito-extrabold go-rank-status" picking-mode="Ignore" />
+                    <ui:VisualElement name="go-rank-skeleton" class="go-rank-skeleton" picking-mode="Ignore">
+                        <ui:VisualElement class="go-rank-bar go-rank-bar--a" picking-mode="Ignore" />
+                        <ui:VisualElement class="go-rank-bar go-rank-bar--b" picking-mode="Ignore" />
+                        <ui:VisualElement class="go-rank-bar go-rank-bar--c" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:Label name="go-rank-message" text="" class="t-baloo-extrabold go-rank-message" picking-mode="Ignore" />
                     <op:LipButton name="go-rank-retry" text="RETRY" variant="Secondary" lip-size="Small" class="go-rank-retry" />
                 </op:LipBox>
 

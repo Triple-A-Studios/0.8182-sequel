@@ -17,7 +17,6 @@ namespace Opoint8182.UI
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private ScoreSystem m_scoreSystem;
 
-		private const string k_SubmittingText = "Submitting...";
 		private const string k_UnavailableText = "Leaderboard unavailable";
 		private const string k_SubmitFailedText = "Couldn't submit score";
 
@@ -61,6 +60,7 @@ namespace Opoint8182.UI
 
 			view.RetryClicked += HandleRestartClicked;
 			view.RankRetryClicked += HandleRankRetryClicked;
+			view.RankClicked += ShowArrivesLaterToast;
 			view.MainMenuClicked += ShowArrivesLaterToast;
 			view.LeaderboardClicked += ShowArrivesLaterToast;
 			view.ShareClicked += ShowArrivesLaterToast;
@@ -92,37 +92,31 @@ namespace Opoint8182.UI
 			// Each run end (or retry) bumps the token so a result that lands after a newer attempt (or after the scene
 			// reloaded under it) is dropped instead of overwriting the chip.
 			var token = ++m_submitToken;
-			SetRank(string.Empty, false, false);
+			View?.HideRank();
 
 			if (score <= 0) return;
 
 			var service = LeaderboardService.TryGetInstance();
 			if (service == null)
 			{
-				SetRank(k_UnavailableText, false, false);
+				View?.ShowRankMessage(k_UnavailableText, false);
 				return;
 			}
 
-			SetRank(k_SubmittingText, false, false);
+			// RANKING skeleton: the chip holds this state until the server answers; the buttons never wait for it.
+			View?.ShowRanking();
 			var result = await service.SubmitScoreAsync(score);
-			if (this == null || token != m_submitToken) return;
+			if (this == null || token != m_submitToken || View == null) return;
 
 			if (!result.Success)
 			{
-				SetRank(k_SubmitFailedText, false, true);
+				View.ShowRankMessage(k_SubmitFailedText, true);
 				return;
 			}
 
-			// Better rank: green arrow text; same or worse: the rank alone (no red, no loss framing).
-			var improved = result.Trend == RankTrend.Up;
-			SetRank(improved ? $"#{result.Rank} ▲" : $"#{result.Rank}", improved, false);
-		}
-
-		private void SetRank(string text, bool improved, bool showRetry)
-		{
-			if (View == null) return;
-			View.SetRank(text, improved);
-			View.SetRankRetryVisible(showRetry);
+			// Better rank: green arrow image (no place count, the service does not report one); same or worse: the
+			// rank alone (no red, no loss framing).
+			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up);
 		}
 
 		private void HandleRestartClicked()

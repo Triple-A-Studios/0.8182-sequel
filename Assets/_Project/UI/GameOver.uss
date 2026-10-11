@@ -211,6 +211,10 @@
     border-color: rgba(240, 169, 59, 0.45);
 }
 
+/* States: default amber border; --final is the locked, green one; --neutral is the plain one (unranked / messages). */
+.go-rank-chip--final > .lipbox__face { border-color: rgba(95, 194, 106, 0.6); }
+.go-rank-chip--neutral > .lipbox__face { border-color: var(--border-soft); }
+
 .go-rank-caption {
     margin-right: 26px;
     font-size: 26px;
@@ -219,15 +223,91 @@
     white-space: nowrap;
 }
 
-.go-rank-text {
+.go-rank-value {
     margin-top: -8px;
     margin-bottom: -12px;
-    font-size: 60px;
+    font-size: 64px;
     color: var(--ink);
     white-space: nowrap;
 }
 
-.go-rank-text--up { color: var(--green); }
+/* "UNRANKED": same slot, smaller and letter-spaced like the mockup's neutral chip. */
+.go-rank-value--word {
+    margin-top: -2px;
+    margin-bottom: -4px;
+    font-size: 34px;
+    letter-spacing: 3px;
+    color: var(--ink-70);
+}
+
+.go-rank-delta {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 22px;
+}
+
+.go-rank-arrow {
+    width: 34px;
+    height: 34px;
+    background-image: url("../Art/Textures/UI/Tex_UiArrowUp.png");
+    -unity-background-image-tint-color: var(--green);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.go-rank-delta-text {
+    margin-top: -6px;
+    margin-bottom: -10px;
+    margin-left: 4px;
+    font-size: 36px;
+    color: var(--green);
+    white-space: nowrap;
+}
+
+.go-rank-sep {
+    width: 3px;
+    height: 48px;
+    margin: 0 26px;
+    border-radius: 2px;
+    background-color: rgba(246, 239, 226, 0.18);
+}
+
+.go-rank-status {
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--amber);
+    white-space: nowrap;
+}
+
+/* RANKING skeleton: three grey bars that pulse (opacity transition driven by GameOverView's scheduler). */
+.go-rank-skeleton {
+    flex-direction: row;
+    align-items: center;
+    opacity: 0.9;
+    transition-property: opacity;
+    transition-duration: 0.45s;
+    transition-timing-function: ease-in-out;
+}
+
+.go-rank-skeleton--dim { opacity: 0.35; }
+
+.go-rank-bar {
+    height: 26px;
+    margin-right: 18px;
+    border-radius: 13px;
+    background-color: rgba(246, 239, 226, 0.28);
+}
+
+.go-rank-bar--a { width: 150px; }
+.go-rank-bar--b { width: 90px; }
+.go-rank-bar--c { width: 190px; margin-right: 0; }
+
+.go-rank-message {
+    margin-top: -4px;
+    margin-bottom: -8px;
+    font-size: 44px;
+    color: var(--ink);
+    white-space: nowrap;
+}
 
 .go-rank-retry {
     display: none;

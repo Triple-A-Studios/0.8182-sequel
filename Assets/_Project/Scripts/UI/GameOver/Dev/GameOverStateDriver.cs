@@ -6,18 +6,20 @@ namespace Opoint8182.UI
 {
 	/// <summary>
 	/// Dev-only harness for the Game Over screen: shows it with a fixed sample score and jumps between the end causes
-	/// with hotkeys so each can be checked without playing to it. Lives in the GameOverGallery scene only. Each Game
-	/// Over sub-pass adds its states here.
+	/// and rank chip states with hotkeys so each can be checked without playing to it. Lives in the GameOverGallery
+	/// scene only. Each Game Over sub-pass adds its states here.
 	/// Keys: 1-5 cause (out of fuel, wrecked, flew too high, hit the deck, out of bounds), N toggle NEW BEST,
-	/// M toggle a rank text sample, F toggle the failed-submit retry button, H hide / show the whole screen.
+	/// M cycle the rank chip (ranking, ranked + arrow, provisional, final, unranked + gap, rank only, failed + retry,
+	/// unavailable, hidden), H hide / show the whole screen.
 	/// </summary>
 	public class GameOverStateDriver : GameOverHost
 	{
 		private const int k_SampleScore = 184920;
+		private const int k_SampleRank = 412;
+		private const int k_RankStateCount = 9;
 
 		private bool m_newBest;
-		private bool m_rankSample;
-		private bool m_rankRetry;
+		private int m_rankState = -1;
 
 		protected override void OnViewReady(GameOverView view)
 		{
@@ -26,15 +28,16 @@ namespace Opoint8182.UI
 			view.SetStats(GameOverPlaceholderData.Distance, GameOverPlaceholderData.Flattened, GameOverPlaceholderData.BestCombo, GameOverPlaceholderData.Earned);
 			view.SetRetryNote(GameOverPlaceholderData.RetryNote);
 			view.SetNewBest(false);
-			view.SetRank("#412 ▲", true);
-			m_rankSample = true;
 
 			view.MainMenuClicked += ShowArrivesLaterToast;
 			view.LeaderboardClicked += ShowArrivesLaterToast;
 			view.ShareClicked += ShowArrivesLaterToast;
 			view.RetryClicked += ShowArrivesLaterToast;
-			view.RankRetryClicked += ShowArrivesLaterToast;
+			view.RankClicked += ShowArrivesLaterToast;
+			view.RankRetryClicked += () => View?.ShowRanking();
 
+			m_rankState = 0;
+			ApplyRankState();
 			view.Show();
 		}
 
@@ -59,21 +62,50 @@ namespace Opoint8182.UI
 
 			if (keyboard.mKey.wasPressedThisFrame)
 			{
-				m_rankSample = !m_rankSample;
-				View.SetRank(m_rankSample ? "#412 ▲" : string.Empty, m_rankSample);
-			}
-
-			if (keyboard.fKey.wasPressedThisFrame)
-			{
-				m_rankRetry = !m_rankRetry;
-				View.SetRank(m_rankRetry ? "Couldn't submit score" : "#412", false);
-				View.SetRankRetryVisible(m_rankRetry);
+				m_rankState = (m_rankState + 1) % k_RankStateCount;
+				ApplyRankState();
 			}
 
 			if (keyboard.hKey.wasPressedThisFrame)
 			{
 				if (View.IsVisible) View.Hide();
 				else View.Show();
+			}
+		}
+
+		// Mockup S05: 0 RANKING skeleton, 1 ranked (up arrow, no place count: what play shows), 2 provisional (a),
+		// 3 final (c), 4 unranked with the gap (b), 5 rank only (no arrow: same or worse), 6 failed + retry, 7 unavailable, 8 hidden.
+		private void ApplyRankState()
+		{
+			switch (m_rankState)
+			{
+				case 0:
+					View.ShowRanking();
+					break;
+				case 1:
+					View.ShowRankResult(k_SampleRank, true);
+					break;
+				case 2:
+					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, "TODAY'S RANK", GameOverPlaceholderData.SampleProvisionalStatus);
+					break;
+				case 3:
+					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, "FINAL RANK", GameOverPlaceholderData.SampleFinalStatus, RankChipStyle.Final);
+					break;
+				case 4:
+					View.ShowRankUnranked(GameOverPlaceholderData.SampleGapStatus, "TODAY'S RANK");
+					break;
+				case 5:
+					View.ShowRankResult(k_SampleRank, false);
+					break;
+				case 6:
+					View.ShowRankMessage("Couldn't submit score", true);
+					break;
+				case 7:
+					View.ShowRankMessage("Leaderboard unavailable", false);
+					break;
+				default:
+					View.HideRank();
+					break;
 			}
 		}
 

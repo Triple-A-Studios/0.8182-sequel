@@ -180,6 +180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.Leaderboard.LeaderboardService
   autoUnparentOnAwake: 1
   m_leaderboardId: daily_scores
+  m_requestTimeoutSeconds: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

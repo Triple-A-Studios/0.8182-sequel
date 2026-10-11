@@ -24,6 +24,18 @@ namespace Opoint8182.UI
 		/// <summary>Line under the primary button. Real value: "Daily play structure" (attempts).</summary>
 		public const string RetryNote = "2 attempts left today";
 
+		/// <summary>Gallery only: places gained shown next to the up arrow ("38"). The score service reports no such number, so play shows the arrow alone.</summary>
+		public const int SampleRankDelta = 38;
+
+		/// <summary>Gallery only: status after the divider on a provisional rank. Real value: "Daily play structure" (attempts).</summary>
+		public const string SampleProvisionalStatus = "PROVISIONAL · 2 LEFT";
+
+		/// <summary>Gallery only: status on a locked, final rank (attempt 3 of 3).</summary>
+		public const string SampleFinalStatus = "LOCKED FOR TODAY";
+
+		/// <summary>Gallery only: gap shown beside UNRANKED (a run that did not place).</summary>
+		public const string SampleGapStatus = "143,690 TO TOP 500";
+
 		/// <summary>Shown by the buttons whose flow does not exist yet (MAIN MENU, LEADERBOARD, SHARE).</summary>
 		public const string ArrivesLaterMessage = "ARRIVES IN A LATER UPDATE";
 	}

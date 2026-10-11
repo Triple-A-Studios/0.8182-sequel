@@ -6,7 +6,7 @@ pattern used with background-repeat. Re-run this script to regenerate; the PNGs 
 Assets/_Project/Art/Textures/UI/. Requires Pillow.
 """
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "Assets", "_Project", "Art", "Textures", "UI")
 
@@ -120,6 +120,21 @@ def cracks(path, width=1200, height=540, seed=11):
     img.save(os.path.join(OUT, path))
 
 
+def arrow_up(path, size=64, pad=8):
+    """White up-pointing triangle with soft edges; tinted in USS (-unity-background-image-tint-color).
+    Replaces the text glyph (U+25B2) so it renders on every platform without a font fallback."""
+    ss = 8
+    big = Image.new("L", (size * ss, size * ss), 0)
+    d = ImageDraw.Draw(big)
+    left, right = pad * ss, (size - pad) * ss
+    top, bottom = (pad + 2) * ss, (size - pad - 2) * ss
+    d.polygon([(left, bottom), (right, bottom), ((left + right) // 2, top)], fill=255)
+    mask = big.resize((size, size), Image.LANCZOS)
+    img = Image.new("RGBA", (size, size), (255, 255, 255, 0))
+    img.putalpha(mask)
+    img.save(os.path.join(OUT, path))
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
@@ -128,4 +143,5 @@ if __name__ == "__main__":
     edge_vignette("Tex_UiVignetteRed.png", "#E0452F", 0.9)
     edge_vignette("Tex_UiVignetteDark.png", "#101823", 0.75)
     cracks("Tex_UiCracks.png")
+    arrow_up("Tex_UiArrowUp.png")
     print("ok")
