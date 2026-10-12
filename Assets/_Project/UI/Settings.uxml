@@ -1,0 +1,81 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="Settings.uss" />
+    <!-- Settings screen (S06). Instanced into MainMenu.uxml as a ScreenRouter screen; logic in SettingsScreen.cs. -->
+    <ui:VisualElement name="settings-root" class="settings-screen" picking-mode="Ignore">
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="settings-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="SETTINGS" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="settings-columns" picking-mode="Ignore">
+
+            <ui:VisualElement class="settings-column settings-column--left" picking-mode="Ignore">
+                <op:LipBox class="card settings-card">
+                    <ui:Label text="AUDIO" class="card__title" picking-mode="Ignore" />
+                    <ui:VisualElement class="field" picking-mode="Ignore">
+                        <ui:VisualElement class="field-row" picking-mode="Ignore">
+                            <ui:Label text="SOUND" class="field-label" picking-mode="Ignore" />
+                            <ui:Label name="settings-sound-value" text="80" class="field-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="settings-sound" low-value="0" high-value="100" value="80" />
+                    </ui:VisualElement>
+                </op:LipBox>
+
+                <op:LipBox class="card settings-card">
+                    <ui:Label text="FEEL" class="card__title" picking-mode="Ignore" />
+                    <ui:VisualElement class="field field-row field-row--switch" picking-mode="Ignore">
+                        <ui:Label text="HAPTICS" class="field-label" picking-mode="Ignore" />
+                        <ui:Toggle name="settings-haptics" class="switch" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="field" picking-mode="Ignore">
+                        <ui:VisualElement class="field-row" picking-mode="Ignore">
+                            <ui:Label text="SCREEN SHAKE" class="field-label" picking-mode="Ignore" />
+                            <ui:Label name="settings-shake-value" text="120%" class="field-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="settings-shake" low-value="0" high-value="150" value="120" />
+                        <ui:Label text="0% for motion-sensitive players &#183; 150% for maximum chaos" class="field-hint" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </op:LipBox>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="settings-column settings-column--right" picking-mode="Ignore">
+                <op:LipBox class="card settings-card">
+                    <ui:Label text="CONTROLS" class="card__title" picking-mode="Ignore" />
+                    <ui:VisualElement class="field field-row field-row--switch" picking-mode="Ignore">
+                        <ui:Label text="JOYSTICK SIDE" class="field-label" picking-mode="Ignore" />
+                        <op:TabBar name="settings-side" choices="LEFT,RIGHT" class="settings-side-tabs" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="field" picking-mode="Ignore">
+                        <ui:VisualElement class="field-row" picking-mode="Ignore">
+                            <ui:Label text="JOYSTICK SIZE" class="field-label" picking-mode="Ignore" />
+                            <ui:Label name="settings-size-value" text="M" class="field-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="settings-size" low-value="0" high-value="2" value="1" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="field" picking-mode="Ignore">
+                        <ui:VisualElement class="field-row" picking-mode="Ignore">
+                            <ui:Label text="SENSITIVITY" class="field-label" picking-mode="Ignore" />
+                            <ui:Label name="settings-sensitivity-value" text="0.9" class="field-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <op:ThemedSlider name="settings-sensitivity" low-value="0.5" high-value="1.4" value="0.9" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="field field-row field-row--switch" picking-mode="Ignore">
+                        <ui:Label text="INVERT STEERING" class="field-label" picking-mode="Ignore" />
+                        <ui:Toggle name="settings-invert" class="switch" />
+                    </ui:VisualElement>
+                </op:LipBox>
+
+                <!-- Live preview: the ring follows SIZE and SIDE, the handle follows the pointer scaled by SENSITIVITY. -->
+                <ui:VisualElement name="settings-preview" class="settings-preview" picking-mode="Ignore">
+                    <ui:VisualElement class="settings-preview__stage" picking-mode="Ignore">
+                        <ui:VisualElement name="settings-stick-ring" class="settings-stick-ring">
+                            <ui:VisualElement name="settings-stick-handle" class="settings-stick-handle" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:Label text="Live preview. Drag the stick: size, side and travel follow the controls above." class="t-nunito-semibold settings-preview__text" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

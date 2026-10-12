@@ -55,9 +55,13 @@ namespace Opoint8182.UI
 			m_countdown = root.Q<VisualElement>("hud-countdown");
 			m_countdownNumber = root.Q<Label>("hud-countdown-number");
 
-			BindSlider(root, "pause-sound", "pause-sound-value", HudPlaceholderData.PauseSound);
-			BindSlider(root, "pause-shake", "pause-shake-value", HudPlaceholderData.PauseScreenShake);
-			root.Q<Toggle>("pause-haptics").SetValueWithoutNotify(HudPlaceholderData.PauseHaptics);
+			// The same session state the Settings screen edits, so the two never disagree.
+			BindSlider(root, "pause-sound", "pause-sound-value", UiSettingsState.Sound, value => UiSettingsState.Sound = value);
+			BindSlider(root, "pause-shake", "pause-shake-value", UiSettingsState.ScreenShake, value => UiSettingsState.ScreenShake = value);
+
+			var haptics = root.Q<Toggle>("pause-haptics");
+			haptics.SetValueWithoutNotify(UiSettingsState.Haptics);
+			haptics.RegisterValueChangedCallback(evt => UiSettingsState.Haptics = evt.newValue);
 
 			m_modeLine.text = HudPlaceholderData.PauseModeLine;
 			m_quitNote.text = HudPlaceholderData.PauseQuitNote;
@@ -156,13 +160,20 @@ namespace Opoint8182.UI
 			if (t >= 1f) m_countdownAnim.Pause();
 		}
 
-		private static void BindSlider(VisualElement root, string sliderName, string valueLabelName, float initial)
+		private static void BindSlider(VisualElement root, string sliderName, string valueLabelName, float initial, Action<float> store)
 		{
 			var slider = root.Q<ThemedSlider>(sliderName);
 			var valueLabel = root.Q<Label>(valueLabelName);
+			slider.snapStep = 1f;
 			slider.SetValueWithoutNotify(initial);
 			valueLabel.text = Mathf.RoundToInt(initial).ToString();
-			slider.RegisterValueChangedCallback(evt => valueLabel.text = Mathf.RoundToInt(evt.newValue).ToString());
+			slider.RegisterValueChangedCallback(evt =>
+			{
+				// The knob follows the pointer freely and settles on release; the readout is the value that would be set.
+				var snapped = slider.Snap(evt.newValue);
+				valueLabel.text = snapped.ToString("0");
+				store(snapped);
+			});
 		}
 	}
 }

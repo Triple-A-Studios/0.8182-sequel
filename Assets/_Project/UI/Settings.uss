@@ -1,0 +1,85 @@
+/* Settings screen (UI/art pass, Pass 6a). Cards, field rows and the screen header come from Theme/Theme.uss;
+   this file lays out the two columns and the joystick preview. Built as a flow layout inside the menu's safe-area
+   padding (not absolute clusters), so it honours the insets. */
+
+.settings-screen {
+    flex-grow: 1;
+    padding: 16px 24px 24px 24px;
+}
+
+.settings-columns {
+    flex-direction: row;
+    flex-grow: 1;
+    margin-top: 20px;
+}
+
+.settings-column {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 1;
+}
+
+.settings-column--left { margin-right: 40px; }
+
+.settings-card { margin-bottom: 26px; }
+
+.settings-side-tabs { flex-shrink: 0; }
+
+.settings-side-tabs .tabbar__tab { padding: 8px 32px; }
+
+/* ---- Joystick preview ---- */
+
+.settings-preview {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    min-height: 270px;
+    padding: 20px 36px;
+    border-width: 4px;
+    border-radius: var(--radius-chip);
+    border-color: rgba(246, 239, 226, 0.28);
+    background-color: rgba(16, 24, 35, 0.4);
+}
+
+/* Snapped to the right corner: the ring moves to the right end, the caption to the left. */
+.settings-preview--right { flex-direction: row-reverse; }
+
+.settings-preview__stage {
+    width: 270px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-stick-ring {
+    width: 190px;
+    height: 190px;
+    align-items: center;
+    justify-content: center;
+    border-width: 6px;
+    border-radius: 50%;
+    border-color: rgba(246, 239, 226, 0.35);
+    background-color: rgba(10, 16, 24, 0.4);
+}
+
+.settings-stick-handle {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background-color: var(--ink);
+    transition-property: translate;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+}
+
+/* While dragging the handle tracks the pointer without easing. */
+.settings-stick-handle.is-dragging { transition-duration: 0s; }
+
+.settings-preview__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0 28px;
+    white-space: normal;
+    font-size: 26px;
+    color: var(--ink-70);
+}

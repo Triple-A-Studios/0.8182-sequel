@@ -122,7 +122,7 @@
                             <ui:Label text="SCREEN SHAKE" class="t-nunito-extrabold hud-pause-row-label" picking-mode="Ignore" />
                             <ui:Label name="pause-shake-value" text="120" class="t-nunito-extrabold hud-pause-row-value" picking-mode="Ignore" />
                         </ui:VisualElement>
-                        <op:ThemedSlider name="pause-shake" low-value="0" high-value="200" value="120" />
+                        <op:ThemedSlider name="pause-shake" low-value="0" high-value="150" value="120" />
                         <ui:VisualElement class="hud-pause-switch-row">
                             <ui:Label text="HAPTICS" class="t-nunito-extrabold hud-pause-row-label" picking-mode="Ignore" />
                             <ui:Toggle name="pause-haptics" class="switch" />

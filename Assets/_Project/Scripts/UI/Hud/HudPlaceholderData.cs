@@ -18,11 +18,6 @@ namespace Opoint8182.UI
 		/// <summary>Pause popup: warning under the buttons.</summary>
 		public const string PauseQuitNote = "Quitting still burns attempt 2 of 3.";
 
-		/// <summary>Pause popup slider / switch starting values (not applied to anything; Pause, settings and audio milestone).</summary>
-		public const float PauseSound = 80f;
-		public const float PauseScreenShake = 120f;
-		public const bool PauseHaptics = true;
-
 		/// <summary>Coin line under crash popups. Off: there is no currency yet (Shop / currency milestone).</summary>
 		public const bool ShowCoinPopup = false;
 

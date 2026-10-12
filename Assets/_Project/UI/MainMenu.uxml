@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
     <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
     <Style src="MainMenu.uss" />
+    <Template name="SettingsScreen" src="Settings.uxml" />
     <ui:VisualElement name="root" class="theme menu-root">
         <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
@@ -91,6 +92,9 @@
                 </ui:VisualElement>
 
             </ui:VisualElement>
+
+            <!-- Full screens on the ScreenRouter (Pass 6). Each template carries its own USS. -->
+            <ui:Instance template="SettingsScreen" name="screen-settings" class="screen-instance" />
 
         </ui:VisualElement>
 

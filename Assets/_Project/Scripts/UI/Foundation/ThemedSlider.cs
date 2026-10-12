@@ -17,6 +17,15 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_fill;
 		private VisualElement m_tracker;
 		private VisualElement m_dragger;
+		private VisualElement m_dragContainer;
+		private IVisualElementScheduledItem m_snapWatch;
+
+		/// <summary>
+		/// Step the value settles on when the pointer is released (0 = continuous). While the pointer is down the
+		/// knob and fill follow it freely and <see cref="Slider.value"/> is the raw position; use <see cref="Snap"/> to
+		/// get the value a release at that moment would give (for a live readout).
+		/// </summary>
+		public float snapStep { get; set; }
 
 		public ThemedSlider()
 		{
@@ -27,13 +36,79 @@ namespace Opoint8182.UI
 
 			RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
 			RegisterCallback<GeometryChangedEvent>(_ => UpdateFill());
-			this.RegisterValueChangedCallback(_ => UpdateFill());
+			this.RegisterValueChangedCallback(_ =>
+			{
+				UpdateFill();
+				WatchForRelease();
+			});
+
+			// Trickle: the capturing child (the drag container) is the target on release, so listen on the way down.
+			RegisterCallback<PointerUpEvent>(_ => SnapToStep(), TrickleDown.TrickleDown);
+			RegisterCallback<PointerCancelEvent>(_ => SnapToStep(), TrickleDown.TrickleDown);
+		}
+
+		/// <summary>The value on the nearest <see cref="snapStep"/> to <paramref name="rawValue"/>, clamped to the range.</summary>
+		public float Snap(float rawValue)
+		{
+			if (snapStep <= 0f) return rawValue;
+
+			var steps = Mathf.Round((rawValue - lowValue) / snapStep);
+			var snapped = Mathf.Clamp(lowValue + steps * snapStep, lowValue, highValue);
+			return Mathf.Round(snapped * 10000f) / 10000f;
+		}
+
+		public override void SetValueWithoutNotify(float newValue)
+		{
+			base.SetValueWithoutNotify(newValue);
+			UpdateFill();
+		}
+
+		// Settles knob and fill on the step the live readout was already showing; silent, the readout is up to date.
+		private void SnapToStep()
+		{
+			if (snapStep <= 0f) return;
+
+			var snapped = Snap(value);
+			if (!Mathf.Approximately(snapped, value)) SetValueWithoutNotify(snapped);
+		}
+
+		// The pointer-up listeners above are not enough on their own (the developer saw the knob stay put after a real
+		// drag), so every value change also starts a short poll that snaps as soon as nothing inside the slider holds
+		// the pointer any more. It pauses itself once the value sits on a step.
+		private void WatchForRelease()
+		{
+			if (snapStep <= 0f) return;
+
+			m_snapWatch ??= schedule.Execute(CheckRelease).Every(40);
+			m_snapWatch.Resume();
+		}
+
+		private void CheckRelease()
+		{
+			if (IsPointerHeld()) return;
+
+			SnapToStep();
+			m_snapWatch.Pause();
+		}
+
+		private bool IsPointerHeld()
+		{
+			for (var pointerId = 0; pointerId < PointerId.maxPointers; pointerId++)
+			{
+				if (this.HasPointerCapture(pointerId)) return true;
+				if (m_tracker != null && m_tracker.HasPointerCapture(pointerId)) return true;
+				if (m_dragger != null && m_dragger.HasPointerCapture(pointerId)) return true;
+				if (m_dragContainer != null && m_dragContainer.HasPointerCapture(pointerId)) return true;
+			}
+
+			return false;
 		}
 
 		private void OnAttachToPanel(AttachToPanelEvent evt)
 		{
 			m_tracker = this.Q<VisualElement>("unity-tracker");
 			m_dragger = this.Q<VisualElement>("unity-dragger");
+			m_dragContainer = this.Q<VisualElement>("unity-drag-container");
 			if (m_tracker == null || m_dragger == null) return;
 
 			if (m_fill.parent != m_tracker) m_tracker.Add(m_fill);

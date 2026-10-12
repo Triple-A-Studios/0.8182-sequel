@@ -385,7 +385,82 @@
     -unity-text-align: middle-left;
 }
 
+/* The mockups' tilted screen title (72px, -1.5 degrees). */
+.screen-title--tilt {
+    font-size: 72px;
+    rotate: -1.5deg;
+}
+
 .screen-header__spacer { flex-grow: 1; }
+
+/* A full screen instanced from its own UXML into the menu's safe area. In flow (not absolute): an absolute child
+   ignores the safe area's padding, a flowing one fills the padded content box. */
+.screen-instance { flex-grow: 1; }
+
+/* ==========================================================================
+   Card (Settings / Profile panels): a LipBox with a padded column face, the mockup's 26px / 12px lip box.
+   Field rows: label left, value or control right.
+   ========================================================================== */
+
+.card { padding-bottom: 12px; }
+
+.card > .lipbox__lip {
+    top: 12px;
+    border-radius: var(--radius-chip);
+}
+
+.card > .lipbox__face {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 30px 36px;
+    border-width: 4px;
+    border-radius: var(--radius-chip);
+}
+
+.card__title {
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 32px;
+    letter-spacing: 5px;
+    color: var(--amber);
+    margin-bottom: -10px;
+}
+
+/* Fields space themselves from whatever sits above them (USS has no :last-child). */
+.field { margin-top: 28px; }
+
+.field-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.field-label {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    color: var(--ink);
+}
+
+.field-value {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    color: var(--amber);
+}
+
+.field-hint {
+    -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 24px;
+    color: var(--ink-55);
+    margin-top: 10px;
+    white-space: normal;
+}
+
+/* A slider under its label row must not stretch tall in a column. */
+.field > .themed-slider {
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
 
 /* ==========================================================================
    Pips (attempts) and progress bars (loading, fuel/health base)

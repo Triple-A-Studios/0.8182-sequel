@@ -27,6 +27,7 @@ namespace Opoint8182.UI
 		}
 
 		private const string k_MenuScreenId = "menu";
+		private const string k_SettingsScreenId = "settings";
 
 		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
 		private const string k_PlaceholderPlayerName = "OLIVE";
@@ -63,6 +64,7 @@ namespace Opoint8182.UI
 		private PanelRenderer m_panelRenderer;
 		private VisualElement m_loadedRoot;
 		private ScreenRouter m_router;
+		private SettingsScreen m_settingsScreen;
 
 		private VisualElement m_statusCompetitive;
 		private VisualElement m_statusPractice;
@@ -97,6 +99,7 @@ namespace Opoint8182.UI
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_loadedRoot = null;
 			m_router = null;
+			m_settingsScreen = null;
 		}
 
 		private void Update()
@@ -119,7 +122,11 @@ namespace Opoint8182.UI
 
 			m_router = new ScreenRouter(root.Q<VisualElement>("popup-layer"));
 			m_router.Register(k_MenuScreenId, root.Q<VisualElement>("screen-menu"));
+			m_router.Register(k_SettingsScreenId, root.Q<VisualElement>("screen-settings"));
 			m_router.SetRoot(k_MenuScreenId);
+
+			m_settingsScreen = new SettingsScreen(root.Q<VisualElement>("screen-settings"));
+			m_settingsScreen.BackRequested += () => m_router.Back();
 
 			m_statusCompetitive = root.Q<VisualElement>("status-competitive");
 			m_statusPractice = root.Q<VisualElement>("status-practice");
@@ -222,7 +229,7 @@ namespace Opoint8182.UI
 			root.Q<LipButton>("quit-yes").clicked += QuitGame;
 			root.Q<LipButton>("quit-no").clicked += () => m_router.ClosePopup();
 
-			WireOverflowRow(root, "overflow-settings", () => ShowComingLater());
+			WireOverflowRow(root, "overflow-settings", () => m_router.Show(k_SettingsScreenId));
 			WireOverflowRow(root, "overflow-howto", () => ShowComingLater());
 			WireOverflowRow(root, "overflow-credits", () => ShowComingLater());
 			WireOverflowRow(root, "overflow-quit", () => m_router.ShowPopup(m_popupQuit));
