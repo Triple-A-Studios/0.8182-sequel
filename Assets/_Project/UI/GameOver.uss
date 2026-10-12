@@ -23,6 +23,7 @@
 .go-content {
     flex-grow: 1;
     align-items: center;
+    justify-content: center;
     padding-top: 24px;
     padding-bottom: 24px;
 }
@@ -47,7 +48,9 @@
 .go-cause {
     flex-shrink: 0;
     margin-top: 0;
-    padding: 8px 30px 4px 30px;
+    /* Ink-centred, not box-centred: Baloo / Nunito caps sit a little low in their line box and the letter-spacing
+       trails the last glyph, so the padding is measured from a screenshot (equal gap above / below and left / right). */
+    padding: 6px 28px 6px 32px;
     border-radius: 14px;
     background-color: var(--coral);
 }
@@ -69,7 +72,11 @@
     justify-content: center;
 }
 
-.go-score-col { align-items: center; }
+/* The NEW BEST! sticker and the YOUR BEST chip hang off the right of the score column (absolute), so the score stays
+   centred with or without them and the sticker can slam in afterwards without moving anything. */
+.go-score-col {
+    align-items: center;
+}
 
 .go-score-caption {
     flex-shrink: 0;
@@ -82,6 +89,7 @@
 
 .go-score {
     flex-shrink: 0;
+    -unity-text-align: middle-center;
     margin-top: -70px;
     margin-bottom: -92px;
     font-size: 188px;
@@ -92,7 +100,10 @@
 
 .go-new-best {
     display: none;
-    margin-left: 34px;
+    position: absolute;
+    left: 100%;
+    top: 30px;
+    margin-left: 30px;
     padding-bottom: 12px;
     rotate: 9deg;
 }
@@ -106,7 +117,7 @@
 }
 
 .go-new-best > .lipbox__face {
-    padding: 14px 30px 6px 30px;
+    padding: 10px 28px 10px 32px;
     border-width: 5px;
     border-radius: 14px;
     border-color: var(--ink);
@@ -116,6 +127,45 @@
 .go-new-best-label {
     font-size: 44px;
     color: rgb(20, 48, 15);
+    white-space: nowrap;
+}
+
+/* YOUR BEST: the quiet counterpart of NEW BEST! for a run that did not beat it (S05 b). */
+.go-your-best {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 36px;
+    margin-left: 34px;
+    padding-bottom: 8px;
+}
+
+.go-your-best > .lipbox__lip {
+    top: 8px;
+    border-radius: 14px;
+}
+
+.go-your-best > .lipbox__face {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 26px 4px 26px;
+    border-width: 3px;
+    border-radius: 14px;
+}
+
+.go-best-caption {
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--ink-55);
+    white-space: nowrap;
+}
+
+.go-best-value {
+    margin-top: -6px;
+    margin-bottom: -8px;
+    font-size: 40px;
+    color: var(--ink);
     white-space: nowrap;
 }
 
@@ -215,6 +265,19 @@
 .go-rank-chip--final > .lipbox__face { border-color: rgba(95, 194, 106, 0.6); }
 .go-rank-chip--neutral > .lipbox__face { border-color: var(--border-soft); }
 
+/* Clipped containers: GameOverView animates max-width from 0 to the measured content width (children keep their
+   natural width, hence flex-shrink 0). */
+.go-rank-lead,
+.go-rank-tail {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.go-rank-lead > *,
+.go-rank-tail > * { flex-shrink: 0; }
+
 .go-rank-caption {
     margin-right: 26px;
     font-size: 26px;
@@ -245,6 +308,8 @@
     align-items: center;
     margin-left: 22px;
 }
+
+.go-rank-delta > * { flex-shrink: 0; }
 
 .go-rank-arrow {
     width: 34px;
@@ -322,7 +387,7 @@
 
 .go-actions {
     flex-shrink: 0;
-    margin-top: auto;
+    margin-top: 24px;
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
@@ -333,14 +398,18 @@
     margin-right: 22px;
 }
 
-.go-retry {
-    width: 480px;
+.go-primary {
+    min-width: 420px;
     height: 126px;
 }
 
-.go-retry .lipbox__label { font-size: 68px; }
+.go-primary > .lipbox__face { padding: 0 64px; }
+.go-primary .lipbox__label { font-size: 68px; }
 
-.go-retry-note {
+/* A long primary label (LEADERBOARD in the final state) is set smaller so the button stays a button. */
+.go-primary--long .lipbox__label { font-size: 52px; }
+
+.go-primary-note {
     margin-top: 0;
     font-size: 24px;
     letter-spacing: 2px;
@@ -354,18 +423,21 @@
     margin-right: 22px;
 }
 
+.go-secondary > .lipbox__face { padding: 0 40px; }
+
 .go-secondary .lipbox__label {
     -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
     font-size: 38px;
 }
 
-.go-secondary--menu { width: 340px; }
-.go-secondary--board { width: 400px; }
+.go-share-col {
+    align-items: center;
+    margin-top: 16px;
+}
 
 .go-share {
     width: 112px;
     height: 112px;
-    margin-top: 16px;
 }
 
 .go-share-inner {
@@ -385,6 +457,15 @@
     margin-top: 4px;
     font-size: 18px;
     color: rgba(246, 239, 226, 0.75);
+}
+
+/* Practice: SHARE keeps a small tag so a shared score is not mistaken for a competitive one. */
+.go-share-tag {
+    display: none;
+    margin-top: 2px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: var(--amber);
 }
 
 /* ---- Toast (stub buttons) ---- */

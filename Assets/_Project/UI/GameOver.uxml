@@ -9,8 +9,8 @@
 
                 <!-- Title + cause chip -->
                 <ui:VisualElement class="go-head" picking-mode="Ignore">
-                    <ui:Label text="GAME OVER" class="t-baloo-extrabold go-title" picking-mode="Ignore" />
-                    <ui:VisualElement class="go-cause" picking-mode="Ignore">
+                    <ui:Label name="go-title" text="GAME OVER" class="t-baloo-extrabold go-title" picking-mode="Ignore" />
+                    <ui:VisualElement name="go-cause" class="go-cause" picking-mode="Ignore">
                         <ui:Label name="go-cause-label" text="OUT OF FUEL" class="t-nunito-extrabold go-cause-label" picking-mode="Ignore" />
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -23,6 +23,10 @@
                     </ui:VisualElement>
                     <op:LipBox name="go-new-best" class="go-new-best" picking-mode="Ignore">
                         <ui:Label text="NEW BEST!" class="t-baloo-extrabold go-new-best-label" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox name="go-your-best" class="go-your-best" picking-mode="Ignore">
+                        <ui:Label text="YOUR BEST" class="t-nunito-extrabold go-best-caption" picking-mode="Ignore" />
+                        <ui:Label name="go-best-value" text="" class="t-baloo-extrabold go-best-value" picking-mode="Ignore" />
                     </op:LipBox>
                 </ui:VisualElement>
 
@@ -53,14 +57,20 @@
                      unranked + gap, failed + retry, unavailable). Neutral "RANK" copy until the leaderboard rework (backlog #28).
                      Only the arrow is an image (Tex_UiArrowUp, tinted in USS) so no glyph needs a font fallback. -->
                 <op:LipBox name="go-rank-chip" class="go-rank-chip">
-                    <ui:Label name="go-rank-caption" text="RANK" class="t-nunito-extrabold go-rank-caption" picking-mode="Ignore" />
-                    <ui:Label name="go-rank-value" text="" class="t-baloo-extrabold go-rank-value" picking-mode="Ignore" />
-                    <ui:VisualElement name="go-rank-delta" class="go-rank-delta" picking-mode="Ignore">
-                        <ui:VisualElement class="go-rank-arrow" picking-mode="Ignore" />
-                        <ui:Label name="go-rank-delta-text" text="" class="t-baloo-extrabold go-rank-delta-text" picking-mode="Ignore" />
+                    <!-- lead / tail are clipped containers whose max-width GameOverView grows after the rank number has counted
+                         down, so the chip starts as just the number and widens to fit the caption, arrow and status. -->
+                    <ui:VisualElement name="go-rank-lead" class="go-rank-lead" picking-mode="Ignore">
+                        <ui:Label name="go-rank-caption" text="RANK" class="t-nunito-extrabold go-rank-caption" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:VisualElement name="go-rank-sep" class="go-rank-sep" picking-mode="Ignore" />
-                    <ui:Label name="go-rank-status" text="" class="t-nunito-extrabold go-rank-status" picking-mode="Ignore" />
+                    <ui:Label name="go-rank-value" text="" class="t-baloo-extrabold go-rank-value" picking-mode="Ignore" />
+                    <ui:VisualElement name="go-rank-tail" class="go-rank-tail" picking-mode="Ignore">
+                        <ui:VisualElement name="go-rank-delta" class="go-rank-delta" picking-mode="Ignore">
+                            <ui:VisualElement class="go-rank-arrow" picking-mode="Ignore" />
+                            <ui:Label name="go-rank-delta-text" text="" class="t-baloo-extrabold go-rank-delta-text" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="go-rank-sep" class="go-rank-sep" picking-mode="Ignore" />
+                        <ui:Label name="go-rank-status" text="" class="t-nunito-extrabold go-rank-status" picking-mode="Ignore" />
+                    </ui:VisualElement>
                     <ui:VisualElement name="go-rank-skeleton" class="go-rank-skeleton" picking-mode="Ignore">
                         <ui:VisualElement class="go-rank-bar go-rank-bar--a" picking-mode="Ignore" />
                         <ui:VisualElement class="go-rank-bar go-rank-bar--b" picking-mode="Ignore" />
@@ -70,20 +80,24 @@
                     <op:LipButton name="go-rank-retry" text="RETRY" variant="Secondary" lip-size="Small" class="go-rank-retry" />
                 </op:LipBox>
 
-                <!-- Button row -->
-                <ui:VisualElement class="go-actions" picking-mode="Ignore">
+                <!-- Button row: attempt-driven (S05 a / b / c / practice). GameOverView.ApplyAttemptState sets which button is
+                     primary, its note, the two secondary buttons and the SHARE tag; the row rises in last in the cascade. -->
+                <ui:VisualElement name="go-actions" class="go-actions" picking-mode="Ignore">
                     <ui:VisualElement class="go-primary-col" picking-mode="Ignore">
-                        <op:LipButton name="go-retry" text="RETRY" variant="Primary" lip-size="Large" class="go-retry" />
-                        <ui:Label name="go-retry-note" text="" class="t-nunito-bold go-retry-note" picking-mode="Ignore" />
+                        <op:LipButton name="go-primary" text="RETRY" variant="Primary" lip-size="Large" class="go-primary" />
+                        <ui:Label name="go-primary-note" text="" class="t-nunito-bold go-primary-note" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <op:LipButton name="go-main-menu" text="MAIN MENU" variant="Secondary" class="go-secondary go-secondary--menu" />
-                    <op:LipButton name="go-leaderboard" text="LEADERBOARD" variant="Secondary" class="go-secondary go-secondary--board" />
-                    <op:LipButton name="go-share" variant="Secondary" class="go-share">
-                        <ui:VisualElement class="go-share-inner" picking-mode="Ignore">
-                            <ui:VisualElement class="go-share-icon" picking-mode="Ignore" />
-                            <ui:Label text="SHARE" class="t-nunito-extrabold go-share-label" picking-mode="Ignore" />
-                        </ui:VisualElement>
-                    </op:LipButton>
+                    <op:LipButton name="go-secondary-a" text="MAIN MENU" variant="Secondary" class="go-secondary" />
+                    <op:LipButton name="go-secondary-b" text="LEADERBOARD" variant="Secondary" class="go-secondary" />
+                    <ui:VisualElement class="go-share-col" picking-mode="Ignore">
+                        <op:LipButton name="go-share" variant="Secondary" class="go-share">
+                            <ui:VisualElement class="go-share-inner" picking-mode="Ignore">
+                                <ui:VisualElement class="go-share-icon" picking-mode="Ignore" />
+                                <ui:Label text="SHARE" class="t-nunito-extrabold go-share-label" picking-mode="Ignore" />
+                            </ui:VisualElement>
+                        </op:LipButton>
+                        <ui:Label name="go-share-tag" text="PRACTICE" class="t-nunito-extrabold go-share-tag" picking-mode="Ignore" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
             </ui:VisualElement>

@@ -56,14 +56,11 @@ namespace Opoint8182.UI
 		{
 			view.SetNewBest(GameOverPlaceholderData.ShowNewBest);
 			view.SetStats(GameOverPlaceholderData.Distance, GameOverPlaceholderData.Flattened, GameOverPlaceholderData.BestCombo, GameOverPlaceholderData.Earned);
-			view.SetRetryNote(GameOverPlaceholderData.RetryNote);
+			view.ApplyAttemptState(GameOverPlaceholderData.DefaultAttemptState);
 
-			view.RetryClicked += HandleRestartClicked;
+			view.ActionClicked += HandleActionClicked;
 			view.RankRetryClicked += HandleRankRetryClicked;
 			view.RankClicked += ShowArrivesLaterToast;
-			view.MainMenuClicked += ShowArrivesLaterToast;
-			view.LeaderboardClicked += ShowArrivesLaterToast;
-			view.ShareClicked += ShowArrivesLaterToast;
 		}
 
 		private void HandleRunEnded(RunEndCause cause)
@@ -114,14 +111,25 @@ namespace Opoint8182.UI
 				return;
 			}
 
-			// Better rank: green arrow image (no place count, the service does not report one); same or worse: the
-			// rank alone (no red, no loss framing).
-			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up);
+			// The chip starts as just the number. A better rank counts down to it, then the chip widens to bring in the
+			// arrow (no place count, the service does not report one) and the attempt status (static until attempts
+			// exist); same or worse: the rank alone (no red, no loss framing).
+			var state = GameOverPlaceholderData.DefaultAttemptState;
+			var style = state == GameOverAttemptState.FinalAttempt ? RankChipStyle.Final : RankChipStyle.Amber;
+			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, GameOverPlaceholderData.RankStatusFor(state), style, true);
 		}
 
-		private void HandleRestartClicked()
+		// RETRY (and RETRY NOW, the same thing in the placed-well state) is the only real action: the scene reload.
+		// BANK IT, PRACTICE, MAIN MENU, LEADERBOARD and SHARE wait for attempts, the run / menu flow and Pass 6.
+		private void HandleActionClicked(GameOverAction action)
 		{
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			if (action == GameOverAction.Retry || action == GameOverAction.RetryNow)
+			{
+				SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				return;
+			}
+
+			ShowArrivesLaterToast();
 		}
 
 		private void ShowArrivesLaterToast()
