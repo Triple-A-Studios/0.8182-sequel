@@ -8,19 +8,20 @@ using UnityEngine.UIElements;
 namespace Opoint8182.UI
 {
 	/// <summary>
-	/// Dev-only harness for the main menu's full screens (Leaderboard now, Profile in 6c): loads <c>MainMenu.uxml</c>
-	/// into the MenuScreensGallery scene, builds a router and the screens exactly like <see cref="MainMenuController"/>
-	/// does, but backs the leaderboard with sample data so every state is reachable without a backend or a run.
-	/// Keys (leaderboard): 1 sample board with the player at #248 (pinned row), 2 player inside the top 3, 3 no score
-	/// yet, 4 only two rows, 5 empty board; L loading skeleton, R load error, O offline; A ALL-TIME tab, W WEEKLY tab;
-	/// P enable / disable the past-week buttons (they are disabled in play until backlog #28); M open the leaderboard
-	/// again after Escape / the back chevron; Escape back.
+	/// Dev-only harness for the main menu's full screens (Leaderboard, Profile): loads <c>MainMenu.uxml</c> into the
+	/// MenuScreensGallery scene, builds a router and the screens exactly like <see cref="MainMenuController"/> does, but
+	/// backs the leaderboard with sample data so every state is reachable without a backend or a run.
+	/// Keys: M leaderboard, Y profile, E start renaming (profile), Escape back (or leave the name field first).
+	/// Leaderboard: 1 sample board with the player at #248 (pinned row), 2 player inside the top 3, 3 no score yet,
+	/// 4 only two rows, 5 empty board; L loading skeleton, R load error, O offline; A ALL-TIME tab, W WEEKLY tab;
+	/// P enable / disable the past-week buttons (they are disabled in play until backlog #28).
 	/// </summary>
 	[RequireComponent(typeof(PanelRenderer))]
 	public class MenuScreensStateDriver : MonoBehaviour
 	{
 		private const string k_MenuScreenId = "menu";
 		private const string k_LeaderboardScreenId = "leaderboard";
+		private const string k_ProfileScreenId = "profile";
 		private const float k_ToastSeconds = 2.5f;
 
 		private enum BoardScenario
@@ -36,6 +37,7 @@ namespace Opoint8182.UI
 		private VisualElement m_loadedRoot;
 		private ScreenRouter m_router;
 		private LeaderboardScreen m_leaderboard;
+		private ProfileScreen m_profile;
 		private VisualElement m_toast;
 		private Label m_toastLabel;
 		private IVisualElementScheduledItem m_toastHide;
@@ -56,9 +58,11 @@ namespace Opoint8182.UI
 		{
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_leaderboard?.Close();
+			m_profile?.Close();
 			m_loadedRoot = null;
 			m_router = null;
 			m_leaderboard = null;
+			m_profile = null;
 		}
 
 		private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
@@ -70,7 +74,7 @@ namespace Opoint8182.UI
 
 			m_router = new ScreenRouter(root.Q<VisualElement>("popup-layer"));
 			m_router.Register(k_MenuScreenId, root.Q<VisualElement>("screen-menu"));
-			// Registered only so the router hides it: an unregistered screen would stay visible under the others.
+			// Registered so the router hides it: an unregistered screen would stay visible under the others.
 			m_router.Register("settings", root.Q<VisualElement>("screen-settings"));
 			m_router.Register(k_LeaderboardScreenId, root.Q<VisualElement>("screen-leaderboard"));
 			m_router.SetRoot(k_MenuScreenId);
@@ -84,6 +88,9 @@ namespace Opoint8182.UI
 			m_leaderboard.BackRequested += () => m_router.Back();
 			m_leaderboard.ShareRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
 			m_leaderboard.FlyNowRequested += () => ShowToast("FLY NOW: the menu starts a run here");
+			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
+			m_profile = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
+			m_profile.BackRequested += () => m_router.Back();
 			m_router.ScreenChanged += OnScreenChanged;
 
 			m_router.Show(k_LeaderboardScreenId);
@@ -96,8 +103,10 @@ namespace Opoint8182.UI
 			var keyboard = Keyboard.current;
 			if (keyboard == null) return;
 
-			if (keyboard.escapeKey.wasPressedThisFrame) m_router.HandleBackRequested();
+			if (keyboard.escapeKey.wasPressedThisFrame && !(m_router.CurrentScreenId == k_ProfileScreenId && m_profile.CancelEdit())) m_router.HandleBackRequested();
 			if (keyboard.mKey.wasPressedThisFrame) m_router.Show(k_LeaderboardScreenId);
+			if (keyboard.yKey.wasPressedThisFrame) m_router.Show(k_ProfileScreenId);
+			if (keyboard.eKey.wasPressedThisFrame && m_router.CurrentScreenId == k_ProfileScreenId) m_profile.BeginEdit();
 			if (m_router.CurrentScreenId != k_LeaderboardScreenId) return;
 
 			if (keyboard.digit1Key.wasPressedThisFrame) SetScenario(BoardScenario.SampleBoard);
@@ -124,6 +133,9 @@ namespace Opoint8182.UI
 		{
 			if (screenId == k_LeaderboardScreenId) m_leaderboard.Open();
 			else m_leaderboard.Close();
+
+			if (screenId == k_ProfileScreenId) m_profile.Open();
+			else m_profile.Close();
 		}
 
 		private void SetScenario(BoardScenario scenario)

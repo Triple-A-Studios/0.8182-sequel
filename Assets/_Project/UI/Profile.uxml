@@ -1,0 +1,108 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="Profile.uss" />
+    <!-- Profile screen (S08). Instanced into MainMenu.uxml as a ScreenRouter screen; logic in ProfileScreen.cs. Values are
+         set from ProfilePlaceholderData in code; the badge tiles are built in code. -->
+    <ui:VisualElement name="profile-root" class="profile-screen" picking-mode="Ignore">
+
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="profile-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="PROFILE" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="profile-columns" picking-mode="Ignore">
+
+            <!-- Left: portrait slot + display name -->
+            <ui:VisualElement class="profile-left" picking-mode="Ignore">
+                <op:LipBox class="card profile-portrait">
+                    <!-- Transparent + picking-mode ignore so a camera render of the equipped plane can show through (3D half). -->
+                    <ui:VisualElement name="profile-portrait-slot" class="profile-portrait__slot" picking-mode="Ignore" />
+                    <!-- DELETE before shipping - dev annotation for the 3D half, per mockup spec. -->
+                    <ui:Label text="3D portrait: equipped plane, slow turntable" class="profile-portrait__caption" picking-mode="Ignore" />
+                </op:LipBox>
+
+                <op:LipBox class="card profile-name-card">
+                    <ui:Label text="DISPLAY NAME" class="profile-label" picking-mode="Ignore" />
+                    <ui:VisualElement class="profile-name-field" picking-mode="Ignore">
+                        <ui:Label name="profile-name-label" text="OLIVE" class="profile-name-label" picking-mode="Ignore" />
+                        <ui:TextField name="profile-name-input" class="profile-name-input" />
+                        <op:LipButton name="profile-edit" variant="Primary" lip-size="Small" class="profile-icon-button">
+                            <ui:VisualElement class="profile-icon profile-icon--pencil" picking-mode="Ignore" />
+                        </op:LipButton>
+                        <op:LipButton name="profile-dice" variant="Secondary" lip-size="Small" class="profile-icon-button">
+                            <ui:VisualElement class="profile-icon profile-icon--dice" picking-mode="Ignore" />
+                        </op:LipButton>
+                        <op:LipButton name="profile-confirm" variant="Primary" lip-size="Small" class="profile-icon-button">
+                            <ui:VisualElement class="profile-icon profile-icon--check" picking-mode="Ignore" />
+                        </op:LipButton>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="profile-id-row" picking-mode="Ignore">
+                        <ui:Label name="profile-id" text="ID #2VULYCQUJ &#183; no account" class="profile-id" picking-mode="Ignore" />
+                        <ui:VisualElement class="profile-coin-chip" picking-mode="Ignore">
+                            <ui:VisualElement class="profile-coin" picking-mode="Ignore" />
+                            <ui:Label name="profile-coins" text="12,480" class="profile-coin-value" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </op:LipBox>
+            </ui:VisualElement>
+
+            <!-- Right: stats, equipped, badges -->
+            <ui:VisualElement class="profile-right" picking-mode="Ignore">
+                <ui:VisualElement class="profile-row" picking-mode="Ignore">
+                    <op:LipBox class="card stat-tile stat-tile--hero stat-tile--first">
+                        <ui:Label text="HIGH SCORE" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-high-score" text="184,920" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="card stat-tile">
+                        <ui:Label text="DISTANCE FLOWN" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-distance" text="418 km" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="card stat-tile">
+                        <ui:Label text="BUILDINGS DOWN" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-buildings" text="6,204" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                </ui:VisualElement>
+                <ui:VisualElement class="profile-row" picking-mode="Ignore">
+                    <op:LipBox class="card stat-tile stat-tile--first">
+                        <ui:Label text="BEST COMBO" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-combo" text="&#215;11" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="card stat-tile">
+                        <ui:Label text="RUNS FLOWN" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-runs" text="312" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                    <op:LipBox class="card stat-tile">
+                        <ui:Label text="PERFECT CRASHES" class="stat-tile__label" picking-mode="Ignore" />
+                        <ui:Label name="stat-perfect" text="1,088" class="stat-tile__value" picking-mode="Ignore" />
+                    </op:LipBox>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="profile-row" picking-mode="Ignore">
+                    <op:LipBox class="card profile-equip profile-equip--first">
+                        <ui:VisualElement class="profile-thumb" picking-mode="Ignore" />
+                        <ui:VisualElement class="profile-equip__text" picking-mode="Ignore">
+                            <ui:Label text="EQUIPPED PLANE" class="profile-label" picking-mode="Ignore" />
+                            <ui:Label name="profile-plane" text="Crop Duster Mk.II" class="profile-equip__name" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </op:LipBox>
+                    <op:LipBox class="card profile-equip">
+                        <ui:VisualElement class="profile-thumb" picking-mode="Ignore" />
+                        <ui:VisualElement class="profile-equip__text" picking-mode="Ignore">
+                            <ui:Label text="CRASH FX" class="profile-label" picking-mode="Ignore" />
+                            <ui:Label name="profile-fx" text="Confetti Blast" class="profile-equip__name" picking-mode="Ignore" />
+                        </ui:VisualElement>
+                    </op:LipBox>
+                </ui:VisualElement>
+
+                <op:LipBox class="card profile-badges">
+                    <ui:VisualElement class="profile-badges__title" picking-mode="Ignore">
+                        <ui:Label text="BADGES" class="profile-label profile-label--big" picking-mode="Ignore" />
+                        <ui:Label name="profile-badge-count" text="3 / 12" class="profile-badge-count" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:ScrollView name="profile-badge-scroll" class="profile-badge-scroll" mode="Horizontal" vertical-scroller-visibility="Hidden" touch-scroll-type="Elastic" />
+                    <ui:Label name="profile-badge-caption" text="Tap a locked badge to see how to unlock it." class="profile-badge-caption" picking-mode="Ignore" />
+                </op:LipBox>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

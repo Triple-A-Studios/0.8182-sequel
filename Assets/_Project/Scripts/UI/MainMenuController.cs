@@ -29,10 +29,9 @@ namespace Opoint8182.UI
 		private const string k_MenuScreenId = "menu";
 		private const string k_SettingsScreenId = "settings";
 		private const string k_LeaderboardScreenId = "leaderboard";
+		private const string k_ProfileScreenId = "profile";
 
 		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
-		private const string k_PlaceholderPlayerName = "OLIVE";
-		private const string k_PlaceholderCoins = "12,480";
 		private const int k_PlaceholderAttemptsMax = 3;
 		private const int k_PlaceholderAttemptsLeft = 3;
 		private const string k_PlaceholderPracticeClock = "28:14";
@@ -67,6 +66,8 @@ namespace Opoint8182.UI
 		private ScreenRouter m_router;
 		private SettingsScreen m_settingsScreen;
 		private LeaderboardScreen m_leaderboardScreen;
+		private ProfileScreen m_profileScreen;
+		private Label m_profileNameLabel;
 
 		private VisualElement m_statusCompetitive;
 		private VisualElement m_statusPractice;
@@ -101,9 +102,12 @@ namespace Opoint8182.UI
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_loadedRoot = null;
 			m_leaderboardScreen?.Close();
+			m_profileScreen?.Close();
 			m_router = null;
 			m_settingsScreen = null;
 			m_leaderboardScreen = null;
+			m_profileScreen = null;
+			m_profileNameLabel = null;
 		}
 
 		private void Update()
@@ -112,7 +116,12 @@ namespace Opoint8182.UI
 
 			// Escape doubles as the Android back button in the Input System. Closes an open popup; nothing at the root.
 			var keyboard = Keyboard.current;
-			if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) m_router.HandleBackRequested();
+			if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
+
+			// Escape while renaming only leaves the text field; the screen stays.
+			if (m_router.CurrentScreenId == k_ProfileScreenId && m_profileScreen.CancelEdit()) return;
+
+			m_router.HandleBackRequested();
 		}
 
 		// Can fire more than once per enable (live asset reload); a repeat call on the same tree must not double-register.
@@ -128,6 +137,7 @@ namespace Opoint8182.UI
 			m_router.Register(k_MenuScreenId, root.Q<VisualElement>("screen-menu"));
 			m_router.Register(k_SettingsScreenId, root.Q<VisualElement>("screen-settings"));
 			m_router.Register(k_LeaderboardScreenId, root.Q<VisualElement>("screen-leaderboard"));
+			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
 			m_router.SetRoot(k_MenuScreenId);
 
 			m_settingsScreen = new SettingsScreen(root.Q<VisualElement>("screen-settings"));
@@ -137,6 +147,9 @@ namespace Opoint8182.UI
 			m_leaderboardScreen.BackRequested += () => m_router.Back();
 			m_leaderboardScreen.ShareRequested += () => ShowStubToast(GameOverPlaceholderData.ArrivesLaterMessage);
 			m_leaderboardScreen.FlyNowRequested += OnLeaderboardFlyNow;
+
+			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
+			m_profileScreen.BackRequested += () => m_router.Back();
 			m_router.ScreenChanged += OnScreenChanged;
 
 			m_statusCompetitive = root.Q<VisualElement>("status-competitive");
@@ -170,8 +183,9 @@ namespace Opoint8182.UI
 
 		private void PopulateStaticData(VisualElement root)
 		{
-			root.Q<Label>("profile-name").text = k_PlaceholderPlayerName;
-			root.Q<Label>("currency-value").text = k_PlaceholderCoins;
+			m_profileNameLabel = root.Q<Label>("profile-name");
+			m_profileNameLabel.text = UiProfileState.DisplayName;
+			root.Q<Label>("currency-value").text = ProfilePlaceholderData.COINS;
 			root.Q<Label>("status-count").text = $"{k_PlaceholderAttemptsLeft}/{k_PlaceholderAttemptsMax}";
 			root.Q<Label>("status-clock").text = k_PlaceholderPracticeClock;
 
@@ -197,8 +211,9 @@ namespace Opoint8182.UI
 
 		private void WireHeader(VisualElement root)
 		{
-			MakePressable(root.Q<VisualElement>("profile-chip"));
-			root.Q<VisualElement>("profile-chip").RegisterCallback<ClickEvent>(_ => ShowStubToast(m_stubToastMessage));
+			var profileChip = root.Q<VisualElement>("profile-chip");
+			MakePressable(profileChip);
+			profileChip.RegisterCallback<ClickEvent>(_ => m_router.Show(k_ProfileScreenId));
 
 			root.Q<LipButton>("currency-add-button").clicked += () => ShowStubToast(m_stubToastMessage);
 			root.Q<LipButton>("menu-button").clicked += () => m_router.ShowPopup(m_popupOverflow);
@@ -267,6 +282,12 @@ namespace Opoint8182.UI
 		{
 			if (screenId == k_LeaderboardScreenId) m_leaderboardScreen.Open();
 			else m_leaderboardScreen.Close();
+
+			if (screenId == k_ProfileScreenId) m_profileScreen.Open();
+			else m_profileScreen.Close();
+
+			// The profile screen may have renamed the player; the chip follows when the menu is shown again.
+			if (screenId == k_MenuScreenId) m_profileNameLabel.text = UiProfileState.DisplayName;
 		}
 
 		// FLY NOW on an empty board is the same path as PLAY, in competitive mode (the board only counts those runs).

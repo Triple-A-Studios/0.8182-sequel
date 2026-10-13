@@ -155,6 +155,61 @@ def dashed_ring(path, size=256, thickness=12, dashes=14, fill=0.58):
     img.save(os.path.join(OUT, path))
 
 
+def _icon(path, draw, size=128):
+    """White icon drawn by `draw(d, ss)` on an 8x supersampled mask, tinted in USS."""
+    ss = 8
+    big = Image.new("L", (size * ss, size * ss), 0)
+    draw(ImageDraw.Draw(big), ss)
+    mask = big.resize((size, size), Image.LANCZOS)
+    img = Image.new("RGBA", (size, size), (255, 255, 255, 0))
+    img.putalpha(mask)
+    img.save(os.path.join(OUT, path))
+
+
+def pencil(path):
+    """Pencil pointing to the bottom-left, with a gap between eraser, body and tip."""
+    import math
+
+    def draw(d, ss):
+        angle = math.radians(45)
+        cx = cy = 64
+
+        def pt(x, y):
+            rx = x * math.cos(angle) - y * math.sin(angle)
+            ry = x * math.sin(angle) + y * math.cos(angle)
+            return ((cx + rx) * ss, (cy + ry) * ss)
+
+        # local coords: y grows toward the tip
+        d.polygon([pt(-13, -58), pt(13, -58), pt(13, -46), pt(-13, -46)], fill=255)  # eraser
+        d.polygon([pt(-13, -38), pt(13, -38), pt(13, 28), pt(-13, 28)], fill=255)  # body
+        d.polygon([pt(-13, 36), pt(13, 36), pt(0, 62)], fill=255)  # tip
+
+    _icon(path, draw)
+
+
+def dice(path):
+    """Rounded square with five pips."""
+    def draw(d, ss):
+        d.rounded_rectangle([14 * ss, 14 * ss, 114 * ss, 114 * ss], radius=24 * ss, fill=255)
+        for x, y in ((38, 38), (90, 38), (64, 64), (38, 90), (90, 90)):
+            d.ellipse([(x - 9) * ss, (y - 9) * ss, (x + 9) * ss, (y + 9) * ss], fill=0)
+
+    _icon(path, draw)
+
+
+def check(path):
+    """Heavy tick with round ends."""
+    def draw(d, ss):
+        pts = [(26, 68), (52, 94), (102, 36)]
+        w = 18 * ss
+        d.line([(x * ss, y * ss) for x, y in pts], fill=255, width=w, joint="curve")
+        for x, y in (pts[0], pts[-1]):
+            r = w / 2
+            d.ellipse([x * ss - r, y * ss - r, x * ss + r, y * ss + r], fill=255)
+
+    _icon(path, draw)
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
@@ -165,4 +220,7 @@ if __name__ == "__main__":
     cracks("Tex_UiCracks.png")
     arrow_up("Tex_UiArrowUp.png")
     dashed_ring("Tex_UiDashedRing.png")
+    pencil("Tex_UiPencil.png")
+    dice("Tex_UiDice.png")
+    check("Tex_UiCheck.png")
     print("ok")

@@ -3,6 +3,7 @@
     <Style src="MainMenu.uss" />
     <Template name="SettingsScreen" src="Settings.uxml" />
     <Template name="LeaderboardScreen" src="LeaderboardScreen.uxml" />
+    <Template name="ProfileScreen" src="Profile.uxml" />
     <ui:VisualElement name="root" class="theme menu-root">
         <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
@@ -97,6 +98,7 @@
             <!-- Full screens on the ScreenRouter (Pass 6). Each template carries its own USS. -->
             <ui:Instance template="SettingsScreen" name="screen-settings" class="screen-instance" />
             <ui:Instance template="LeaderboardScreen" name="screen-leaderboard" class="screen-instance" />
+            <ui:Instance template="ProfileScreen" name="screen-profile" class="screen-instance" />
 
         </ui:VisualElement>
 
