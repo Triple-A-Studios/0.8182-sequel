@@ -35,4 +35,4 @@ UGS anonymous sign-in stores its token in local storage (PlayerPrefs / IndexedDB
 
 ## UI
 
-See the Game Over rank readout (with Retry on a failed submit) under [ui.md](ui.md#game-over-screen-movement--fail-state-rework-pass-3) and the Top-10 panel under [ui.md](ui.md#leaderboard-panel-live-leaderboard-pass-4). The display-name field is deferred to the UI/art pass (the UGS auto-generated name is used).
+See the Game Over rank readout (with Retry on a failed submit) under [ui.md](ui.md#game-over-screen-movement--fail-state-rework-pass-3) and the Top-10 panel under [ui.md](ui.md#leaderboard-panel-live-leaderboard-pass-4) (replaced by the full leaderboard screen in UI/art Pass 6b, see [ui.md](ui.md#settings-leaderboard-profile-uiart-pass-pass-6)). The display-name field is deferred to the UI/art pass (the UGS auto-generated name is used).

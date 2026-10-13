@@ -135,6 +135,26 @@ def arrow_up(path, size=64, pad=8):
     img.save(os.path.join(OUT, path))
 
 
+def dashed_ring(path, size=256, thickness=12, dashes=14, fill=0.58):
+    """White dashed ring (USS has no dashed borders), tinted in USS. The empty / error states of the leaderboard
+    use it where the mockup has a round dashed border."""
+    import math
+    ss = 4
+    big = Image.new("L", (size * ss, size * ss), 0)
+    d = ImageDraw.Draw(big)
+    outer = size * ss / 2
+    inset = thickness * ss / 2 + 2 * ss
+    box = [inset, inset, size * ss - inset, size * ss - inset]
+    step = 360.0 / dashes
+    for i in range(dashes):
+        start = i * step
+        d.arc(box, start, start + step * fill, fill=255, width=thickness * ss)
+    mask = big.resize((size, size), Image.LANCZOS)
+    img = Image.new("RGBA", (size, size), (255, 255, 255, 0))
+    img.putalpha(mask)
+    img.save(os.path.join(OUT, path))
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
@@ -144,4 +164,5 @@ if __name__ == "__main__":
     edge_vignette("Tex_UiVignetteDark.png", "#101823", 0.75)
     cracks("Tex_UiCracks.png")
     arrow_up("Tex_UiArrowUp.png")
+    dashed_ring("Tex_UiDashedRing.png")
     print("ok")

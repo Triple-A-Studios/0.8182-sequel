@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
     <Style src="MainMenu.uss" />
     <Template name="SettingsScreen" src="Settings.uxml" />
+    <Template name="LeaderboardScreen" src="LeaderboardScreen.uxml" />
     <ui:VisualElement name="root" class="theme menu-root">
         <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
@@ -95,21 +96,8 @@
 
             <!-- Full screens on the ScreenRouter (Pass 6). Each template carries its own USS. -->
             <ui:Instance template="SettingsScreen" name="screen-settings" class="screen-instance" />
+            <ui:Instance template="LeaderboardScreen" name="screen-leaderboard" class="screen-instance" />
 
-        </ui:VisualElement>
-
-        <!-- Top-10 panel (Live leaderboard, Pass 4): opened from leaderboard-tile by LeaderboardPanelUI. Rows are added in code.
-             Replaced by the full leaderboard screen in Pass 6. -->
-        <ui:VisualElement name="leaderboard-panel" class="leaderboard-panel">
-            <ui:VisualElement name="leaderboard-card" class="leaderboard-card">
-                <ui:Label text="TODAY'S TOP 10" class="leaderboard-title" />
-                <ui:Label name="leaderboard-status" text="Loading..." class="leaderboard-status" />
-                <ui:VisualElement name="leaderboard-rows" class="leaderboard-rows" />
-                <ui:VisualElement class="leaderboard-button-row">
-                    <ui:Button name="leaderboard-retry-button" text="RETRY" class="leaderboard-button" />
-                    <ui:Button name="leaderboard-close-button" text="CLOSE" class="leaderboard-button" />
-                </ui:VisualElement>
-            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- Popup layer (ScreenRouter shows/hides it; popups are its children) -->

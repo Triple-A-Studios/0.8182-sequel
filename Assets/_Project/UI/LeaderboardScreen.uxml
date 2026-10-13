@@ -1,0 +1,65 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="LeaderboardScreen.uss" />
+    <!-- Leaderboard screen (S07). Instanced into MainMenu.uxml as a ScreenRouter screen; logic in LeaderboardScreen.cs.
+         Rows and the loading skeleton are built in code (the count varies). -->
+    <ui:VisualElement name="leaderboard-root" class="lb-screen" picking-mode="Ignore">
+
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="lb-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="LEADERBOARD" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
+            <op:LipBox name="lb-reset-chip" class="lb-reset-chip">
+                <ui:Label name="lb-reset-prefix" text="WEEKLY RESETS IN" class="lb-reset-text" picking-mode="Ignore" />
+                <ui:Label name="lb-reset-value" text="3 DAYS" class="lb-reset-text lb-reset-value" picking-mode="Ignore" />
+            </op:LipBox>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="lb-controls" picking-mode="Ignore">
+            <op:TabBar name="lb-tabs" choices="WEEKLY,ALL-TIME" class="lb-tabs" />
+            <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
+
+            <!-- Past-week stepper (WEEKLY only). Built, but disabled in play until weekly boards exist (backlog #28). -->
+            <ui:VisualElement name="lb-stepper" class="lb-stepper" picking-mode="Ignore">
+                <op:LipButton name="lb-prev" text="&#8249;" class="lb-step" />
+                <ui:VisualElement class="lb-stepper__text" picking-mode="Ignore">
+                    <ui:Label name="lb-week-title" text="THIS WEEK" class="lb-stepper__title" picking-mode="Ignore" />
+                    <ui:Label name="lb-week-range" text="Oct 12 &#8211; Oct 18" class="lb-stepper__range" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <op:LipButton name="lb-next" text="&#8250;" class="lb-step" />
+            </ui:VisualElement>
+
+            <!-- ALL-TIME has no backend yet: flagged as sample data. -->
+            <ui:VisualElement name="lb-sample-tag" class="sticker lb-sample-tag" picking-mode="Ignore">
+                <ui:Label text="SAMPLE DATA" class="sticker__label lb-sample-tag__label" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Loaded board: scrolling list + the player's own row pinned below it -->
+        <ui:VisualElement name="lb-board" class="lb-panel" picking-mode="Ignore">
+            <ui:ScrollView name="lb-scroll" class="lb-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" touch-scroll-type="Elastic" />
+            <op:LipBox name="lb-own" class="card lb-own">
+                <ui:Label name="lb-own-rank" text="#248" class="lb-own__rank" picking-mode="Ignore" />
+                <ui:VisualElement class="lb-own__who" picking-mode="Ignore">
+                    <ui:Label name="lb-own-name" text="RustyBiplane47" class="lb-own__name" picking-mode="Ignore" />
+                    <ui:Label name="lb-own-hint" text="&#183; you" class="lb-own__hint" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Label name="lb-own-score" text="184,920" class="lb-own__score" picking-mode="Ignore" />
+                <op:LipButton name="lb-share" text="SHARE MY RANK" variant="Primary" class="lb-share" />
+            </op:LipBox>
+        </ui:VisualElement>
+
+        <!-- Loading skeleton (rows are added in code) -->
+        <ui:VisualElement name="lb-skeleton" class="lb-panel lb-skeleton" picking-mode="Ignore" />
+
+        <!-- Empty / error / offline -->
+        <ui:VisualElement name="lb-state" class="lb-panel lb-state" picking-mode="Ignore">
+            <ui:VisualElement class="lb-state__ring" picking-mode="Ignore">
+                <ui:Label name="lb-state-glyph" text="!" class="lb-state__glyph" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="lb-state-title" text="NOBODY HAS CRASHED YET" class="lb-state__title" picking-mode="Ignore" />
+            <ui:Label name="lb-state-body" text="This week's board is wide open." class="lb-state__body" picking-mode="Ignore" />
+            <op:LipButton name="lb-state-action" text="FLY NOW" variant="Primary" lip-size="Large" class="lb-state__action" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

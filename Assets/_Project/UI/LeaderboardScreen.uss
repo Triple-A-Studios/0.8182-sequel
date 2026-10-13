@@ -1,0 +1,334 @@
+/* Leaderboard screen (UI/art pass, Pass 6b). Header, tabs, sticker and card come from Theme/Theme.uss; this file
+   lays out the controls row, the rows, the pinned own row and the loading / empty / error panel. Flow layout inside
+   the menu's safe-area padding, like the Settings screen. */
+
+.lb-screen {
+    flex-grow: 1;
+    padding: 16px 24px 24px 24px;
+}
+
+/* ---- Header chip (WEEKLY RESETS IN ... / FINAL) ---- */
+
+.lb-reset-chip { margin-top: 6px; }
+
+.lb-reset-chip > .lipbox__face {
+    padding: 14px 30px;
+    border-radius: 20px;
+    border-width: 3px;
+}
+
+.lb-reset-chip > .lipbox__lip { border-radius: 20px; }
+
+.lb-reset-text {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    color: var(--ink);
+    margin: 0 8px 0 0;
+}
+
+.lb-reset-value {
+    color: var(--amber);
+    margin-right: 0;
+}
+
+/* ---- Controls row: tabs left, past-week stepper right ---- */
+
+.lb-controls {
+    flex-direction: row;
+    align-items: center;
+    height: 96px;
+    margin-top: 6px;
+    margin-bottom: 18px;
+}
+
+.lb-tabs { flex-shrink: 0; }
+
+.lb-tabs .tabbar__tab { padding: 14px 44px; }
+
+.lb-tabs .tabbar__label { font-size: 32px; }
+
+.lb-stepper {
+    flex-direction: row;
+    align-items: center;
+}
+
+.lb-step {
+    width: 84px;
+    height: 94px;
+}
+
+.lb-step .lipbox__label {
+    font-size: 56px;
+    color: var(--amber);
+    margin-bottom: 6px;
+}
+
+.lb-stepper__text {
+    width: 380px;
+    align-items: center;
+}
+
+.lb-stepper__title {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+    margin-bottom: -6px;
+}
+
+.lb-stepper__range {
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 24px;
+    color: var(--ink-55);
+}
+
+.lb-sample-tag { margin-right: 12px; }
+
+.lb-sample-tag__label { font-size: 28px; }
+
+/* ---- Panels: board / skeleton / state share the space under the controls ---- */
+
+.lb-panel { flex-grow: 1; }
+
+.lb-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-height: 0;
+}
+
+/* Thin, quiet scroller: the list also scrolls by wheel and drag. */
+.lb-scroll .unity-scroller--vertical {
+    width: 12px;
+    margin-left: 10px;
+}
+
+.lb-scroll .unity-repeat-button { display: none; }
+
+.lb-scroll .unity-base-slider--vertical { margin: 0; }
+
+.lb-scroll .unity-base-slider__tracker {
+    width: 12px;
+    border-width: 0;
+    border-radius: 6px;
+    background-color: rgba(16, 24, 35, 0.4);
+}
+
+.lb-scroll .unity-base-slider__dragger {
+    width: 12px;
+    border-width: 0;
+    border-radius: 6px;
+    background-color: var(--ink-35);
+}
+
+/* ---- Rows: ranks 1-3 are tinted and larger, the rest are flat panels ---- */
+
+.lb-row {
+    flex-direction: row;
+    align-items: center;
+    height: 84px;
+    margin-bottom: 12px;
+    padding: 0 34px;
+    border-radius: 20px;
+    border-width: 3px;
+    border-color: rgba(0, 0, 0, 0);
+    background-color: var(--panel);
+    flex-shrink: 0;
+}
+
+.lb-row--top { height: 106px; }
+
+.lb-row--gold {
+    background-color: rgba(240, 169, 59, 0.18);
+    border-color: rgba(240, 169, 59, 0.55);
+}
+
+.lb-row--silver {
+    background-color: rgba(246, 239, 226, 0.12);
+    border-color: rgba(246, 239, 226, 0.28);
+}
+
+.lb-row--bronze {
+    background-color: rgba(232, 96, 60, 0.16);
+    border-color: rgba(232, 96, 60, 0.4);
+}
+
+/* The player's own row inside the list: amber outline (the pinned row below repeats it). */
+.lb-row--self { border-color: var(--amber); }
+
+.lb-row__rank {
+    width: 80px;
+    margin-right: 28px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 38px;
+    color: var(--ink-55);
+}
+
+.lb-row__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.lb-row__score {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.lb-row--top .lb-row__rank { font-size: 46px; }
+
+.lb-row--top .lb-row__name {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 42px;
+}
+
+.lb-row--top .lb-row__score { font-size: 46px; }
+
+.lb-row--gold .lb-row__rank { color: var(--amber); }
+.lb-row--silver .lb-row__rank { color: rgba(246, 239, 226, 0.8); }
+.lb-row--bronze .lb-row__rank { color: #FFB8A3; }
+
+/* ---- Pinned own row ---- */
+
+.lb-own {
+    margin-top: 12px;
+    flex-shrink: 0;
+}
+
+.lb-own.card > .lipbox__lip {
+    background-color: rgba(16, 24, 35, 0.7);
+    border-radius: 24px;
+}
+
+.lb-own.card > .lipbox__face {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14px 30px;
+    border-width: 5px;
+    border-color: var(--amber);
+    border-radius: 24px;
+    background-color: var(--panel-inner);
+}
+
+.lb-own__rank {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 46px;
+    color: var(--amber);
+    margin-right: 24px;
+}
+
+.lb-own__who {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-direction: row;
+    align-items: center;
+}
+
+.lb-own__name {
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 42px;
+    color: var(--ink);
+}
+
+.lb-own__hint {
+    flex-shrink: 0;
+    margin-left: 14px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 28px;
+    color: var(--ink-55);
+}
+
+.lb-own__score {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 46px;
+    color: var(--ink);
+    margin-left: 24px;
+}
+
+.lb-share {
+    height: 94px;
+    margin-left: 24px;
+}
+
+.lb-share > .lipbox__face {
+    padding: 0 34px;
+    border-radius: 18px;
+}
+
+.lb-share > .lipbox__lip { border-radius: 18px; }
+
+.lb-share .lipbox__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 32px;
+}
+
+/* ---- Loading skeleton: rows of the same size, pulsing ---- */
+
+.lb-skeleton { flex-grow: 1; }
+
+.lb-row--skeleton {
+    background-color: var(--panel);
+    transition-property: opacity;
+    transition-duration: 0.7s;
+    transition-timing-function: ease-in-out;
+}
+
+.lb-skeleton--dim .lb-row--skeleton { opacity: 0.5; }
+
+/* ---- Empty / error / offline ---- */
+
+.lb-state {
+    align-items: center;
+    justify-content: center;
+}
+
+.lb-state__ring {
+    width: 180px;
+    height: 180px;
+    align-items: center;
+    justify-content: center;
+    background-image: url("../Art/Textures/UI/Tex_UiDashedRing.png");
+    -unity-background-image-tint-color: rgba(246, 239, 226, 0.35);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.lb-state__glyph {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 96px;
+    color: var(--ink-35);
+    margin-bottom: 6px;
+}
+
+.lb-state__title {
+    margin-top: 22px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 62px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+}
+
+.lb-state__body {
+    max-width: 720px;
+    margin-top: 6px;
+    white-space: normal;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 30px;
+    color: var(--ink-70);
+    -unity-text-align: middle-center;
+}
+
+.lb-state__action { margin-top: 30px; }
+
+.lb-state__action > .lipbox__face { padding: 14px 56px; }
+
+.lb-state__action .lipbox__label { font-size: 48px; }

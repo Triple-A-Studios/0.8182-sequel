@@ -28,6 +28,7 @@ namespace Opoint8182.UI
 
 		private const string k_MenuScreenId = "menu";
 		private const string k_SettingsScreenId = "settings";
+		private const string k_LeaderboardScreenId = "leaderboard";
 
 		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
 		private const string k_PlaceholderPlayerName = "OLIVE";
@@ -65,6 +66,7 @@ namespace Opoint8182.UI
 		private VisualElement m_loadedRoot;
 		private ScreenRouter m_router;
 		private SettingsScreen m_settingsScreen;
+		private LeaderboardScreen m_leaderboardScreen;
 
 		private VisualElement m_statusCompetitive;
 		private VisualElement m_statusPractice;
@@ -98,8 +100,10 @@ namespace Opoint8182.UI
 		{
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_loadedRoot = null;
+			m_leaderboardScreen?.Close();
 			m_router = null;
 			m_settingsScreen = null;
+			m_leaderboardScreen = null;
 		}
 
 		private void Update()
@@ -123,10 +127,17 @@ namespace Opoint8182.UI
 			m_router = new ScreenRouter(root.Q<VisualElement>("popup-layer"));
 			m_router.Register(k_MenuScreenId, root.Q<VisualElement>("screen-menu"));
 			m_router.Register(k_SettingsScreenId, root.Q<VisualElement>("screen-settings"));
+			m_router.Register(k_LeaderboardScreenId, root.Q<VisualElement>("screen-leaderboard"));
 			m_router.SetRoot(k_MenuScreenId);
 
 			m_settingsScreen = new SettingsScreen(root.Q<VisualElement>("screen-settings"));
 			m_settingsScreen.BackRequested += () => m_router.Back();
+
+			m_leaderboardScreen = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
+			m_leaderboardScreen.BackRequested += () => m_router.Back();
+			m_leaderboardScreen.ShareRequested += () => ShowStubToast(GameOverPlaceholderData.ArrivesLaterMessage);
+			m_leaderboardScreen.FlyNowRequested += OnLeaderboardFlyNow;
+			m_router.ScreenChanged += OnScreenChanged;
 
 			m_statusCompetitive = root.Q<VisualElement>("status-competitive");
 			m_statusPractice = root.Q<VisualElement>("status-practice");
@@ -199,8 +210,9 @@ namespace Opoint8182.UI
 			MakePressable(shopTile);
 			shopTile.RegisterCallback<ClickEvent>(_ => ShowStubToast(m_stubToastMessage));
 
-			// LeaderboardPanelUI owns the click (opens the Top-10 panel); this only adds the press state.
-			MakePressable(root.Q<VisualElement>("leaderboard-tile"));
+			var leaderboardTile = root.Q<VisualElement>("leaderboard-tile");
+			MakePressable(leaderboardTile);
+			leaderboardTile.RegisterCallback<ClickEvent>(_ => m_router.Show(k_LeaderboardScreenId));
 		}
 
 		private void WirePlay(VisualElement root)
@@ -248,6 +260,21 @@ namespace Opoint8182.UI
 		private static void MakePressable(VisualElement element)
 		{
 			element.AddManipulator(new PressedClassManipulator());
+		}
+
+		// The leaderboard loads when it becomes the visible screen and drops its request when it is left.
+		private void OnScreenChanged(string screenId)
+		{
+			if (screenId == k_LeaderboardScreenId) m_leaderboardScreen.Open();
+			else m_leaderboardScreen.Close();
+		}
+
+		// FLY NOW on an empty board is the same path as PLAY, in competitive mode (the board only counts those runs).
+		private void OnLeaderboardFlyNow()
+		{
+			m_router.Back();
+			m_modeTabs.selectedIndex = 0;
+			OnPlayClicked();
 		}
 
 		private void RefreshMode()
