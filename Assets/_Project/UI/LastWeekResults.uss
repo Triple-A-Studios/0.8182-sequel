@@ -1,0 +1,248 @@
+/* Last week's results (UI/art pass, Pass 7c). Header, card and buttons come from Theme/Theme.uss; this file lays out the
+   range chip, the winners list and the player card. Flow layout inside the launch panel's safe area. */
+
+.lw-screen {
+    flex-grow: 1;
+    padding: 16px 24px 24px 24px;
+}
+
+/* ---- Header chip: "SEP 29 – OCT 5 · FINAL" ---- */
+
+.lw-range-chip { flex-shrink: 0; margin-right: 8px; }
+
+.lw-range-chip > .lipbox__face {
+    padding: 16px 30px;
+    border-width: 3px;
+    border-radius: 20px;
+}
+
+.lw-range-chip > .lipbox__lip { border-radius: 20px; }
+
+.lw-range {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    color: var(--ink);
+}
+
+.lw-range--dot { margin-left: 10px; margin-right: 10px; }
+
+.lw-range--final { color: var(--amber); }
+
+/* ---- Body ---- */
+
+.lw-body {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 1;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.lw-left {
+    flex-grow: 1;
+    flex-basis: 0;
+    max-width: 1360px;
+    margin-right: 40px;
+}
+
+.lw-kicker {
+    margin-left: 8px;
+    margin-bottom: 8px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: rgba(246, 239, 226, 0.6);
+}
+
+.lw-rows { flex-shrink: 0; }
+
+.lw-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 6px 34px;
+    border-width: 3px;
+    border-radius: 20px;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.lw-row__rank {
+    width: 80px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 46px;
+    color: rgba(246, 239, 226, 0.6);
+}
+
+.lw-row__name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.lw-row__score {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 38px;
+    color: var(--ink);
+}
+
+.lw-row--plain { background-color: var(--panel); }
+
+.lw-row--gold {
+    padding: 8px 34px;
+    background-color: rgba(240, 169, 59, 0.18);
+    border-color: rgba(240, 169, 59, 0.55);
+}
+
+.lw-row--silver {
+    padding: 8px 34px;
+    background-color: rgba(246, 239, 226, 0.12);
+    border-color: rgba(246, 239, 226, 0.28);
+}
+
+.lw-row--bronze {
+    padding: 8px 34px;
+    background-color: rgba(232, 96, 60, 0.16);
+    border-color: rgba(232, 96, 60, 0.4);
+}
+
+.lw-row--gold .lw-row__rank { color: var(--amber); }
+.lw-row--silver .lw-row__rank { color: rgba(246, 239, 226, 0.8); }
+.lw-row--bronze .lw-row__rank { color: #FFB8A3; }
+
+.lw-row--gold .lw-row__name,
+.lw-row--silver .lw-row__name,
+.lw-row--bronze .lw-row__name {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 42px;
+}
+
+.lw-row--gold .lw-row__score,
+.lw-row--silver .lw-row__score,
+.lw-row--bronze .lw-row__score { font-size: 46px; }
+
+/* ---- Player card ---- */
+
+.lw-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 640px;
+    max-width: 820px;
+    margin-bottom: 14px;
+}
+
+.lw-card.card > .lipbox__face {
+    align-items: center;
+    justify-content: center;
+    padding: 36px 40px;
+    border-width: 5px;
+    border-radius: 32px;
+    border-color: var(--amber);
+    background-color: var(--panel-inner);
+}
+
+.lw-card.card > .lipbox__lip {
+    top: 14px;
+    border-radius: 32px;
+    background-color: rgba(16, 24, 35, 0.7);
+}
+
+.lw-card.card { padding-bottom: 14px; }
+
+.lw-card--norank.card > .lipbox__face { border-color: rgba(246, 239, 226, 0.28); }
+
+.lw-card__kicker {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    letter-spacing: 3px;
+    color: rgba(246, 239, 226, 0.65);
+}
+
+.lw-card__rank {
+    height: 200px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 190px;
+    color: var(--amber);
+    -unity-text-align: middle-center;
+    rotate: -2deg;
+}
+
+.lw-card--norank .lw-card__rank { color: rgba(246, 239, 226, 0.5); }
+
+.lw-card__pilots {
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 32px;
+    color: rgba(246, 239, 226, 0.75);
+}
+
+.lw-card__score {
+    height: 84px;
+    margin-top: 6px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 64px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+}
+
+.lw-card__name {
+    max-width: 100%;
+    white-space: normal;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 26px;
+    color: rgba(246, 239, 226, 0.6);
+    -unity-text-align: middle-center;
+}
+
+.lw-card__buttons {
+    align-self: stretch;
+    margin-top: 22px;
+}
+
+.lw-share,
+.lw-continue {
+    align-self: stretch;
+    margin-bottom: 6px;
+}
+
+.lw-share > .lipbox__face,
+.lw-continue > .lipbox__face {
+    padding: 14px 54px;
+    border-radius: 24px;
+}
+
+.lw-share > .lipbox__lip,
+.lw-continue > .lipbox__lip { border-radius: 24px; }
+
+.lw-share .lipbox__label { font-size: 52px; }
+
+.lw-continue .lipbox__label { font-size: 46px; }
+
+.lw-share { margin-bottom: 14px; }
+
+/* ---- Share toast ---- */
+
+.lw-toast {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.lw-toast__label {
+    padding: 20px 40px;
+    border-radius: 20px;
+    border-width: 3px;
+    border-color: var(--border-soft);
+    background-color: rgba(16, 24, 35, 0.9);
+    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 34px;
+    color: var(--ink);
+}

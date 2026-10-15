@@ -11,6 +11,7 @@ namespace Opoint8182.UI
 	public class LoadingScreen
 	{
 		private readonly VisualElement m_root;
+		private readonly VisualElement m_content;
 		private readonly VisualElement m_art;
 		private readonly VisualElement m_rotate;
 		private readonly VisualElement m_barFill;
@@ -29,6 +30,7 @@ namespace Opoint8182.UI
 		public LoadingScreen(VisualElement root)
 		{
 			m_root = root;
+			m_content = root.Q<VisualElement>("loading-content");
 			m_art = root.Q<VisualElement>("loading-art");
 			m_rotate = root.Q<VisualElement>("loading-rotate");
 			m_barFill = root.Q<VisualElement>("loading-bar-fill");
@@ -62,6 +64,12 @@ namespace Opoint8182.UI
 			RotateGateVisible = visible;
 			m_art.style.display = visible ? DisplayStyle.None : DisplayStyle.Flex;
 			m_rotate.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+		}
+
+		/// <summary>Hides or shows the loading content itself (the launch panel shows the results screen instead).</summary>
+		public void SetContentVisible(bool visible)
+		{
+			m_content.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 
 		public void Show()

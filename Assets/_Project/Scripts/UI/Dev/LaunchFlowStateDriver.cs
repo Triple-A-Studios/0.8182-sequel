@@ -5,10 +5,10 @@ using UnityEngine.UIElements;
 namespace Opoint8182.UI
 {
 	/// <summary>
-	/// Dev-only harness for the launch flow screens (Loading + rotate gate; the last-week's-results screen joins it in
-	/// Pass 7c): loads <c>Loading.uxml</c> into the LaunchFlowGallery scene so the states that are quick or hard to reach
-	/// in a real launch can be looked at. Keys: 1 to 9 progress 10 to 90%, 0 progress 100%, Q a new quip,
-	/// R toggles the rotate prompt.
+	/// Dev-only harness for the launch flow screens (Loading + rotate gate, last week's results): loads
+	/// <c>Loading.uxml</c> into the LaunchFlowGallery scene so the states that are quick or hard to reach in a real
+	/// launch can be looked at. Keys: 1 to 9 progress 10 to 90%, 0 progress 100%, Q a new quip, R toggles the rotate
+	/// prompt, A last week's results with a rank, S the no-ranked-run variant, L back to the loading screen.
 	/// </summary>
 	[RequireComponent(typeof(PanelRenderer))]
 	public class LaunchFlowStateDriver : MonoBehaviour
@@ -16,6 +16,7 @@ namespace Opoint8182.UI
 		private PanelRenderer m_panelRenderer;
 		private VisualElement m_loadedRoot;
 		private LoadingScreen m_loading;
+		private LastWeekResultsScreen m_results;
 
 		private void Awake()
 		{
@@ -32,6 +33,7 @@ namespace Opoint8182.UI
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_loadedRoot = null;
 			m_loading = null;
+			m_results = null;
 		}
 
 		private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
@@ -44,6 +46,21 @@ namespace Opoint8182.UI
 			m_loading.Show();
 			m_loading.SetProgress(0.62f);
 			m_loading.SetQuip(LoadingQuips.Sample);
+
+			m_results = new LastWeekResultsScreen(root.Q<VisualElement>("screen-results"));
+			m_results.ContinueRequested += ShowLoading;
+		}
+
+		private void ShowResults(bool withRank)
+		{
+			m_loading.SetContentVisible(false);
+			m_results.Show(LastWeekResultsPlaceholderData.Sample(withRank, System.DateTime.UtcNow));
+		}
+
+		private void ShowLoading()
+		{
+			m_results.Hide();
+			m_loading.SetContentVisible(true);
 		}
 
 		private void Update()
@@ -64,6 +81,10 @@ namespace Opoint8182.UI
 
 			if (keyboard.qKey.wasPressedThisFrame) m_loading.SetQuip(LoadingQuips.Pick());
 			if (keyboard.rKey.wasPressedThisFrame) m_loading.SetRotateGate(!m_loading.RotateGateVisible);
+
+			if (keyboard.aKey.wasPressedThisFrame) ShowResults(true);
+			if (keyboard.sKey.wasPressedThisFrame) ShowResults(false);
+			if (keyboard.lKey.wasPressedThisFrame) ShowLoading();
 		}
 	}
 }

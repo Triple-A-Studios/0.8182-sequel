@@ -10,6 +10,8 @@
     bottom: 0;
 }
 
+.loading-content { flex-grow: 1; }
+
 .loading-wordmark {
     flex-shrink: 0;
     margin-left: 32px;

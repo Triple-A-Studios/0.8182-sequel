@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
     <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
     <Style src="Loading.uss" />
+    <Template name="LastWeekResultsScreen" src="LastWeekResults.uxml" />
     <!-- Launch flow panel (Bootstrap scene): the loading screen (S01) with its rotate-device prompt. Logic in
          LoadingScreen.cs / LaunchFlowHost.cs. The panel draws above the menu that loads beneath it. -->
     <ui:VisualElement name="launch-root" class="theme launch-root">
@@ -8,6 +9,9 @@
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
 
         <ui:VisualElement name="launch-safe-area" class="ui-safe-area" picking-mode="Ignore">
+
+            <!-- Loading (S01) -->
+            <ui:VisualElement name="loading-content" class="loading-content" picking-mode="Ignore">
 
             <ui:Label text="OPOINT8182" class="loading-wordmark" picking-mode="Ignore" />
 
@@ -39,6 +43,11 @@
                     <ui:Label name="loading-percent" text="0%" class="loading-percent" picking-mode="Ignore" />
                 </ui:VisualElement>
             </ui:VisualElement>
+
+            </ui:VisualElement>
+
+            <!-- Last week's results (S11), shown instead of the loading content when there is a closed week to show. -->
+            <ui:Instance template="LastWeekResultsScreen" name="screen-results" class="screen-instance" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
