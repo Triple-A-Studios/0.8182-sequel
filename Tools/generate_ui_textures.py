@@ -220,6 +220,35 @@ def heart(path):
     _icon(path, draw)
 
 
+def rotate_phone(path):
+    """Phone outline inside two curved arrows (turn the device). 256 px, tinted in USS."""
+    import math
+
+    def draw(d, ss):
+        # phone body: outlined rounded rectangle, speaker slot at the top
+        d.rounded_rectangle([88 * ss, 52 * ss, 168 * ss, 204 * ss], radius=18 * ss, fill=255)
+        d.rounded_rectangle([98 * ss, 66 * ss, 158 * ss, 190 * ss], radius=8 * ss, fill=0)
+        d.rounded_rectangle([114 * ss, 74 * ss, 142 * ss, 80 * ss], radius=3 * ss, fill=255)
+
+        cx = cy = 128
+        r = 112
+        w = 12
+
+        def arc_with_head(start, end):
+            d.arc([(cx - r) * ss, (cy - r) * ss, (cx + r) * ss, (cy + r) * ss], start, end, fill=255, width=w * ss)
+            a = math.radians(end)
+            tip_angle = a + math.radians(14)
+            # arrowhead: triangle at the end of the arc, pointing along the clockwise tangent
+            def pt(angle, radius):
+                return ((cx + radius * math.cos(angle)) * ss, (cy + radius * math.sin(angle)) * ss)
+            d.polygon([pt(a, r + 20), pt(a, r - 20), pt(tip_angle, r)], fill=255)
+
+        arc_with_head(205, 295)
+        arc_with_head(25, 115)
+
+    _icon(path, draw, size=256)
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
@@ -234,4 +263,5 @@ if __name__ == "__main__":
     dice("Tex_UiDice.png")
     check("Tex_UiCheck.png")
     heart("Tex_UiHeart.png")
+    rotate_phone("Tex_UiRotatePhone.png")
     print("ok")

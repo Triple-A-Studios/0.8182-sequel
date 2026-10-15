@@ -1,0 +1,147 @@
+/* Loading screen + rotate prompt (UI/art pass, Pass 7b). Background, stripes, safe area and tokens come from
+   Theme/Theme.uss. Flow layout inside the safe area; it also has to hold up in a portrait window (the rotate prompt
+   is shown there), so nothing is a fixed width beyond what fits ~1200 reference px. */
+
+.launch-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.loading-wordmark {
+    flex-shrink: 0;
+    margin-left: 32px;
+    margin-top: 20px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 34px;
+    letter-spacing: 5px;
+    color: rgba(246, 239, 226, 0.55);
+}
+
+.loading-stage {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---- Key art slot ---- */
+
+.loading-art { align-items: center; }
+
+.loading-key-slot {
+    width: 1080px;
+    height: 420px;
+    max-width: 100%;
+    border-width: 4px;
+    border-radius: 24px;
+    border-color: rgba(246, 239, 226, 0.42);
+    background-color: rgba(246, 239, 226, 0.06);
+    align-items: center;
+    justify-content: center;
+}
+
+/* The supplied PNG is a 2160 px square with the mark in the middle third; crop to it like the UI gallery does. */
+.loading-logo {
+    width: 640px;
+    height: 400px;
+    background-image: url("../Art/Textures/UI/Tex_Logo.png");
+    background-size: 140% auto;
+    background-position: center 58%;
+    background-repeat: no-repeat;
+}
+
+.loading-art-caption {
+    margin-top: 18px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: rgba(246, 239, 226, 0.78);
+}
+
+/* ---- Rotate prompt ---- */
+
+.loading-rotate {
+    display: none;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.loading-rotate__icon {
+    width: 240px;
+    height: 240px;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("../Art/Textures/UI/Tex_UiRotatePhone.png");
+    -unity-background-image-tint-color: var(--amber);
+}
+
+.loading-rotate__title {
+    margin-top: 28px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 72px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.loading-rotate__body {
+    margin-top: 6px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 32px;
+    color: rgba(246, 239, 226, 0.75);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ---- Bottom: quip + progress ---- */
+
+.loading-bottom {
+    flex-shrink: 0;
+    align-items: center;
+    margin-bottom: 72px;
+}
+
+.loading-quip {
+    max-width: 1200px;
+    margin-bottom: 30px;
+    white-space: normal;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    -unity-font-style: italic;
+    font-size: 34px;
+    color: rgba(246, 239, 226, 0.82);
+    -unity-text-align: middle-center;
+}
+
+.loading-bar-row {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: 1400px;
+    padding: 0 24px;
+}
+
+.loading-bar {
+    flex-grow: 1;
+    height: 46px;
+    padding: 7px;
+    border-radius: 23px;
+    background-color: rgba(10, 16, 24, 0.5);
+}
+
+.loading-bar__fill {
+    width: 0;
+    height: 100%;
+    border-radius: 16px;
+    background-color: var(--amber);
+    background-image: url("../Art/Textures/UI/Tex_UiGradAmber.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+.loading-percent {
+    min-width: 150px;
+    margin-left: 32px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 58px;
+    color: var(--ink);
+}

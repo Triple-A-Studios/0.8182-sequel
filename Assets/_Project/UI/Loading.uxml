@@ -1,0 +1,44 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+    <Style src="Loading.uss" />
+    <!-- Launch flow panel (Bootstrap scene): the loading screen (S01) with its rotate-device prompt. Logic in
+         LoadingScreen.cs / LaunchFlowHost.cs. The panel draws above the menu that loads beneath it. -->
+    <ui:VisualElement name="launch-root" class="theme launch-root">
+        <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
+        <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
+
+        <ui:VisualElement name="launch-safe-area" class="ui-safe-area" picking-mode="Ignore">
+
+            <ui:Label text="OPOINT8182" class="loading-wordmark" picking-mode="Ignore" />
+
+            <ui:VisualElement class="loading-stage" picking-mode="Ignore">
+
+                <!-- Key art slot. The studio logo stands in until real key art exists (3D half). -->
+                <ui:VisualElement name="loading-art" class="loading-art" picking-mode="Ignore">
+                    <ui:VisualElement class="loading-key-slot" picking-mode="Ignore">
+                        <ui:VisualElement class="loading-logo" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <!-- DELETE before shipping - dev annotation, per the mockup. -->
+                    <ui:Label text="KEY ART: plane mid-crash through a skyline" class="loading-art-caption" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <!-- Replaces the art while the page is portrait (web). -->
+                <ui:VisualElement name="loading-rotate" class="loading-rotate" picking-mode="Ignore">
+                    <ui:VisualElement class="loading-rotate__icon" picking-mode="Ignore" />
+                    <ui:Label text="ROTATE YOUR DEVICE" class="loading-rotate__title" picking-mode="Ignore" />
+                    <ui:Label text="Opoint8182 is played in landscape." class="loading-rotate__body" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="loading-bottom" picking-mode="Ignore">
+                <ui:Label name="loading-quip" text="&quot;Structural engineers hate this one weak point.&quot;" class="loading-quip" picking-mode="Ignore" />
+                <ui:VisualElement class="loading-bar-row" picking-mode="Ignore">
+                    <ui:VisualElement class="loading-bar" picking-mode="Ignore">
+                        <ui:VisualElement name="loading-bar-fill" class="loading-bar__fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:Label name="loading-percent" text="0%" class="loading-percent" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

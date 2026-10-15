@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Alchemy.Inspector;
 using Opoint8182.Game;
+using Opoint8182.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +12,9 @@ namespace Opoint8182.Bootstrap
         [Title("Scenes")]
         [FoldoutGroup("Scenes")] [SerializeField] private string m_mainMenuSceneName = "MainMenu";
         [FoldoutGroup("Scenes")] [SerializeField] private string m_gameSceneName = "Prototype";
+
+        [Title("Launch flow")]
+        [FoldoutGroup("Launch flow")] [SerializeField] private LaunchFlowHost m_launchFlow;
 
         private void Awake()
         {
@@ -38,10 +42,15 @@ namespace Opoint8182.Bootstrap
 
             while (!operations.IsDone)
             {
+                m_launchFlow?.ReportProgress(operations.Progress);
                 await Task.Yield();
             }
 
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(m_gameSceneName));
+
+            // Holds on the loading screen for its minimum time and while the rotate prompt is up; the menu is already
+            // loaded and active underneath.
+            if (m_launchFlow != null) await m_launchFlow.WaitUntilReadyAsync();
         }
     }
 }
