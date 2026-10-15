@@ -298,6 +298,16 @@
     color: var(--ink-55);
 }
 
+/* Small tag after a tab's label (BETA); hidden on the active tab like the mockup's selected CRASH FX tab. */
+.tabbar__tag {
+    margin-left: 12px;
+    -unity-font-definition: url("../../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 24px;
+    color: var(--amber);
+}
+
+.tabbar__tab--active .tabbar__tag { display: none; }
+
 .tabbar__tab--active { background-color: var(--amber); }
 .tabbar__tab--active .tabbar__label { color: var(--ink-dark); }
 

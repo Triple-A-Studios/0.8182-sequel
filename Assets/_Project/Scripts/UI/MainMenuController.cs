@@ -30,6 +30,8 @@ namespace Opoint8182.UI
 		private const string k_SettingsScreenId = "settings";
 		private const string k_LeaderboardScreenId = "leaderboard";
 		private const string k_ProfileScreenId = "profile";
+		private const string k_ShopScreenId = "shop";
+		private const string k_CreditsScreenId = "credits";
 
 		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
 		private const int k_PlaceholderAttemptsMax = 3;
@@ -45,7 +47,6 @@ namespace Opoint8182.UI
 		[FoldoutGroup("References")] [SerializeField] private float m_baseSafeAreaPadding = 24f;
 
 		[Title("Stub toast")]
-		[FoldoutGroup("Stub toast")] [SerializeField] private string m_stubToastMessage = "IMPLEMENTED IN ALPHA";
 		[FoldoutGroup("Stub toast")] [SerializeField] private string m_comingLaterMessage = "COMING IN A LATER PASS";
 		[FoldoutGroup("Stub toast")] [SerializeField] private float m_stubToastDuration = 3f;
 		[FoldoutGroup("Stub toast")] [SerializeField] private float m_rapidClickWindowSeconds = 1.5f;
@@ -67,6 +68,8 @@ namespace Opoint8182.UI
 		private SettingsScreen m_settingsScreen;
 		private LeaderboardScreen m_leaderboardScreen;
 		private ProfileScreen m_profileScreen;
+		private ShopScreen m_shopScreen;
+		private CreditsScreen m_creditsScreen;
 		private Label m_profileNameLabel;
 
 		private VisualElement m_statusCompetitive;
@@ -107,6 +110,8 @@ namespace Opoint8182.UI
 			m_settingsScreen = null;
 			m_leaderboardScreen = null;
 			m_profileScreen = null;
+			m_shopScreen = null;
+			m_creditsScreen = null;
 			m_profileNameLabel = null;
 		}
 
@@ -138,6 +143,8 @@ namespace Opoint8182.UI
 			m_router.Register(k_SettingsScreenId, root.Q<VisualElement>("screen-settings"));
 			m_router.Register(k_LeaderboardScreenId, root.Q<VisualElement>("screen-leaderboard"));
 			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
+			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
+			m_router.Register(k_CreditsScreenId, root.Q<VisualElement>("screen-credits"));
 			m_router.SetRoot(k_MenuScreenId);
 
 			m_settingsScreen = new SettingsScreen(root.Q<VisualElement>("screen-settings"));
@@ -150,6 +157,14 @@ namespace Opoint8182.UI
 
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profileScreen.BackRequested += () => m_router.Back();
+
+			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
+			m_shopScreen.BackRequested += () => m_router.Back();
+			m_shopScreen.ActionRequested += () => ShowStubToast(GameOverPlaceholderData.ArrivesLaterMessage);
+
+			m_creditsScreen = new CreditsScreen(root.Q<VisualElement>("screen-credits"));
+			m_creditsScreen.BackRequested += () => m_router.Back();
+			m_creditsScreen.LinkRequested += OnCreditsLink;
 			m_router.ScreenChanged += OnScreenChanged;
 
 			m_statusCompetitive = root.Q<VisualElement>("status-competitive");
@@ -215,7 +230,11 @@ namespace Opoint8182.UI
 			MakePressable(profileChip);
 			profileChip.RegisterCallback<ClickEvent>(_ => m_router.Show(k_ProfileScreenId));
 
-			root.Q<LipButton>("currency-add-button").clicked += () => ShowStubToast(m_stubToastMessage);
+			// Coins are earned, never bought, so the chip has no "+": it opens the shop instead.
+			var currencyChip = root.Q<VisualElement>("currency-chip");
+			MakePressable(currencyChip);
+			currencyChip.RegisterCallback<ClickEvent>(_ => m_router.Show(k_ShopScreenId));
+
 			root.Q<LipButton>("menu-button").clicked += () => m_router.ShowPopup(m_popupOverflow);
 		}
 
@@ -223,7 +242,7 @@ namespace Opoint8182.UI
 		{
 			var shopTile = root.Q<VisualElement>("shop-tile");
 			MakePressable(shopTile);
-			shopTile.RegisterCallback<ClickEvent>(_ => ShowStubToast(m_stubToastMessage));
+			shopTile.RegisterCallback<ClickEvent>(_ => m_router.Show(k_ShopScreenId));
 
 			var leaderboardTile = root.Q<VisualElement>("leaderboard-tile");
 			MakePressable(leaderboardTile);
@@ -258,7 +277,7 @@ namespace Opoint8182.UI
 
 			WireOverflowRow(root, "overflow-settings", () => m_router.Show(k_SettingsScreenId));
 			WireOverflowRow(root, "overflow-howto", () => ShowComingLater());
-			WireOverflowRow(root, "overflow-credits", () => ShowComingLater());
+			WireOverflowRow(root, "overflow-credits", () => m_router.Show(k_CreditsScreenId));
 			WireOverflowRow(root, "overflow-quit", () => m_router.ShowPopup(m_popupQuit));
 
 			// No quitting a browser tab: the Quit entry does not exist on WebGL.
@@ -286,8 +305,18 @@ namespace Opoint8182.UI
 			if (screenId == k_ProfileScreenId) m_profileScreen.Open();
 			else m_profileScreen.Close();
 
+			if (screenId == k_ShopScreenId) m_shopScreen.Open();
+
 			// The profile screen may have renamed the player; the chip follows when the menu is shown again.
 			if (screenId == k_MenuScreenId) m_profileNameLabel.text = UiProfileState.DisplayName;
+		}
+
+		// An empty URL is a placeholder chip that is not filled in yet: nothing to open.
+		private static void OnCreditsLink(CreditsLink link)
+		{
+			if (string.IsNullOrEmpty(link.Url)) return;
+
+			Application.OpenURL(link.Url);
 		}
 
 		// FLY NOW on an empty board is the same path as PLAY, in competitive mode (the board only counts those runs).

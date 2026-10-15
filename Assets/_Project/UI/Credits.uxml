@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="Credits.uss" />
+    <!-- Credits screen (S10). Instanced into MainMenu.uxml as a ScreenRouter screen; logic in CreditsScreen.cs, all text
+         comes from CreditsContent (placeholders the developer fills in). -->
+    <ui:VisualElement name="credits-root" class="credits-screen" picking-mode="Ignore">
+
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="credits-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="CREDITS" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="credits-columns" picking-mode="Ignore">
+
+            <op:LipBox class="card credits-maker">
+                <ui:Label name="credits-headline" text="MADE BY ONE PERSON" class="credits-kicker" picking-mode="Ignore" />
+                <ui:VisualElement name="credits-name" class="credits-name" picking-mode="Ignore" />
+                <ui:Label name="credits-blurb" text="" class="credits-blurb" picking-mode="Ignore" />
+                <ui:VisualElement name="credits-links" class="credits-links" picking-mode="Ignore" />
+            </op:LipBox>
+
+            <ui:VisualElement class="credits-right" picking-mode="Ignore">
+                <op:LipBox class="card credits-note">
+                    <ui:Label name="credits-thanks-title" text="" class="credits-note__title" picking-mode="Ignore" />
+                    <ui:VisualElement name="credits-thanks" class="credits-note__lines" picking-mode="Ignore" />
+                </op:LipBox>
+                <op:LipBox class="card credits-note">
+                    <ui:Label name="credits-built-title" text="" class="credits-note__title" picking-mode="Ignore" />
+                    <ui:VisualElement name="credits-built" class="credits-note__lines" picking-mode="Ignore" />
+                </op:LipBox>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <ui:VisualElement class="credits-footer" picking-mode="Ignore">
+            <op:LipButton name="credits-back-bottom" text="BACK TO MENU" class="credits-back-bottom" />
+            <ui:Label name="credits-version" text="v0.0.0" class="credits-version" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

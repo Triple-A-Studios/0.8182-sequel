@@ -101,7 +101,7 @@
     align-items: flex-start;
 }
 
-.menu-currency-chip .lipbox__face { padding: 0 20px 0 26px; }
+.menu-currency-chip .lipbox__face { padding: 0 26px; }
 
 .menu-coin {
     width: 40px;
@@ -115,18 +115,6 @@
 
 .menu-currency-value {
     font-size: 38px;
-    margin-right: 14px;
-    color: var(--ink);
-}
-
-.menu-currency-add {
-    width: 54px;
-    height: 54px;
-    margin-right: 0;
-}
-
-.menu-currency-add .lipbox__label {
-    font-size: 36px;
     color: var(--ink);
 }
 

@@ -1,0 +1,164 @@
+/* Credits screen (UI/art pass, Pass 7a). Cards and header come from Theme/Theme.uss; this file lays out the maker card,
+   the two note cards and the footer. Flow layout inside the menu's safe-area padding. */
+
+.credits-screen {
+    flex-grow: 1;
+    padding: 16px 24px 24px 24px;
+}
+
+.credits-columns {
+    flex-direction: row;
+    flex-grow: 0;
+    flex-shrink: 1;
+    margin-top: 20px;
+}
+
+/* ---- Maker card ---- */
+
+.credits-maker {
+    flex-grow: 1.2;
+    flex-basis: 0;
+    margin-bottom: 14px;
+}
+
+.credits-maker.card > .lipbox__face { padding: 40px 46px; }
+
+.credits-kicker {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 28px;
+    letter-spacing: 5px;
+    color: var(--ink-70);
+}
+
+.credits-name { margin-top: 14px; }
+
+/* One label per line with a fixed height: Baloo's line box is much taller than its glyphs. */
+.credits-name__line {
+    height: 96px;
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 104px;
+    color: var(--ink);
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+    overflow: visible;
+}
+
+.credits-blurb {
+    margin-top: 18px;
+    white-space: normal;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 32px;
+    color: rgba(246, 239, 226, 0.78);
+}
+
+.credits-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
+
+.credits-link {
+    margin-right: 16px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.credits-link > .lipbox__face {
+    padding: 14px 30px;
+    border-radius: 18px;
+    border-width: 0;
+    background-color: var(--panel-inner);
+}
+
+.credits-link > .lipbox__lip { border-radius: 18px; }
+
+.credits-link--support > .lipbox__face { background-color: var(--amber); }
+
+.credits-link--support > .lipbox__lip { background-color: var(--amber-lip); }
+
+.credits-link__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 28px;
+    color: var(--ink);
+}
+
+.credits-link--support .credits-link__label { color: var(--ink-dark); }
+
+.credits-heart {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("../Art/Textures/UI/Tex_UiHeart.png");
+    -unity-background-image-tint-color: var(--ink-dark);
+}
+
+/* ---- Right column ---- */
+
+.credits-right {
+    flex-grow: 1;
+    flex-basis: 0;
+    margin-left: 34px;
+}
+
+.credits-note { margin-bottom: 14px; }
+
+.credits-note.card > .lipbox__face { padding: 26px 34px 28px 34px; }
+
+.credits-note__title {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--amber);
+}
+
+.credits-note__lines { margin-top: 12px; }
+
+/* One label per line with a fixed height, so the line spacing matches the mockup's 1.7 line height. */
+.credits-note__line {
+    height: 54px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 32px;
+    color: var(--ink);
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+}
+
+.credits-note__line--small {
+    height: 48px;
+    font-size: 28px;
+    color: rgba(246, 239, 226, 0.82);
+}
+
+/* ---- Footer ---- */
+
+.credits-footer {
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.credits-back-bottom { flex-shrink: 0; }
+
+.credits-back-bottom > .lipbox__face {
+    padding: 18px 56px;
+    border-width: 0;
+    border-radius: 24px;
+}
+
+.credits-back-bottom > .lipbox__lip { border-radius: 24px; }
+
+.credits-back-bottom .lipbox__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 40px;
+}
+
+.credits-version {
+    margin-left: 26px;
+    margin-bottom: 20px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 24px;
+    color: rgba(246, 239, 226, 0.45);
+}

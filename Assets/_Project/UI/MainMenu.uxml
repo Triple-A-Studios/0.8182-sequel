@@ -4,6 +4,8 @@
     <Template name="SettingsScreen" src="Settings.uxml" />
     <Template name="LeaderboardScreen" src="LeaderboardScreen.uxml" />
     <Template name="ProfileScreen" src="Profile.uxml" />
+    <Template name="ShopScreen" src="Shop.uxml" />
+    <Template name="CreditsScreen" src="Credits.uxml" />
     <ui:VisualElement name="root" class="theme menu-root">
         <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
@@ -41,7 +43,6 @@
                     <op:LipBox name="currency-chip" class="menu-chip menu-currency-chip">
                         <ui:VisualElement class="menu-coin" picking-mode="Ignore" />
                         <ui:Label name="currency-value" text="12,480" class="t-baloo-extrabold menu-currency-value" />
-                        <op:LipButton name="currency-add-button" text="+" variant="Positive" lip-size="Small" class="menu-currency-add" />
                     </op:LipBox>
                     <op:LipButton name="menu-button" class="menu-chip menu-hamburger">
                         <ui:VisualElement class="menu-bar" picking-mode="Ignore" />
@@ -95,10 +96,12 @@
 
             </ui:VisualElement>
 
-            <!-- Full screens on the ScreenRouter (Pass 6). Each template carries its own USS. -->
+            <!-- Full screens on the ScreenRouter (Pass 6, 7a). Each template carries its own USS. -->
             <ui:Instance template="SettingsScreen" name="screen-settings" class="screen-instance" />
             <ui:Instance template="LeaderboardScreen" name="screen-leaderboard" class="screen-instance" />
             <ui:Instance template="ProfileScreen" name="screen-profile" class="screen-instance" />
+            <ui:Instance template="ShopScreen" name="screen-shop" class="screen-instance" />
+            <ui:Instance template="CreditsScreen" name="screen-credits" class="screen-instance" />
 
         </ui:VisualElement>
 

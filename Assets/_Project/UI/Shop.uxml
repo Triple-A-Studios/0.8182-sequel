@@ -1,0 +1,35 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="Shop.uss" />
+    <!-- Hangar shop (S09). Instanced into MainMenu.uxml as a ScreenRouter screen; logic in ShopScreen.cs. The plane cards
+         and all copy are built / set in code from ShopPlaceholderData. -->
+    <ui:VisualElement name="shop-root" class="shop-screen" picking-mode="Ignore">
+
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="shop-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="HANGAR SHOP" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
+            <op:LipBox class="shop-coin-chip">
+                <ui:VisualElement class="shop-coin shop-coin--chip" picking-mode="Ignore" />
+                <ui:Label name="shop-coins" text="12,480" class="shop-coin-value" picking-mode="Ignore" />
+            </op:LipBox>
+        </ui:VisualElement>
+
+        <op:TabBar name="shop-tabs" choices="PLANES,CRASH FX|BETA,BUILDING SKINS|BETA" class="shop-tabs" />
+
+        <ui:VisualElement class="shop-body" picking-mode="Ignore">
+            <ui:VisualElement name="shop-grid" class="shop-grid" picking-mode="Ignore" />
+
+            <!-- CRASH FX / BUILDING SKINS: hazard-tape banner (S09 Beta placeholder). -->
+            <ui:VisualElement name="shop-beta" class="shop-beta" picking-mode="Ignore">
+                <ui:VisualElement class="shop-beta__tape" picking-mode="Ignore">
+                    <ui:VisualElement class="shop-beta__plate" picking-mode="Ignore">
+                        <ui:Label name="shop-beta-title" text="COMING IN BETA" class="shop-beta__title" picking-mode="Ignore" />
+                        <ui:Label name="shop-beta-body" text="Keep stacking coins" class="shop-beta__body" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Label name="shop-footnote" text="" class="shop-footnote" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

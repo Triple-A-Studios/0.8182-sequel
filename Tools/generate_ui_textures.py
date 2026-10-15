@@ -210,6 +210,16 @@ def check(path):
     _icon(path, draw)
 
 
+def heart(path):
+    """Plump heart for the SUPPORT THE DEV chip."""
+    def draw(d, ss):
+        d.ellipse([14 * ss, 18 * ss, 68 * ss, 72 * ss], fill=255)
+        d.ellipse([60 * ss, 18 * ss, 114 * ss, 72 * ss], fill=255)
+        d.polygon([(19 * ss, 56 * ss), (109 * ss, 56 * ss), (64 * ss, 112 * ss)], fill=255)
+
+    _icon(path, draw)
+
+
 if __name__ == "__main__":
     vertical_gradient("Tex_UiBgGradient.png", [(0, "#5B86A6"), (0.35, "#3D6280"), (0.7, "#243A4F"), (1, "#1B2937")], 4, 512)
     vertical_gradient("Tex_UiGradAmber.png", [(0, "#FFC76A"), (1, "#F0A93B")], 4, 64)
@@ -223,4 +233,5 @@ if __name__ == "__main__":
     pencil("Tex_UiPencil.png")
     dice("Tex_UiDice.png")
     check("Tex_UiCheck.png")
+    heart("Tex_UiHeart.png")
     print("ok")

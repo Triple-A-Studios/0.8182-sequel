@@ -11,7 +11,8 @@ namespace Opoint8182.UI
 	/// Dev-only harness for the main menu's full screens (Leaderboard, Profile): loads <c>MainMenu.uxml</c> into the
 	/// MenuScreensGallery scene, builds a router and the screens exactly like <see cref="MainMenuController"/> does, but
 	/// backs the leaderboard with sample data so every state is reachable without a backend or a run.
-	/// Keys: M leaderboard, Y profile, E start renaming (profile), Escape back (or leave the name field first).
+	/// Keys: M leaderboard, Y profile, E start renaming (profile), H shop (1 / 2 / 3 switch its tabs), C credits,
+	/// Escape back (or leave the name field first).
 	/// Leaderboard: 1 sample board with the player at #248 (pinned row), 2 player inside the top 3, 3 no score yet,
 	/// 4 only two rows, 5 empty board; L loading skeleton, R load error, O offline; A ALL-TIME tab, W WEEKLY tab;
 	/// P enable / disable the past-week buttons (they are disabled in play until backlog #28).
@@ -22,6 +23,8 @@ namespace Opoint8182.UI
 		private const string k_MenuScreenId = "menu";
 		private const string k_LeaderboardScreenId = "leaderboard";
 		private const string k_ProfileScreenId = "profile";
+		private const string k_ShopScreenId = "shop";
+		private const string k_CreditsScreenId = "credits";
 		private const float k_ToastSeconds = 2.5f;
 
 		private enum BoardScenario
@@ -38,6 +41,8 @@ namespace Opoint8182.UI
 		private ScreenRouter m_router;
 		private LeaderboardScreen m_leaderboard;
 		private ProfileScreen m_profile;
+		private ShopScreen m_shop;
+		private CreditsScreen m_credits;
 		private VisualElement m_toast;
 		private Label m_toastLabel;
 		private IVisualElementScheduledItem m_toastHide;
@@ -63,6 +68,8 @@ namespace Opoint8182.UI
 			m_router = null;
 			m_leaderboard = null;
 			m_profile = null;
+			m_shop = null;
+			m_credits = null;
 		}
 
 		private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
@@ -91,6 +98,16 @@ namespace Opoint8182.UI
 			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
 			m_profile = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profile.BackRequested += () => m_router.Back();
+
+			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
+			m_shop = new ShopScreen(root.Q<VisualElement>("screen-shop"));
+			m_shop.BackRequested += () => m_router.Back();
+			m_shop.ActionRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
+
+			m_router.Register(k_CreditsScreenId, root.Q<VisualElement>("screen-credits"));
+			m_credits = new CreditsScreen(root.Q<VisualElement>("screen-credits"));
+			m_credits.BackRequested += () => m_router.Back();
+			m_credits.LinkRequested += link => ShowToast($"LINK: {link.Label} -> {(string.IsNullOrEmpty(link.Url) ? "(no URL yet)" : link.Url)}");
 			m_router.ScreenChanged += OnScreenChanged;
 
 			m_router.Show(k_LeaderboardScreenId);
@@ -107,6 +124,15 @@ namespace Opoint8182.UI
 			if (keyboard.mKey.wasPressedThisFrame) m_router.Show(k_LeaderboardScreenId);
 			if (keyboard.yKey.wasPressedThisFrame) m_router.Show(k_ProfileScreenId);
 			if (keyboard.eKey.wasPressedThisFrame && m_router.CurrentScreenId == k_ProfileScreenId) m_profile.BeginEdit();
+			if (keyboard.hKey.wasPressedThisFrame) m_router.Show(k_ShopScreenId);
+			if (keyboard.cKey.wasPressedThisFrame) m_router.Show(k_CreditsScreenId);
+			if (m_router.CurrentScreenId == k_ShopScreenId)
+			{
+				if (keyboard.digit1Key.wasPressedThisFrame) m_shop.SelectTab(0);
+				if (keyboard.digit2Key.wasPressedThisFrame) m_shop.SelectTab(1);
+				if (keyboard.digit3Key.wasPressedThisFrame) m_shop.SelectTab(2);
+			}
+
 			if (m_router.CurrentScreenId != k_LeaderboardScreenId) return;
 
 			if (keyboard.digit1Key.wasPressedThisFrame) SetScenario(BoardScenario.SampleBoard);
@@ -136,6 +162,8 @@ namespace Opoint8182.UI
 
 			if (screenId == k_ProfileScreenId) m_profile.Open();
 			else m_profile.Close();
+
+			if (screenId == k_ShopScreenId) m_shop.Open();
 		}
 
 		private void SetScenario(BoardScenario scenario)

@@ -12,7 +12,8 @@ namespace Opoint8182.UI
 
 	/// <summary>
 	/// Row of mutually exclusive tabs (mode tabs, leaderboard tabs, shop tabs, the settings L/R switch).
-	/// Choices come from a comma-separated UXML attribute so a screen can author them in markup.
+	/// Choices come from a comma-separated UXML attribute so a screen can author them in markup. A choice may carry a
+	/// small tag after a pipe ("CRASH FX|BETA"); the tag is hidden while that tab is the active one.
 	/// <see cref="changed"/> fires when the user taps a different tab or when <see cref="selectedIndex"/> is set in code.
 	/// </summary>
 	[UxmlElement]
@@ -21,6 +22,7 @@ namespace Opoint8182.UI
 		public const string UssClassName = "tabbar";
 		public const string TabUssClassName = "tabbar__tab";
 		public const string TabLabelUssClassName = "tabbar__label";
+		public const string TabTagUssClassName = "tabbar__tag";
 		public const string ActiveUssClassName = "tabbar__tab--active";
 
 		private readonly List<VisualElement> m_tabs = new();
@@ -90,9 +92,17 @@ namespace Opoint8182.UI
 				var tab = new VisualElement();
 				tab.AddToClassList(TabUssClassName);
 
-				var label = new Label(names[i].Trim()) { pickingMode = PickingMode.Ignore };
+				var parts = names[i].Split('|');
+				var label = new Label(parts[0].Trim()) { pickingMode = PickingMode.Ignore };
 				label.AddToClassList(TabLabelUssClassName);
 				tab.Add(label);
+
+				if (parts.Length > 1 && parts[1].Trim().Length > 0)
+				{
+					var tag = new Label(parts[1].Trim()) { pickingMode = PickingMode.Ignore };
+					tag.AddToClassList(TabTagUssClassName);
+					tab.Add(tag);
+				}
 
 				tab.RegisterCallback<ClickEvent>(_ => SetSelectedIndex(index, true));
 				tab.AddManipulator(new PressedClassManipulator());
