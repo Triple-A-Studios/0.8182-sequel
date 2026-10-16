@@ -174,6 +174,9 @@ Verified in Editor, Android and WebGL. Known gap: ▲/▼ glyphs don't render on
 
 Milestone complete — every mockup screen exists as UITK UI with static placeholder data where the system is a later milestone, verified in the Editor, on Android and in WebGL (phone browser). Known gap: the rotate-device gate was not exercised on itch.io (backlog #29). The 3D half of the original scope was moved into its own milestone, **3D art pass** (below), on 2026-10-17. UI structure and decisions: [technical-design/ui.md](technical-design/ui.md).
 
+### Milestone: Pause, settings & audio — In Progress
+See [current-state.md](current-state.md) for live pass status and [plan.md](plan.md#phase-alpha) for scope.
+
 ### Milestone: 3D art pass — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope. Not yet scoped.
 
