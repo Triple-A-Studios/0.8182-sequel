@@ -33,9 +33,5 @@
                 </ui:VisualElement>
             </op:LipBox>
         </ui:VisualElement>
-
-        <ui:VisualElement name="lw-toast" class="lw-toast" picking-mode="Ignore">
-            <ui:Label name="lw-toast-label" text="" class="lw-toast__label" picking-mode="Ignore" />
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

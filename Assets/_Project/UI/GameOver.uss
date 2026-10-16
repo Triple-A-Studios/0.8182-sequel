@@ -455,7 +455,7 @@
 
 .go-share-label {
     margin-top: 4px;
-    font-size: 18px;
+    font-size: 24px;
     color: rgba(246, 239, 226, 0.75);
 }
 
@@ -463,30 +463,8 @@
 .go-share-tag {
     display: none;
     margin-top: 2px;
-    font-size: 16px;
-    letter-spacing: 2px;
+    font-size: 24px;
+    letter-spacing: 1px;
     color: var(--amber);
 }
 
-/* ---- Toast (stub buttons) ---- */
-
-.go-toast {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 24px;
-    align-items: center;
-}
-
-.go-toast-label {
-    padding: 18px 38px;
-    border-width: 3px;
-    border-radius: 20px;
-    border-color: var(--border-soft);
-    background-color: rgba(16, 24, 35, 0.9);
-    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
-    font-size: 34px;
-    color: var(--ink);
-    white-space: nowrap;
-}

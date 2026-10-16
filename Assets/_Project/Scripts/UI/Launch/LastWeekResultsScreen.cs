@@ -14,8 +14,6 @@ namespace Opoint8182.UI
 	/// </summary>
 	public class LastWeekResultsScreen
 	{
-		private const float k_ToastSeconds = 2.5f;
-
 		private readonly VisualElement m_root;
 		private readonly Label m_range;
 		private readonly VisualElement m_rows;
@@ -25,10 +23,8 @@ namespace Opoint8182.UI
 		private readonly Label m_score;
 		private readonly Label m_name;
 		private readonly LipButton m_share;
-		private readonly VisualElement m_toast;
-		private readonly Label m_toastLabel;
+		private readonly UiToast m_toast;
 
-		private IVisualElementScheduledItem m_toastHide;
 		private TaskCompletionSource<bool> m_continued;
 
 		/// <summary>CONTINUE was tapped.</summary>
@@ -52,8 +48,7 @@ namespace Opoint8182.UI
 			m_score = root.Q<Label>("lw-score");
 			m_name = root.Q<Label>("lw-name");
 			m_share = root.Q<LipButton>("lw-share");
-			m_toast = root.Q<VisualElement>("lw-toast");
-			m_toastLabel = root.Q<Label>("lw-toast-label");
+			m_toast = new UiToast(root);
 
 			m_share.clicked += OnShare;
 			root.Q<LipButton>("lw-continue").clicked += OnContinue;
@@ -84,7 +79,7 @@ namespace Opoint8182.UI
 			}
 
 			m_share.style.display = result.HasRank ? DisplayStyle.Flex : DisplayStyle.None;
-			m_toast.style.display = DisplayStyle.None;
+			m_toast.Hide();
 			m_root.style.display = DisplayStyle.Flex;
 		}
 
@@ -129,12 +124,7 @@ namespace Opoint8182.UI
 		{
 			ShareRequested?.Invoke();
 
-			m_toastLabel.text = GameOverPlaceholderData.ArrivesLaterMessage;
-			m_toast.style.display = DisplayStyle.Flex;
-
-			m_toastHide?.Pause();
-			m_toastHide = m_toast.schedule.Execute(() => m_toast.style.display = DisplayStyle.None);
-			m_toastHide.ExecuteLater((long)(k_ToastSeconds * 1000f));
+			m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
 		}
 
 		private void OnContinue()

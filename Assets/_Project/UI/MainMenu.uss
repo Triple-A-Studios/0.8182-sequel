@@ -9,12 +9,12 @@
     bottom: 0;
 }
 
+/* A flowing child of the padded safe-area (so the device inset applies to the clusters inside it: an absolute fill
+   would measure from the border box and ignore the padding). The -24px margin takes back the 24px base padding, so
+   the clusters keep their mockup offsets from the screen edge and a notch inset is added on top (Pass 8a). */
 .menu-screen {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    flex-grow: 1;
+    margin: -24px;
 }
 
 /* ---- Chips (LipBox height includes the lip: 114 = 104 face + 10 lip) ---- */
@@ -423,7 +423,6 @@
     transition-duration: 0.08s;
 }
 
-.menu-row:last-child { margin-bottom: 0; }
 
 .menu-row.is-pressed { scale: 0.97 0.97; }
 
@@ -449,32 +448,3 @@
 }
 
 .menu-row--danger .menu-row__label { color: var(--danger-text); }
-
-/* ---- Stub-button toast ---- */
-/* Placeholder "not built yet" affordance for chips/tiles/overflow items whose screen lands in a later pass.
-   Deleted with the rest of the stub machinery in Pass 8. */
-
-.stub-toast {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-}
-
-.stub-toast-label {
-    padding: 20px 40px;
-    max-width: 760px;
-    border-radius: 20px;
-    border-width: 3px;
-    border-color: var(--border-soft);
-    background-color: rgba(16, 24, 35, 0.9);
-    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
-    font-size: 34px;
-    color: var(--ink);
-    white-space: normal;
-    -unity-text-align: middle-center;
-}

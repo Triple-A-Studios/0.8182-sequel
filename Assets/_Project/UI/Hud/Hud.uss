@@ -590,29 +590,6 @@
     background-color: var(--amber-light);
 }
 
-/* ---- Toast (inert pause button) ---- */
-
-.hud-toast {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 230px;
-    align-items: center;
-}
-
-.hud-toast-label {
-    padding: 18px 38px;
-    border-width: 3px;
-    border-radius: 20px;
-    border-color: var(--border-soft);
-    background-color: rgba(16, 24, 35, 0.9);
-    -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf");
-    font-size: 34px;
-    color: var(--ink);
-    white-space: nowrap;
-}
-
 /* ---- Pause popup (S04) and 3-2-1 countdown. The popup layer / card base come from Theme.uss (.popup-layer, .popup). ---- */
 
 .hud-pause-card { width: 1120px; }

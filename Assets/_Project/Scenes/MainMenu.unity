@@ -165,17 +165,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_baseSafeAreaPadding: 24
-  m_stubToastMessage: IMPLEMENTED IN ALPHA
-  m_comingLaterMessage: COMING IN A LATER PASS
-  m_stubToastDuration: 3
-  m_rapidClickWindowSeconds: 1.5
-  m_rapidClickThreshold: 3
-  m_rapidClickJokeMessages:
-  - OK OK, IT'S STILL ALPHA
-  - THE DEV IS ONE PERSON, BE NICE
-  - CLICKING HARDER WON'T HELP
-  - THAT TICKLES
-  - PATIENCE. ALPHA. SOON(ish).
 --- !u!1931382934 &100000005
 PanelRenderer:
   m_ObjectHideFlags: 0

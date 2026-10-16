@@ -102,9 +102,5 @@
 
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <ui:VisualElement name="go-toast" class="go-toast" picking-mode="Ignore">
-            <ui:Label name="go-toast-label" text="" class="go-toast-label" picking-mode="Ignore" />
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

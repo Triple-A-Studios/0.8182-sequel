@@ -1,4 +1,3 @@
-using System.Collections;
 using Alchemy.Inspector;
 using Opoint8182.Game;
 using UnityEngine;
@@ -32,6 +31,7 @@ namespace Opoint8182.UI
 		private const string k_ProfileScreenId = "profile";
 		private const string k_ShopScreenId = "shop";
 		private const string k_CreditsScreenId = "credits";
+		private const string k_ComingSoonMessage = "COMING SOON";
 
 		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
 		private const int k_PlaceholderAttemptsMax = 3;
@@ -45,22 +45,6 @@ namespace Opoint8182.UI
 
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private float m_baseSafeAreaPadding = 24f;
-
-		[Title("Stub toast")]
-		[FoldoutGroup("Stub toast")] [SerializeField] private string m_comingLaterMessage = "COMING IN A LATER PASS";
-		[FoldoutGroup("Stub toast")] [SerializeField] private float m_stubToastDuration = 3f;
-		[FoldoutGroup("Stub toast")] [SerializeField] private float m_rapidClickWindowSeconds = 1.5f;
-		[FoldoutGroup("Stub toast")] [SerializeField] private int m_rapidClickThreshold = 3;
-		[FoldoutGroup("Stub toast")]
-		[SerializeField]
-		private string[] m_rapidClickJokeMessages =
-		{
-			"OK OK, IT'S STILL ALPHA",
-			"THE DEV IS ONE PERSON, BE NICE",
-			"CLICKING HARDER WON'T HELP",
-			"THAT TICKLES",
-			"PATIENCE. ALPHA. SOON(ish).",
-		};
 
 		private PanelRenderer m_panelRenderer;
 		private VisualElement m_loadedRoot;
@@ -81,14 +65,9 @@ namespace Opoint8182.UI
 		private VisualElement m_popupOverflow;
 		private Toggle m_dontAskToggle;
 		private TabBar m_modeTabs;
-		private VisualElement m_stubToast;
-		private Label m_stubToastLabel;
+		private UiToast m_toast;
 
 		private PlayMode m_playMode = PlayMode.Competitive;
-		private Coroutine m_hideStubToastCoroutine;
-		private float m_lastStubClickTime = -999f;
-		private int m_rapidClickStreak;
-		private int m_jokeMessageIndex;
 
 		private void Awake()
 		{
@@ -152,7 +131,7 @@ namespace Opoint8182.UI
 
 			m_leaderboardScreen = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
 			m_leaderboardScreen.BackRequested += () => m_router.Back();
-			m_leaderboardScreen.ShareRequested += () => ShowStubToast(GameOverPlaceholderData.ArrivesLaterMessage);
+			m_leaderboardScreen.ShareRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
 			m_leaderboardScreen.FlyNowRequested += OnLeaderboardFlyNow;
 
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
@@ -160,7 +139,7 @@ namespace Opoint8182.UI
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();
-			m_shopScreen.ActionRequested += () => ShowStubToast(GameOverPlaceholderData.ArrivesLaterMessage);
+			m_shopScreen.ActionRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
 
 			m_creditsScreen = new CreditsScreen(root.Q<VisualElement>("screen-credits"));
 			m_creditsScreen.BackRequested += () => m_router.Back();
@@ -182,8 +161,7 @@ namespace Opoint8182.UI
 			m_popupQuit.style.display = DisplayStyle.None;
 			m_popupOverflow.style.display = DisplayStyle.None;
 
-			m_stubToast = root.Q<VisualElement>("stub-toast");
-			m_stubToastLabel = root.Q<Label>("stub-toast-label");
+			m_toast = new UiToast(root.Q<VisualElement>("root"));
 
 			PopulateStaticData(root);
 			WireHeader(root);
@@ -382,37 +360,7 @@ namespace Opoint8182.UI
 		private void ShowComingLater()
 		{
 			m_router.ClosePopup();
-			ShowStubToast(m_comingLaterMessage);
-		}
-
-		// Placeholder affordance for chips/tiles whose screen lands in a later pass; deleted in Pass 8.
-		private void ShowStubToast(string baseMessage)
-		{
-			var now = Time.unscaledTime;
-			m_rapidClickStreak = now - m_lastStubClickTime <= m_rapidClickWindowSeconds ? m_rapidClickStreak + 1 : 1;
-			m_lastStubClickTime = now;
-
-			m_stubToastLabel.text = m_rapidClickStreak >= m_rapidClickThreshold ? NextJokeMessage(baseMessage) : baseMessage;
-			m_stubToast.style.display = DisplayStyle.Flex;
-
-			if (m_hideStubToastCoroutine != null) StopCoroutine(m_hideStubToastCoroutine);
-			m_hideStubToastCoroutine = StartCoroutine(HideStubToastAfterDelay());
-		}
-
-		private string NextJokeMessage(string fallback)
-		{
-			if (m_rapidClickJokeMessages.Length == 0) return fallback;
-
-			var message = m_rapidClickJokeMessages[m_jokeMessageIndex % m_rapidClickJokeMessages.Length];
-			m_jokeMessageIndex++;
-			return message;
-		}
-
-		private IEnumerator HideStubToastAfterDelay()
-		{
-			yield return new WaitForSecondsRealtime(m_stubToastDuration);
-			m_stubToast.style.display = DisplayStyle.None;
-			m_hideStubToastCoroutine = null;
+			m_toast.Show(k_ComingSoonMessage);
 		}
 	}
 }

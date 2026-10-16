@@ -283,6 +283,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    min-height: 80px;
     padding: 10px 40px;
     border-radius: 18px;
     transition-property: scale;
@@ -423,7 +424,7 @@
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    padding: 30px 36px;
+    padding: 26px 36px;
     border-width: 4px;
     border-radius: var(--radius-chip);
 }
@@ -437,7 +438,7 @@
 }
 
 /* Fields space themselves from whatever sits above them (USS has no :last-child). */
-.field { margin-top: 28px; }
+.field { margin-top: 16px; }
 
 .field-row {
     flex-direction: row;
@@ -466,10 +467,47 @@
 }
 
 /* A slider under its label row must not stretch tall in a column. */
+/* The slider is an 80 px hit area around a 44 px knob: 24 px of empty space above the track tucks under the label
+   row (not interactive) and 14 px below it into the next field's margin, so a field costs about 42 px of layout. */
 .field > .themed-slider {
     flex-grow: 0;
     flex-shrink: 0;
-    margin-top: 6px;
+    margin-top: -24px;
+    margin-bottom: -14px;
+}
+
+/* ==========================================================================
+   Toast (UiToast.cs): one short message, centred on its host or hung from the top (.ui-toast--top, top set in code).
+   ========================================================================== */
+
+.ui-toast {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-toast--top {
+    bottom: auto;
+    justify-content: flex-start;
+}
+
+.ui-toast__label {
+    max-width: 1200px;
+    padding: 18px 38px;
+    border-width: 3px;
+    border-radius: 20px;
+    border-color: var(--border-soft);
+    background-color: rgba(16, 24, 35, 0.9);
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-Bold.ttf");
+    font-size: 34px;
+    color: var(--ink);
+    white-space: normal;
+    -unity-text-align: middle-center;
 }
 
 /* ==========================================================================
@@ -541,7 +579,7 @@
 
 .themed-slider {
     flex-grow: 1;
-    height: 56px;
+    height: 80px;
     margin: 0;
     padding: 0;
 }
@@ -555,7 +593,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 18px;
+    top: 30px;
     height: 20px;
     border-radius: 10px;
     border-width: 0;
@@ -575,7 +613,7 @@
 .themed-slider #unity-dragger {
     width: 44px;
     height: 44px;
-    top: 6px;
+    top: 18px;
     margin: 0;
     border-radius: 22px;
     background-color: var(--ink);
@@ -588,11 +626,14 @@
    Toggle: .switch (pill, HAPTICS / INVERT) and .checkbox (square, "Don't ask again")
    ========================================================================== */
 
+/* The Toggle element itself is the hit area (128x80); the 104x56 pill is centred inside it. */
 .switch {
-    width: 104px;
-    height: 56px;
+    width: 128px;
+    height: 80px;
     margin: 0;
     padding: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 .switch > .unity-toggle__input {
@@ -632,11 +673,14 @@
     background-color: var(--ink);
 }
 
+/* 80x80 hit area around the 56 px box. */
 .checkbox {
-    width: 56px;
-    height: 56px;
+    width: 80px;
+    height: 80px;
     margin: 0;
     padding: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 .checkbox > .unity-toggle__input {

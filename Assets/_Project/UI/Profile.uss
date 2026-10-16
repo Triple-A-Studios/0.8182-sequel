@@ -116,8 +116,8 @@
 }
 
 .profile-icon-button {
-    width: 68px;
-    height: 74px;
+    width: 80px;
+    height: 80px;
     margin-left: 12px;
     flex-shrink: 0;
 }
@@ -204,7 +204,7 @@
 }
 
 .stat-tile__value {
-    height: 76px;
+    height: 70px;
     -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
     font-size: 72px;
     color: var(--ink);
@@ -235,7 +235,7 @@
 .profile-equip.card > .lipbox__face {
     flex-direction: row;
     align-items: center;
-    padding: 12px 28px;
+    padding: 8px 28px;
 }
 
 /* The thumbnail slot stays empty and transparent for the 3D half (equipped plane / crash FX render). */
@@ -273,7 +273,7 @@
     margin-bottom: 12px;
 }
 
-.profile-badges.card > .lipbox__face { padding: 18px 30px 16px 30px; }
+.profile-badges.card > .lipbox__face { padding: 14px 30px 10px 30px; }
 
 .profile-badges__title {
     flex-direction: row;

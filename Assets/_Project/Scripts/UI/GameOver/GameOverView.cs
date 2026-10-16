@@ -53,7 +53,6 @@ namespace Opoint8182.UI
 	{
 		public const string DefaultRankCaption = "RANK";
 
-		private const long k_ToastDurationMs = 2500;
 		private const long k_SkeletonPulseMs = 520;
 		private const long k_CascadeTickMs = 16;
 		private const string k_RankFinalClass = "go-rank-chip--final";
@@ -124,10 +123,8 @@ namespace Opoint8182.UI
 		private readonly LipButton m_secondaryA;
 		private readonly LipButton m_secondaryB;
 		private readonly Label m_shareTag;
-		private readonly VisualElement m_toast;
-		private readonly Label m_toastLabel;
+		private readonly UiToast m_toast;
 		private readonly IVisualElementScheduledItem m_cascade;
-		private IVisualElementScheduledItem m_toastHide;
 
 		private GameOverAction m_primaryAction = GameOverAction.Retry;
 		private GameOverAction m_secondaryAAction = GameOverAction.MainMenu;
@@ -202,8 +199,7 @@ namespace Opoint8182.UI
 			m_secondaryA = root.Q<LipButton>("go-secondary-a");
 			m_secondaryB = root.Q<LipButton>("go-secondary-b");
 			m_shareTag = root.Q<Label>("go-share-tag");
-			m_toast = root.Q<VisualElement>("go-toast");
-			m_toastLabel = root.Q<Label>("go-toast-label");
+			m_toast = new UiToast(root, 24f);
 
 			var chips = root.Query<VisualElement>(className: "go-stat").ToList();
 			for (var i = 0; i < k_StatChipCount && i < chips.Count; i++) m_statChips[i] = chips[i];
@@ -395,11 +391,7 @@ namespace Opoint8182.UI
 
 		public void ShowToast(string message)
 		{
-			m_toastLabel.text = message;
-			m_toast.style.display = DisplayStyle.Flex;
-
-			m_toastHide?.Pause();
-			m_toastHide = m_toast.schedule.Execute(() => m_toast.style.display = DisplayStyle.None).StartingIn(k_ToastDurationMs);
+			m_toast.Show(message);
 		}
 
 		public static string CauseText(RunEndCause cause)

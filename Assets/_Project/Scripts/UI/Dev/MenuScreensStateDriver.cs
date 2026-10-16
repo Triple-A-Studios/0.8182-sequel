@@ -25,7 +25,6 @@ namespace Opoint8182.UI
 		private const string k_ProfileScreenId = "profile";
 		private const string k_ShopScreenId = "shop";
 		private const string k_CreditsScreenId = "credits";
-		private const float k_ToastSeconds = 2.5f;
 
 		private enum BoardScenario
 		{
@@ -43,9 +42,7 @@ namespace Opoint8182.UI
 		private ProfileScreen m_profile;
 		private ShopScreen m_shop;
 		private CreditsScreen m_credits;
-		private VisualElement m_toast;
-		private Label m_toastLabel;
-		private IVisualElementScheduledItem m_toastHide;
+		private UiToast m_toast;
 		private BoardScenario m_scenario = BoardScenario.SampleBoard;
 		private string m_selfName = LeaderboardPlaceholderData.SAMPLE_SELF_NAME;
 
@@ -86,9 +83,7 @@ namespace Opoint8182.UI
 			m_router.Register(k_LeaderboardScreenId, root.Q<VisualElement>("screen-leaderboard"));
 			m_router.SetRoot(k_MenuScreenId);
 
-			m_toast = root.Q<VisualElement>("stub-toast");
-			m_toastLabel = root.Q<Label>("stub-toast-label");
-			m_toast.style.display = DisplayStyle.None;
+			m_toast = new UiToast(root.Q<VisualElement>("root"));
 
 			m_leaderboard = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
 			m_leaderboard.Provider = LoadScenario;
@@ -199,12 +194,7 @@ namespace Opoint8182.UI
 
 		private void ShowToast(string message)
 		{
-			m_toastLabel.text = message;
-			m_toast.style.display = DisplayStyle.Flex;
-
-			m_toastHide?.Pause();
-			m_toastHide = m_toast.schedule.Execute(() => m_toast.style.display = DisplayStyle.None);
-			m_toastHide.ExecuteLater((long)(k_ToastSeconds * 1000f));
+			m_toast.Show(message);
 		}
 	}
 }

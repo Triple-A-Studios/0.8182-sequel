@@ -21,7 +21,6 @@ namespace Opoint8182.UI
 
 		private const float k_ComboMinScale = 0.78f;
 		private const float k_ComboMinOpacity = 0.7f;
-		private const long k_ToastDurationMs = 2500;
 		private const long k_GroundFlashPeriodMs = 350;
 		private const float k_GroundFlashHigh = 0.85f;
 		private const float k_GroundFlashLow = 0.25f;
@@ -46,8 +45,7 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_comboSticker;
 		private readonly VisualElement m_comboFace;
 		private readonly Label m_comboLabel;
-		private readonly VisualElement m_toast;
-		private readonly Label m_toastLabel;
+		private readonly UiToast m_toast;
 		private readonly HudTouchControls m_touchControls;
 		private readonly VisualElement m_topStack;
 		private readonly VisualElement m_ceilingBanner;
@@ -72,7 +70,6 @@ namespace Opoint8182.UI
 		private bool m_lowFuelFlashHigh;
 		private bool m_damageRequested;
 		private bool m_runEnded;
-		private IVisualElementScheduledItem m_toastHide;
 		private readonly HudImpactPopups m_popups;
 		private readonly HudPausePopup m_pausePopup;
 		private readonly LipButton m_pauseButton;
@@ -110,7 +107,8 @@ namespace Opoint8182.UI
 			m_comboSticker = root.Q<VisualElement>("combo-sticker");
 			m_comboFace = root.Q<LipBox>("combo-sticker").Face;
 			m_comboLabel = root.Q<Label>("combo-label");
-			m_toast = root.Q<VisualElement>("hud-toast");
+			// Hung below the top-left stack so a message never hides the fuel / health read-out.
+			m_toast = new UiToast(root, 230f);
 			m_topStack = root.Q<VisualElement>("top-stack");
 			m_ceilingBanner = root.Q<VisualElement>("ceiling-banner");
 			m_ceilingCount = root.Q<Label>("ceiling-count");
@@ -124,7 +122,6 @@ namespace Opoint8182.UI
 			m_damageOverlay = root.Q<VisualElement>("damage-overlay");
 			m_hitWrap = root.Q<VisualElement>("hit-wrap");
 			m_hitLabel = root.Q<Label>("hit-label");
-			m_toastLabel = root.Q<Label>("hud-toast-label");
 
 			// No base padding: positions in Hud.uss are measured from the screen edge like the mockup, the helper only adds device insets.
 			SafeAreaHelper.Apply(root.Q<VisualElement>("hud-safe"), 0f);
@@ -341,11 +338,7 @@ namespace Opoint8182.UI
 
 		public void ShowToast(string message)
 		{
-			m_toastLabel.text = message;
-			m_toast.style.display = DisplayStyle.Flex;
-
-			m_toastHide?.Pause();
-			m_toastHide = m_toast.schedule.Execute(() => m_toast.style.display = DisplayStyle.None).StartingIn(k_ToastDurationMs);
+			m_toast.Show(message);
 		}
 
 		/// <summary>Shows the joystick base at <paramref name="origin"/> (panel px) with the handle offset, without input. Gallery only.</summary>

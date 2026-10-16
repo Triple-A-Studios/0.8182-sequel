@@ -151,9 +151,5 @@
             </op:LipBox>
 
         </ui:VisualElement>
-
-        <ui:VisualElement name="stub-toast" class="stub-toast" picking-mode="Ignore">
-            <ui:Label name="stub-toast-label" text="IMPLEMENTED IN ALPHA" class="stub-toast-label" />
-        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

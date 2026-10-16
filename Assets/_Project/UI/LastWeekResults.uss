@@ -222,27 +222,3 @@
 .lw-continue .lipbox__label { font-size: 46px; }
 
 .lw-share { margin-bottom: 14px; }
-
-/* ---- Share toast ---- */
-
-.lw-toast {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-}
-
-.lw-toast__label {
-    padding: 20px 40px;
-    border-radius: 20px;
-    border-width: 3px;
-    border-color: var(--border-soft);
-    background-color: rgba(16, 24, 35, 0.9);
-    -unity-font-definition: url("../Art/Fonts/Baloo2-Bold.ttf");
-    font-size: 34px;
-    color: var(--ink);
-}

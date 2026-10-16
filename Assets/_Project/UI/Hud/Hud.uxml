@@ -98,10 +98,6 @@
         <!-- Impact popups (state c): pooled labels HudImpactPopups adds here, full panel so positions are panel px. -->
         <ui:VisualElement name="hud-popups" class="hud-popups" picking-mode="Ignore" />
 
-        <ui:VisualElement name="hud-toast" class="hud-toast" picking-mode="Ignore">
-            <ui:Label name="hud-toast-label" text="" class="hud-toast-label" picking-mode="Ignore" />
-        </ui:VisualElement>
-
 
         <!-- Pause popup (S04): ScreenRouter popup layer, opened by HudPausePopup. Dev-gallery only for now: the pause button
              stays inert in play (functional pause is the later "Pause, settings & audio" milestone). -->
