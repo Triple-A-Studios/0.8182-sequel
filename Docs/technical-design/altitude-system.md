@@ -23,11 +23,11 @@ While `transform.position.y >= m_ceilingY`, a countdown (`m_ceilingWarningSecond
 
 Descent detection reads `PlaneController.Velocity` (already public) rather than the raw input action directly — `AltitudeSystem` already requires `PlaneController` as a sibling, and velocity is a strictly simpler dependency than reaching into the Input System action asset.
 
-The countdown is exposed as `ObservableBool IsWarningValue` + `ObservableFloat WarningFractionValue` (both `TripleA.Utils.Observables.Primaries`, same lazy-construction pattern as `FuelSystem.Fuel`) — two observables rather than a fraction alone, since a fraction can't distinguish "freshly reset to 1.0" from "not warning at all" (both read `1.0`). [`AltitudeWarningUI`](ui.md#altitude-warning-movement--fail-state-rework-pass-4) binds to both.
+The countdown is exposed as `ObservableBool IsWarningValue` + `ObservableFloat WarningFractionValue` (both `TripleA.Utils.Observables.Primaries`, same lazy-construction pattern as `FuelSystem.Fuel`) — two observables rather than a fraction alone, since a fraction can't distinguish "freshly reset to 1.0" from "not warning at all" (both read `1.0`). [`AltitudeWarningUI`](ui.md#gameplay-hud) binds to both.
 
 ## Ground soft warning
 
-Added in Alpha's "MVP bug fix + backlog + engine upgrade" milestone, Pass 4 (backlog #22). Mirrors [`LateralSystem`](lateral-system.md)'s soft/hard pattern, deliberately **not** the ceiling's countdown: every `FixedUpdate`, after the hard-ground check, `IsGroundWarningValue` (`ObservableBool`) is set to `altitude <= m_groundSoftY` — a plain in/out state, no timer, no fraction. Crossing `m_groundHardY` still raises `GroundHit` instantly, unchanged, and clears the warning. No new event — the soft warning is continuous state consumed via `AddListener`, not a one-shot. [`GroundWarningUI`](ui.md#ground-warning-alpha-mvp-bug-fix-milestone-pass-4) binds to it. The ceiling countdown logic is untouched.
+Added in Alpha's "MVP bug fix + backlog + engine upgrade" milestone, Pass 4 (backlog #22). Mirrors [`LateralSystem`](lateral-system.md)'s soft/hard pattern, deliberately **not** the ceiling's countdown: every `FixedUpdate`, after the hard-ground check, `IsGroundWarningValue` (`ObservableBool`) is set to `altitude <= m_groundSoftY` — a plain in/out state, no timer, no fraction. Crossing `m_groundHardY` still raises `GroundHit` instantly, unchanged, and clears the warning. No new event — the soft warning is continuous state consumed via `AddListener`, not a one-shot. [`GroundWarningUI`](ui.md#gameplay-hud) binds to it. The ceiling countdown logic is untouched.
 
 ## Run end
 

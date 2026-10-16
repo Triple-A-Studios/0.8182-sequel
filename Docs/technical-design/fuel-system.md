@@ -18,7 +18,7 @@ Drain rate is multiplied by `m_boostDrainMultiplier` (default `2`) whenever [`Pl
 
 ## Value storage — `ObservableFloat`
 
-The current fuel value is backed by `TripleA.Utils.Observables.Primaries.ObservableFloat` (an existing project dependency) instead of a plain float, so [HudPresenter](ui.md#hud-uiart-pass-pass-4) (formerly `FuelGaugeUI`) can react to changes via `AddListener` rather than polling every frame.
+The current fuel value is backed by `TripleA.Utils.Observables.Primaries.ObservableFloat` (an existing project dependency) instead of a plain float, so [HudPresenter](ui.md#gameplay-hud) (formerly `FuelGaugeUI`) can react to changes via `AddListener` rather than polling every frame.
 
 It's exposed through a **lazily-constructed private property**, not built in `Awake`:
 ```csharp

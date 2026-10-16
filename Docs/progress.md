@@ -145,8 +145,37 @@ Milestone complete — plan.md's definition of done met; the Android on-device r
 
 Verified in Editor, Android and WebGL. Known gap: ▲/▼ glyphs don't render on WebGL (backlog #26, UI/art pass). Display-name field deferred to the UI/art pass.
 
-### Milestone: UI/art pass — In Progress
-See [current-state.md](current-state.md) for live pass status and [plan.md](plan.md#phase-alpha) for scope. Pass table is frozen here when the milestone lands.
+### Milestone: UI/art pass — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `e23c93e` | Mockup review: `Docs/Mockups/gap-analysis.md` (docs only) |
+| 2 | Verified — Complete | `7602582` | UI foundation: fonts, `Theme.uss`, `LipBox` / `LipButton` / `TabBar` / `ThemedSlider`, `ScreenRouter`, `SafeAreaHelper`, `UIGallery` |
+| 3 | Verified — Complete | `1fcf74e` | Main menu (S02) + overflow, attempt-confirm and quit-confirm popups |
+| 4a | Verified — Complete | `654410b` | Merged HUD panel: score, 10-pip fuel, health bar, combo sticker, `HudGallery` |
+| 4b | Verified — Complete | `33a1703` | Touch controls re-homed into the HUD |
+| 4c | Verified — Complete | `da3bf97` | Bounds warnings: ceiling banner, lateral tape, ground vignette |
+| 4d | Verified — Complete | `b51b719` | Low-fuel / low-health states, damage overlay, effect arbiter |
+| 4e | Verified — Complete | `c142969` | Impact popups at the crash point |
+| 4f | Verified — Complete | `54a2973` | Pause popup + resume countdown (visuals only) |
+| 4g | Verified — Complete | `55d01be` | Pass 4 close-out (docs only) |
+| 5a | Verified — Complete | `3680050` | Game Over shell, `RunEndCause`, HUD run-end state |
+| 5b | Verified — Complete | `3deea98` | Rank chip states + arrow image (folds backlog #26) |
+| 5c | Verified — Complete | `b2d7880` | Entry cascade, attempt-driven buttons, rank count-down |
+| 6a | Verified — Complete | `36f029d` | Settings (S06) + live joystick preview |
+| 6b | Verified — Complete | `f77923f` | Leaderboard (S07) replacing the Top-10 popup |
+| 6c | Verified — Complete | `fa2aece` | Profile (S08) with in-session rename |
+| 7a | Verified — Complete | `a715626` | Shop (S09), Credits (S10), coin chip opens the Shop |
+| 7b | Verified — Complete | `edda167` | Loading (S01) with real progress + rotate-device gate |
+| 7c | Verified — Complete | `5a0dfe1` | Last week's results (S11) + source hook, Pass 7 close-out |
+| 8a | Verified — Complete | `db5de83` | Shared toast, menu safe area, 80 px touch targets, aspect sweep |
+| 8b | Verified — Complete | `67dacac` | Device pass (Realme 8s 5G, Android + phone-browser WebGL): safe-area flip, Profile keyboard |
+| 8c | Complete | — | Docs close-out (docs only): `ui.md` rewritten, 3D art split into its own milestone |
+
+Milestone complete — every mockup screen exists as UITK UI with static placeholder data where the system is a later milestone, verified in the Editor, on Android and in WebGL (phone browser). Known gap: the rotate-device gate was not exercised on itch.io (backlog #29). The 3D half of the original scope was moved into its own milestone, **3D art pass** (below), on 2026-10-17. UI structure and decisions: [technical-design/ui.md](technical-design/ui.md).
+
+### Milestone: 3D art pass — Upcoming
+See [plan.md](plan.md#phase-alpha) for scope. Not yet scoped.
 
 ### Milestone: Daily play structure — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope.
