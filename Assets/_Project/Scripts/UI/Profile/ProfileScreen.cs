@@ -18,6 +18,9 @@ namespace Opoint8182.UI
 		private const string k_BadgeSelectedClass = "is-selected";
 		private const string k_DefaultCaption = "Tap a locked badge to see how to unlock it.";
 		private const string k_EditHint = "Up to 16 characters";
+		private const string k_EditHintWeb = "Tap the name to type · up to 16 characters";
+		private const float k_KeyboardMargin = 24f;
+		private const long k_KeyboardPollMs = 100;
 
 		private readonly VisualElement m_root;
 		private readonly Label m_nameLabel;
@@ -30,6 +33,9 @@ namespace Opoint8182.UI
 		private readonly Label m_badgeCaption;
 		private readonly ScrollView m_badgeScroll;
 		private readonly VisualElement[] m_badgeTiles;
+		private readonly VisualElement m_nameField;
+		private IVisualElementScheduledItem m_keyboardPoll;
+		private float m_keyboardShift;
 
 		private bool m_editing;
 		private int m_selectedBadge = -1;
@@ -41,6 +47,14 @@ namespace Opoint8182.UI
 		public event Action NameChanged;
 
 		public bool IsEditing => m_editing;
+
+		/// <summary>Height in screen pixels of the phone keyboard covering the bottom of the screen, 0 when there is none. A test can swap it.</summary>
+		public static System.Func<float> KeyboardHeightProvider { get; set; } = DefaultKeyboardHeight;
+
+		private static float DefaultKeyboardHeight()
+		{
+			return TouchScreenKeyboard.isSupported && TouchScreenKeyboard.visible ? TouchScreenKeyboard.area.height : 0f;
+		}
 
 		public ProfileScreen(VisualElement root)
 		{
@@ -55,6 +69,7 @@ namespace Opoint8182.UI
 			m_badgeTitleCount = root.Q<Label>("profile-badge-count");
 			m_badgeCaption = root.Q<Label>("profile-badge-caption");
 			m_badgeScroll = root.Q<ScrollView>("profile-badge-scroll");
+			m_nameField = root.Q<VisualElement>(className: "profile-name-field");
 
 			m_nameInput.maxLength = UiProfileState.MAX_NAME_LENGTH;
 
@@ -159,7 +174,52 @@ namespace Opoint8182.UI
 			SetDisplay(m_nameInput, editing);
 			SetDisplay(m_diceButton, editing);
 			SetDisplay(m_confirmButton, editing);
-			m_idLabel.text = editing ? k_EditHint : ProfilePlaceholderData.ID_LINE;
+			m_idLabel.text = editing ? EditHint() : ProfilePlaceholderData.ID_LINE;
+
+			if (editing)
+			{
+				m_keyboardPoll ??= m_root.schedule.Execute(AvoidKeyboard).Every(k_KeyboardPollMs);
+			}
+			else
+			{
+				m_keyboardPoll?.Pause();
+				m_keyboardPoll = null;
+				SetKeyboardShift(0f);
+			}
+		}
+
+		// A browser only raises the phone keyboard for a tap on the field itself, so on the web the hint says so.
+		private static string EditHint()
+		{
+			return Application.platform == RuntimePlatform.WebGLPlayer ? k_EditHintWeb : k_EditHint;
+		}
+
+		// The phone keyboard covers the bottom of the screen and UI Toolkit does not move anything out of its way: while
+		// renaming, slide the whole screen up until the name field sits above the keyboard (Android; the browser pans the
+		// page itself on the web, where the keyboard area is not reported).
+		private void AvoidKeyboard()
+		{
+			if (!m_editing || m_root.panel == null) return;
+
+			var shift = 0f;
+			var keyboardPixels = KeyboardHeightProvider();
+			if (keyboardPixels > 0f && Screen.height > 0)
+			{
+				var panelHeight = m_root.panel.visualTree.layout.height;
+				var keyboardTop = panelHeight - keyboardPixels * panelHeight / Screen.height;
+				var fieldBottom = m_nameField.worldBound.yMax + m_keyboardShift; // where it sits without the shift
+				shift = Mathf.Max(0f, fieldBottom + k_KeyboardMargin - keyboardTop);
+			}
+
+			SetKeyboardShift(shift);
+		}
+
+		private void SetKeyboardShift(float shift)
+		{
+			if (Mathf.Approximately(shift, m_keyboardShift)) return;
+
+			m_keyboardShift = shift;
+			m_root.style.translate = new Translate(new Length(0f), new Length(-shift));
 		}
 
 		private void BindStats()

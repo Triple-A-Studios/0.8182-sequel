@@ -15,8 +15,11 @@ namespace Opoint8182.UI
 	[RequireComponent(typeof(PanelRenderer))]
 	public class LaunchFlowHost : MonoBehaviour
 	{
+		// Only read in the Editor and development builds (see ResolveSource), hence the pragma for release builds.
+#pragma warning disable CS0414
 		[Tooltip("Dev / editor builds only: force the last week's results screen on launch.")]
 		[SerializeField] private LastWeekResultsDebugMode m_debugResults = LastWeekResultsDebugMode.None;
+#pragma warning restore CS0414
 
 		private PanelRenderer m_panelRenderer;
 		private VisualElement m_loadedRoot;
@@ -98,7 +101,7 @@ namespace Opoint8182.UI
 
 		private ILastWeekResultsSource ResolveSource()
 		{
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 			if (m_debugResults != LastWeekResultsDebugMode.None)
 			{
 				return new SampleLastWeekResultsSource(m_debugResults == LastWeekResultsDebugMode.WithRank);

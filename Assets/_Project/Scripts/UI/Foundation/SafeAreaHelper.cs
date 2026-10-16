@@ -13,6 +13,12 @@ namespace Opoint8182.UI
 	{
 		public const float DefaultBasePadding = 24f;
 
+		/// <summary>How often the safe area is compared with what is applied (a 180 degree rotation changes it without resizing anything).</summary>
+		private const long k_PollMs = 250;
+
+		/// <summary>Where the device safe area comes from. <see cref="Screen.safeArea"/> by default; a test can swap it.</summary>
+		public static System.Func<Rect> SafeAreaProvider { get; set; } = () => Screen.safeArea;
+
 		/// <summary>
 		/// Applies the insets now and whenever the container's geometry changes (e.g. device rotation).
 		/// The container is expected to be absolutely positioned to fill the panel, so setting its padding never
@@ -31,6 +37,16 @@ namespace Opoint8182.UI
 				var binding = new Binding { BasePadding = basePadding };
 				safeArea.userData = binding;
 				safeArea.RegisterCallback<GeometryChangedEvent>(evt => ApplyInsets(safeArea, evt.newRect.size, binding.BasePadding));
+
+				// Turning a phone from landscape-left to landscape-right moves the notch to the other side but keeps the
+				// screen size, so no geometry event fires: poll for it.
+				safeArea.schedule.Execute(() =>
+				{
+					if (safeArea.layout.width <= 0f || safeArea.layout.height <= 0f) return;
+					if (SafeAreaProvider() == binding.AppliedSafeArea && Screen.width == binding.AppliedWidth && Screen.height == binding.AppliedHeight) return;
+
+					ApplyInsets(safeArea, safeArea.layout.size, binding.BasePadding);
+				}).Every(k_PollMs);
 			}
 
 			if (safeArea.layout.width > 0f && safeArea.layout.height > 0f)
@@ -42,6 +58,9 @@ namespace Opoint8182.UI
 		private sealed class Binding
 		{
 			public float BasePadding;
+			public Rect AppliedSafeArea;
+			public int AppliedWidth;
+			public int AppliedHeight;
 		}
 
 		/// <summary>Pure conversion from a device-space safe area to panel-space padding (left, top, right, bottom).</summary>
@@ -61,7 +80,15 @@ namespace Opoint8182.UI
 		{
 			if (panelSize.x <= 0f || panelSize.y <= 0f) return;
 
-			var padding = ComputePadding(Screen.safeArea, new Vector2(Screen.width, Screen.height), panelSize, basePadding);
+			var deviceSafeArea = SafeAreaProvider();
+			if (safeArea.userData is Binding binding)
+			{
+				binding.AppliedSafeArea = deviceSafeArea;
+				binding.AppliedWidth = Screen.width;
+				binding.AppliedHeight = Screen.height;
+			}
+
+			var padding = ComputePadding(deviceSafeArea, new Vector2(Screen.width, Screen.height), panelSize, basePadding);
 			safeArea.style.paddingLeft = padding.x;
 			safeArea.style.paddingTop = padding.y;
 			safeArea.style.paddingRight = padding.z;
