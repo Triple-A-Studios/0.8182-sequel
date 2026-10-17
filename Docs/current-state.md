@@ -2,14 +2,15 @@
 
 ## Snapshot
 - **Last landed:** Milestone "UI/art pass" (Alpha) — **complete** and merged into `main` (8 passes, 2026-10-07 to 2026-10-17). Every mockup screen exists as UI Toolkit UI; systems that belong to later milestones show flagged static placeholder data. Verified in the Editor, on an Android phone (Realme 8s 5G, native build) and in WebGL in the phone's browser. Frozen pass table with commits: [progress.md](progress.md#milestone-uiart-pass--completed). What the UI is and how it works: [technical-design/ui.md](technical-design/ui.md).
-- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed. Next step: Pass 2.
+- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed. Next step: Pass 2a.
 - **Branch:** `milestone/pause-settings-audio` (nothing pushed).
 - **Pass status** (full scope per pass in [plan.md](plan.md#phase-alpha)):
 
 | Pass | Status | Commit | What |
 |---|---|---|---|
 | 1 | Verified — Complete | `3c7c54a` | Settings store: PlayerPrefs-backed `SettingsService` replaces `UiSettingsState` ([settings.md](technical-design/settings.md)) |
-| 2 | Not started | — | Functional pause: `GameManager` `PausedState` (sole orchestrator, owns `timeScale`), countdown, RESTART, QUIT TO MENU stub with practice / competitive branching |
+| 2a | Not started | — | Core pause: `GameManager` `PausedState` (owns `timeScale`), `Pause()` / `Resume()`, hit-stop guard, shared `RestartRun()`, `HudView.SetPaused`, `HudPresenter` wiring (button, popup, 3-2-1 countdown, RESTART, Escape / back) |
+| 2b | Not started | — | QUIT TO MENU stub: `IsPracticeRun`, leave-run confirm popup (competitive only), toast stub that returns to the pause popup, mode line / note follow the flag |
 | 3 | Not started | — | Auto-pause on focus loss + in-session portrait prompt |
 | 4 | Not started | — | Audio system: mixer (Master + SFX), `AudioManager`, generated stand-in clips, SFX wiring. No music |
 | 5 | Not started | — | Haptics service + screen-shake slider into `CameraJuice` |
