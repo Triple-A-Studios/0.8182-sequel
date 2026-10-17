@@ -2,7 +2,7 @@
 
 ## Snapshot
 - **Last landed:** Milestone "UI/art pass" (Alpha) — **complete** and merged into `main` (8 passes, 2026-10-07 to 2026-10-17). Every mockup screen exists as UI Toolkit UI; systems that belong to later milestones show flagged static placeholder data. Verified in the Editor, on an Android phone (Realme 8s 5G, native build) and in WebGL in the phone's browser. Frozen pass table with commits: [progress.md](progress.md#milestone-uiart-pass--completed). What the UI is and how it works: [technical-design/ui.md](technical-design/ui.md).
-- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. No pass started. Next step: Pass 1.
+- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed. Next step: Pass 2.
 - **Branch:** `milestone/pause-settings-audio` (nothing pushed).
 - **Pass status** (full scope per pass in [plan.md](plan.md#phase-alpha)):
 
