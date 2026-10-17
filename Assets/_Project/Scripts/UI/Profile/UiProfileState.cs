@@ -4,7 +4,7 @@ namespace Opoint8182.UI
 {
 	/// <summary>
 	/// The player's display name as the UI shows it (Profile screen S08 and the main menu's profile chip). Session-only
-	/// static state, like <see cref="UiSettingsState"/>: nothing persists it and nothing sends it to Unity Services, so
+	/// static state (unlike <see cref="SettingsService"/>, which persists): nothing saves it and nothing sends it to Unity Services, so
 	/// the leaderboard keeps showing the service's auto-generated name. Storing it and submitting it (with the
 	/// moderation that comes with accepting free text) is the later "Player profile and run stats" milestone, which
 	/// replaces this class's backing store.

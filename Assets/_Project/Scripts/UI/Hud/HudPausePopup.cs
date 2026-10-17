@@ -5,10 +5,10 @@ using UnityEngine.UIElements;
 namespace Opoint8182.UI
 {
 	/// <summary>
-	/// Pause popup (mockup S04) and the 3-2-1 resume countdown, built on <see cref="ScreenRouter"/>'s popup layer. Visuals
-	/// only: the values it shows are static placeholders and the buttons just raise events, so nothing in play changes.
-	/// Functional pause (timeScale, applying the sliders, restart / quit flow) is the later "Pause, settings and audio"
-	/// milestone, which can hook these events. The countdown runs on UITK's scheduler (unscaled time), so it keeps
+	/// Pause popup (mockup S04) and the 3-2-1 resume countdown, built on <see cref="ScreenRouter"/>'s popup layer. The
+	/// three sliders / toggle are bound to the persisted <see cref="SettingsService"/>; the buttons just raise events.
+	/// Functional pause (timeScale, restart / quit flow) is a later pass of the "Pause, settings and audio" milestone,
+	/// which can hook these events. The countdown runs on UITK's scheduler (unscaled time), so it keeps
 	/// ticking while the game would be paused.
 	/// </summary>
 	public class HudPausePopup
@@ -23,6 +23,11 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_popup;
 		private readonly Label m_modeLine;
 		private readonly Label m_quitNote;
+		private readonly ThemedSlider m_sound;
+		private readonly Label m_soundValue;
+		private readonly ThemedSlider m_shake;
+		private readonly Label m_shakeValue;
+		private readonly Toggle m_haptics;
 		private readonly VisualElement m_countdown;
 		private readonly Label m_countdownNumber;
 		private readonly IVisualElementScheduledItem m_countdownStep;
@@ -55,13 +60,23 @@ namespace Opoint8182.UI
 			m_countdown = root.Q<VisualElement>("hud-countdown");
 			m_countdownNumber = root.Q<Label>("hud-countdown-number");
 
-			// The same session state the Settings screen edits, so the two never disagree.
-			BindSlider(root, "pause-sound", "pause-sound-value", UiSettingsState.Sound, value => UiSettingsState.Sound = value);
-			BindSlider(root, "pause-shake", "pause-shake-value", UiSettingsState.ScreenShake, value => UiSettingsState.ScreenShake = value);
+			// The same persisted values the Settings screen edits, so the two never disagree.
+			m_sound = root.Q<ThemedSlider>("pause-sound");
+			m_soundValue = root.Q<Label>("pause-sound-value");
+			m_shake = root.Q<ThemedSlider>("pause-shake");
+			m_shakeValue = root.Q<Label>("pause-shake-value");
+			m_haptics = root.Q<Toggle>("pause-haptics");
 
-			var haptics = root.Q<Toggle>("pause-haptics");
-			haptics.SetValueWithoutNotify(UiSettingsState.Haptics);
-			haptics.RegisterValueChangedCallback(evt => UiSettingsState.Haptics = evt.newValue);
+			m_sound.snapStep = 1f;
+			m_shake.snapStep = 1f;
+			RefreshFromSettings();
+
+			m_sound.RegisterValueChangedCallback(evt => OnSliderChanged(m_sound, m_soundValue, evt.newValue, value => SettingsService.Sound = value));
+			m_shake.RegisterValueChangedCallback(evt => OnSliderChanged(m_shake, m_shakeValue, evt.newValue, value => SettingsService.ScreenShake = value));
+			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
+
+			// Trickle-down sees the release before the slider snaps; the scheduled flush runs after its handler.
+			m_popup.RegisterCallback<PointerUpEvent>(_ => m_popup.schedule.Execute(SettingsService.Flush), TrickleDown.TrickleDown);
 
 			m_modeLine.text = HudPlaceholderData.PauseModeLine;
 			m_quitNote.text = HudPlaceholderData.PauseQuitNote;
@@ -81,6 +96,7 @@ namespace Opoint8182.UI
 		public void Show()
 		{
 			CancelCountdown();
+			RefreshFromSettings();
 			m_router.ShowPopup(m_popup, dismissOnBackdrop: false);
 		}
 
@@ -160,20 +176,22 @@ namespace Opoint8182.UI
 			if (t >= 1f) m_countdownAnim.Pause();
 		}
 
-		private static void BindSlider(VisualElement root, string sliderName, string valueLabelName, float initial, Action<float> store)
+		/// <summary>Reloads the three controls from <see cref="SettingsService"/>: the Settings screen lives in another scene and may have changed them since this popup was built.</summary>
+		private void RefreshFromSettings()
 		{
-			var slider = root.Q<ThemedSlider>(sliderName);
-			var valueLabel = root.Q<Label>(valueLabelName);
-			slider.snapStep = 1f;
-			slider.SetValueWithoutNotify(initial);
-			valueLabel.text = Mathf.RoundToInt(initial).ToString();
-			slider.RegisterValueChangedCallback(evt =>
-			{
-				// The knob follows the pointer freely and settles on release; the readout is the value that would be set.
-				var snapped = slider.Snap(evt.newValue);
-				valueLabel.text = snapped.ToString("0");
-				store(snapped);
-			});
+			m_sound.SetValueWithoutNotify(SettingsService.Sound);
+			m_soundValue.text = Mathf.RoundToInt(SettingsService.Sound).ToString();
+			m_shake.SetValueWithoutNotify(SettingsService.ScreenShake);
+			m_shakeValue.text = Mathf.RoundToInt(SettingsService.ScreenShake).ToString();
+			m_haptics.SetValueWithoutNotify(SettingsService.Haptics);
+		}
+
+		private static void OnSliderChanged(ThemedSlider slider, Label valueLabel, float newValue, Action<float> store)
+		{
+			// The knob follows the pointer freely and settles on release; the readout is the value that would be set.
+			var snapped = slider.Snap(newValue);
+			valueLabel.text = snapped.ToString("0");
+			store(snapped);
 		}
 	}
 }

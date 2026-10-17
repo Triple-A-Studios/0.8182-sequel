@@ -7,10 +7,11 @@ namespace Opoint8182.UI
 {
 	/// <summary>
 	/// Settings screen (mockup S06): AUDIO, FEEL and CONTROLS cards plus a live joystick preview. Pure UI over
-	/// <see cref="UiSettingsState"/>: it reads the state when built and writes every change back, and nothing else
-	/// listens, so the values are not applied to gameplay (that is the later "Pause, settings and audio" milestone).
+	/// <see cref="SettingsService"/>: it reads the values when built and writes every change back, and the service
+	/// persists them (flushed after each pointer release, so a slider's snapped final value is what is saved). Applying
+	/// the values to gameplay is up to the subscribers added by the rest of the "Pause, settings and audio" milestone.
 	/// The preview ring follows SIZE (S / M / L) and SIDE, and the handle you drag inside it travels
-	/// <see cref="UiSettingsState.Sensitivity"/> times the finger distance, so it shows what the sliders would do.
+	/// <see cref="SettingsService.Sensitivity"/> times the finger distance, so it shows what the sliders would do.
 	/// </summary>
 	public class SettingsScreen
 	{
@@ -68,12 +69,15 @@ namespace Opoint8182.UI
 			root.Q<LipButton>("settings-back").clicked += () => BackRequested?.Invoke();
 
 			m_sound.RegisterValueChangedCallback(evt => OnSoundChanged(evt.newValue));
-			m_haptics.RegisterValueChangedCallback(evt => UiSettingsState.Haptics = evt.newValue);
+			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
 			m_shake.RegisterValueChangedCallback(evt => OnShakeChanged(evt.newValue));
 			m_sideTabs.changed += OnSideChanged;
 			m_size.RegisterValueChangedCallback(evt => OnSizeChanged(evt.newValue));
 			m_sensitivity.RegisterValueChangedCallback(evt => OnSensitivityChanged(evt.newValue));
-			m_invert.RegisterValueChangedCallback(evt => UiSettingsState.InvertSteering = evt.newValue);
+			m_invert.RegisterValueChangedCallback(evt => SettingsService.InvertSteering = evt.newValue);
+
+			// Trickle-down sees the release before the slider snaps; the scheduled flush runs after its handler.
+			root.RegisterCallback<PointerUpEvent>(_ => root.schedule.Execute(SettingsService.Flush), TrickleDown.TrickleDown);
 
 			m_ring.RegisterCallback<PointerDownEvent>(OnStickPointerDown);
 			m_ring.RegisterCallback<PointerMoveEvent>(OnStickPointerMove);
@@ -81,26 +85,26 @@ namespace Opoint8182.UI
 			m_ring.RegisterCallback<PointerCancelEvent>(OnStickPointerCancel);
 		}
 
-		/// <summary>Reloads every control from <see cref="UiSettingsState"/> without raising change events.</summary>
+		/// <summary>Reloads every control from <see cref="SettingsService"/> without raising change events.</summary>
 		public void Refresh()
 		{
-			m_sound.SetValueWithoutNotify(UiSettingsState.Sound);
-			m_soundValue.text = Mathf.RoundToInt(UiSettingsState.Sound).ToString(CultureInfo.InvariantCulture);
+			m_sound.SetValueWithoutNotify(SettingsService.Sound);
+			m_soundValue.text = Mathf.RoundToInt(SettingsService.Sound).ToString(CultureInfo.InvariantCulture);
 
-			m_haptics.SetValueWithoutNotify(UiSettingsState.Haptics);
+			m_haptics.SetValueWithoutNotify(SettingsService.Haptics);
 
-			m_shake.SetValueWithoutNotify(UiSettingsState.ScreenShake);
-			m_shakeValue.text = FormatShake(UiSettingsState.ScreenShake);
+			m_shake.SetValueWithoutNotify(SettingsService.ScreenShake);
+			m_shakeValue.text = FormatShake(SettingsService.ScreenShake);
 
-			m_sideTabs.SetSelectedIndexWithoutNotify((int)UiSettingsState.JoystickSide);
+			m_sideTabs.SetSelectedIndexWithoutNotify((int)SettingsService.JoystickSide);
 
-			m_size.SetValueWithoutNotify(UiSettingsState.JoystickSize);
-			m_sizeValue.text = m_S_SizeNames[UiSettingsState.JoystickSize];
+			m_size.SetValueWithoutNotify(SettingsService.JoystickSize);
+			m_sizeValue.text = m_S_SizeNames[SettingsService.JoystickSize];
 
-			m_sensitivity.SetValueWithoutNotify(UiSettingsState.Sensitivity);
-			m_sensitivityValue.text = FormatSensitivity(UiSettingsState.Sensitivity);
+			m_sensitivity.SetValueWithoutNotify(SettingsService.Sensitivity);
+			m_sensitivityValue.text = FormatSensitivity(SettingsService.Sensitivity);
 
-			m_invert.SetValueWithoutNotify(UiSettingsState.InvertSteering);
+			m_invert.SetValueWithoutNotify(SettingsService.InvertSteering);
 
 			ApplyPreviewSide();
 			ApplyPreviewSize();
@@ -108,14 +112,14 @@ namespace Opoint8182.UI
 
 		private void ConfigureRanges()
 		{
-			m_sound.lowValue = UiSettingsState.SoundMin;
-			m_sound.highValue = UiSettingsState.SoundMax;
-			m_shake.lowValue = UiSettingsState.ScreenShakeMin;
-			m_shake.highValue = UiSettingsState.ScreenShakeMax;
-			m_size.lowValue = UiSettingsState.JoystickSizeMin;
-			m_size.highValue = UiSettingsState.JoystickSizeMax;
-			m_sensitivity.lowValue = UiSettingsState.SensitivityMin;
-			m_sensitivity.highValue = UiSettingsState.SensitivityMax;
+			m_sound.lowValue = SettingsService.SoundMin;
+			m_sound.highValue = SettingsService.SoundMax;
+			m_shake.lowValue = SettingsService.ScreenShakeMin;
+			m_shake.highValue = SettingsService.ScreenShakeMax;
+			m_size.lowValue = SettingsService.JoystickSizeMin;
+			m_size.highValue = SettingsService.JoystickSizeMax;
+			m_sensitivity.lowValue = SettingsService.SensitivityMin;
+			m_sensitivity.highValue = SettingsService.SensitivityMax;
 
 			// Knob and fill follow the pointer freely; on release they settle on the step. The readouts below show the
 			// snapped value, i.e. what a release at that moment would set.
@@ -128,20 +132,20 @@ namespace Opoint8182.UI
 		private void OnSoundChanged(float value)
 		{
 			var snapped = m_sound.Snap(value);
-			UiSettingsState.Sound = snapped;
+			SettingsService.Sound = snapped;
 			m_soundValue.text = snapped.ToString("0", CultureInfo.InvariantCulture);
 		}
 
 		private void OnShakeChanged(float value)
 		{
 			var snapped = m_shake.Snap(value);
-			UiSettingsState.ScreenShake = snapped;
+			SettingsService.ScreenShake = snapped;
 			m_shakeValue.text = FormatShake(snapped);
 		}
 
 		private void OnSideChanged(int index)
 		{
-			UiSettingsState.JoystickSide = index == 0 ? JoystickSide.Left : JoystickSide.Right;
+			SettingsService.JoystickSide = index == 0 ? JoystickSide.Left : JoystickSide.Right;
 			ApplyPreviewSide();
 		}
 
@@ -150,7 +154,7 @@ namespace Opoint8182.UI
 		{
 			var step = Mathf.RoundToInt(m_size.Snap(value));
 
-			UiSettingsState.JoystickSize = step;
+			SettingsService.JoystickSize = step;
 			m_sizeValue.text = m_S_SizeNames[step];
 			ApplyPreviewSize();
 		}
@@ -159,7 +163,7 @@ namespace Opoint8182.UI
 		{
 			var stepped = m_sensitivity.Snap(value);
 
-			UiSettingsState.Sensitivity = stepped;
+			SettingsService.Sensitivity = stepped;
 			m_sensitivityValue.text = FormatSensitivity(stepped);
 		}
 
@@ -170,12 +174,12 @@ namespace Opoint8182.UI
 		// The ring sits at the chosen end of the preview card, like the real joystick snaps to its corner.
 		private void ApplyPreviewSide()
 		{
-			m_preview.EnableInClassList(k_RightClass, UiSettingsState.JoystickSide == JoystickSide.Right);
+			m_preview.EnableInClassList(k_RightClass, SettingsService.JoystickSide == JoystickSide.Right);
 		}
 
 		private void ApplyPreviewSize()
 		{
-			var ring = m_S_RingSizes[UiSettingsState.JoystickSize];
+			var ring = m_S_RingSizes[SettingsService.JoystickSize];
 			var handle = ring * k_HandleRatio;
 
 			m_ring.style.width = ring;
@@ -229,7 +233,7 @@ namespace Opoint8182.UI
 			var handleRadius = m_handle.layout.width * 0.5f;
 			var centre = new Vector2(radius, radius);
 
-			var offset = (localPosition - centre) * UiSettingsState.Sensitivity;
+			var offset = (localPosition - centre) * SettingsService.Sensitivity;
 			var max = Mathf.Max(0f, radius - handleRadius - m_ring.resolvedStyle.borderLeftWidth);
 			if (offset.magnitude > max) offset = offset.normalized * max;
 
