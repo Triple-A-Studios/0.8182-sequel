@@ -8,7 +8,7 @@
 
 | Pass | Status | Commit | What |
 |---|---|---|---|
-| 1 | Not started | — | Settings store: PlayerPrefs-backed `SettingsService` replaces `UiSettingsState`'s session-only backing |
+| 1 | Verified — Complete | `3c7c54a` | Settings store: PlayerPrefs-backed `SettingsService` replaces `UiSettingsState` ([settings.md](technical-design/settings.md)) |
 | 2 | Not started | — | Functional pause: `GameManager` `PausedState` (sole orchestrator, owns `timeScale`), countdown, RESTART, QUIT TO MENU stub with practice / competitive branching |
 | 3 | Not started | — | Auto-pause on focus loss + in-session portrait prompt |
 | 4 | Not started | — | Audio system: mixer (Master + SFX), `AudioManager`, generated stand-in clips, SFX wiring. No music |
@@ -17,7 +17,7 @@
 | 7 | Not started | — | Hardening (Android + WebGL) and docs |
 
 - **Decisions of record (this milestone):** pause is state-based through `GameManager`'s state machine, but the Paused state itself sets `Time.timeScale` to 0 (a hybrid: single orchestrator, no per-system freeze gating, since about 13 scripts tick on scaled time); no music or BGM, SFX only (design choice); stand-in clips are generated WAVs, swappable later with no code change; settings persist in PlayerPrefs, local only; QUIT TO MENU stays a stub toast (real return-to-menu belongs to Daily play structure), practice run goes straight to the stub action, competitive run shows a confirm popup that the attempt is lost without submitting the score.
-- **Open items carried in:** backlog **#29** (retest the rotate-device gate on a plain page or the custom site). The "Placeholder data registry" in `ui.md` is the checklist for the milestones that make each stand-in real; `CreditsContent.cs` still holds a placeholder name / links / thanks for the developer to fill.
+- **Open items carried in:** none from the backlog (#29, the rotate gate, was verified on an Android phone 2026-10-17). The "Placeholder data registry" in `ui.md` is the checklist for the milestones that make each stand-in real; `CreditsContent.cs` still holds a placeholder name / links / thanks for the developer to fill.
 - **Before you test:** reload the open scene after script changes before entering Play Mode. Editor is Unity 6000.6.3f1 (the active build target is WebGL; switching re-imports). All UI scripts use `PanelRenderer`, not `UIDocument`. The leaderboard needs a linked Unity Cloud project and the `daily_scores` board (High to Low, Best Score, daily reset 00:00 UTC) until backlog #28 replaces it. A WebGL Build And Run uses a new localhost port per build, which looks like a new anonymous player each time (dev-only). Every WebGL build rewrites the tracked `Data/Plugins/lib_burst_generated.wasm`. The dev scenes in `Scenes/Dev` are not in Build Settings; their hotkeys are listed in `ui.md`.
 
 ## Decisions of record

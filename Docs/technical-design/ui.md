@@ -116,7 +116,8 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 
 - **Android** (verified on a Realme 8s 5G, native build): landscape only, `androidRenderOutsideSafeArea` on (so the inset path is exercised), IL2CPP / ARM64, min SDK 26. Touch feel, glyphs, back button, notch in both landscape directions and the rename keyboard were checked. Back button = Escape.
 - **WebGL** (verified in the phone's browser through a private itch.io draft and in a local release build): no QUIT GAME, glyphs and fonts fine, scrolling fine, leaderboard works, rename works (tap the field). The project builds with Brotli and no decompression fallback, so an itch upload may need Gzip or the fallback; the default template fixes the canvas at 960x600 on desktop and fills the window only on a mobile user agent; a WebGL build rewrites the tracked `Data/Plugins/lib_burst_generated.wasm` (restore with `git checkout`).
-- **Not verified:** a second device model, real notch geometry beyond the one phone, the rotate gate on a plain page held in portrait (backlog #29), `Application.OpenURL` / `mailto:` (the credits links are inert placeholders).
+- **Rotate gate on a phone (verified 2026-10-17, backlog #29):** itch.io player forced to portrait on Android shows the prompt.
+- **Not verified:** a second device model, real notch geometry beyond the one phone, `Application.OpenURL` / `mailto:` (the credits links are inert placeholders).
 
 ## Known gaps and what closes them
 
@@ -126,7 +127,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 - Profile stats, name persistence / moderation, badges, run stats on Game Over, NEW BEST: **Player profile & run stats**.
 - Shop, currency, equipped plane / FX, coin popups, HOW TO PLAY: **Beta**.
 - 3D slots and dev captions, takeoff, key art, smoke / plane wear: **3D art pass**.
-- The in-session portrait prompt (needs pause), the rotate gate on a custom page (#29).
+- The in-session portrait prompt (needs pause).
 - Cosmetics left on purpose: the 19 px PROFILE sub-label, solid borders where the mockup is dashed, Nunito for the mockup's monospace lines, `S07-leaderboard-empty.png` and `S11` no-rank PNG are stale (the HTML and notes win), `Docs/Mockups` is ~51 MB without LFS.
 
 ## Decisions of record (UI/art pass)
