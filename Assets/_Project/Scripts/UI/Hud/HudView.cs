@@ -70,6 +70,7 @@ namespace Opoint8182.UI
 		private bool m_lowFuelFlashHigh;
 		private bool m_damageRequested;
 		private bool m_runEnded;
+		private bool m_paused;
 		private readonly HudImpactPopups m_popups;
 		private readonly HudPausePopup m_pausePopup;
 		private readonly LipButton m_pauseButton;
@@ -79,16 +80,16 @@ namespace Opoint8182.UI
 
 		public VisualElement Root { get; }
 
-		/// <summary>Pause popup + resume countdown (S04). Visuals only until the "Pause, settings and audio" milestone.</summary>
+		/// <summary>Pause popup + resume countdown (S04). <see cref="HudPresenter"/> opens it from <c>GameManager.Paused</c>.</summary>
 		public HudPausePopup PausePopup => m_pausePopup;
 
 		/// <summary>
-		/// When true the pause button opens the pause popup instead of showing the "arrives later" toast. Only the HudGallery
-		/// sets it: in play the button stays inert.
+		/// When true the pause button opens the pause popup itself. Only the HudGallery sets it: in play the popup is opened
+		/// by <see cref="HudPresenter"/> once <c>GameManager</c> has actually paused.
 		/// </summary>
 		public bool PauseOpensPopup { get; set; }
 
-		/// <summary>Raised when the (inert) pause button is tapped.</summary>
+		/// <summary>Raised when the pause button is tapped.</summary>
 		public event Action PauseClicked;
 
 		/// <summary>Floating-joystick steer, -1..1 per axis, up positive. Zero when released.</summary>
@@ -327,13 +328,32 @@ namespace Opoint8182.UI
 			if (m_runEnded == ended) return;
 			m_runEnded = ended;
 
-			m_touchControls.SetEnabled(!ended);
-			m_pauseButton.SetEnabled(!ended);
+			RefreshInputEnabled();
 			if (!ended) return;
 
 			SetCeilingWarning(false, 0);
 			SetLateralWarning(0);
 			SetGroundWarning(false);
+		}
+
+		/// <summary>
+		/// The run is paused: held touches are released and ignored (the player touches again after the countdown) and the
+		/// pause button stops responding until the run resumes.
+		/// </summary>
+		public void SetPaused(bool paused)
+		{
+			if (m_paused == paused) return;
+			m_paused = paused;
+
+			RefreshInputEnabled();
+		}
+
+		private void RefreshInputEnabled()
+		{
+			var enabled = !m_runEnded && !m_paused;
+
+			m_touchControls.SetEnabled(enabled);
+			m_pauseButton.SetEnabled(enabled);
 		}
 
 		public void ShowToast(string message)
@@ -407,7 +427,6 @@ namespace Opoint8182.UI
 		private void OnPauseClicked()
 		{
 			if (PauseOpensPopup) m_pausePopup.Show();
-			else ShowToast(HudPlaceholderData.PauseToastMessage);
 			PauseClicked?.Invoke();
 		}
 	}

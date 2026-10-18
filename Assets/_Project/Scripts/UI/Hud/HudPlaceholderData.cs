@@ -9,9 +9,6 @@ namespace Opoint8182.UI
 		/// <summary>PRACTICE tag under the score. Wired to the real mode by the "Daily play structure" milestone.</summary>
 		public const bool IsPractice = false;
 
-		/// <summary>Functional pause is the later "Pause, settings and audio" milestone; the button only shows this.</summary>
-		public const string PauseToastMessage = "PAUSE ARRIVES LATER";
-
 		/// <summary>Pause popup: mode / attempt line. Real values come with the Daily play structure milestone.</summary>
 		public const string PauseModeLine = "COMPETITIVE · ATTEMPT 2/3";
 

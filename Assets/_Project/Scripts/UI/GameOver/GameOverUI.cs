@@ -125,7 +125,8 @@ namespace Opoint8182.UI
 		{
 			if (action == GameOverAction.Retry || action == GameOverAction.RetryNow)
 			{
-				SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				if (m_gameManager != null) m_gameManager.RestartRun();
+				else SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 				return;
 			}
 

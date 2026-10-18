@@ -7,6 +7,7 @@ using Opoint8182.Lateral;
 using TripleA.StateMachine.FSM;
 using TripleA.Utils.Singletons;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Opoint8182.Game
 {
@@ -19,6 +20,12 @@ namespace Opoint8182.Game
         public event Action RunStarted;
         public event Action ReturnedToMenu;
 
+        /// <summary>The run froze (<c>Time.timeScale</c> is 0 by the time this fires).</summary>
+        public event Action Paused;
+
+        /// <summary>The run unfroze (<c>Time.timeScale</c> is back to 1).</summary>
+        public event Action Resumed;
+
         private FuelSystem m_fuelSystem;
         private HealthSystem m_healthSystem;
         private AltitudeSystem m_altitudeSystem;
@@ -27,10 +34,20 @@ namespace Opoint8182.Game
         private StateMachine m_stateMachine;
         private MainMenuState m_mainMenuState;
         private PlayingState m_playingState;
+        private PausedState m_pausedState;
         private bool m_playRequested;
         private bool m_menuRequested;
+        private bool m_pauseRequested;
+        private bool m_resumeRequested;
+        private bool m_resuming;
 
         public bool IsPlaying => m_stateMachine.CurrentState is PlayingState;
+
+        /// <summary>
+        /// The run is paused, or a pause has been requested and takes effect on the next Update. Counting the pending
+        /// request means a hit-stop ending in that one-frame gap still sees the pause and leaves the clock alone.
+        /// </summary>
+        public bool IsPaused => (m_pauseRequested || m_stateMachine.CurrentState is PausedState) && !m_resuming;
 
         // Set by BootstrapLoader.Awake(), before it kicks off any scene loads - a plain static
         // flag, not an async signal, so there's no race window to fall through. Consumed
@@ -43,17 +60,23 @@ namespace Opoint8182.Game
         {
             base.Awake();
 
+            // A pause (or hit-stop) cut off by a scene reload must not leak its timeScale into the new scene.
+            Time.timeScale = 1f;
+
             var startInMenu = ManagedByBootstrap;
             ManagedByBootstrap = false;
 
             m_mainMenuState = new MainMenuState(this);
             m_playingState = new PlayingState(this);
+            m_pausedState = new PausedState(this);
             m_stateMachine = new StateMachine();
             // Registering a transition registers both its states as a side effect (a private
             // GetOrAddNode call) - this is what makes SetState below safe to call regardless of
             // which state it targets.
             m_stateMachine.AddTransition(m_mainMenuState, m_playingState, new FuncPredicate(() => m_playRequested));
             m_stateMachine.AddTransition(m_playingState, m_mainMenuState, new FuncPredicate(() => m_menuRequested));
+            m_stateMachine.AddTransition(m_playingState, m_pausedState, new FuncPredicate(() => m_pauseRequested));
+            m_stateMachine.AddTransition(m_pausedState, m_playingState, new FuncPredicate(() => m_resumeRequested));
             m_stateMachine.SetState(startInMenu ? m_mainMenuState : m_playingState);
         }
 
@@ -75,6 +98,32 @@ namespace Opoint8182.Game
             m_menuRequested = true;
         }
 
+        /// <summary>
+        /// Freezes the run. Ignored unless the run is being played and still active, so it is safe to call from a button or
+        /// the back key at any time. Takes effect on the next Update, like the other state requests.
+        /// </summary>
+        public void Pause()
+        {
+            if (!IsPlaying || !IsRunActive || m_pauseRequested) return;
+
+            m_pauseRequested = true;
+        }
+
+        /// <summary>Unfreezes a paused run (next Update). Ignored when not paused.</summary>
+        public void Resume()
+        {
+            if (!IsPaused || m_resumeRequested) return;
+
+            m_resumeRequested = true;
+        }
+
+        /// <summary>Reloads the game scene for a fresh run. Shared by Game Over RETRY and the pause popup's RESTART RUN.</summary>
+        public void RestartRun()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
         // Called only from PlayingState/MainMenuState.OnEnter - GameManager owns the events,
         // the states just notify it when they become active.
         internal void RaiseRunStarted()
@@ -87,6 +136,29 @@ namespace Opoint8182.Game
         {
             m_menuRequested = false;
             ReturnedToMenu?.Invoke();
+        }
+
+        internal void RaisePaused()
+        {
+            // Cleared after the event: the state machine only switches node once OnEnter returns, so until then the
+            // pending request is what keeps IsPaused true for the handlers.
+            Paused?.Invoke();
+            m_pauseRequested = false;
+        }
+
+        internal void RaiseResumed()
+        {
+            m_resumeRequested = false;
+            m_resuming = true;
+            Resumed?.Invoke();
+        }
+
+        // Read by PlayingState.OnEnter: true exactly once after leaving Paused, so that entry skips RunStarted.
+        internal bool ConsumeResumeFlag()
+        {
+            var resuming = m_resuming;
+            m_resuming = false;
+            return resuming;
         }
 
         private void OnEnable()

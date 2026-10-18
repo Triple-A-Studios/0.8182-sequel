@@ -30,9 +30,9 @@ namespace Opoint8182.UI
 		private readonly Toggle m_haptics;
 		private readonly VisualElement m_countdown;
 		private readonly Label m_countdownNumber;
-		private readonly IVisualElementScheduledItem m_countdownStep;
-		private readonly IVisualElementScheduledItem m_countdownAnim;
+		private readonly IVisualElementScheduledItem m_countdownTick;
 		private int m_countdownValue;
+		private float m_countdownStart;
 		private float m_numberStartTime;
 
 		/// <summary>RESUME tapped (the popup closes and the countdown starts).</summary>
@@ -86,10 +86,8 @@ namespace Opoint8182.UI
 			root.Q<LipButton>("pause-quit").clicked += OnQuitClicked;
 
 			m_countdown.style.display = DisplayStyle.None;
-			m_countdownStep = m_countdown.schedule.Execute(OnCountdownStep).Every(k_CountdownStepMs);
-			m_countdownStep.Pause();
-			m_countdownAnim = m_countdown.schedule.Execute(AnimateNumber).Every(k_AnimTickMs);
-			m_countdownAnim.Pause();
+			m_countdownTick = m_countdown.schedule.Execute(OnCountdownTick).Every(k_AnimTickMs);
+			m_countdownTick.Pause();
 		}
 
 		/// <summary>Opens the popup. A backdrop tap does not dismiss it: only the three buttons leave the pause state.</summary>
@@ -100,6 +98,9 @@ namespace Opoint8182.UI
 			m_router.ShowPopup(m_popup, dismissOnBackdrop: false);
 		}
 
+		/// <summary>Same as tapping RESUME (popup closes, countdown starts): the back key uses it.</summary>
+		public void RequestResume() => OnResumeClicked();
+
 		public void Hide()
 		{
 			m_router.ClosePopup();
@@ -109,18 +110,18 @@ namespace Opoint8182.UI
 		public void StartCountdown()
 		{
 			Hide();
-			m_countdownValue = k_CountdownFrom;
+			m_countdownValue = 0;
+			m_countdownStart = Time.unscaledTime;
 			m_countdown.style.display = DisplayStyle.Flex;
-			ShowNumber();
-			m_countdownStep.Pause();
-			m_countdownStep.Resume();
+			m_countdownTick.Pause();
+			m_countdownTick.Resume();
+			OnCountdownTick();
 		}
 
 		/// <summary>Stops the countdown and hides its overlay without raising <see cref="CountdownFinished"/>.</summary>
 		public void CancelCountdown()
 		{
-			m_countdownStep.Pause();
-			m_countdownAnim.Pause();
+			m_countdownTick.Pause();
 			m_countdown.style.display = DisplayStyle.None;
 		}
 
@@ -142,25 +143,28 @@ namespace Opoint8182.UI
 			QuitRequested?.Invoke();
 		}
 
-		private void OnCountdownStep()
+		// One scheduled item drives both the 3-2-1 and the pop animation from elapsed unscaled time. The number is derived
+		// from the clock rather than counted by a 1 s repeating item: a repeating item that was created paused fires at once
+		// the first time it is resumed (zero first delay), which dropped the first countdown of a run straight to 2.
+		private void OnCountdownTick()
 		{
-			m_countdownValue--;
-			if (m_countdownValue <= 0)
+			var secondsElapsed = Mathf.FloorToInt((Time.unscaledTime - m_countdownStart) * 1000f / k_CountdownStepMs);
+			var remaining = k_CountdownFrom - secondsElapsed;
+			if (remaining <= 0)
 			{
 				CancelCountdown();
 				CountdownFinished?.Invoke();
 				return;
 			}
 
-			ShowNumber();
-		}
+			if (remaining != m_countdownValue)
+			{
+				m_countdownValue = remaining;
+				m_countdownNumber.text = remaining.ToString();
+				m_numberStartTime = Time.unscaledTime;
+			}
 
-		private void ShowNumber()
-		{
-			m_countdownNumber.text = m_countdownValue.ToString();
-			m_numberStartTime = Time.unscaledTime;
 			AnimateNumber();
-			m_countdownAnim.Resume();
 		}
 
 		// Each number pops in from 1.4x with a quick fade-up, then rests.
@@ -172,8 +176,6 @@ namespace Opoint8182.UI
 
 			m_countdownNumber.style.scale = new StyleScale(new Scale(new Vector3(scale, scale, 1f)));
 			m_countdownNumber.style.opacity = Mathf.Lerp(0.2f, 1f, eased);
-
-			if (t >= 1f) m_countdownAnim.Pause();
 		}
 
 		/// <summary>Reloads the three controls from <see cref="SettingsService"/>: the Settings screen lives in another scene and may have changed them since this popup was built.</summary>

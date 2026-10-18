@@ -1,5 +1,6 @@
 using System.Collections;
 using Alchemy.Inspector;
+using Opoint8182.Game;
 using Opoint8182.Player;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -118,6 +119,10 @@ namespace Opoint8182.CameraFeel
 
 		private void UpdateShake()
 		{
+			// Paused (timeScale 0): Update still runs, but the shake timer cannot advance, so re-rolling the jitter every
+			// frame would shake the frozen frame (and the resume countdown) forever. Keep the last offset instead.
+			if (Time.deltaTime <= 0f) return;
+
 			var offset = m_baseFollowOffset;
 
 			if (m_shakeTimeRemaining > 0f)
@@ -152,6 +157,11 @@ namespace Opoint8182.CameraFeel
 		{
 			Time.timeScale = m_hitStopTimeScale;
 			yield return new WaitForSecondsRealtime(m_hitStopDuration);
+
+			// A pause that began during the freeze owns the clock now (PausedState sets 0 and restores 1 itself).
+			var gameManager = GameManager.TryGetInstance();
+			if (gameManager != null && gameManager.IsPaused) yield break;
+
 			Time.timeScale = 1f;
 		}
 	}

@@ -13,6 +13,9 @@ namespace Opoint8182.Game.States
 
         public override void OnEnter()
         {
+            // Coming back from Paused is not a new run: RunStarted would re-enable and re-gate everything.
+            if (m_gameManager.ConsumeResumeFlag()) return;
+
             m_gameManager.RaiseRunStarted();
         }
     }

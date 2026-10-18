@@ -7,13 +7,16 @@ using Opoint8182.Lateral;
 using Opoint8182.Player;
 using Opoint8182.Score;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
 	/// <summary>
 	/// Binds the gameplay systems (fuel, health, score/combo) to the merged HUD view. Replaces the per-element
-	/// FuelGaugeUI, HealthGaugeUI and ScoreUI scripts.
+	/// FuelGaugeUI, HealthGaugeUI and ScoreUI scripts. Also the bridge to <see cref="GameManager"/>'s pause: the pause
+	/// button and the back key (Escape, Android back) ask it to pause, its Paused / Resumed events drive the popup, and
+	/// the popup's RESUME countdown, RESTART RUN and QUIT TO MENU call back into it.
 	/// </summary>
 	public class HudPresenter : HudHost
 	{
@@ -55,14 +58,14 @@ namespace Opoint8182.UI
 
 			// The HUD object is toggled across the menu <-> play transition, so OnEnable runs again later; subscribing
 			// here too (once Start has cached the manager) keeps RunEnded from being dropped, same as GameOverUI.
-			if (m_gameManager != null) m_gameManager.RunEnded += OnRunEnded;
+			if (m_gameManager != null) SubscribeToGameManager();
 		}
 
 		// GameManager is a GenericSingleton set up in Awake; Start is the first point where it is guaranteed to exist.
 		private void Start()
 		{
 			m_gameManager = GameManager.TryGetInstance();
-			if (m_gameManager != null) m_gameManager.RunEnded += OnRunEnded;
+			if (m_gameManager != null) SubscribeToGameManager();
 		}
 
 		protected override void OnDisable()
@@ -83,7 +86,7 @@ namespace Opoint8182.UI
 				m_altitudeSystem.IsGroundWarningValue.RemoveListener(OnGroundWarningChanged);
 			}
 			if (m_lateralSystem != null) m_lateralSystem.IsWarningValue.RemoveListener(OnLateralWarningChanged);
-			if (m_gameManager != null) m_gameManager.RunEnded -= OnRunEnded;
+			if (m_gameManager != null) UnsubscribeFromGameManager();
 
 			// A held finger must not keep steering or boosting once the HUD is gone (run ended, back to menu).
 			if (m_planeController != null)
@@ -100,6 +103,10 @@ namespace Opoint8182.UI
 			view.SetPractice(HudPlaceholderData.IsPractice);
 			view.SteerChanged += OnSteerChanged;
 			view.BoostChanged += OnBoostChanged;
+			view.PauseClicked += OnPauseClicked;
+			view.PausePopup.CountdownFinished += OnCountdownFinished;
+			view.PausePopup.RestartRequested += OnRestartRequested;
+			view.PausePopup.QuitRequested += OnQuitRequested;
 
 			if (m_fuelSystem != null)
 			{
@@ -125,7 +132,64 @@ namespace Opoint8182.UI
 			if (m_lateralSystem != null) view.SetLateralWarning(m_lateralSystem.IsWarningValue.Value ? LateralSide() : 0);
 		}
 
+		// The back key: pauses a running game, and resumes (with the countdown) from the open popup. Ignored during the
+		// countdown and once the run has ended (GameManager.Pause refuses).
+		private void Update()
+		{
+			var keyboard = Keyboard.current;
+			if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame || m_gameManager == null || View == null) return;
+
+			if (!m_gameManager.IsPaused) m_gameManager.Pause();
+			else if (View.PausePopup.IsOpen) View.PausePopup.RequestResume();
+		}
+
+		private void SubscribeToGameManager()
+		{
+			m_gameManager.RunEnded += OnRunEnded;
+			m_gameManager.Paused += OnPaused;
+			m_gameManager.Resumed += OnResumed;
+		}
+
+		private void UnsubscribeFromGameManager()
+		{
+			m_gameManager.RunEnded -= OnRunEnded;
+			m_gameManager.Paused -= OnPaused;
+			m_gameManager.Resumed -= OnResumed;
+		}
+
 		private void OnRunEnded(RunEndCause _) => View?.SetRunEnded(true);
+
+		private void OnPauseClicked() => m_gameManager?.Pause();
+
+		private void OnPaused()
+		{
+			if (View == null) return;
+
+			View.SetPaused(true);
+			View.PausePopup.Show();
+		}
+
+		private void OnResumed()
+		{
+			if (View == null) return;
+
+			View.PausePopup.Hide();
+			View.SetPaused(false);
+		}
+
+		// The game stays frozen through the 3-2-1; it unfreezes only when the countdown ends.
+		private void OnCountdownFinished() => m_gameManager?.Resume();
+
+		private void OnRestartRequested() => m_gameManager?.RestartRun();
+
+		// Stub until the run / menu flow exists (Daily play structure): say so and stay paused on the popup.
+		private void OnQuitRequested()
+		{
+			if (View == null) return;
+
+			View.ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
+			View.PausePopup.Show();
+		}
 
 		private void OnSteerChanged(Vector2 steer)
 		{

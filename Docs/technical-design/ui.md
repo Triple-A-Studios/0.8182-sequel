@@ -121,7 +121,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 
 ## Known gaps and what closes them
 
-- Pause is visuals-only (`PauseOpensPopup` off); settings persist (`SettingsService`) but are not applied to gameplay yet: **Pause, settings & audio** (#25).
+- Pause works (Pass 2a, [game-flow.md](game-flow.md#pause-pause-settings--audio-pass-2a)); QUIT TO MENU is a toast stub (Pass 2b adds the practice / competitive branching). Settings persist (`SettingsService`) but are not applied to gameplay yet: **Pause, settings & audio** (#25).
 - Attempts, practice clock, share, BANK IT / RETRY semantics, Game Over MAIN MENU / LEADERBOARD / SHARE / PRACTICE: **Daily play structure**.
 - WEEKLY tab is the daily board, ALL-TIME and past weeks are samples, S11 has no source: **Weekly + all-time rework** (#28).
 - Profile stats, name persistence / moderation, badges, run stats on Game Over, NEW BEST: **Player profile & run stats**.
@@ -132,7 +132,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 
 ## Decisions of record (UI/art pass)
 
-1. **Pause button (Pass 4):** visible but inert (toast); popup and countdown verified in the gallery only; no `timeScale` pause in this milestone.
+1. **Pause button (Pass 4):** visible but inert (toast); popup and countdown verified in the gallery only; no `timeScale` pause in this milestone. *Superseded by Pause, settings & audio Pass 2a: pause is real.*
 2. **Cause and stats (Pass 5):** real `RunEndCause` plumbing; stat chips and NEW BEST are static placeholders.
 3. **Leaderboard data (Pass 6):** WEEKLY = real Top-10 of the existing daily board (mislabelled until #28); ALL-TIME = static sample.
 4. **Attempt-confirm memory (Pass 3):** "Don't ask again today" is in-session only.
