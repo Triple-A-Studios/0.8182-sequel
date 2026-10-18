@@ -37,6 +37,11 @@ namespace Opoint8182.UI
 		protected override void OnViewReady(HudView view)
 		{
 			view.PauseOpensPopup = true;
+			view.PausePopup.QuitRequested += () =>
+			{
+				view.ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
+				view.PausePopup.Show();
+			};
 			ApplyCleanRun();
 		}
 
@@ -63,6 +68,7 @@ namespace Opoint8182.UI
 				if (keyboard.oKey.wasPressedThisFrame) ShowDemoPopup(false, 0);
 				if (keyboard.iKey.wasPressedThisFrame) ShowPopupBurst();
 				if (keyboard.tKey.wasPressedThisFrame) View.PausePopup.Show();
+				if (keyboard.qKey.wasPressedThisFrame) View.PausePopup.ShowLeaveConfirm();
 				if (keyboard.rKey.wasPressedThisFrame) View.PausePopup.StartCountdown();
 				if (keyboard.zKey.wasPressedThisFrame) View.SetRunEnded(true);
 			}

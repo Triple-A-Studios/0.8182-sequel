@@ -55,6 +55,16 @@ Two states, `Assets/_Project/Scripts/Game/States/MainMenuState.cs` / `PlayingSta
 - **Resuming is not a new run.** `PlayingState.OnEnter` calls `ConsumeResumeFlag()` (set by `PausedState.OnExit`; the FSM runs `OnExit` before the next `OnEnter`) and skips `RaiseRunStarted()` when it returns true.
 - **Hit-stop.** `CameraJuice.HitStopRoutine` leaves the clock alone when `IsPaused` after its real-time wait.
 - **`RestartRun()`** sets `timeScale` 1 and reloads the active scene; Game Over RETRY and the pause popup's RESTART RUN both call it. A new `GameManager.Awake` also sets `timeScale` to 1, so a pause cut off by a reload cannot leak.
-- **HUD side** (`HudPresenter`): the pause button and Escape (Android back) call `Pause()`; `Paused` shows the popup and `HudView.SetPaused(true)` (releases held joystick / boost, disables the pause button); RESUME starts the 3-2-1 on unscaled time and the game unfreezes at `CountdownFinished` (`Resume()`); back while the popup is open = RESUME, ignored during the countdown. QUIT TO MENU is still a stub (toast, popup comes back); the practice / competitive branching is Pass 2b.
+- **HUD side** (`HudPresenter`): the pause button and Escape (Android back) call `Pause()`; `Paused` shows the popup and `HudView.SetPaused(true)` (releases held joystick / boost, disables the pause button); RESUME starts the 3-2-1 on unscaled time and the game unfreezes at `CountdownFinished` (`Resume()`); back while the popup is open = RESUME, ignored during the countdown. QUIT TO MENU is a stub with practice / competitive branching (below).
 - **Countdown clock.** `HudPausePopup` derives the 3-2-1 from elapsed unscaled time inside one 16 ms scheduled item. An earlier version counted with a 1 s `Every` item created paused; UITK items have a zero first delay, so the first resume of a run fired at once and the countdown began at 2.
 - **Not paused:** UITK schedulers and animations (low-fuel flash, popups) run on real time and keep animating behind the popup; cosmetic.
+
+### QUIT TO MENU (Pass 2b)
+
+Real return-to-menu belongs to Daily play structure (reloading `Bootstrap` would re-run `BootstrapLoader`), so the action itself is still a stub: the shared "arrives later" toast, then the pause popup comes back and the game stays paused. What 2b adds is the branching in front of it:
+
+- `GameManager.IsPracticeRun` (read-only property over a serialized `m_isPracticeRun`, default false). Set the checkbox in the Inspector before pressing Play to test: the HUD tag and the pause popup read it when the HUD builds, so a change mid-run shows after a restart. Daily play structure replaces the field with the real mode.
+- `HudPresenter.OnViewReady` passes it to `HudView.SetPractice`, which sets the PRACTICE tag and `HudPausePopup.SetPractice` (mode line `PRACTICE · NO ATTEMPT USED`, quit warning hidden).
+- **Competitive run:** QUIT TO MENU opens the leave-run confirm (`hud-leave-popup` in the same popup layer, replacing the pause popup): "You will lose this attempt without submitting your score." LEAVE RUN raises `QuitRequested` (the stub); BACK returns to the pause popup. The back key does the same as BACK while the confirm is open (`HudPresenter.Update`).
+- **Practice run:** QUIT TO MENU raises `QuitRequested` directly, no confirm.
+- RESTART RUN has no confirm; it gets one when attempts are real.

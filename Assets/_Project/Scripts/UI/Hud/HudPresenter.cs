@@ -100,7 +100,8 @@ namespace Opoint8182.UI
 
 		protected override void OnViewReady(HudView view)
 		{
-			view.SetPractice(HudPlaceholderData.IsPractice);
+			var gameManager = m_gameManager != null ? m_gameManager : GameManager.TryGetInstance();
+			view.SetPractice(gameManager != null && gameManager.IsPracticeRun);
 			view.SteerChanged += OnSteerChanged;
 			view.BoostChanged += OnBoostChanged;
 			view.PauseClicked += OnPauseClicked;
@@ -132,7 +133,8 @@ namespace Opoint8182.UI
 			if (m_lateralSystem != null) view.SetLateralWarning(m_lateralSystem.IsWarningValue.Value ? LateralSide() : 0);
 		}
 
-		// The back key: pauses a running game, and resumes (with the countdown) from the open popup. Ignored during the
+		// The back key: pauses a running game, steps back out of the leave confirm, and resumes (with the countdown) from
+		// the pause popup. Ignored during the
 		// countdown and once the run has ended (GameManager.Pause refuses).
 		private void Update()
 		{
@@ -140,6 +142,7 @@ namespace Opoint8182.UI
 			if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame || m_gameManager == null || View == null) return;
 
 			if (!m_gameManager.IsPaused) m_gameManager.Pause();
+			else if (View.PausePopup.IsLeaveConfirmOpen) View.PausePopup.CancelLeaveConfirm();
 			else if (View.PausePopup.IsOpen) View.PausePopup.RequestResume();
 		}
 

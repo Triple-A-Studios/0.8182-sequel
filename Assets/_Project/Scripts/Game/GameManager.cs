@@ -13,7 +13,13 @@ namespace Opoint8182.Game
 {
     public class GameManager : GenericSingleton<GameManager>
     {
+        [Tooltip("Practice run (no leaderboard attempt). Set before pressing Play: the HUD tag and the pause popup read it when the HUD builds. Daily play structure replaces this with the real mode.")]
+        [SerializeField] private bool m_isPracticeRun;
+
         public bool IsRunActive { get; private set; } = true;
+
+        /// <summary>This run does not count as a leaderboard attempt, so leaving it costs nothing.</summary>
+        public bool IsPracticeRun => m_isPracticeRun;
 
         /// <summary>Raised once when the run ends, with what ended it.</summary>
         public event Action<RunEndCause> RunEnded;

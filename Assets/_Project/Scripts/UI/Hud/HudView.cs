@@ -233,6 +233,7 @@ namespace Opoint8182.UI
 		public void SetPractice(bool isPractice)
 		{
 			m_practiceTag.style.display = isPractice ? DisplayStyle.Flex : DisplayStyle.None;
+			m_pausePopup.SetPractice(isPractice);
 		}
 
 		/// <summary>

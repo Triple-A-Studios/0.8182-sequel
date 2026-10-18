@@ -23,6 +23,8 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_popup;
 		private readonly Label m_modeLine;
 		private readonly Label m_quitNote;
+		private readonly VisualElement m_leavePopup;
+		private bool m_isPractice;
 		private readonly ThemedSlider m_sound;
 		private readonly Label m_soundValue;
 		private readonly ThemedSlider m_shake;
@@ -49,6 +51,9 @@ namespace Opoint8182.UI
 
 		public bool IsOpen => m_router.OpenPopup == m_popup;
 
+		/// <summary>The leave-run confirm is showing (competitive runs only; it replaces the pause popup).</summary>
+		public bool IsLeaveConfirmOpen => m_router.OpenPopup == m_leavePopup;
+
 		public bool IsCountingDown => m_countdown.resolvedStyle.display == DisplayStyle.Flex;
 
 		public HudPausePopup(VisualElement root)
@@ -57,6 +62,12 @@ namespace Opoint8182.UI
 			m_popup = root.Q<VisualElement>("hud-pause-popup");
 			m_modeLine = root.Q<Label>("pause-mode-line");
 			m_quitNote = root.Q<Label>("pause-quit-note");
+			m_leavePopup = root.Q<VisualElement>("hud-leave-popup");
+
+			// Both cards share one popup layer and nothing else hides them: whichever the router is not showing must start
+			// (and stay) display:none, or opening the layer for one shows the other under it.
+			m_popup.style.display = DisplayStyle.None;
+			m_leavePopup.style.display = DisplayStyle.None;
 			m_countdown = root.Q<VisualElement>("hud-countdown");
 			m_countdownNumber = root.Q<Label>("hud-countdown-number");
 
@@ -78,12 +89,13 @@ namespace Opoint8182.UI
 			// Trickle-down sees the release before the slider snaps; the scheduled flush runs after its handler.
 			m_popup.RegisterCallback<PointerUpEvent>(_ => m_popup.schedule.Execute(SettingsService.Flush), TrickleDown.TrickleDown);
 
-			m_modeLine.text = HudPlaceholderData.PauseModeLine;
-			m_quitNote.text = HudPlaceholderData.PauseQuitNote;
+			SetPractice(false);
 
 			root.Q<LipButton>("pause-resume").clicked += OnResumeClicked;
 			root.Q<LipButton>("pause-restart").clicked += OnRestartClicked;
 			root.Q<LipButton>("pause-quit").clicked += OnQuitClicked;
+			root.Q<LipButton>("leave-yes").clicked += OnLeaveConfirmed;
+			root.Q<LipButton>("leave-no").clicked += CancelLeaveConfirm;
 
 			m_countdown.style.display = DisplayStyle.None;
 			m_countdownTick = m_countdown.schedule.Execute(OnCountdownTick).Every(k_AnimTickMs);
@@ -96,6 +108,31 @@ namespace Opoint8182.UI
 			CancelCountdown();
 			RefreshFromSettings();
 			m_router.ShowPopup(m_popup, dismissOnBackdrop: false);
+		}
+
+		/// <summary>
+		/// The run's mode: a practice run has no attempt to lose, so QUIT TO MENU goes straight through and the quit warning
+		/// is hidden; a competitive run asks first (<see cref="ShowLeaveConfirm"/>). Also picks the mode line.
+		/// </summary>
+		public void SetPractice(bool isPractice)
+		{
+			m_isPractice = isPractice;
+			m_modeLine.text = isPractice ? HudPlaceholderData.PausePracticeModeLine : HudPlaceholderData.PauseModeLine;
+			m_quitNote.text = HudPlaceholderData.PauseQuitNote;
+			m_quitNote.style.display = isPractice ? DisplayStyle.None : DisplayStyle.Flex;
+		}
+
+		/// <summary>Opens the leave-run confirm in place of the pause popup.</summary>
+		public void ShowLeaveConfirm()
+		{
+			CancelCountdown();
+			m_router.ShowPopup(m_leavePopup, dismissOnBackdrop: false);
+		}
+
+		/// <summary>BACK on the leave-run confirm (or the back key): returns to the pause popup.</summary>
+		public void CancelLeaveConfirm()
+		{
+			if (IsLeaveConfirmOpen) Show();
 		}
 
 		/// <summary>Same as tapping RESUME (popup closes, countdown starts): the back key uses it.</summary>
@@ -138,6 +175,18 @@ namespace Opoint8182.UI
 		}
 
 		private void OnQuitClicked()
+		{
+			if (!m_isPractice)
+			{
+				ShowLeaveConfirm();
+				return;
+			}
+
+			Hide();
+			QuitRequested?.Invoke();
+		}
+
+		private void OnLeaveConfirmed()
 		{
 			Hide();
 			QuitRequested?.Invoke();

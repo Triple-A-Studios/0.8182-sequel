@@ -99,8 +99,8 @@
         <ui:VisualElement name="hud-popups" class="hud-popups" picking-mode="Ignore" />
 
 
-        <!-- Pause popup (S04): ScreenRouter popup layer, opened by HudPausePopup. Dev-gallery only for now: the pause button
-             stays inert in play (functional pause is the later "Pause, settings & audio" milestone). -->
+        <!-- Pause popup (S04) and the leave-run confirm: ScreenRouter popup layer, opened by HudPausePopup (from
+             HudPresenter once GameManager has paused). -->
         <ui:VisualElement name="hud-popup-layer" class="popup-layer">
             <op:LipBox name="hud-pause-popup" class="popup hud-pause-card">
                 <ui:VisualElement class="hud-pause-head" picking-mode="Ignore">
@@ -131,6 +131,16 @@
                         <op:LipButton name="pause-quit" text="QUIT TO MENU" variant="Danger" class="hud-pause-secondary" />
                         <ui:Label name="pause-quit-note" text="" class="t-nunito-semibold hud-pause-quit-note" picking-mode="Ignore" />
                     </ui:VisualElement>
+                </ui:VisualElement>
+            </op:LipBox>
+
+            <!-- Leave-run confirm (competitive runs only): QUIT TO MENU asks first, because the attempt is lost unscored. -->
+            <op:LipBox name="hud-leave-popup" class="popup hud-leave-card">
+                <ui:Label text="LEAVE THIS RUN?" class="popup__title" picking-mode="Ignore" />
+                <ui:Label name="leave-body" text="You will lose this attempt without submitting your score." class="popup__body" picking-mode="Ignore" />
+                <ui:VisualElement class="popup__actions hud-leave-actions">
+                    <op:LipButton name="leave-yes" text="LEAVE RUN" variant="Danger" class="hud-leave-primary" />
+                    <op:LipButton name="leave-no" text="BACK" variant="Secondary" class="hud-leave-secondary" />
                 </ui:VisualElement>
             </op:LipBox>
         </ui:VisualElement>

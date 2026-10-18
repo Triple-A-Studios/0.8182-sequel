@@ -695,6 +695,21 @@
     white-space: normal;
 }
 
+.hud-leave-card { width: 900px; }
+
+.hud-leave-actions { margin-top: 32px; }
+
+.hud-leave-primary {
+    width: 520px;
+    height: 124px;
+    margin-right: 24px;
+}
+
+.hud-leave-secondary {
+    width: 320px;
+    height: 124px;
+}
+
 .hud-countdown {
     display: none;
     position: absolute;

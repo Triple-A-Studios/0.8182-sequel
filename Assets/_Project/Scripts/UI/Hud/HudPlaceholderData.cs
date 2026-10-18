@@ -6,11 +6,11 @@ namespace Opoint8182.UI
 	/// </summary>
 	public static class HudPlaceholderData
 	{
-		/// <summary>PRACTICE tag under the score. Wired to the real mode by the "Daily play structure" milestone.</summary>
-		public const bool IsPractice = false;
-
 		/// <summary>Pause popup: mode / attempt line. Real values come with the Daily play structure milestone.</summary>
 		public const string PauseModeLine = "COMPETITIVE · ATTEMPT 2/3";
+
+		/// <summary>Pause popup: mode line in a practice run (no attempt is used).</summary>
+		public const string PausePracticeModeLine = "PRACTICE · NO ATTEMPT USED";
 
 		/// <summary>Pause popup: warning under the buttons.</summary>
 		public const string PauseQuitNote = "Quitting still burns attempt 2 of 3.";
