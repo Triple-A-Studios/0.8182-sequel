@@ -69,6 +69,7 @@ namespace Opoint8182.UI
 				if (keyboard.iKey.wasPressedThisFrame) ShowPopupBurst();
 				if (keyboard.tKey.wasPressedThisFrame) View.PausePopup.Show();
 				if (keyboard.qKey.wasPressedThisFrame) View.PausePopup.ShowLeaveConfirm();
+				if (keyboard.nKey.wasPressedThisFrame) View.SetRotateGate(!View.RotateGateVisible);
 				if (keyboard.rKey.wasPressedThisFrame) View.PausePopup.StartCountdown();
 				if (keyboard.zKey.wasPressedThisFrame) View.SetRunEnded(true);
 			}
@@ -98,6 +99,7 @@ namespace Opoint8182.UI
 			View.SetRunEnded(false);
 			View.ClearPopups();
 			View.PausePopup.Hide();
+			View.SetRotateGate(false);
 			View.PausePopup.CancelCountdown();
 			View.SetLateralWarning(0);
 			View.SetGroundWarning(false);

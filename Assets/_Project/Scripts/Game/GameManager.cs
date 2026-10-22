@@ -16,6 +16,9 @@ namespace Opoint8182.Game
         [Tooltip("Practice run (no leaderboard attempt). Set before pressing Play: the HUD tag and the pause popup read it when the HUD builds. Daily play structure replaces this with the real mode.")]
         [SerializeField] private bool m_isPracticeRun;
 
+        [Tooltip("Pause when the Editor loses focus, like a player build does when the app is backgrounded. Off by default so alt-tabbing out of the Editor does not pause a test run.")]
+        [SerializeField] private bool m_autoPauseInEditor;
+
         public bool IsRunActive { get; private set; } = true;
 
         /// <summary>This run does not count as a leaderboard attempt, so leaving it costs nothing.</summary>
@@ -115,6 +118,17 @@ namespace Opoint8182.Game
             m_pauseRequested = true;
         }
 
+        /// <summary>
+        /// <see cref="Pause"/> that takes effect before it returns. For callers that cannot wait a frame: when the app is
+        /// backgrounded or the screen turns portrait, <c>Update</c> may not run until the player is back, and the first
+        /// frame back would otherwise step up to a third of a second of movement before the pause landed.
+        /// </summary>
+        public void PauseNow()
+        {
+            Pause();
+            if (m_pauseRequested) m_stateMachine.OnUpdate();
+        }
+
         /// <summary>Unfreezes a paused run (next Update). Ignored when not paused.</summary>
         public void Resume()
         {
@@ -169,6 +183,8 @@ namespace Opoint8182.Game
 
         private void OnEnable()
         {
+            Application.focusChanged += HandleFocusChanged;
+
             m_fuelSystem = FindAnyObjectByType<FuelSystem>();
             m_healthSystem = FindAnyObjectByType<HealthSystem>();
             m_altitudeSystem = FindAnyObjectByType<AltitudeSystem>();
@@ -186,6 +202,8 @@ namespace Opoint8182.Game
 
         private void OnDisable()
         {
+            Application.focusChanged -= HandleFocusChanged;
+
             if (m_fuelSystem != null) m_fuelSystem.Depleted -= HandleFuelDepleted;
             if (m_healthSystem != null) m_healthSystem.Depleted -= HandleHealthDepleted;
             if (m_altitudeSystem != null)
@@ -194,6 +212,14 @@ namespace Opoint8182.Game
                 m_altitudeSystem.GroundHit -= HandleGroundHit;
             }
             if (m_lateralSystem != null) m_lateralSystem.HardBoundExceeded -= HandleHardBoundExceeded;
+        }
+
+        // Backgrounded app (Android home / shade, WebGL tab switch or canvas blur): freeze now, the player returns to the popup.
+        private void HandleFocusChanged(bool hasFocus)
+        {
+            if (hasFocus || (Application.isEditor && !m_autoPauseInEditor)) return;
+
+            PauseNow();
         }
 
         private void HandleFuelDepleted() => EndRun(RunEndCause.OutOfFuel);

@@ -710,6 +710,47 @@
     height: 124px;
 }
 
+/* Portrait prompt (same look as the loading screen's). Full panel, fully opaque (the popup under it must not show through), and laid out
+   to hold up in a portrait window. It sits after the popup layer in the UXML, so it covers the pause popup too. */
+.hud-rotate {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+    background-color: rgb(14, 22, 38);
+}
+
+.hud-rotate__icon {
+    width: 240px;
+    height: 240px;
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("../../Art/Textures/UI/Tex_UiRotatePhone.png");
+    -unity-background-image-tint-color: var(--amber);
+}
+
+.hud-rotate__title {
+    margin-top: 28px;
+    -unity-font-definition: url("../../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 72px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.hud-rotate__body {
+    margin-top: 6px;
+    -unity-font-definition: url("../../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 32px;
+    color: rgba(246, 239, 226, 0.75);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
 .hud-countdown {
     display: none;
     position: absolute;

@@ -71,6 +71,8 @@ namespace Opoint8182.UI
 		private bool m_damageRequested;
 		private bool m_runEnded;
 		private bool m_paused;
+		private bool m_rotateGate;
+		private readonly VisualElement m_rotate;
 		private readonly HudImpactPopups m_popups;
 		private readonly HudPausePopup m_pausePopup;
 		private readonly LipButton m_pauseButton;
@@ -135,6 +137,7 @@ namespace Opoint8182.UI
 			m_touchControls.SteerChanged += steer => SteerChanged?.Invoke(steer);
 			m_touchControls.BoostChanged += boost => BoostChanged?.Invoke(boost);
 			m_pauseButton = root.Q<LipButton>("pause-button");
+			m_rotate = root.Q<VisualElement>("hud-rotate");
 			m_pauseButton.clicked += OnPauseClicked;
 
 			SetFuel(1f);
@@ -349,9 +352,25 @@ namespace Opoint8182.UI
 			RefreshInputEnabled();
 		}
 
+		/// <summary>True while the portrait prompt covers the HUD.</summary>
+		public bool RotateGateVisible => m_rotateGate;
+
+		/// <summary>
+		/// Shows or hides the portrait prompt (covers the pause popup too). The owner pauses the run first; this only
+		/// presents it, and keeps the pause button inert while it is up.
+		/// </summary>
+		public void SetRotateGate(bool visible)
+		{
+			if (m_rotateGate == visible) return;
+			m_rotateGate = visible;
+
+			m_rotate.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+			RefreshInputEnabled();
+		}
+
 		private void RefreshInputEnabled()
 		{
-			var enabled = !m_runEnded && !m_paused;
+			var enabled = !m_runEnded && !m_paused && !m_rotateGate;
 
 			m_touchControls.SetEnabled(enabled);
 			m_pauseButton.SetEnabled(enabled);

@@ -145,6 +145,14 @@
             </op:LipBox>
         </ui:VisualElement>
 
+        <!-- Portrait prompt: covers everything (popups included) while the screen is portrait during a run. HudPresenter
+             pauses the run first; HudView.SetRotateGate shows this. -->
+        <ui:VisualElement name="hud-rotate" class="hud-rotate">
+            <ui:VisualElement class="hud-rotate__icon" picking-mode="Ignore" />
+            <ui:Label text="ROTATE YOUR DEVICE" class="hud-rotate__title" picking-mode="Ignore" />
+            <ui:Label text="Opoint8182 is played in landscape." class="hud-rotate__body" picking-mode="Ignore" />
+        </ui:VisualElement>
+
         <!-- 3-2-1 resume countdown (S04): dims the frame while it runs, so it blocks input like the popup. -->
         <ui:VisualElement name="hud-countdown" class="hud-countdown">
             <ui:Label name="hud-countdown-number" text="3" class="t-baloo-extrabold hud-countdown-number" picking-mode="Ignore" />

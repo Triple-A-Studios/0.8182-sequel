@@ -138,12 +138,42 @@ namespace Opoint8182.UI
 		// countdown and once the run has ended (GameManager.Pause refuses).
 		private void Update()
 		{
+			if (m_gameManager == null || View == null) return;
+
+			UpdateRotateGate();
+
 			var keyboard = Keyboard.current;
-			if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame || m_gameManager == null || View == null) return;
+			if (View.RotateGateVisible || keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
 
 			if (!m_gameManager.IsPaused) m_gameManager.Pause();
 			else if (View.PausePopup.IsLeaveConfirmOpen) View.PausePopup.CancelLeaveConfirm();
 			else if (View.PausePopup.IsOpen) View.PausePopup.RequestResume();
+		}
+
+		// Portrait during a run (a phone browser page turned sideways): freeze at once and cover everything with the prompt.
+		// Landscape again hides it and leaves the pause popup, so the player resumes with the usual countdown.
+		private void UpdateRotateGate()
+		{
+			// Only while the run is live: Game Over has its own panel, and the menu is not gated (ui.md decision 11).
+			var portrait = m_gameManager.IsRunActive && LaunchFlow.GateApplies() && LaunchFlow.IsPortrait(Screen.width, Screen.height);
+			if (portrait == View.RotateGateVisible) return;
+
+			if (portrait)
+			{
+				m_gameManager.PauseNow();
+				if (View.PausePopup.IsCountingDown) View.PausePopup.Show();
+			}
+
+			View.SetRotateGate(portrait);
+		}
+
+		// Backgrounded during the 3-2-1: the countdown runs on unscaled time and would finish unseen on return. GameManager
+		// pauses on focus loss itself; this only puts the popup back.
+		private void OnApplicationFocus(bool hasFocus)
+		{
+			if (hasFocus || View == null || !View.PausePopup.IsCountingDown) return;
+
+			View.PausePopup.Show();
 		}
 
 		private void SubscribeToGameManager()

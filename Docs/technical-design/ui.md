@@ -127,7 +127,6 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 - Profile stats, name persistence / moderation, badges, run stats on Game Over, NEW BEST: **Player profile & run stats**.
 - Shop, currency, equipped plane / FX, coin popups, HOW TO PLAY: **Beta**.
 - 3D slots and dev captions, takeoff, key art, smoke / plane wear: **3D art pass**.
-- The in-session portrait prompt (needs pause).
 - Cosmetics left on purpose: the 19 px PROFILE sub-label, solid borders where the mockup is dashed, Nunito for the mockup's monospace lines, `S07-leaderboard-empty.png` and `S11` no-rank PNG are stale (the HTML and notes win), `Docs/Mockups` is ~51 MB without LFS.
 
 ## Decisions of record (UI/art pass)
@@ -142,7 +141,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 8. **Screen-shake range (6a):** 0-150% per the S06 caption; the pause popup follows the same constant.
 9. **Past-week buttons (6b):** built (enabled / disabled / FINAL), disabled in play until #28.
 10. **Credits data (7a):** placeholders in `CreditsContent`; the version line is real.
-11. **Rotate gate (7b):** loading screen only; in-session rotation waits for pause.
+11. **Rotate gate (7b):** loading screen only; in-session rotation waits for pause. *Superseded by Pause, settings & audio Pass 3: a portrait screen during a live run pauses and shows the `hud-rotate` overlay; the menu and Game Over are still not gated.*
 12. **Coins (7a):** never purchasable, so no `+`; the chip opens the Shop.
 13. **Loading time (7b):** at least 1.5 s, the bar shows real progress.
 14. **Touch size (8a):** tappable things at least **80 reference px** (hit area may exceed the visual); replaces the mockup's 44 px. Text stays at 24 px minimum.
