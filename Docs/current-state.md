@@ -2,7 +2,7 @@
 
 ## Snapshot
 - **Last landed:** Milestone "UI/art pass" (Alpha) — **complete** and merged into `main` (8 passes, 2026-10-07 to 2026-10-17). Every mockup screen exists as UI Toolkit UI; systems that belong to later milestones show flagged static placeholder data. Verified in the Editor, on an Android phone (Realme 8s 5G, native build) and in WebGL in the phone's browser. Frozen pass table with commits: [progress.md](progress.md#milestone-uiart-pass--completed). What the UI is and how it works: [technical-design/ui.md](technical-design/ui.md).
-- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed; Pass 2a landed; Pass 2b landed; Pass 3 in progress.
+- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed; Pass 2a landed; Pass 2b landed; Pass 3 landed (device checks deferred to Pass 7). Next step: Pass 4.
 - **Branch:** `milestone/pause-settings-audio` (nothing pushed).
 - **Pass status** (full scope per pass in [plan.md](plan.md#phase-alpha)):
 
@@ -11,7 +11,7 @@
 | 1 | Verified — Complete | `3c7c54a` | Settings store: PlayerPrefs-backed `SettingsService` replaces `UiSettingsState` ([settings.md](technical-design/settings.md)) |
 | 2a | Verified — Complete | `75394ff` | Core pause: `GameManager` `PausedState` (owns `timeScale`), `Pause()` / `Resume()`, hit-stop guard, shared `RestartRun()`, `HudView.SetPaused`, `HudPresenter` wiring (button, popup, 3-2-1 countdown, RESTART, Escape / back) |
 | 2b | Verified — Complete | `b6ef40d` | QUIT TO MENU stub: `IsPracticeRun`, leave-run confirm popup (competitive only), toast stub that returns to the pause popup, mode line / note follow the flag |
-| 3 | In progress | — | Auto-pause on focus loss (immediate, `GameManager`, off in Editor by default) + countdown guard + in-session portrait rotate overlay in the HUD |
+| 3 | Verified in Editor (Android + WebGL checks deferred to Pass 7) | `af09727` | Auto-pause on focus loss (immediate, `GameManager`, off in Editor by default) + countdown guard + in-session portrait rotate overlay in the HUD |
 | 4 | Not started | — | Audio system: mixer (Master + SFX), `AudioManager`, generated stand-in clips, SFX wiring. No music |
 | 5 | Not started | — | Haptics service + screen-shake slider into `CameraJuice` |
 | 6 | Not started | — | Joystick side / size / sensitivity + invert steering applied (folds backlog #25) |
