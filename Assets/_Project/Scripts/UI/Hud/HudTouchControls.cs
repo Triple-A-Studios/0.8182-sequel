@@ -45,7 +45,7 @@ namespace Opoint8182.UI
 			m_zone.RegisterCallback<PointerUpEvent>(OnJoystickPointerUp);
 			m_zone.RegisterCallback<PointerCancelEvent>(OnJoystickPointerCancel);
 
-			m_boostButton.AddManipulator(new PressedClassManipulator());
+			m_boostButton.AddManipulator(new PressedClassManipulator(playsSound: false));
 			m_boostButton.RegisterCallback<PointerDownEvent>(OnBoostPointerDown);
 			m_boostButton.RegisterCallback<PointerUpEvent>(OnBoostPointerUp);
 			m_boostButton.RegisterCallback<PointerCancelEvent>(OnBoostPointerCancel);

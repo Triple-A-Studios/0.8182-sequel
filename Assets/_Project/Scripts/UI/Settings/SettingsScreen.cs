@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Opoint8182.Audio;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -40,6 +41,7 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_handle;
 
 		private int m_dragPointerId = -1;
+		private bool m_soundDragging;
 
 		/// <summary>The back chevron was tapped (the owner pops the router).</summary>
 		public event Action BackRequested;
@@ -70,19 +72,32 @@ namespace Opoint8182.UI
 
 			m_sound.RegisterValueChangedCallback(evt => OnSoundChanged(evt.newValue));
 			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
+			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
 			m_shake.RegisterValueChangedCallback(evt => OnShakeChanged(evt.newValue));
 			m_sideTabs.changed += OnSideChanged;
 			m_size.RegisterValueChangedCallback(evt => OnSizeChanged(evt.newValue));
 			m_sensitivity.RegisterValueChangedCallback(evt => OnSensitivityChanged(evt.newValue));
 			m_invert.RegisterValueChangedCallback(evt => SettingsService.InvertSteering = evt.newValue);
+			m_invert.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
 
-			// Trickle-down sees the release before the slider snaps; the scheduled flush runs after its handler.
-			root.RegisterCallback<PointerUpEvent>(_ => root.schedule.Execute(SettingsService.Flush), TrickleDown.TrickleDown);
+			// Trickle-down sees the press and release before the slider handles them; the scheduled step runs after its
+			// handler, so the saved value and the preview tick are the snapped one.
+			m_sound.RegisterCallback<PointerDownEvent>(_ => m_soundDragging = true, TrickleDown.TrickleDown);
+			root.RegisterCallback<PointerUpEvent>(_ => root.schedule.Execute(FlushAndPreview), TrickleDown.TrickleDown);
 
 			m_ring.RegisterCallback<PointerDownEvent>(OnStickPointerDown);
 			m_ring.RegisterCallback<PointerMoveEvent>(OnStickPointerMove);
 			m_ring.RegisterCallback<PointerUpEvent>(OnStickPointerUp);
 			m_ring.RegisterCallback<PointerCancelEvent>(OnStickPointerCancel);
+		}
+
+		private void FlushAndPreview()
+		{
+			SettingsService.Flush();
+			if (!m_soundDragging) return;
+
+			m_soundDragging = false;
+			Sfx.Play(SfxId.UiSliderTick);
 		}
 
 		/// <summary>Reloads every control from <see cref="SettingsService"/> without raising change events.</summary>

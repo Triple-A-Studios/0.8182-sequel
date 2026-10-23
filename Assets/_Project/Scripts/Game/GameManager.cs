@@ -1,5 +1,6 @@
 using System;
 using Opoint8182.Altitude;
+using Opoint8182.Audio;
 using Opoint8182.Fuel;
 using Opoint8182.Game.States;
 using Opoint8182.Health;
@@ -71,6 +72,7 @@ namespace Opoint8182.Game
 
             // A pause (or hit-stop) cut off by a scene reload must not leak its timeScale into the new scene.
             Time.timeScale = 1f;
+            Sfx.SetPaused(false);
 
             var startInMenu = ManagedByBootstrap;
             ManagedByBootstrap = false;
@@ -141,6 +143,8 @@ namespace Opoint8182.Game
         public void RestartRun()
         {
             Time.timeScale = 1f;
+            Sfx.SetPaused(false);
+            Sfx.StopAll();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
@@ -162,6 +166,7 @@ namespace Opoint8182.Game
         {
             // Cleared after the event: the state machine only switches node once OnEnter returns, so until then the
             // pending request is what keeps IsPaused true for the handlers.
+            Sfx.SetPaused(true);
             Paused?.Invoke();
             m_pauseRequested = false;
         }
@@ -170,6 +175,7 @@ namespace Opoint8182.Game
         {
             m_resumeRequested = false;
             m_resuming = true;
+            Sfx.SetPaused(false);
             Resumed?.Invoke();
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Opoint8182.Audio;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,6 +26,7 @@ namespace Opoint8182.UI
 		private readonly Label m_quitNote;
 		private readonly VisualElement m_leavePopup;
 		private bool m_isPractice;
+		private bool m_soundDragging;
 		private readonly ThemedSlider m_sound;
 		private readonly Label m_soundValue;
 		private readonly ThemedSlider m_shake;
@@ -85,9 +87,12 @@ namespace Opoint8182.UI
 			m_sound.RegisterValueChangedCallback(evt => OnSliderChanged(m_sound, m_soundValue, evt.newValue, value => SettingsService.Sound = value));
 			m_shake.RegisterValueChangedCallback(evt => OnSliderChanged(m_shake, m_shakeValue, evt.newValue, value => SettingsService.ScreenShake = value));
 			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
+			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
 
-			// Trickle-down sees the release before the slider snaps; the scheduled flush runs after its handler.
-			m_popup.RegisterCallback<PointerUpEvent>(_ => m_popup.schedule.Execute(SettingsService.Flush), TrickleDown.TrickleDown);
+			// Trickle-down sees the press and release before the slider handles them; the scheduled step runs after its
+			// handler, so the saved value and the preview tick are the snapped one.
+			m_sound.RegisterCallback<PointerDownEvent>(_ => m_soundDragging = true, TrickleDown.TrickleDown);
+			m_popup.RegisterCallback<PointerUpEvent>(_ => m_popup.schedule.Execute(FlushAndPreview), TrickleDown.TrickleDown);
 
 			SetPractice(false);
 
@@ -202,6 +207,7 @@ namespace Opoint8182.UI
 			if (remaining <= 0)
 			{
 				CancelCountdown();
+				Sfx.Play(SfxId.CountdownGo);
 				CountdownFinished?.Invoke();
 				return;
 			}
@@ -210,6 +216,7 @@ namespace Opoint8182.UI
 			{
 				m_countdownValue = remaining;
 				m_countdownNumber.text = remaining.ToString();
+				Sfx.Play(SfxId.CountdownTick);
 				m_numberStartTime = Time.unscaledTime;
 			}
 
@@ -235,6 +242,15 @@ namespace Opoint8182.UI
 			m_shake.SetValueWithoutNotify(SettingsService.ScreenShake);
 			m_shakeValue.text = Mathf.RoundToInt(SettingsService.ScreenShake).ToString();
 			m_haptics.SetValueWithoutNotify(SettingsService.Haptics);
+		}
+
+		private void FlushAndPreview()
+		{
+			SettingsService.Flush();
+			if (!m_soundDragging) return;
+
+			m_soundDragging = false;
+			Sfx.Play(SfxId.UiSliderTick);
 		}
 
 		private static void OnSliderChanged(ThemedSlider slider, Label valueLabel, float newValue, Action<float> store)

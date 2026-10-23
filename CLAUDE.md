@@ -23,7 +23,7 @@ The project is in the **Alpha** phase. The prototype and MVP phases are done (th
 - Scenes (`Assets/_Project/Scenes`): `Bootstrap` (the entry scene: loading screen, loads the other two additively), `MainMenu`, `Prototype` (the game). `Scenes/Dev` holds the dev galleries (`UIGallery`, `MenuScreensGallery`, `HudGallery`, `GameOverGallery`, `LaunchFlowGallery`) that are **not** in Build Settings. Play from `Bootstrap` for the real flow; `MainMenu` and `Prototype` also run on their own.
 - `Assets/_IGNORE/` — excluded scratch/reference content, not part of the shipped project.
 - `Docs/` — design documentation. `design-doc.md` is the source of truth for game design decisions (update it when a decision it documents actually changes, rather than letting it drift from the implementation); `plan.md` / `progress.md` / `current-state.md` are the roadmap, history and live snapshot; `technical-design/` has one file per system; `Mockups/` holds the UI mockups and gap analysis.
-- `Tools/generate_ui_textures.py` regenerates the baked UI textures (Pillow).
+- `Tools/generate_ui_textures.py` regenerates the baked UI textures (Pillow). `Tools/generate_placeholder_sfx.py` regenerates the placeholder sound effects (stdlib only); audio is documented in [Docs/technical-design/audio.md](Docs/technical-design/audio.md).
 
 ## Code style
 

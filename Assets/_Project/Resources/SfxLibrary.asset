@@ -1,0 +1,305 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c482135b49d55649a3f231f8265acb1, type: 3}
+  m_Name: SfxLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.Audio.SfxLibrary
+  entries:
+  - id: 0
+    clips:
+    - {fileID: 8300000, guid: 13565e7609b964e4f9615dea731ecf65, type: 3}
+    volume: 1
+    pitchRange: {x: 0.97, y: 1.03}
+    priority: 20
+    cooldown: 0.03
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 1
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 1
+    clips:
+    - {fileID: 8300000, guid: d4395bfcdd0386545816730d0b315037, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 20
+    cooldown: 0.05
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 1
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 2
+    clips:
+    - {fileID: 8300000, guid: b9783f1dfd02b6c4da7d1138863df815, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 20
+    cooldown: 0.05
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 1
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 3
+    clips:
+    - {fileID: 8300000, guid: e7ea8f923f2c5b54397b08e074217841, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 30
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 1
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 4
+    clips:
+    - {fileID: 8300000, guid: 393edaa86dc65ff4384ef3a515d5dd57, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 30
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 1
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 5
+    clips:
+    - {fileID: 8300000, guid: c9fd157c55561ec40b6cdae52081645c, type: 3}
+    - {fileID: 8300000, guid: 5ea7236a179570244be026536d46bfce, type: 3}
+    volume: 1
+    pitchRange: {x: 0.92, y: 1.08}
+    priority: 60
+    cooldown: 0.05
+    maxConcurrent: 3
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 6
+    clips:
+    - {fileID: 8300000, guid: 3fc2012e7fdfb1e40963f7330230ef8c, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 60
+    cooldown: 0.05
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 7
+    clips:
+    - {fileID: 8300000, guid: a1d0d77b86eeb7d4db6e37ddf091dce7, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 70
+    cooldown: 0.05
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.5
+    duckSeconds: 0.4
+  - id: 8
+    clips:
+    - {fileID: 8300000, guid: c91a70a159f4bee46aa18866a894e412, type: 3}
+    - {fileID: 8300000, guid: adef2c5972f4da14c9888fafb0063c12, type: 3}
+    volume: 1
+    pitchRange: {x: 0.92, y: 1.08}
+    priority: 50
+    cooldown: 0.08
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 9
+    clips:
+    - {fileID: 8300000, guid: fdeb973d7c2773549a90aa39dcca29b6, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 40
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 10
+    clips:
+    - {fileID: 8300000, guid: 100f8e016db09c44eacd00ed303a80a2, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 40
+    cooldown: 0
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 11
+    clips:
+    - {fileID: 8300000, guid: bcef94ea6753dcd4db6d81ba56cb0e0c, type: 3}
+    volume: 0.7
+    pitchRange: {x: 1, y: 1}
+    priority: 25
+    cooldown: 0.05
+    maxConcurrent: 2
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 12
+    clips:
+    - {fileID: 8300000, guid: 3e30ef77c6f322e4484e957ada74b86c, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 35
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 13
+    clips:
+    - {fileID: 8300000, guid: a6fd7a71039c8784087f7f5f4cb6353c, type: 3}
+    volume: 0.5
+    pitchRange: {x: 1, y: 1}
+    priority: 10
+    cooldown: 0
+    maxConcurrent: 0
+    loop: 1
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 14
+    clips:
+    - {fileID: 8300000, guid: 14e5db1677af7684ab985ab05f062608, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 55
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 15
+    clips:
+    - {fileID: 8300000, guid: def0e6b868ab623448bfdb381717099c, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 55
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 16
+    clips:
+    - {fileID: 8300000, guid: f8eb573974a24154ba73b4497a32e541, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 75
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 17
+    clips:
+    - {fileID: 8300000, guid: f82d715ee9bf4f04e80666e9897c6f3e, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 55
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 18
+    clips:
+    - {fileID: 8300000, guid: a86fb152e872daa45aa1bbdb94d7500b, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 55
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 19
+    clips:
+    - {fileID: 8300000, guid: ee70929d8d316844c9c7f72c1497d800, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 90
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.3
+    duckSeconds: 1
+  - id: 20
+    clips:
+    - {fileID: 8300000, guid: 3d312c39d7bc0634b842ca8f147db7cd, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 90
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.3
+    duckSeconds: 1
+  - id: 21
+    clips:
+    - {fileID: 8300000, guid: 3f135bd643893de4d8b3035405b211aa, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 90
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.3
+    duckSeconds: 1
+  - id: 22
+    clips:
+    - {fileID: 8300000, guid: 15d78adcc62b13d4d9f8659bba46dae6, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 90
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.3
+    duckSeconds: 1
+  - id: 23
+    clips:
+    - {fileID: 8300000, guid: fff6f50d59887754b8367cea951e820c, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 95
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 0.5
+    duckSeconds: 1
