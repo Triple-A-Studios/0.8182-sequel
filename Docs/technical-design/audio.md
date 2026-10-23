@@ -17,7 +17,23 @@ Sound effects only: **the game has no music or BGM, by design.** There is also n
 
 ## Where sounds are triggered (4a)
 
-`UiClick` is played by `PressedClassManipulator` **on pointer down** (a click event only arrives on release, which read as a delay): every pressable UI thing carries that manipulator (`LipButton`, `TabBar` tabs, the menu chips / tiles / overflow rows / Play, profile badges), so new ones are covered for free; a disabled target is silent, and the boost button opts out (`playsSound: false`). The haptics and invert toggles play `UiToggle` on press too (a `Toggle` is not pressable by that manipulator), a tick on release of the Sound slider in Settings and the pause popup (`UiSliderTick`, after the slider snaps, so the tick is at the saved level), and the resume countdown (`CountdownTick` per number, `CountdownGo` at zero). Gameplay sounds are 4b.
+`UiClick` is played by `PressedClassManipulator` **on pointer down** (a click event only arrives on release, which read as a delay): every pressable UI thing carries that manipulator (`LipButton`, `TabBar` tabs, the menu chips / tiles / overflow rows / Play, profile badges), so new ones are covered for free; a disabled target is silent, and the boost button opts out (`playsSound: false`). The haptics and invert toggles play `UiToggle` on press too (a `Toggle` is not pressable by that manipulator), a tick on release of the Sound slider in Settings and the pause popup (`UiSliderTick`, after the slider snaps, so the tick is at the saved level), and the resume countdown (`CountdownTick` per number, `CountdownGo` at zero). Gameplay sounds are below.
+
+## Gameplay sounds (4b): `GameplaySfx`
+
+One component on the `GameManager` object in `Prototype` (found by `FindAnyObjectByType`, like `GameManager` finds the systems). It only listens to events the gameplay systems already raise, so no gameplay script knows about audio, and it acts only while the run is live (`IsPlaying` and `IsRunActive`); while paused it does nothing (the game is silent through `AudioListener.pause`, and a held boost resumes with it).
+
+| Event | Sound |
+|---|---|
+| `Crashed` quality 1 / 0 / between | `CrashPerfect` / `CrashMistimed` / `CrashPlain` (volume 0.6 to 1 with quality) |
+| `DamageDealt` from a bird or obstacle building | `Hit` (a mistimed Tough `Building` raises both `DamageDealt` and `Crashed(0)`, so `Building` sources skip `Hit`) |
+| `Restored` from `HealthPickup` / from a heal building with amount above 0 / from a heal building miss | `Pickup` / `Heal` / `CrashMistimed` |
+| `ScoreSystem` multiplier goes up | `ComboTick`, pitch `1 + 0.12 x (multiplier - 1)`; decay is silent |
+| `PlaneController.IsBoosting` | `BoostStart` + `BoostLoop` on press; the loop stops on release, on a disabled plane and on run end |
+| Warnings (beep restarted at once when it starts, reset when it clears) | ceiling `WarnCeiling` 0.9 s down to 0.25 s as the grace period runs out; ground `WarnGround` 0.45 s; lateral `WarnLateral` 0.6 s; low fuel `WarnLowFuel` 1.2 s; low health `WarnLowHealth` 1.0 s |
+| `GameManager.RunEnded(cause)` | `RunEndFuel` / `RunEndWreck` / `RunEndGround` / `RunEndFlyOff` (ceiling and sideways share it), then `GameOver` after `m_gameOverDelay` (0.9 s, `Invoke`, cancelled by a scene reload or return to menu) |
+
+Low fuel / low health use the HUD's default thresholds (`HudView.DefaultLowFuelThreshold` / `DefaultLowHealthThreshold`) as their own serialized values: change both together. The beep cadences are serialized on the component.
 
 ## Placeholder clips
 
