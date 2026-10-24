@@ -69,6 +69,13 @@ namespace Opoint8182.Player
                 m_steerInput = Vector2.zero;
             }
 
+            // Settings INVERT STEERING: the vertical axis, for touch and keyboard alike. Applied last, so the visual pitch
+            // below (derived from m_steerInput) follows.
+            if (SettingsService.InvertSteering)
+            {
+                m_steerInput.y = -m_steerInput.y;
+            }
+
             IsBoosting = m_boostAction.action.IsPressed() || TouchBoost;
             SpeedMultiplier = IsBoosting ? m_boostSpeedMultiplier : 1f;
             var steerMultiplier = IsBoosting ? m_boostSteerMultiplier : 1f;

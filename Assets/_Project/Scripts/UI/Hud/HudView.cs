@@ -147,6 +147,17 @@ namespace Opoint8182.UI
 			SetScore(0);
 			SetPractice(false);
 			SetCombo(1, 0f);
+			ApplyControlSettings();
+		}
+
+		/// <summary>
+		/// Puts the controls on the side the player chose (Settings JOYSTICK SIDE): the right-hand modifier moves the joystick
+		/// zone to the right half and mirrors the boost button to the bottom-left. Size and sensitivity are read per touch by
+		/// <see cref="HudTouchControls"/>. Call when the view is built and whenever the settings change.
+		/// </summary>
+		public void ApplyControlSettings()
+		{
+			Root.EnableInClassList("hud-root--right-hand", SettingsService.JoystickSide == JoystickSide.Right);
 		}
 
 		public void SetScore(int score)

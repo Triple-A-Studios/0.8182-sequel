@@ -27,3 +27,12 @@ No separate "is boosting" flag is exposed to [Building](building-crash-system.md
 `TouchSteer` (`Vector2`) and `TouchBoost` (`bool`) are public settable properties, both defaulting to zero/`false` — written externally by the HUD's touch controls (`HudTouchControls` via `HudPresenter`, formerly `TouchControlsUI`; see [ui.md](ui.md#gameplay-hud)), never read from an `InputActionReference`. `PlaneController` has no dependency on the `UI` namespace or Input System touch bindings; it just exposes two properties, same shape as the existing `SpeedMultiplier { get; set; }`.
 
 `FixedUpdate` **additively merges** touch with the physical `Move`/`Sprint` reads rather than branching on platform: `m_steerInput = Vector2.ClampMagnitude(m_moveAction.action.ReadValue<Vector2>() + TouchSteer, 1f)`, and `IsBoosting = m_boostAction.action.IsPressed() || TouchBoost`. Both input paths are always live simultaneously — no platform-detection code exists, and the on-screen touch HUD can be exercised with a mouse in the Editor for free since it's driven by UI Toolkit pointer events (which fire for mouse input too), not a Touch-specific Input System binding.
+
+## Touch control settings (Pause, settings & audio, Pass 6)
+
+The four control settings in `SettingsService` are applied (the Settings screen's live preview uses the same formulas):
+
+- **Sensitivity** (0.5-1.4, default 0.9): `HudTouchControls` multiplies the finger offset by it. The handle follows the scaled offset (clamped to the travel) and steer is `clamp(offset, fullRadius) / fullRadius`, so a higher value reaches full deflection with a smaller finger movement. The default is a hair softer than the old fixed 1.0.
+- **Size** (S / M / L = 0.8 / 1.0 / 1.2): scales the base (300 px at M), handle (132), handle travel (84) and the full-steer radius (50) together, applied inline over the `Hud.uss` M defaults at each touch-down. Size and sensitivity are read from `SettingsService` at every touch-down, so they are never stale.
+- **Side**: `HudView.ApplyControlSettings()` toggles `hud-root--right-hand` on the HUD root: the joystick zone moves to the right half and the boost button mirrors to the bottom-left. The HUD view is built at scene load, before the player can change settings in the menu, so `HudPresenter` calls it when the view is built and on `SettingsService.Changed`.
+- **Invert steering**: `PlaneController.FixedUpdate` negates the final vertical steer after the dead zone, for touch and keyboard alike (vertical axis only); the visual pitch is derived from it and follows.

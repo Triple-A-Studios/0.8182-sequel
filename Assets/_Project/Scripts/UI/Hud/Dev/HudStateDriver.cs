@@ -172,7 +172,9 @@ namespace Opoint8182.UI
 				return;
 			}
 
-			var origin = new Vector2(274f, View.Root.layout.height - 254f);
+			// Same corner as the joystick zone of the chosen side.
+			var x = SettingsService.JoystickSide == JoystickSide.Right ? View.Root.layout.width - 274f : 274f;
+			var origin = new Vector2(x, View.Root.layout.height - 254f);
 			View.PreviewJoystick(origin, new Vector2(34f, -20f));
 		}
 

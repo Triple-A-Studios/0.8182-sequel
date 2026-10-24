@@ -17,7 +17,8 @@
     bottom: 0;
 }
 
-/* Touch-capture area for the floating joystick: left half of the panel (a later settings pass makes the side configurable). */
+/* Touch-capture area for the floating joystick: the left half of the panel, or the right half with the right-hand setting
+   (Settings JOYSTICK SIDE; HudView.ApplyControlSettings toggles the modifier on the HUD root). */
 .hud-joy-zone {
     position: absolute;
     left: 0;
@@ -26,7 +27,13 @@
     width: 50%;
 }
 
-/* Repositioned to the touch point on every touch-down; hidden until touched. Size must match HudTouchControls.BaseSize. */
+.hud-root--right-hand .hud-joy-zone {
+    left: auto;
+    right: 0;
+}
+
+/* Repositioned to the touch point on every touch-down; hidden until touched. These are the M size and must match
+   HudTouchControls.BaseSize; the S / M / L setting overrides width / height / radius inline at each touch. */
 .hud-joy-base {
     display: none;
     position: absolute;
@@ -195,6 +202,12 @@
     bottom: 102px;
     width: 186px;
     height: 196px;
+}
+
+/* Right-hand joystick: the boost button moves to the other thumb, bottom-left. */
+.hud-root--right-hand .hud-boost {
+    right: auto;
+    left: 140px;
 }
 
 .hud-boost .lipbox__face { border-radius: 93px; }

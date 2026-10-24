@@ -39,6 +39,9 @@ namespace Opoint8182.UI
 		{
 			base.OnEnable();
 
+			// The view is built at scene load, before the player can change the controls in the menu's Settings screen.
+			SettingsService.Changed += OnSettingsChanged;
+
 			if (m_fuelSystem != null) m_fuelSystem.FuelValue.AddListener(OnFuelChanged);
 			if (m_healthSystem != null) m_healthSystem.HealthValue.AddListener(OnHealthChanged);
 			if (m_scoreSystem != null)
@@ -70,6 +73,7 @@ namespace Opoint8182.UI
 
 		protected override void OnDisable()
 		{
+			SettingsService.Changed -= OnSettingsChanged;
 			if (m_fuelSystem != null) m_fuelSystem.FuelValue.RemoveListener(OnFuelChanged);
 			if (m_healthSystem != null) m_healthSystem.HealthValue.RemoveListener(OnHealthChanged);
 			if (m_scoreSystem != null)
@@ -105,6 +109,7 @@ namespace Opoint8182.UI
 			view.SteerChanged += OnSteerChanged;
 			view.BoostChanged += OnBoostChanged;
 			view.PauseClicked += OnPauseClicked;
+			view.ApplyControlSettings();
 			view.PausePopup.CountdownFinished += OnCountdownFinished;
 			view.PausePopup.RestartRequested += OnRestartRequested;
 			view.PausePopup.QuitRequested += OnQuitRequested;
@@ -191,6 +196,8 @@ namespace Opoint8182.UI
 		}
 
 		private void OnRunEnded(RunEndCause _) => View?.SetRunEnded(true);
+
+		private void OnSettingsChanged() => View?.ApplyControlSettings();
 
 		private void OnPauseClicked() => m_gameManager?.Pause();
 
