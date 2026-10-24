@@ -86,7 +86,7 @@ namespace Opoint8182.UI
 
 			m_sound.RegisterValueChangedCallback(evt => OnSliderChanged(m_sound, m_soundValue, evt.newValue, value => SettingsService.Sound = value));
 			m_shake.RegisterValueChangedCallback(evt => OnSliderChanged(m_shake, m_shakeValue, evt.newValue, value => SettingsService.ScreenShake = value));
-			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
+			m_haptics.RegisterValueChangedCallback(OnHapticsChanged);
 			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
 
 			// Trickle-down sees the press and release before the slider handles them; the scheduled step runs after its
@@ -242,6 +242,13 @@ namespace Opoint8182.UI
 			m_shake.SetValueWithoutNotify(SettingsService.ScreenShake);
 			m_shakeValue.text = Mathf.RoundToInt(SettingsService.ScreenShake).ToString();
 			m_haptics.SetValueWithoutNotify(SettingsService.Haptics);
+		}
+
+		// Switching haptics on buzzes once so the player feels what they just enabled (the setting is already stored, so it passes the gate).
+		private void OnHapticsChanged(ChangeEvent<bool> evt)
+		{
+			SettingsService.Haptics = evt.newValue;
+			if (evt.newValue) Haptics.Play(HapticTier.Light);
 		}
 
 		private void FlushAndPreview()

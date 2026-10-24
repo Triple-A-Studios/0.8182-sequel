@@ -1366,6 +1366,7 @@ GameObject:
   - component: {fileID: 1784408216}
   - component: {fileID: 1784408215}
   - component: {fileID: 1784408217}
+  - component: {fileID: 1784408218}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1423,6 +1424,18 @@ MonoBehaviour:
   m_lowFuelThreshold: 0.25
   m_lowHealthThreshold: 0.3
   m_gameOverDelay: 0.9
+--- !u!114 &1784408218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784408214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eabbc3c12170844aa228ff7275cfa65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.GameplayHaptics
 --- !u!1 &2066835680
 GameObject:
   m_ObjectHideFlags: 0

@@ -71,7 +71,7 @@ namespace Opoint8182.UI
 			root.Q<LipButton>("settings-back").clicked += () => BackRequested?.Invoke();
 
 			m_sound.RegisterValueChangedCallback(evt => OnSoundChanged(evt.newValue));
-			m_haptics.RegisterValueChangedCallback(evt => SettingsService.Haptics = evt.newValue);
+			m_haptics.RegisterValueChangedCallback(OnHapticsChanged);
 			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
 			m_shake.RegisterValueChangedCallback(evt => OnShakeChanged(evt.newValue));
 			m_sideTabs.changed += OnSideChanged;
@@ -89,6 +89,13 @@ namespace Opoint8182.UI
 			m_ring.RegisterCallback<PointerMoveEvent>(OnStickPointerMove);
 			m_ring.RegisterCallback<PointerUpEvent>(OnStickPointerUp);
 			m_ring.RegisterCallback<PointerCancelEvent>(OnStickPointerCancel);
+		}
+
+		// Switching haptics on buzzes once so the player feels what they just enabled (the setting is already stored, so it passes the gate).
+		private void OnHapticsChanged(ChangeEvent<bool> evt)
+		{
+			SettingsService.Haptics = evt.newValue;
+			if (evt.newValue) Haptics.Play(HapticTier.Light);
 		}
 
 		private void FlushAndPreview()

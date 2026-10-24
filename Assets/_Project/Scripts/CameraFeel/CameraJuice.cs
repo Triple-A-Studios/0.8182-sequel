@@ -137,9 +137,13 @@ namespace Opoint8182.CameraFeel
 			m_follow.FollowOffset = offset;
 		}
 
+		/// <summary>
+		/// <paramref name="magnitude"/> is scaled by the player's Screen shake setting (0-150%, read now, so a change
+		/// applies from the next shake). 0% is no jitter at all. Hit-stop is a time effect and is not scaled.
+		/// </summary>
 		public void Shake(float magnitude, float duration)
 		{
-			m_shakeMagnitude = magnitude;
+			m_shakeMagnitude = magnitude * (SettingsService.ScreenShake / 100f);
 			m_shakeDurationTotal = duration;
 			m_shakeTimeRemaining = duration;
 		}

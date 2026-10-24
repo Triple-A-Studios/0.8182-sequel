@@ -38,3 +38,7 @@ All driven from one `Update()` on `CameraJuice`, reading `PlaneController.IsBoos
 ## Hit-stop and pause (Pause, settings & audio, Pass 2a)
 
 `HitStopRoutine` restores `Time.timeScale = 1` only if `GameManager.IsPaused` is false when its real-time wait ends. If the player paused during the freeze, `PausedState` already owns the clock (0 now, 1 on resume), and an unconditional restore would have silently unpaused the game. See [game-flow.md](game-flow.md#pause-pause-settings--audio-pass-2a). `UpdateShake` also returns early while `Time.deltaTime` is 0: `Update` still runs at `timeScale` 0 and the shake timer cannot advance, so re-rolling the jitter each frame kept the frozen frame (and the resume countdown) shaking. The offset simply holds its last value until the clock runs again.
+
+## Screen shake slider (Pause, settings & audio, Pass 5)
+
+`Shake` multiplies its magnitude by `SettingsService.ScreenShake / 100` (0-150%, default 120%), so the three shake presets above are the 100% values. Hit-stop is not scaled. See [haptics.md](haptics.md).

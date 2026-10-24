@@ -121,7 +121,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 
 ## Known gaps and what closes them
 
-- Pause works (Pass 2a, [game-flow.md](game-flow.md#pause-pause-settings--audio-pass-2a)); QUIT TO MENU is a toast stub behind a leave-run confirm in competitive runs (Pass 2b). Settings persist (`SettingsService`) but are not applied to gameplay yet: **Pause, settings & audio** (#25).
+- Pause works (Pass 2a, [game-flow.md](game-flow.md#pause-pause-settings--audio-pass-2a)); QUIT TO MENU is a toast stub behind a leave-run confirm in competitive runs (Pass 2b). Settings persist (`SettingsService`); sound, screen shake and haptics are applied (Passes 4 and 5), the joystick settings and invert steering are not yet: **Pause, settings & audio** Pass 6 (#25).
 - Attempts, practice clock, share, BANK IT / RETRY semantics, Game Over MAIN MENU / LEADERBOARD / SHARE / PRACTICE: **Daily play structure**.
 - WEEKLY tab is the daily board, ALL-TIME and past weeks are samples, S11 has no source: **Weekly + all-time rework** (#28).
 - Profile stats, name persistence / moderation, badges, run stats on Game Over, NEW BEST: **Player profile & run stats**.
