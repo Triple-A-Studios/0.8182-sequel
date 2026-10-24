@@ -17,7 +17,7 @@
 | 5 | Verified in Editor (Android vibration + manifest build deferred to Pass 7) | `90cb47a` | Haptics service + screen-shake slider into `CameraJuice` |
 | 6 | Verified in Editor (phone check in Pass 7) | `d1d3bff` | Joystick side / size / sensitivity + invert steering applied (folds backlog #25) |
 | 7a | Verified in Editor | `9ec785d` | Editor hardening sweep (pause / audio / settings edge cases) + backlog #30 loading-screen timer |
-| 7b | Not started | — | Device checks (developer): Android native build with the custom manifest, then WebGL on the phone; the checks deferred from Passes 3-6 and #30 |
+| 7b | Verified on Android + WebGL | `b03c7bc` | Device checks (developer): Android native build with the custom manifest, then WebGL on the phone; the checks deferred from Passes 3-6 and #30 |
 | 7c | Not started | — | Docs refresh, milestone table frozen into progress.md, current-state to between milestones |
 
 - **Decisions of record (this milestone):** pause is state-based through `GameManager`'s state machine, but the Paused state itself sets `Time.timeScale` to 0 (a hybrid: single orchestrator, no per-system freeze gating, since about 13 scripts tick on scaled time); no music or BGM, SFX only (design choice, permanent); no audio mixer: priority, voice stealing and ducking are code in `AudioManager`; stand-in clips are generated WAVs, swappable later with no code change; settings persist in PlayerPrefs, local only; QUIT TO MENU stays a stub toast (real return-to-menu belongs to Daily play structure), practice run goes straight to the stub action, competitive run shows a confirm popup that the attempt is lost without submitting the score.
