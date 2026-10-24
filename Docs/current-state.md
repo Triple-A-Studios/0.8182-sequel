@@ -2,7 +2,7 @@
 
 ## Snapshot
 - **Last landed:** Milestone "UI/art pass" (Alpha) — **complete** and merged into `main` (8 passes, 2026-10-07 to 2026-10-17). Every mockup screen exists as UI Toolkit UI; systems that belong to later milestones show flagged static placeholder data. Verified in the Editor, on an Android phone (Realme 8s 5G, native build) and in WebGL in the phone's browser. Frozen pass table with commits: [progress.md](progress.md#milestone-uiart-pass--completed). What the UI is and how it works: [technical-design/ui.md](technical-design/ui.md).
-- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed; Pass 2a landed; Pass 2b landed; Pass 3 landed (device checks deferred to Pass 7); Pass 4a landed; Pass 4b landed; Pass 5 landed (Android vibration and the manifest build are device-checked in Pass 7); Pass 6 landed; Pass 7a in progress.
+- **Now:** milestone **Pause, settings & audio** (Alpha) is scoped (2026-10-17), branch `milestone/pause-settings-audio` cut from `main`. Pass 1 landed; Pass 2a landed; Pass 2b landed; Pass 3 landed (device checks deferred to Pass 7); Pass 4a landed; Pass 4b landed; Pass 5 landed (Android vibration and the manifest build are device-checked in Pass 7); Pass 6 landed; Pass 7a landed. Next step: 7b (the developer's Android and WebGL device checks).
 - **Branch:** `milestone/pause-settings-audio` (nothing pushed).
 - **Pass status** (full scope per pass in [plan.md](plan.md#phase-alpha)):
 
@@ -16,7 +16,7 @@
 | 4b | Verified — Complete | `8e16de0` | Gameplay SFX: `GameplaySfx` (crashes, hit, heal, pickup, combo, boost loop, warnings, run end, game over) |
 | 5 | Verified in Editor (Android vibration + manifest build deferred to Pass 7) | `90cb47a` | Haptics service + screen-shake slider into `CameraJuice` |
 | 6 | Verified in Editor (phone check in Pass 7) | `d1d3bff` | Joystick side / size / sensitivity + invert steering applied (folds backlog #25) |
-| 7a | In progress | — | Editor hardening sweep (pause / audio / settings edge cases) + backlog #30 loading-screen timer |
+| 7a | Verified in Editor | `9ec785d` | Editor hardening sweep (pause / audio / settings edge cases) + backlog #30 loading-screen timer |
 | 7b | Not started | — | Device checks (developer): Android native build with the custom manifest, then WebGL on the phone; the checks deferred from Passes 3-6 and #30 |
 | 7c | Not started | — | Docs refresh, milestone table frozen into progress.md, current-state to between milestones |
 
