@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: HapticProfiles
+  m_EditorClassIdentifier: Assembly-CSharp:Opoint8182:HapticProfiles
+  profiles:
+  - tier: 0
+    durationsMs: 0c000000i
+    amplitudes: 46000000i
+  - tier: 1
+    durationsMs: 1e000000i
+    amplitudes: a0000000i
+  - tier: 2
+    durationsMs: 37000000i
+    amplitudes: ff000000i
+  - tier: 3
+    durationsMs: 3c0000003200000028000000320000001e0000003c000000a0000000i
+    amplitudes: ff00000000000000be000000000000008200000000000000f0000000i

@@ -72,13 +72,13 @@ namespace Opoint8182.UI
 
 			m_sound.RegisterValueChangedCallback(evt => OnSoundChanged(evt.newValue));
 			m_haptics.RegisterValueChangedCallback(OnHapticsChanged);
-			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
+			m_haptics.RegisterCallback<PointerDownEvent>(_ => OnTogglePressed(), TrickleDown.TrickleDown);
 			m_shake.RegisterValueChangedCallback(evt => OnShakeChanged(evt.newValue));
 			m_sideTabs.changed += OnSideChanged;
 			m_size.RegisterValueChangedCallback(evt => OnSizeChanged(evt.newValue));
 			m_sensitivity.RegisterValueChangedCallback(evt => OnSensitivityChanged(evt.newValue));
 			m_invert.RegisterValueChangedCallback(evt => SettingsService.InvertSteering = evt.newValue);
-			m_invert.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
+			m_invert.RegisterCallback<PointerDownEvent>(_ => OnTogglePressed(), TrickleDown.TrickleDown);
 
 			// Trickle-down sees the press and release before the slider handles them; the scheduled step runs after its
 			// handler, so the saved value and the preview tick are the snapped one.
@@ -96,6 +96,12 @@ namespace Opoint8182.UI
 		{
 			SettingsService.Haptics = evt.newValue;
 			if (evt.newValue) Haptics.Play(HapticTier.Light);
+		}
+
+		private static void OnTogglePressed()
+		{
+			Sfx.Play(SfxId.UiToggle);
+			Haptics.Play(HapticTier.Light);
 		}
 
 		private void FlushAndPreview()

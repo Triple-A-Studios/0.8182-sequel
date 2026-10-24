@@ -10,8 +10,8 @@ namespace Opoint8182
 	/// <summary>
 	/// Phone haptics for the run (Pause, settings and audio, Pass 5): the same event-listening shape as
 	/// <see cref="Audio.GameplaySfx"/> (no gameplay script knows about haptics), on the same GameManager object in
-	/// <c>Prototype</c>. Acts only while the run is live and not paused. Perfect crash and run end are Heavy, plain crashes and
-	/// hits Medium, heals, pickups and a combo step up Light.
+	/// <c>Prototype</c>. Acts only while the run is live and not paused. Perfect crash is Heavy, plain crashes and
+	/// hits Medium, heals, pickups and a combo step up Light, and the run ending plays the crash rhythm.
 	/// </summary>
 	public class GameplayHaptics : MonoBehaviour
 	{
@@ -80,6 +80,6 @@ namespace Opoint8182
 			if (rose && Live) Haptics.Play(HapticTier.Light);
 		}
 
-		private void HandleRunEnded(RunEndCause cause) => Haptics.Play(HapticTier.Heavy);
+		private void HandleRunEnded(RunEndCause cause) => Haptics.Play(HapticTier.CrashRhythm);
 	}
 }

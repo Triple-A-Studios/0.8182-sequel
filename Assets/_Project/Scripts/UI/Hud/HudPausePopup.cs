@@ -87,7 +87,7 @@ namespace Opoint8182.UI
 			m_sound.RegisterValueChangedCallback(evt => OnSliderChanged(m_sound, m_soundValue, evt.newValue, value => SettingsService.Sound = value));
 			m_shake.RegisterValueChangedCallback(evt => OnSliderChanged(m_shake, m_shakeValue, evt.newValue, value => SettingsService.ScreenShake = value));
 			m_haptics.RegisterValueChangedCallback(OnHapticsChanged);
-			m_haptics.RegisterCallback<PointerDownEvent>(_ => Sfx.Play(SfxId.UiToggle), TrickleDown.TrickleDown);
+			m_haptics.RegisterCallback<PointerDownEvent>(_ => OnTogglePressed(), TrickleDown.TrickleDown);
 
 			// Trickle-down sees the press and release before the slider handles them; the scheduled step runs after its
 			// handler, so the saved value and the preview tick are the snapped one.
@@ -249,6 +249,12 @@ namespace Opoint8182.UI
 		{
 			SettingsService.Haptics = evt.newValue;
 			if (evt.newValue) Haptics.Play(HapticTier.Light);
+		}
+
+		private static void OnTogglePressed()
+		{
+			Sfx.Play(SfxId.UiToggle);
+			Haptics.Play(HapticTier.Light);
 		}
 
 		private void FlushAndPreview()
