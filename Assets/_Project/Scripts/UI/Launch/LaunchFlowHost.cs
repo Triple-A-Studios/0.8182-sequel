@@ -27,7 +27,13 @@ namespace Opoint8182.UI
 		private LastWeekResultsScreen m_results;
 		private ILastWeekResultsSource m_source;
 
+		// Backlog #30: the minimum time used to run from Awake, so on a phone the heavy first frames (two scene loads and
+		// activations) could use up most of it before anything was drawn and the screen flashed by. It now counts frames the
+		// loading view is up, each capped, so a hitch counts as one short frame instead of eating the minimum.
+		private const float k_MaxCountedFrameSeconds = 0.1f;
+
 		private float m_startTime;
+		private float m_visibleSeconds;
 		private float m_target;
 		private float m_shown;
 		private bool m_loadsDone;
@@ -82,7 +88,7 @@ namespace Opoint8182.UI
 			m_target = 1f;
 
 			// m_shown only advances while the view exists; without a view there is nothing to wait for.
-			while (!LaunchFlow.CanLeave(Time.unscaledTime - m_startTime, GateActive) || (m_loading != null && m_shown < 1f))
+			while (!LaunchFlow.CanLeave(m_visibleSeconds, GateActive) || (m_loading != null && m_shown < 1f))
 			{
 				await Task.Yield();
 			}
@@ -96,7 +102,7 @@ namespace Opoint8182.UI
 
 			m_finished = true;
 			m_loading?.Hide();
-			Debug.Log($"[Launch] loading screen left after {Time.unscaledTime - m_startTime:0.00}s");
+			Debug.Log($"[Launch] loading screen left after {Time.unscaledTime - m_startTime:0.00}s ({m_visibleSeconds:0.00}s of counted frames)");
 		}
 
 		private ILastWeekResultsSource ResolveSource()
@@ -113,6 +119,8 @@ namespace Opoint8182.UI
 		private void Update()
 		{
 			if (m_finished || m_loading == null) return;
+
+			m_visibleSeconds += Mathf.Min(Time.unscaledDeltaTime, k_MaxCountedFrameSeconds);
 
 			GateActive = LaunchFlow.GateApplies() && LaunchFlow.IsPortrait(Screen.width, Screen.height);
 			if (GateActive != m_loading.RotateGateVisible) m_loading.SetRotateGate(GateActive);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Opoint8182.Audio
 {
@@ -26,6 +27,7 @@ namespace Opoint8182.Audio
 		private const string k_LibraryPath = "SfxLibrary";
 		private const float k_DuckAttackPerSecond = 20f;
 		private const float k_DuckRecoverPerSecond = 3f;
+		private const float k_ListenerCheckSeconds = 1f;
 
 		private static AudioManager m_s_instance;
 
@@ -48,6 +50,10 @@ namespace Opoint8182.Audio
 		private float m_duckTarget = 1f;
 		private int m_duckPriority;
 		private float m_duckUntil;
+
+		private AudioListener m_fallbackListener;
+		private bool m_listenerDirty = true;
+		private float m_nextListenerCheck;
 
 		/// <summary>The live manager, or null before startup / outside Play Mode.</summary>
 		public static AudioManager Instance => m_s_instance != null ? m_s_instance : null;
@@ -82,19 +88,54 @@ namespace Opoint8182.Audio
 				m_voices.Add(new Voice { source = CreateSource($"Voice {i}") });
 			}
 
+			// Every sound is 2D, so only the existence of a listener matters, not where it is. The Bootstrap and MainMenu scenes
+			// have no camera (and so no listener), which made Unity warn and drop sounds; this one stands in whenever no scene
+			// provides its own (Prototype's camera does), and a second listener would warn too, so it steps aside for them.
+			m_fallbackListener = gameObject.AddComponent<AudioListener>();
+			SceneManager.sceneLoaded += OnSceneLoaded;
+			SceneManager.sceneUnloaded += OnSceneUnloaded;
+
 			SettingsService.Changed += ApplyMasterVolume;
 			ApplyMasterVolume();
 		}
 
 		private void OnDestroy()
 		{
+			SceneManager.sceneLoaded -= OnSceneLoaded;
+			SceneManager.sceneUnloaded -= OnSceneUnloaded;
 			SettingsService.Changed -= ApplyMasterVolume;
 			if (m_s_instance == this) m_s_instance = null;
 		}
 
 		private void Update()
 		{
+			if (m_listenerDirty || Time.unscaledTime >= m_nextListenerCheck) RefreshFallbackListener();
+
 			UpdateDuck(Time.unscaledDeltaTime);
+		}
+
+		// A loaded scene's objects are awake and enabled by now, so a second listener is spotted at once instead of for a frame
+		// (which Unity warns about). An unloaded scene's objects are still alive until the end of the frame: check next Update.
+		private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => RefreshFallbackListener();
+
+		private void OnSceneUnloaded(Scene scene) => m_listenerDirty = true;
+
+		private void RefreshFallbackListener()
+		{
+			m_listenerDirty = false;
+			m_nextListenerCheck = Time.unscaledTime + k_ListenerCheckSeconds;
+
+			var another = false;
+			foreach (var listener in FindObjectsByType<AudioListener>())
+			{
+				if (listener != m_fallbackListener && listener.isActiveAndEnabled)
+				{
+					another = true;
+					break;
+				}
+			}
+
+			m_fallbackListener.enabled = !another;
 		}
 
 		/// <summary>Plays one sound. Returns false when it was dropped (unknown, no clip, cooldown, concurrency cap or outranked).</summary>

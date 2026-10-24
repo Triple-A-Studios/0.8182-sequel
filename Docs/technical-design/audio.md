@@ -38,3 +38,7 @@ Low fuel / low health use the HUD's default thresholds (`HudView.DefaultLowFuelT
 ## Placeholder clips
 
 `Tools/generate_placeholder_sfx.py` (stdlib only, deterministic) writes about 26 mono 16-bit 22.05 kHz WAVs (about 0.5 MB total) into `Assets/_Project/Audio/Placeholder/`; they are committed. To use real audio, drop a file with the id's name (for example `CrashPerfect.wav`) anywhere under `Assets/_Project/Audio` **outside** `Placeholder`: it wins over the placeholder of the same id after a library rebuild. No code change.
+
+## Audio listener
+
+All sounds are 2D, so only the existence of a listener matters, not its position. The `Bootstrap` and `MainMenu` scenes have no camera (and so no `AudioListener`); only `Prototype`'s camera has one, which made Unity log "There are no audio listeners in the scene" at every launch (and would silently drop sounds in a standalone `MainMenu`). `AudioManager` therefore carries a fallback `AudioListener`: it is enabled only while no other active listener exists, re-checked when a scene loads (at once, so a second listener never coexists for a frame and triggers Unity's "2 audio listeners" warning), when one unloads (next `Update`, the objects are still alive during the callback) and once a second.
