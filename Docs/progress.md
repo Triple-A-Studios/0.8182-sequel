@@ -175,8 +175,23 @@ Verified in Editor, Android and WebGL. Known gap: ▲/▼ glyphs don't render on
 
 Milestone complete — every mockup screen exists as UITK UI with static placeholder data where the system is a later milestone, verified in the Editor, on Android and in WebGL (phone browser). Known gap: the rotate-device gate was not exercised on itch.io (backlog #29). The 3D half of the original scope was moved into its own milestone, **3D art pass** (below), on 2026-10-17. UI structure and decisions: [technical-design/ui.md](technical-design/ui.md).
 
-### Milestone: Pause, settings & audio — In Progress
-See [current-state.md](current-state.md) for live pass status and [plan.md](plan.md#phase-alpha) for scope.
+### Milestone: Pause, settings & audio — Completed
+
+| Pass | Status | Commit | Target |
+|---|---|---|---|
+| 1 | Verified — Complete | `3c7c54a` | Settings store: PlayerPrefs-backed `SettingsService` replaces the session-only `UiSettingsState` |
+| 2a | Verified — Complete | `75394ff` | Core pause: `GameManager` `PausedState` (owns `timeScale`), `Pause()` / `Resume()`, hit-stop guard, shared `RestartRun()`, HUD wiring (button, popup, 3-2-1 countdown, RESTART, Escape / back) |
+| 2b | Verified — Complete | `b6ef40d` | QUIT TO MENU stub with practice / competitive branching: `IsPracticeRun`, leave-run confirm popup |
+| 3 | Verified — Complete (Editor, then Android + WebGL in 7b) | `af09727` | Auto-pause on focus loss, countdown guard, in-session portrait rotate overlay |
+| 4a | Verified — Complete | `a3da19e` | Audio foundation: generated placeholder WAVs, `SfxLibrary`, `AudioManager` (pool, priority, ducking), `Sfx` facade, Sound slider, pause integration, UI / countdown / slider sounds. No mixer, no music |
+| 4b | Verified — Complete | `8e16de0` | Gameplay SFX: `GameplaySfx` (crashes, hits, heal, pickup, combo, boost loop, warnings, run end, game over) |
+| 5 | Verified — Complete (Editor, then Android in 7b) | `90cb47a` | Haptics service + `GameplayHaptics`, screen-shake slider into `CameraJuice`, Android VIBRATE manifest |
+| 6 | Verified — Complete (Editor, then phone in 7b) | `d1d3bff` | Joystick side / size / sensitivity + invert steering applied (folds backlog #25) |
+| 7a | Verified — Complete | `9ec785d` | Editor hardening sweep, fallback `AudioListener`, loading screen minimum counts visible frames (folds backlog #30) |
+| 7b | Verified — Complete | `b03c7bc` | Device checks on Android + WebGL; feedback folded in: haptic profiles (light / medium / heavy / crash rhythm as ms + amplitude arrays), UI press haptics, one UI click per press |
+| 7c | Verified — Complete | this commit | Docs refresh and milestone close |
+
+Milestone complete — pause, every setting, sound effects (no music, by design) and haptics are real, verified in the Editor, on an Android phone and in WebGL (phone browser). Backlog #25, #29 and #30 resolved. Decisions: pause is state-based through `GameManager` but only the Paused state touches `Time.timeScale`; no audio mixer (priority, voice stealing and ducking are code); settings are local PlayerPrefs; QUIT TO MENU stays a toast stub until Daily play structure; generated stand-in clips and default haptic patterns are replaceable with no code change. System docs: [game-flow.md](technical-design/game-flow.md), [settings.md](technical-design/settings.md), [audio.md](technical-design/audio.md), [haptics.md](technical-design/haptics.md).
 
 ### Milestone: 3D art pass — Upcoming
 See [plan.md](plan.md#phase-alpha) for scope. Not yet scoped.

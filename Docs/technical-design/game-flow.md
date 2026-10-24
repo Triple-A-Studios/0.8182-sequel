@@ -1,4 +1,6 @@
-# Game Flow (Feel polish, Pass 5)
+# Game Flow (Feel polish, Pass 5; pause added by the Pause, settings & audio milestone)
+
+Sections below: Bootstrap and scene loading, `GameManager`'s state machine (MainMenu / Playing / Paused), the run-end cause, then [Pause](#pause-pause-settings--audio-pass-2a) (the Paused state, QUIT TO MENU, auto-pause on focus loss, the portrait prompt, the loading screen's minimum time, the hardening sweep). Audio, haptics and settings have their own files: [audio.md](audio.md), [haptics.md](haptics.md), [settings.md](settings.md).
 
 Wires the menu→game transition Pass 4 left stubbed. Three scenes now: `Bootstrap.unity` (index 0, new), `MainMenu.unity` (index 1), `Prototype.unity` (index 2) — reordered in `ProjectSettings/EditorBuildSettings.asset`.
 

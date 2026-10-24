@@ -107,8 +107,8 @@ The old `daily_scores` board is retired when this ships.
 5. **Results screen for players who never ranked:** the flow shows a neutral screen "either way". Consider skipping it for a player who has never submitted a ranked run (needs a local flag); decide when scoping.
 6. Reset-label and results copy to be checked against the UX rules (the mockup's "WEEKLY RESETS IN 6h 12m" chip is a granular countdown; prefer days, with hours only on the final day, in neutral styling).
 
-## 8. Art & Audio Direction — *lightly touched, left open*
-Cartoonish crash feel is set (see #4); everything else (plane/building visual style, music, SFX direction) is open — probably easier to nail down once there's a rough prototype to look at.
+## 8. Art & Audio Direction — *audio decided 2026-10-24, art left open*
+Cartoonish crash feel is set (see #4). **Audio: sound effects only. The game has no music or background music, ever (a design choice, not a gap).** SFX direction: short, punchy, cartoonish cues for every action (crash tiers, hits, pickups, combo steps, boost, warnings, run end, UI), with priority between sounds so a warning or a perfect crash is never buried; the current clips are generated stand-ins to be replaced by real ones by name (`Docs/technical-design/audio.md`). **Haptics** (Android phones): a light tick on every UI press, medium for crashes and hits, heavy for a perfect crash, and a multi-pulse crash rhythm when the run ends, each a tunable pattern (`haptics.md`); the player can turn haptics off, scale screen shake from 0 to 150%, and set the sound level. The plane / building visual style is still open — probably easier to nail down once there's a rough prototype to look at.
 
 ## 9. Multiplayer & Social Design — N/A
 Skipped — single-player with an asynchronous leaderboard, not multiplayer/social.
