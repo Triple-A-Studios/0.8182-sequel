@@ -189,7 +189,7 @@ Milestone complete — every mockup screen exists as UITK UI with static placeho
 | 6 | Verified — Complete (Editor, then phone in 7b) | `d1d3bff` | Joystick side / size / sensitivity + invert steering applied (folds backlog #25) |
 | 7a | Verified — Complete | `9ec785d` | Editor hardening sweep, fallback `AudioListener`, loading screen minimum counts visible frames (folds backlog #30) |
 | 7b | Verified — Complete | `b03c7bc` | Device checks on Android + WebGL; feedback folded in: haptic profiles (light / medium / heavy / crash rhythm as ms + amplitude arrays), UI press haptics, one UI click per press |
-| 7c | Verified — Complete | this commit | Docs refresh and milestone close |
+| 7c | Verified — Complete | `8cb6a4c` | Docs refresh and milestone close |
 
 Milestone complete — pause, every setting, sound effects (no music, by design) and haptics are real, verified in the Editor, on an Android phone and in WebGL (phone browser). Backlog #25, #29 and #30 resolved. Decisions: pause is state-based through `GameManager` but only the Paused state touches `Time.timeScale`; no audio mixer (priority, voice stealing and ducking are code); settings are local PlayerPrefs; QUIT TO MENU stays a toast stub until Daily play structure; generated stand-in clips and default haptic patterns are replaceable with no code change. System docs: [game-flow.md](technical-design/game-flow.md), [settings.md](technical-design/settings.md), [audio.md](technical-design/audio.md), [haptics.md](technical-design/haptics.md).
 
