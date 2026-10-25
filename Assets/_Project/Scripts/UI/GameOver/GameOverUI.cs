@@ -1,4 +1,5 @@
 using Alchemy.Inspector;
+using Opoint8182.Bootstrap;
 using Opoint8182.Game;
 using Opoint8182.Leaderboard;
 using Opoint8182.Score;
@@ -119,14 +120,21 @@ namespace Opoint8182.UI
 			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, GameOverPlaceholderData.RankStatusFor(state), style, true);
 		}
 
-		// RETRY (and RETRY NOW, the same thing in the placed-well state) is the only real action: the scene reload.
-		// BANK IT, PRACTICE, MAIN MENU, LEADERBOARD and SHARE wait for attempts, the run / menu flow and Pass 6.
+		// RETRY (and RETRY NOW, the same thing in the placed-well state) reloads the scene; MAIN MENU reloads it into the
+		// menu. BANK IT, PRACTICE, LEADERBOARD and SHARE wait for attempts and Pass 6.
 		private void HandleActionClicked(GameOverAction action)
 		{
 			if (action == GameOverAction.Retry || action == GameOverAction.RetryNow)
 			{
 				if (m_gameManager != null) m_gameManager.RestartRun();
 				else SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				return;
+			}
+
+			// Without a Bootstrap loader (the game scene opened on its own) there is no menu: fall through to the toast.
+			if (action == GameOverAction.MainMenu && BootstrapLoader.Instance != null)
+			{
+				BootstrapLoader.Instance.ReturnToMenu();
 				return;
 			}
 

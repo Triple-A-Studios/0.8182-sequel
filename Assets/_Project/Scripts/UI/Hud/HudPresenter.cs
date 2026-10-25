@@ -1,5 +1,6 @@
 using Alchemy.Inspector;
 using Opoint8182.Altitude;
+using Opoint8182.Bootstrap;
 using Opoint8182.Fuel;
 using Opoint8182.Game;
 using Opoint8182.Health;
@@ -222,9 +223,17 @@ namespace Opoint8182.UI
 
 		private void OnRestartRequested() => m_gameManager?.RestartRun();
 
-		// Stub until the run / menu flow exists (Daily play structure): say so and stay paused on the popup.
+		// Reloads the game scene into the menu. Without a Bootstrap loader (the game scene opened on its own) there is no
+		// menu to go back to: say so and stay paused on the popup.
 		private void OnQuitRequested()
 		{
+			var loader = BootstrapLoader.Instance;
+			if (loader != null)
+			{
+				loader.ReturnToMenu();
+				return;
+			}
+
 			if (View == null) return;
 
 			View.ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
