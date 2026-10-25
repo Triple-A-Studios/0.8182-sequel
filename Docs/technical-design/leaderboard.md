@@ -29,6 +29,19 @@ Because the board is Best Score, the rank is the player's best-of-day rank. `Com
 
 The previous rank and its UTC date live in `PlayerPrefs` (`lb_last_rank`, `lb_last_utc_date`), written after every successful submit. This is deliberately soft: clearing storage resets it, the same weakness as the anonymous ID — and there is no attempt cap yet (3/day arrives with the Daily play structure milestone).
 
+## Weekly + all-time spike results (Daily play structure, Pass 2)
+
+Run 2026-10-25 against the real boards (created in the UGS dashboard; the project has no deployment package, so boards cannot be created from code): `weekly_scores` (High to Low, Best Score, reset Monday 00:00 UTC, archive on reset) and `alltime_scores` (High to Low, Best Score, never resets). The spike was a throwaway script run through the Unity CLI in play mode; no game code changed. It left a test entry (score 1234) on both boards and two archived versions on `weekly_scores` (the second empty).
+
+- **`GetVersionsAsync(id, new GetVersionsOptions { Limit = 4 })`** returns, in one call: `versionId` (the live version), `nextReset` (weekly only; absent on all-time), `totalArchivedVersions` (absent while 0) and `results`, newest first, each `{ id, start, end }`. `Limit` is honoured as a display limit (only 2 archives existed, so the cap itself was not exercised). Version IDs are 23-digit timestamp strings.
+- **Archiving works.** A dashboard Reset (manual, same as the scheduled one) closes the live version into `results` immediately, and the new live version starts empty. `nextReset` read `2026-10-26T00:00:00Z`, which confirms the schedule.
+- **The no-entry case is a `LeaderboardsException`, `Reason == EntryNotFound`, `ErrorCode` 27009**, for all three of: the live `GetPlayerScoreAsync` after a reset, `GetVersionPlayerScoreAsync` on an archive the player never entered, and `GetVersionPlayerRangeAsync` on the same. It is expected, not an error to log: the service should map it to "no entry".
+- **`GetVersionScoresAsync` on an empty archive** returns `results: []` with `total` absent (read as 0); on a populated one it carries `total` (the "of N pilots" number).
+- **Archived own entry** (`GetVersionPlayerScoreAsync`) returns `rank` (zero-based, add 1), `score`, `playerName`, plus the version `{ id, start, end }`.
+- **A malformed version ID** (`"does-not-exist"`) throws `LeaderboardsException` with `Reason == InvalidArgument`, `ErrorCode` 1004 (it reads "contains invalid characters"), so only pass IDs that came from `GetVersionsAsync`.
+- Live-board calls behave as in the Live leaderboard milestone (`AddPlayerScoreAsync`, `GetPlayerScoreAsync`, `GetScoresAsync` with `total`); ranks are zero-based everywhere.
+- **Costs per call for the budget:** one `GetVersionsAsync` covers the reset check, the reset label and the browse list; each archived week costs 2 calls (own entry + top scores); the player-range call is not needed for the screens as designed.
+
 ## Anonymous identity (from the Pass 2 spike)
 
 UGS anonymous sign-in stores its token in local storage (PlayerPrefs / IndexedDB on WebGL). Clearing site data creates a brand-new player with no score history. In dev, Unity's WebGL Build And Run serves each build from a new localhost port, which is a new origin and so a new player every rebuild — a dev-only artifact. Verified working on Android and WebGL in the spike; sign-in, submit and fetch all succeeded.
