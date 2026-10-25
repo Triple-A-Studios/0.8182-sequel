@@ -1,6 +1,7 @@
 using System;
 using Opoint8182.Altitude;
 using Opoint8182.Audio;
+using Opoint8182.Bootstrap;
 using Opoint8182.Fuel;
 using Opoint8182.Game.States;
 using Opoint8182.Health;
@@ -142,6 +143,14 @@ namespace Opoint8182.Game
         /// <summary>Reloads the game scene for a fresh run. Shared by Game Over RETRY and the pause popup's RESTART RUN.</summary>
         public void RestartRun()
         {
+            // Started through Bootstrap: the loader does the reload behind the loading cover. Otherwise (a scene opened on
+            // its own) reload straight away.
+            if (BootstrapLoader.Instance != null)
+            {
+                BootstrapLoader.Instance.RestartRun();
+                return;
+            }
+
             Time.timeScale = 1f;
             Sfx.SetPaused(false);
             Sfx.StopAll();

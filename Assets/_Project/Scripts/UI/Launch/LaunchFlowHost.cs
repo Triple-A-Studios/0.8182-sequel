@@ -105,6 +105,35 @@ namespace Opoint8182.UI
 			Debug.Log($"[Launch] loading screen left after {Time.unscaledTime - m_startTime:0.00}s ({m_visibleSeconds:0.00}s of counted frames)");
 		}
 
+		/// <summary>
+		/// Puts the loading screen back up as a cover while a run is left for the menu (the game scene reloads). The launch
+		/// flow is over by then, so there is no minimum time, rotate prompt or results screen: just the art, a new quip and the
+		/// bar, which <see cref="SetCoverProgress"/> moves. Does nothing when the panel has not built yet.
+		/// </summary>
+		public void ShowCover()
+		{
+			if (m_loading == null) return;
+
+			m_finished = true;
+			m_loading.SetRotateGate(false);
+			m_loading.SetContentVisible(true);
+			m_loading.SetQuip(LoadingQuips.Pick());
+			m_loading.SetProgress(0f);
+			m_loading.Show();
+		}
+
+		/// <summary>Moves the cover's bar, 0 to 1.</summary>
+		public void SetCoverProgress(float progress)
+		{
+			m_loading?.SetProgress(progress);
+		}
+
+		/// <summary>Takes the cover down.</summary>
+		public void HideCover()
+		{
+			m_loading?.Hide();
+		}
+
 		private ILastWeekResultsSource ResolveSource()
 		{
 #if UNITY_EDITOR || DEBUG
