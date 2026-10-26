@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using PrimeTween;
 using TripleA.Utils.Singletons;
@@ -28,10 +27,10 @@ namespace Opoint8182.Leaderboard
 		AllTime
 	}
 
+	/// <summary>Up is a new placement or a better rank. A worse rank is never reported as Down: it shows the rank alone.</summary>
 	public enum RankTrend
 	{
 		Up,
-		Down,
 		Same
 	}
 
@@ -42,13 +41,20 @@ namespace Opoint8182.Leaderboard
 		public readonly int Rank;
 		public readonly int Score;
 		public readonly RankTrend Trend;
+		/// <summary>
+		/// True when the run did not beat the player's stored weekly best, so nothing was sent for the weekly board:
+		/// <see cref="Rank"/> and <see cref="Score"/> are then the last known weekly ones (rank 0 if there are none) and the
+		/// trend is Same.
+		/// </summary>
+		public readonly bool Skipped;
 
-		public SubmitResult(bool success, int rank, int score, RankTrend trend)
+		public SubmitResult(bool success, int rank, int score, RankTrend trend, bool skipped = false)
 		{
 			Success = success;
 			Rank = rank;
 			Score = score;
 			Trend = trend;
+			Skipped = skipped;
 		}
 
 		public static SubmitResult Failed => new(false, 0, 0, RankTrend.Same);
@@ -132,8 +138,8 @@ namespace Opoint8182.Leaderboard
 
 	/// <summary>
 	/// Thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in. Two boards: weekly (Best Score, resets
-	/// Monday 00:00 UTC, archived) and all-time. Submits a run's score and reports the player's rank plus its trend
-	/// vs. their previous attempt (still the weekly board only until the submit rework, Pass 3b), reads the live
+	/// Monday 00:00 UTC, archived) and all-time. Submits a run's score (skipping boards it cannot improve) and reports
+	/// the player's weekly rank plus its trend vs. their previous entry this week, reads the live
 	/// boards and the weekly version info, with a short in-memory cache so screens never cost a call per open.
 	/// Never throws to callers; failures come back as <see cref="SubmitResult.Success"/> == false.
 	/// Look it up with <c>TryGetInstance()</c> so scenes opened without Bootstrap degrade quietly.
@@ -141,9 +147,17 @@ namespace Opoint8182.Leaderboard
 	public class LeaderboardService : PersistentSingleton<LeaderboardService>
 	{
 		private const string k_LogPrefix = "[LeaderboardService] ";
-		private const string k_LastRankKey = "lb_last_rank";
-		private const string k_LastDateKey = "lb_last_utc_date";
-		private const string k_DateFormat = "yyyy-MM-dd";
+
+		// The local, soft copy of the player's best per board (clearing storage only costs a redundant submit), used to skip
+		// submits that cannot improve it. The weekly best is only valid for the version it was set in.
+		private const string k_WeeklyBestKey = "lb_weekly_best";
+		private const string k_WeeklyVersionKey = "lb_weekly_version";
+		private const string k_WeeklyRankKey = "lb_weekly_rank";
+		private const string k_AllTimeBestKey = "lb_alltime_best";
+
+		// Keys of the old daily board (rank + UTC date), removed on startup.
+		private const string k_OldRankKey = "lb_last_rank";
+		private const string k_OldDateKey = "lb_last_utc_date";
 
 		/// <summary>How many closed weeks the leaderboard screen can step back through (a display limit: the archives keep accumulating).</summary>
 		public const int ArchivedWeeksLimit = 4;
@@ -170,6 +184,9 @@ namespace Opoint8182.Leaderboard
 
 		private async void Start()
 		{
+			PlayerPrefs.DeleteKey(k_OldRankKey);
+			PlayerPrefs.DeleteKey(k_OldDateKey);
+
 			try
 			{
 				await EnsureReadyAsync();
@@ -188,30 +205,101 @@ namespace Opoint8182.Leaderboard
 			return m_readyTask;
 		}
 
-		/// <summary>Submits a finished run's score. Scores of zero or less are not submitted.</summary>
-		public Task<SubmitResult> SubmitScoreAsync(int score)
+		/// <summary>
+		/// Submits a finished run's score. Each board is only sent the score when it beats the player's stored best for it
+		/// (the weekly best is keyed to the live weekly version, so a new week starts from none); the weekly board goes first
+		/// and its result is the one returned, the all-time board is sent best-effort in the background. A run that does
+		/// not beat the weekly best comes back as <see cref="SubmitResult.Skipped"/> with the last known weekly rank and no
+		/// call is made. Scores of zero or less are not submitted; a failed weekly submit changes nothing stored, so a retry
+		/// sends it again.
+		/// </summary>
+		public async Task<SubmitResult> SubmitScoreAsync(int score)
 		{
-			if (score <= 0 || IsOffline()) return Task.FromResult(SubmitResult.Failed);
-			return WithTimeout(attempt => SubmitCoreAsync(score, attempt), SubmitResult.Failed);
-		}
+			if (score <= 0 || IsOffline()) return SubmitResult.Failed;
 
-		private async Task<SubmitResult> SubmitCoreAsync(int score, Attempt attempt)
-		{
 			try
 			{
-				await EnsureReadyAsync();
-				var entry = await LeaderboardsService.Instance.AddPlayerScoreAsync(m_weeklyBoardId, score);
-				// A request that finished after its timeout must not record a rank: the player's retry
-				// would then compare against it and show Same instead of the real trend.
-				if (attempt.TimedOut) return SubmitResult.Failed;
-				int rank = entry.Rank + 1;
-				return new SubmitResult(true, rank, (int)entry.Score, ResolveTrend(rank));
+				// One call per session (and per reset); a failure only means the week check is skipped and the stored values are trusted.
+				var versions = await GetWeeklyVersionsAsync();
+				string liveVersion = versions.Success ? versions.LiveVersionId : null;
+				bool sameWeek = liveVersion == null || PlayerPrefs.GetString(k_WeeklyVersionKey, string.Empty) == liveVersion;
+				int weeklyBest = sameWeek ? PlayerPrefs.GetInt(k_WeeklyBestKey, 0) : 0;
+				int weeklyRank = sameWeek ? PlayerPrefs.GetInt(k_WeeklyRankKey, 0) : 0;
+
+				SubmitResult result;
+				if (ShouldSubmit(score, weeklyBest))
+				{
+					var weekly = await WithTimeout(_ => SubmitBoardAsync(m_weeklyBoardId, score), BoardSubmit.Failed);
+					if (!weekly.Success) return SubmitResult.Failed;
+
+					var trend = Compare(weeklyRank > 0, weeklyRank, weekly.Rank);
+					PlayerPrefs.SetInt(k_WeeklyBestKey, weekly.Score);
+					PlayerPrefs.SetInt(k_WeeklyRankKey, weekly.Rank);
+					if (liveVersion != null) PlayerPrefs.SetString(k_WeeklyVersionKey, liveVersion);
+					PlayerPrefs.Save();
+					InvalidateLiveBoards();
+					result = new SubmitResult(true, weekly.Rank, weekly.Score, trend);
+				}
+				else
+				{
+					result = new SubmitResult(true, weeklyRank, weeklyBest, RankTrend.Same, true);
+				}
+
+				if (ShouldSubmit(score, PlayerPrefs.GetInt(k_AllTimeBestKey, 0))) _ = SubmitAllTimeAsync(score);
+				return result;
 			}
 			catch (Exception e)
 			{
 				Debug.LogWarning(k_LogPrefix + $"Submit failed: {e.GetType().Name}: {e.Message}");
 				return SubmitResult.Failed;
 			}
+		}
+
+		/// <summary>True when a score can improve the stored best, so a submit is worth a call.</summary>
+		public static bool ShouldSubmit(int score, int storedBest) => score > storedBest;
+
+		private readonly struct BoardSubmit
+		{
+			public readonly bool Success;
+			/// <summary>1-based rank.</summary>
+			public readonly int Rank;
+			/// <summary>The player's best on the board after the submit (the server keeps the best), not necessarily the score sent.</summary>
+			public readonly int Score;
+
+			public BoardSubmit(bool success, int rank, int score)
+			{
+				Success = success;
+				Rank = rank;
+				Score = score;
+			}
+
+			public static BoardSubmit Failed => new(false, 0, 0);
+		}
+
+		private async Task<BoardSubmit> SubmitBoardAsync(string boardId, int score)
+		{
+			try
+			{
+				await EnsureReadyAsync();
+				var entry = await LeaderboardsService.Instance.AddPlayerScoreAsync(boardId, score);
+				return new BoardSubmit(true, entry.Rank + 1, (int)entry.Score);
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning(k_LogPrefix + $"Submit to {boardId} failed: {e.GetType().Name}: {e.Message}");
+				return BoardSubmit.Failed;
+			}
+		}
+
+		// Best-effort: the run's result does not wait for it and a failure only means the next qualifying run sends it again.
+		private async Task SubmitAllTimeAsync(int score)
+		{
+			var allTime = await WithTimeout(_ => SubmitBoardAsync(m_allTimeBoardId, score), BoardSubmit.Failed);
+			if (!allTime.Success) return;
+
+			PlayerPrefs.SetInt(k_AllTimeBestKey, allTime.Score);
+			PlayerPrefs.Save();
+			InvalidateLiveBoards();
 		}
 
 		/// <summary>The weekly board's top scores; the same as <c>GetTopScoresAsync(LeaderboardBoard.Weekly, limit)</c>.</summary>
@@ -332,13 +420,10 @@ namespace Opoint8182.Leaderboard
 
 		private string BoardId(LeaderboardBoard board) => board == LeaderboardBoard.AllTime ? m_allTimeBoardId : m_weeklyBoardId;
 
-		/// <summary>First attempt of the UTC day is always Up (new placement); otherwise a lower rank number is Up.</summary>
-		public static RankTrend Compare(bool hasPreviousToday, int previousRank, int newRank)
+		/// <summary>A first entry in the week is Up (new placement), a lower rank number is Up; anything else, a worse rank included, is Same (never shown as a drop).</summary>
+		public static RankTrend Compare(bool hasPrevious, int previousRank, int newRank)
 		{
-			if (!hasPreviousToday) return RankTrend.Up;
-			if (newRank < previousRank) return RankTrend.Up;
-			if (newRank > previousRank) return RankTrend.Down;
-			return RankTrend.Same;
+			return !hasPrevious || newRank < previousRank ? RankTrend.Up : RankTrend.Same;
 		}
 
 		private async Task InitializeAsync()
@@ -422,18 +507,6 @@ namespace Opoint8182.Leaderboard
 		private static LeaderboardRow ToRow(LeaderboardEntry entry, bool isSelf)
 		{
 			return new LeaderboardRow(entry.Rank + 1, entry.PlayerName, (int)entry.Score, isSelf);
-		}
-
-		private RankTrend ResolveTrend(int rank)
-		{
-			string today = DateTime.UtcNow.ToString(k_DateFormat, CultureInfo.InvariantCulture);
-			bool hasPreviousToday = PlayerPrefs.GetString(k_LastDateKey, string.Empty) == today && PlayerPrefs.HasKey(k_LastRankKey);
-			RankTrend trend = Compare(hasPreviousToday, PlayerPrefs.GetInt(k_LastRankKey, 0), rank);
-
-			PlayerPrefs.SetInt(k_LastRankKey, rank);
-			PlayerPrefs.SetString(k_LastDateKey, today);
-			PlayerPrefs.Save();
-			return trend;
 		}
 
 		private void SetState(ServiceState state)
