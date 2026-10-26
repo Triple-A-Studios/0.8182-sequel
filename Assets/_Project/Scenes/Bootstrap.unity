@@ -181,7 +181,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.Leaderboard.LeaderboardService
   autoUnparentOnAwake: 1
-  m_leaderboardId: daily_scores
+  m_weeklyBoardId: weekly_scores
+  m_allTimeBoardId: alltime_scores
   m_requestTimeoutSeconds: 10
 --- !u!1 &1115701410
 GameObject:

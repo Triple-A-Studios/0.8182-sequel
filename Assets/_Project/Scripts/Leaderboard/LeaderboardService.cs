@@ -7,6 +7,7 @@ using TripleA.Utils.Singletons;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Leaderboards;
+using Unity.Services.Leaderboards.Exceptions;
 using Unity.Services.Leaderboards.Models;
 using UnityEngine;
 
@@ -18,6 +19,13 @@ namespace Opoint8182.Leaderboard
 		Initializing,
 		Ready,
 		Failed
+	}
+
+	/// <summary>The two live boards: the weekly one (resets Monday 00:00 UTC, archived) and the all-time one.</summary>
+	public enum LeaderboardBoard
+	{
+		Weekly,
+		AllTime
 	}
 
 	public enum RankTrend
@@ -69,20 +77,64 @@ namespace Opoint8182.Leaderboard
 		public readonly IReadOnlyList<LeaderboardRow> Rows;
 		/// <summary>The player's own row, only when it is not already inside <see cref="Rows"/>; null if they have no entry yet.</summary>
 		public readonly LeaderboardRow? Self;
+		/// <summary>How many players have an entry on the board (the "of N pilots" number); 0 when the board is empty or the count is unknown.</summary>
+		public readonly int Total;
 
-		public TopScoresResult(bool success, IReadOnlyList<LeaderboardRow> rows, LeaderboardRow? self)
+		public TopScoresResult(bool success, IReadOnlyList<LeaderboardRow> rows, LeaderboardRow? self, int total = 0)
 		{
 			Success = success;
 			Rows = rows;
 			Self = self;
+			Total = total;
 		}
 
 		public static TopScoresResult Failed => new(false, Array.Empty<LeaderboardRow>(), null);
 	}
 
+	/// <summary>One closed week of the weekly board.</summary>
+	public readonly struct ArchivedWeek
+	{
+		/// <summary>The version ID to pass to the archive calls. Only ever use IDs that came from <see cref="WeeklyVersions"/>.</summary>
+		public readonly string Id;
+		public readonly DateTime StartUtc;
+		public readonly DateTime EndUtc;
+
+		public ArchivedWeek(string id, DateTime startUtc, DateTime endUtc)
+		{
+			Id = id;
+			StartUtc = startUtc;
+			EndUtc = endUtc;
+		}
+	}
+
+	/// <summary>The weekly board's version info from one <c>GetVersionsAsync</c> call: the live version, the next reset and the newest closed weeks.</summary>
+	public readonly struct WeeklyVersions
+	{
+		public readonly bool Success;
+		public readonly string LiveVersionId;
+		/// <summary>When the live version closes (the Monday 00:00 UTC reset); null if the board reports none.</summary>
+		public readonly DateTime? NextResetUtc;
+		public readonly int TotalArchived;
+		/// <summary>Newest first, at most <see cref="LeaderboardService.ArchivedWeeksLimit"/>.</summary>
+		public readonly IReadOnlyList<ArchivedWeek> Archived;
+
+		public WeeklyVersions(bool success, string liveVersionId, DateTime? nextResetUtc, int totalArchived, IReadOnlyList<ArchivedWeek> archived)
+		{
+			Success = success;
+			LiveVersionId = liveVersionId;
+			NextResetUtc = nextResetUtc;
+			TotalArchived = totalArchived;
+			Archived = archived;
+		}
+
+		public static WeeklyVersions Failed => new(false, null, null, 0, Array.Empty<ArchivedWeek>());
+	}
+
 	/// <summary>
-	/// Thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in. Submits a run's score to the
-	/// daily Best Score board and reports the player's rank plus its trend vs. their previous attempt.
+	/// Thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in. Two boards: weekly (Best Score, resets
+	/// Monday 00:00 UTC, archived) and all-time. Submits a run's score and reports the player's rank plus its trend
+	/// vs. their previous attempt (still the weekly board only until the submit rework, Pass 3b), reads the live
+	/// boards and the weekly version info, with a short in-memory cache so screens never cost a call per open.
 	/// Never throws to callers; failures come back as <see cref="SubmitResult.Success"/> == false.
 	/// Look it up with <c>TryGetInstance()</c> so scenes opened without Bootstrap degrade quietly.
 	/// </summary>
@@ -93,9 +145,24 @@ namespace Opoint8182.Leaderboard
 		private const string k_LastDateKey = "lb_last_utc_date";
 		private const string k_DateFormat = "yyyy-MM-dd";
 
-		[SerializeField] private string m_leaderboardId = "daily_scores";
+		/// <summary>How many closed weeks the leaderboard screen can step back through (a display limit: the archives keep accumulating).</summary>
+		public const int ArchivedWeeksLimit = 4;
+
+		// Live boards are re-read at most this often; archives never change, so the versions result lives until the next reset.
+		private const float k_LiveCacheSeconds = 90f;
+
+		[SerializeField] private string m_weeklyBoardId = "weekly_scores";
+		[SerializeField] private string m_allTimeBoardId = "alltime_scores";
 		[SerializeField] private float m_requestTimeoutSeconds = 10f;
 
+		private sealed class TopCacheEntry
+		{
+			public Task<TopScoresResult> Task;
+			public float StoredAt;
+		}
+
+		private readonly Dictionary<(LeaderboardBoard board, int limit), TopCacheEntry> m_topCache = new();
+		private Task<WeeklyVersions> m_versionsTask;
 		private Task m_readyTask;
 
 		public ServiceState State { get; private set; } = ServiceState.Idle;
@@ -133,7 +200,7 @@ namespace Opoint8182.Leaderboard
 			try
 			{
 				await EnsureReadyAsync();
-				var entry = await LeaderboardsService.Instance.AddPlayerScoreAsync(m_leaderboardId, score);
+				var entry = await LeaderboardsService.Instance.AddPlayerScoreAsync(m_weeklyBoardId, score);
 				// A request that finished after its timeout must not record a rank: the player's retry
 				// would then compare against it and show Same instead of the real trend.
 				if (attempt.TimedOut) return SubmitResult.Failed;
@@ -147,21 +214,49 @@ namespace Opoint8182.Leaderboard
 			}
 		}
 
-		/// <summary>Fetches the top <paramref name="limit"/> entries plus the player's own row when it falls outside them.</summary>
-		public Task<TopScoresResult> GetTopScoresAsync(int limit = 10)
+		/// <summary>The weekly board's top scores; the same as <c>GetTopScoresAsync(LeaderboardBoard.Weekly, limit)</c>.</summary>
+		public Task<TopScoresResult> GetTopScoresAsync(int limit = 10) => GetTopScoresAsync(LeaderboardBoard.Weekly, limit);
+
+		/// <summary>
+		/// Fetches the top <paramref name="limit"/> entries of a live board plus the player's own row when it falls outside
+		/// them, and the board's entry count. A successful result is reused for <see cref="k_LiveCacheSeconds"/> and
+		/// concurrent callers share one request; a failure is never cached, so a retry asks again.
+		/// </summary>
+		public Task<TopScoresResult> GetTopScoresAsync(LeaderboardBoard board, int limit = 10)
 		{
 			if (IsOffline()) return Task.FromResult(TopScoresResult.Failed);
-			return WithTimeout(_ => GetTopScoresCoreAsync(limit), TopScoresResult.Failed);
+
+			var key = (board, limit);
+			if (m_topCache.TryGetValue(key, out var cached)
+			    && (!cached.Task.IsCompleted || Time.realtimeSinceStartup - cached.StoredAt < k_LiveCacheSeconds))
+			{
+				return cached.Task;
+			}
+
+			var entry = new TopCacheEntry { StoredAt = Time.realtimeSinceStartup };
+			entry.Task = FetchTopScoresAsync(key, entry);
+			m_topCache[key] = entry;
+			return entry.Task;
 		}
 
-		private async Task<TopScoresResult> GetTopScoresCoreAsync(int limit)
+		/// <summary>Drops the cached live-board reads, so the next open fetches fresh (called after a successful submit).</summary>
+		public void InvalidateLiveBoards() => m_topCache.Clear();
+
+		private async Task<TopScoresResult> FetchTopScoresAsync((LeaderboardBoard board, int limit) key, TopCacheEntry entry)
+		{
+			var result = await WithTimeout(_ => GetTopScoresCoreAsync(BoardId(key.board), key.limit), TopScoresResult.Failed);
+			entry.StoredAt = Time.realtimeSinceStartup;
+			if (!result.Success && m_topCache.TryGetValue(key, out var current) && current == entry) m_topCache.Remove(key);
+			return result;
+		}
+
+		private async Task<TopScoresResult> GetTopScoresCoreAsync(string boardId, int limit)
 		{
 			try
 			{
 				await EnsureReadyAsync();
 				string selfId = AuthenticationService.Instance.PlayerId;
-				var page = await LeaderboardsService.Instance.GetScoresAsync(m_leaderboardId,
-					new GetScoresOptions { Limit = limit });
+				var page = await LeaderboardsService.Instance.GetScoresAsync(boardId, new GetScoresOptions { Limit = limit });
 
 				var rows = new List<LeaderboardRow>(page.Results.Count);
 				bool selfInTop = false;
@@ -172,15 +267,70 @@ namespace Opoint8182.Leaderboard
 					rows.Add(ToRow(entry, isSelf));
 				}
 
-				LeaderboardRow? self = selfInTop ? null : await TryGetOwnRowAsync();
-				return new TopScoresResult(true, rows, self);
+				LeaderboardRow? self = selfInTop ? null : await TryGetOwnRowAsync(boardId);
+				return new TopScoresResult(true, rows, self, page.Total);
 			}
 			catch (Exception e)
 			{
-				Debug.LogWarning(k_LogPrefix + $"Fetch top scores failed: {e.GetType().Name}: {e.Message}");
+				Debug.LogWarning(k_LogPrefix + $"Fetch top scores ({boardId}) failed: {e.GetType().Name}: {e.Message}");
 				return TopScoresResult.Failed;
 			}
 		}
+
+		/// <summary>
+		/// The weekly board's version info: the live version ID (what the stored weekly best is keyed to), the next reset
+		/// and the newest <see cref="ArchivedWeeksLimit"/> closed weeks. One call, reused until the reset time passes (a
+		/// closed week is then fetched again). A failure is not cached.
+		/// </summary>
+		public Task<WeeklyVersions> GetWeeklyVersionsAsync()
+		{
+			if (IsOffline()) return Task.FromResult(WeeklyVersions.Failed);
+
+			if (m_versionsTask != null && (!m_versionsTask.IsCompleted || IsVersionsCurrent(m_versionsTask.Result)))
+			{
+				return m_versionsTask;
+			}
+
+			m_versionsTask = FetchVersionsAsync();
+			return m_versionsTask;
+		}
+
+		private static bool IsVersionsCurrent(WeeklyVersions versions)
+		{
+			return versions.Success && (!versions.NextResetUtc.HasValue || DateTime.UtcNow < versions.NextResetUtc.Value);
+		}
+
+		private Task<WeeklyVersions> FetchVersionsAsync()
+		{
+			return WithTimeout(_ => GetVersionsCoreAsync(), WeeklyVersions.Failed);
+		}
+
+		private async Task<WeeklyVersions> GetVersionsCoreAsync()
+		{
+			try
+			{
+				await EnsureReadyAsync();
+				var versions = await LeaderboardsService.Instance.GetVersionsAsync(m_weeklyBoardId,
+					new GetVersionsOptions { Limit = ArchivedWeeksLimit });
+
+				var archived = new List<ArchivedWeek>(versions.Results.Count);
+				foreach (var version in versions.Results)
+				{
+					archived.Add(new ArchivedWeek(version.Id, version.Start.ToUniversalTime(), version.End.ToUniversalTime()));
+				}
+
+				// The model's NextReset is a plain DateTime: unset (a board with no schedule) reads as its default.
+				DateTime? nextReset = versions.NextReset == default ? null : versions.NextReset.ToUniversalTime();
+				return new WeeklyVersions(true, versions.VersionId, nextReset, versions.TotalArchivedVersions, archived);
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning(k_LogPrefix + $"Fetch weekly versions failed: {e.GetType().Name}: {e.Message}");
+				return WeeklyVersions.Failed;
+			}
+		}
+
+		private string BoardId(LeaderboardBoard board) => board == LeaderboardBoard.AllTime ? m_allTimeBoardId : m_weeklyBoardId;
 
 		/// <summary>First attempt of the UTC day is always Up (new placement); otherwise a lower rank number is Up.</summary>
 		public static RankTrend Compare(bool hasPreviousToday, int previousRank, int newRank)
@@ -254,15 +404,16 @@ namespace Opoint8182.Leaderboard
 			return await winner;
 		}
 
-		// GetPlayerScoreAsync throws when the player has no entry yet, which is a normal state here.
-		private async Task<LeaderboardRow?> TryGetOwnRowAsync()
+		// GetPlayerScoreAsync throws EntryNotFound (code 27009) when the player has no entry yet, which is a normal state
+		// here. Any other failure is a real error and goes to the caller, so it is not mistaken for "no entry".
+		private async Task<LeaderboardRow?> TryGetOwnRowAsync(string boardId)
 		{
 			try
 			{
-				var entry = await LeaderboardsService.Instance.GetPlayerScoreAsync(m_leaderboardId);
+				var entry = await LeaderboardsService.Instance.GetPlayerScoreAsync(boardId);
 				return ToRow(entry, true);
 			}
-			catch (Exception)
+			catch (LeaderboardsException e) when (e.Reason == LeaderboardsExceptionReason.EntryNotFound)
 			{
 				return null;
 			}
