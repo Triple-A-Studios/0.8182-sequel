@@ -162,6 +162,13 @@ namespace Opoint8182.Leaderboard
 		/// <summary>How many closed weeks the leaderboard screen can step back through (a display limit: the archives keep accumulating).</summary>
 		public const int ArchivedWeeksLimit = 4;
 
+		/// <summary>How many rows of a closed week are read (the results screen shows the first 5, the leaderboard screen all of them).</summary>
+		public const int ArchivedRowsLimit = 10;
+
+		// A device clock running ahead of the server would make the cached versions look stale at once and cost a call on
+		// every use; a result fetched after its own reset time already passed locally is reused for this long instead.
+		private static readonly TimeSpan m_S_SkewReuse = TimeSpan.FromMinutes(5);
+
 		// Live boards are re-read at most this often; archives never change, so the versions result lives until the next reset.
 		private const float k_LiveCacheSeconds = 90f;
 
@@ -177,6 +184,9 @@ namespace Opoint8182.Leaderboard
 
 		private readonly Dictionary<(LeaderboardBoard board, int limit), TopCacheEntry> m_topCache = new();
 		private Task<WeeklyVersions> m_versionsTask;
+		private DateTime m_versionsFetchedAtUtc;
+		// Closed weeks never change, so a read of one lasts the whole session (no TTL, not touched by a submit).
+		private readonly Dictionary<string, Task<TopScoresResult>> m_archiveCache = new();
 		private Task m_readyTask;
 
 		public ServiceState State { get; private set; } = ServiceState.Idle;
@@ -366,6 +376,79 @@ namespace Opoint8182.Leaderboard
 		}
 
 		/// <summary>
+		/// A closed week of the weekly board: its top <see cref="ArchivedRowsLimit"/> rows, the entry count (<c>Total</c>, 0
+		/// when nobody played) and the player's own row when it is outside them (<c>Self</c>; null for a week they did not
+		/// play, which is not an error). Only pass ids from <see cref="GetWeeklyVersionsAsync"/>. A successful read is kept for
+		/// the session and served even offline; concurrent callers share one request; a failure is not kept. Two calls per week.
+		/// </summary>
+		public Task<TopScoresResult> GetArchivedWeekAsync(string versionId)
+		{
+			if (string.IsNullOrEmpty(versionId)) return Task.FromResult(TopScoresResult.Failed);
+			if (m_archiveCache.TryGetValue(versionId, out var cached)) return cached;
+			if (IsOffline()) return Task.FromResult(TopScoresResult.Failed);
+
+			var task = FetchArchivedWeekAsync(versionId);
+			m_archiveCache[versionId] = task;
+			return task;
+		}
+
+		private async Task<TopScoresResult> FetchArchivedWeekAsync(string versionId)
+		{
+			var result = await WithTimeout(_ => GetArchivedWeekCoreAsync(versionId), TopScoresResult.Failed);
+			if (!result.Success) m_archiveCache.Remove(versionId);
+			return result;
+		}
+
+		private async Task<TopScoresResult> GetArchivedWeekCoreAsync(string versionId)
+		{
+			try
+			{
+				await EnsureReadyAsync();
+				string selfId = AuthenticationService.Instance.PlayerId;
+
+				// Both reads start together (no threads: WebGL-safe); the own entry is only used when the player is outside the rows.
+				var pageTask = LeaderboardsService.Instance.GetVersionScoresAsync(m_weeklyBoardId, versionId,
+					new GetVersionScoresOptions { Limit = ArchivedRowsLimit });
+				var ownTask = TryGetOwnArchivedRowAsync(versionId);
+				await Task.WhenAll(pageTask, ownTask);
+
+				var page = pageTask.Result;
+				var rows = new List<LeaderboardRow>();
+				bool selfInRows = false;
+				if (page.Results != null)
+				{
+					foreach (var entry in page.Results)
+					{
+						bool isSelf = entry.PlayerId == selfId;
+						selfInRows |= isSelf;
+						rows.Add(ToRow(entry, isSelf));
+					}
+				}
+
+				return new TopScoresResult(true, rows, selfInRows ? null : ownTask.Result, page.Total);
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning(k_LogPrefix + $"Fetch archived week {versionId} failed: {e.GetType().Name}: {e.Message}");
+				return TopScoresResult.Failed;
+			}
+		}
+
+		// EntryNotFound (27009) means the player did not play that week; any other failure is a real error.
+		private async Task<LeaderboardRow?> TryGetOwnArchivedRowAsync(string versionId)
+		{
+			try
+			{
+				var entry = await LeaderboardsService.Instance.GetVersionPlayerScoreAsync(m_weeklyBoardId, versionId);
+				return new LeaderboardRow(entry.Rank + 1, entry.PlayerName, (int)entry.Score, true);
+			}
+			catch (LeaderboardsException e) when (e.Reason == LeaderboardsExceptionReason.EntryNotFound)
+			{
+				return null;
+			}
+		}
+
+		/// <summary>
 		/// The weekly board's version info: the live version ID (what the stored weekly best is keyed to), the next reset
 		/// and the newest <see cref="ArchivedWeeksLimit"/> closed weeks. One call, reused until the reset time passes (a
 		/// closed week is then fetched again). A failure is not cached.
@@ -374,7 +457,7 @@ namespace Opoint8182.Leaderboard
 		{
 			if (IsOffline()) return Task.FromResult(WeeklyVersions.Failed);
 
-			if (m_versionsTask != null && (!m_versionsTask.IsCompleted || IsVersionsCurrent(m_versionsTask.Result)))
+			if (m_versionsTask != null && (!m_versionsTask.IsCompleted || IsVersionsCurrent(m_versionsTask.Result, m_versionsFetchedAtUtc)))
 			{
 				return m_versionsTask;
 			}
@@ -383,14 +466,24 @@ namespace Opoint8182.Leaderboard
 			return m_versionsTask;
 		}
 
-		private static bool IsVersionsCurrent(WeeklyVersions versions)
+		// Current until the reset time passes. If the device clock says it already passed when the result was fetched (and the
+		// server still reported that same reset), the clock is ahead: keep the result for a few minutes instead of refetching on every use.
+		private static bool IsVersionsCurrent(WeeklyVersions versions, DateTime fetchedAtUtc)
 		{
-			return versions.Success && (!versions.NextResetUtc.HasValue || DateTime.UtcNow < versions.NextResetUtc.Value);
+			if (!versions.Success) return false;
+			if (!versions.NextResetUtc.HasValue) return true;
+
+			var nextReset = versions.NextResetUtc.Value;
+			var now = DateTime.UtcNow;
+			if (now < nextReset) return true;
+			return fetchedAtUtc >= nextReset && now - fetchedAtUtc < m_S_SkewReuse;
 		}
 
-		private Task<WeeklyVersions> FetchVersionsAsync()
+		private async Task<WeeklyVersions> FetchVersionsAsync()
 		{
-			return WithTimeout(_ => GetVersionsCoreAsync(), WeeklyVersions.Failed);
+			var versions = await WithTimeout(_ => GetVersionsCoreAsync(), WeeklyVersions.Failed);
+			m_versionsFetchedAtUtc = DateTime.UtcNow;
+			return versions;
 		}
 
 		private async Task<WeeklyVersions> GetVersionsCoreAsync()
