@@ -23,9 +23,9 @@ namespace Opoint8182.UI
 	/// the instance's root, like <see cref="SettingsScreen"/>: the owner (main menu, or the dev gallery) calls
 	/// <see cref="Open"/> / <see cref="Close"/> when the router shows and hides it and reacts to the events.
 	/// <para>Data comes from a <see cref="LeaderboardProvider"/>. The default one reads the real Top-10 of the weekly
-	/// board (current week) and of the all-time board, and falls back to <see cref="LeaderboardPlaceholderData"/> for
-	/// past weeks, which are not read yet. Every load is token-guarded: a result that lands after a close, a tab change
-	/// or a retry is dropped.</para>
+	/// board (current week), of a closed week (the stepper walks the weekly version info, up to
+	/// <see cref="LeaderboardService.ArchivedWeeksLimit"/> weeks) and of the all-time board. Every load is token-guarded:
+	/// a result that lands after a close, a tab change or a retry is dropped.</para>
 	/// </summary>
 	public class LeaderboardScreen
 	{
@@ -81,6 +81,9 @@ namespace Opoint8182.UI
 
 		private LeaderboardTab m_tab = LeaderboardTab.Weekly;
 		private int m_weeksBack;
+		// The weekly version info of the last successful load: how many closed weeks can be stepped back to, their dates and
+		// ids, and the next reset. Null when it has not loaded or failed (the stepper then has no weeks and dates fall back to local maths).
+		private WeeklyVersions? m_versions;
 		private int m_loadToken;
 		private StateAction m_action = StateAction.None;
 		private VisualElement m_selfRow;
@@ -88,6 +91,9 @@ namespace Opoint8182.UI
 
 		/// <summary>Replaces the default data source (the dev gallery uses this to force states).</summary>
 		public LeaderboardProvider Provider { get; set; }
+
+		/// <summary>Replaces the weekly version info (closed weeks, next reset) the stepper is built from; the dev gallery uses this.</summary>
+		public Func<Task<WeeklyVersions>> VersionsProvider { get; set; }
 
 		/// <summary>The back chevron was tapped (the owner pops the router).</summary>
 		public event Action BackRequested;
@@ -232,6 +238,17 @@ namespace Opoint8182.UI
 			RefreshHeader();
 			ShowLoading();
 
+			// The WEEKLY tab needs the version info for its stepper and dates. It is cached by the service, so this is
+			// usually free; a failure only means no stepper and local dates, the board itself still loads.
+			if (m_tab == LeaderboardTab.Weekly)
+			{
+				m_versions = await LoadVersionsAsync();
+				if (token != m_loadToken) return;
+
+				m_weeksBack = Mathf.Min(m_weeksBack, ArchivedCount());
+				RefreshHeader();
+			}
+
 			TopScoresResult result;
 			try
 			{
@@ -261,13 +278,40 @@ namespace Opoint8182.UI
 			ShowRows(result.Rows, result.Self);
 		}
 
-		// This week's weekly board and the all-time board are the real Top-10 (cached by the service); past weeks are sample data.
+		private async Task<WeeklyVersions?> LoadVersionsAsync()
+		{
+			try
+			{
+				var versions = await (VersionsProvider ?? DefaultVersions)();
+				return versions.Success ? versions : null;
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning($"[LeaderboardScreen] Versions failed: {e.GetType().Name}: {e.Message}");
+				return null;
+			}
+		}
+
+		private static Task<WeeklyVersions> DefaultVersions()
+		{
+			var service = LeaderboardService.TryGetInstance();
+			return service != null ? service.GetWeeklyVersionsAsync() : Task.FromResult(WeeklyVersions.Failed);
+		}
+
+		private int ArchivedCount() => m_versions.HasValue ? m_versions.Value.Archived.Count : 0;
+
+		// This week's weekly board, a closed week (by its version id from the cached list, so a mid-session rollover cannot
+		// shift which week is read) and the all-time board are the real Top-10s; the service caches them.
 		private Task<TopScoresResult> DefaultProvider(LeaderboardTab tab, int weeksBack)
 		{
-			if (tab == LeaderboardTab.Weekly && weeksBack > 0) return Task.FromResult(LeaderboardPlaceholderData.PastWeek(weeksBack, m_selfName));
-
 			var service = LeaderboardService.TryGetInstance();
 			if (service == null) return Task.FromResult(TopScoresResult.Failed);
+
+			if (tab == LeaderboardTab.Weekly && weeksBack > 0)
+			{
+				if (!m_versions.HasValue || weeksBack > m_versions.Value.Archived.Count) return Task.FromResult(TopScoresResult.Failed);
+				return service.GetArchivedWeekAsync(m_versions.Value.Archived[weeksBack - 1].Id);
+			}
 
 			var board = tab == LeaderboardTab.AllTime ? LeaderboardBoard.AllTime : LeaderboardBoard.Weekly;
 			return service.GetTopScoresAsync(board, k_TopLimit);
@@ -301,7 +345,7 @@ namespace Opoint8182.UI
 
 		private void StepWeek(int delta)
 		{
-			var target = Mathf.Clamp(m_weeksBack + delta, 0, LeaderboardPlaceholderData.MAX_WEEKS_BACK);
+			var target = Mathf.Clamp(m_weeksBack + delta, 0, ArchivedCount());
 			if (target == m_weeksBack) return;
 
 			m_weeksBack = target;
@@ -330,15 +374,41 @@ namespace Opoint8182.UI
 			SetDisplay(m_sampleTag, !weekly && LeaderboardPlaceholderData.AllTimeIsSample);
 			SetDisplay(m_resetChip, weekly);
 
-			m_weekTitle.text = LeaderboardWeek.Name(m_weeksBack);
-			m_weekRange.text = LeaderboardWeek.RangeText(now, m_weeksBack);
-			m_prev.SetEnabled(LeaderboardPlaceholderData.PastWeeksEnabled && m_weeksBack < LeaderboardPlaceholderData.MAX_WEEKS_BACK);
+			// With no closed weeks (or no version info) there is nothing to step to: the title and range stay, the arrows go.
+			var archived = ArchivedCount();
+			var visibility = archived > 0 ? Visibility.Visible : Visibility.Hidden;
+			m_prev.style.visibility = visibility;
+			m_next.style.visibility = visibility;
+			m_prev.SetEnabled(m_weeksBack < archived);
 			m_next.SetEnabled(m_weeksBack > 0);
+
+			var nextReset = m_versions?.NextResetUtc;
+			m_weekTitle.text = LeaderboardWeek.Name(m_weeksBack);
+			m_weekRange.text = WeekRangeText(now, nextReset);
 
 			// A finished week shows FINAL where the current one counts down.
 			var current = m_weeksBack == 0;
 			SetDisplay(m_resetPrefix, current);
-			m_resetValue.text = current ? LeaderboardWeek.ResetText(now) : "FINAL";
+			m_resetValue.text = current ? LeaderboardWeek.ResetText(now, nextReset) : "FINAL";
+		}
+
+		// Server dates when the version info is there (this week: the seven days before the next reset), local Monday maths otherwise.
+		private string WeekRangeText(DateTime now, DateTime? nextReset)
+		{
+			if (m_weeksBack == 0)
+			{
+				return nextReset.HasValue
+					? LeaderboardWeek.RangeText(nextReset.Value.AddDays(-7), nextReset.Value)
+					: LeaderboardWeek.RangeText(now, 0);
+			}
+
+			if (m_versions.HasValue && m_weeksBack <= m_versions.Value.Archived.Count)
+			{
+				var week = m_versions.Value.Archived[m_weeksBack - 1];
+				return LeaderboardWeek.RangeText(week.StartUtc, week.EndUtc);
+			}
+
+			return LeaderboardWeek.RangeText(now, m_weeksBack);
 		}
 
 		private void ShowState(string glyph, string title, string body, StateAction action)

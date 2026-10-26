@@ -87,6 +87,7 @@ namespace Opoint8182.UI
 
 			m_leaderboard = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
 			m_leaderboard.Provider = LoadScenario;
+			m_leaderboard.VersionsProvider = LoadSampleVersions;
 			LeaderboardPlaceholderData.AllTimeIsSample = true;
 			m_leaderboard.BackRequested += () => m_router.Back();
 			m_leaderboard.ShareRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
@@ -167,6 +168,24 @@ namespace Opoint8182.UI
 			m_scenario = scenario;
 			m_leaderboard.SelectTab(LeaderboardTab.Weekly);
 			m_leaderboard.Reload();
+		}
+
+		// Four sample closed weeks (the P key switches them off to see the no-archive look).
+		private Task<WeeklyVersions> LoadSampleVersions()
+		{
+			var now = System.DateTime.UtcNow;
+			var archived = new List<ArchivedWeek>();
+			if (LeaderboardPlaceholderData.PastWeeksEnabled)
+			{
+				for (var i = 1; i <= LeaderboardService.ArchivedWeeksLimit; i++)
+				{
+					var start = LeaderboardWeek.StartUtc(now, i);
+					archived.Add(new ArchivedWeek("sample-" + i, start, start.AddDays(7)));
+				}
+			}
+
+			var versions = new WeeklyVersions(true, "sample-live", LeaderboardWeek.StartUtc(now).AddDays(7), archived.Count, archived);
+			return Task.FromResult(versions);
 		}
 
 		private Task<TopScoresResult> LoadScenario(LeaderboardTab tab, int weeksBack)

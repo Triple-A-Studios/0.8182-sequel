@@ -7,8 +7,8 @@ namespace Opoint8182.UI
 	/// Static stand-ins for what the leaderboard screen cannot get yet (UI/art pass, Pass 6b). One block, so the later
 	/// milestones know exactly what to replace:
 	/// <list type="bullet">
-	/// <item>Past weeks are not read from the archives yet (Daily play structure, Pass 4): the buttons are built but
-	/// <see cref="PastWeeksEnabled"/> stays false in play; the dev gallery flips it and steps through the sample weeks below.</item>
+	/// <item>Past weeks are real archives in play (Daily play structure, Pass 4). The sample weeks below are for the dev
+	/// gallery only, which flips <see cref="PastWeeksEnabled"/> and supplies a sample version list to step through.</item>
 	/// <item>WEEKLY and ALL-TIME are the real Top-10 of their boards. <see cref="AllTime"/> stays only for the dev gallery,
 	/// which sets <see cref="AllTimeIsSample"/> so the screen tags that tab "SAMPLE DATA".</item>
 	/// <item>The weekly reset chip and week range are computed locally from the UTC Monday boundary, not from the board's
@@ -17,13 +17,12 @@ namespace Opoint8182.UI
 	/// </summary>
 	public static class LeaderboardPlaceholderData
 	{
-		public const int MAX_WEEKS_BACK = 4;
 
 		/// <summary>Tags the ALL-TIME tab "SAMPLE DATA". Off in play (the tab reads the real board); the dev gallery turns it on.</summary>
 		public static bool AllTimeIsSample { get; set; }
 		public const string SAMPLE_SELF_NAME = "RustyBiplane47";
 
-		// ‹ is live only once the archived weeks are read (Pass 4). The gallery flips this.
+		// Gallery only: whether its sample version list has closed weeks (so the stepper shows).
 		public static bool PastWeeksEnabled { get; set; }
 
 		private static readonly string[] m_S_Names =

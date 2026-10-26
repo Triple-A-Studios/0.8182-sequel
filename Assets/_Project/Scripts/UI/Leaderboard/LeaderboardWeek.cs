@@ -19,15 +19,30 @@ namespace Opoint8182.UI
 		}
 
 		/// <summary>
-		/// Neutral countdown for the reset chip: whole days while more than a day is left ("3 DAYS"), hours and minutes on
-		/// the last day ("6h 12m"). Never red and never pulsing (gap-analysis 10.3: no fake urgency).
+		/// Neutral countdown for the reset chip: whole days while more than a day is left ("3 DAYS"), whole hours on the
+		/// last day ("6h"), never minutes. Never red and never pulsing (no fake urgency, design-doc UX rules). The reset
+		/// instant is the board's <c>nextReset</c> when known, otherwise the coming Monday 00:00 UTC.
 		/// </summary>
-		public static string ResetText(DateTime utcNow)
+		public static string ResetText(DateTime utcNow, DateTime? nextResetUtc = null)
 		{
-			var remaining = StartUtc(utcNow).AddDays(k_DaysInWeek) - utcNow;
+			var remaining = (nextResetUtc ?? StartUtc(utcNow).AddDays(k_DaysInWeek)) - utcNow;
 			if (remaining.TotalHours > 24d) return $"{(int)Math.Ceiling(remaining.TotalDays)} DAYS";
 
-			return $"{(int)remaining.TotalHours}h {remaining.Minutes}m";
+			return $"{Math.Max(1, (int)Math.Ceiling(remaining.TotalHours))}h";
+		}
+
+		/// <summary>
+		/// "Oct 6 – Oct 12" from a version's server start and end. <paramref name="endUtc"/> is the instant the next version
+		/// began, so the last day shown is one second earlier; a version that starts and ends on one day prints that day once.
+		/// </summary>
+		public static string RangeText(DateTime startUtc, DateTime endUtc)
+		{
+			var last = endUtc.AddSeconds(-1);
+			if (last < startUtc) last = startUtc;
+
+			var from = startUtc.ToString("MMM d", CultureInfo.InvariantCulture);
+			var to = last.ToString("MMM d", CultureInfo.InvariantCulture);
+			return from == to ? from : $"{from} – {to}";
 		}
 
 		/// <summary>"Oct 6 – Oct 12" for the week <paramref name="weeksBack"/> weeks ago.</summary>
