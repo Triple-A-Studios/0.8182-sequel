@@ -7,20 +7,23 @@ namespace Opoint8182.UI
 	/// Static stand-ins for what the leaderboard screen cannot get yet (UI/art pass, Pass 6b). One block, so the later
 	/// milestones know exactly what to replace:
 	/// <list type="bullet">
-	/// <item>ALL-TIME has no board behind it: <see cref="AllTime"/> is sample data, tagged "SAMPLE DATA" on screen.</item>
-	/// <item>Past weeks need weekly boards (backlog #28): the buttons are built but <see cref="PastWeeksEnabled"/> stays
-	/// false in play; the dev gallery flips it and steps through the sample weeks below.</item>
-	/// <item>WEEKLY itself is the real Top-10 of the existing <b>daily</b> board until #28, so its label and the reset
-	/// chip (computed locally from the UTC Monday boundary) are ahead of the data.</item>
+	/// <item>Past weeks are not read from the archives yet (Daily play structure, Pass 4): the buttons are built but
+	/// <see cref="PastWeeksEnabled"/> stays false in play; the dev gallery flips it and steps through the sample weeks below.</item>
+	/// <item>WEEKLY and ALL-TIME are the real Top-10 of their boards. <see cref="AllTime"/> stays only for the dev gallery,
+	/// which sets <see cref="AllTimeIsSample"/> so the screen tags that tab "SAMPLE DATA".</item>
+	/// <item>The weekly reset chip and week range are computed locally from the UTC Monday boundary, not from the board's
+	/// <c>nextReset</c> (Pass 4 reads that).</item>
 	/// </list>
 	/// </summary>
 	public static class LeaderboardPlaceholderData
 	{
 		public const int MAX_WEEKS_BACK = 4;
-		public const bool ALL_TIME_IS_SAMPLE = true;
+
+		/// <summary>Tags the ALL-TIME tab "SAMPLE DATA". Off in play (the tab reads the real board); the dev gallery turns it on.</summary>
+		public static bool AllTimeIsSample { get; set; }
 		public const string SAMPLE_SELF_NAME = "RustyBiplane47";
 
-		// ‹ is live only once weekly boards exist (backlog #28). The gallery flips this.
+		// ‹ is live only once the archived weeks are read (Pass 4). The gallery flips this.
 		public static bool PastWeeksEnabled { get; set; }
 
 		private static readonly string[] m_S_Names =

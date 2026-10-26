@@ -94,6 +94,9 @@ namespace Opoint8182.UI
 
 			if (score <= 0) return;
 
+			// A practice run never reaches a board and has no rank to show. (Pass 5 replaces this with the attempts API.)
+			if (m_gameManager != null && m_gameManager.IsPracticeRun) return;
+
 			var service = LeaderboardService.TryGetInstance();
 			if (service == null)
 			{
@@ -111,6 +114,10 @@ namespace Opoint8182.UI
 				View.ShowRankMessage(k_SubmitFailedText, true);
 				return;
 			}
+
+			// A run that did not beat the weekly best was not sent: it shows the last known weekly rank, or nothing when
+			// there is none (a cleared device).
+			if (result.Skipped && result.Rank <= 0) return;
 
 			// The chip starts as just the number. A better rank counts down to it, then the chip widens to bring in the
 			// arrow (no place count, the service does not report one) and the attempt status (static until attempts

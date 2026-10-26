@@ -87,6 +87,7 @@ namespace Opoint8182.UI
 
 			m_leaderboard = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
 			m_leaderboard.Provider = LoadScenario;
+			LeaderboardPlaceholderData.AllTimeIsSample = true;
 			m_leaderboard.BackRequested += () => m_router.Back();
 			m_leaderboard.ShareRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
 			m_leaderboard.FlyNowRequested += () => ShowToast("FLY NOW: the menu starts a run here");

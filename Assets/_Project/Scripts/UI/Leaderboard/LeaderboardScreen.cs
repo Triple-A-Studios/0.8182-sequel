@@ -22,10 +22,10 @@ namespace Opoint8182.UI
 	/// rows, the player's own row pinned below the list, and loading / empty / error / offline states. Plain class over
 	/// the instance's root, like <see cref="SettingsScreen"/>: the owner (main menu, or the dev gallery) calls
 	/// <see cref="Open"/> / <see cref="Close"/> when the router shows and hides it and reacts to the events.
-	/// <para>Data comes from a <see cref="LeaderboardProvider"/>. The default one reads the real Top-10 of the existing
-	/// daily board for the current week, and falls back to <see cref="LeaderboardPlaceholderData"/> for ALL-TIME and past
-	/// weeks, which have no backend yet. Every load is token-guarded: a result that lands after a close, a tab change or
-	/// a retry is dropped.</para>
+	/// <para>Data comes from a <see cref="LeaderboardProvider"/>. The default one reads the real Top-10 of the weekly
+	/// board (current week) and of the all-time board, and falls back to <see cref="LeaderboardPlaceholderData"/> for
+	/// past weeks, which are not read yet. Every load is token-guarded: a result that lands after a close, a tab change
+	/// or a retry is dropped.</para>
 	/// </summary>
 	public class LeaderboardScreen
 	{
@@ -261,20 +261,22 @@ namespace Opoint8182.UI
 			ShowRows(result.Rows, result.Self);
 		}
 
-		// Weekly, this week: the real Top-10 (of the daily board until backlog #28). Everything else is sample data.
+		// This week's weekly board and the all-time board are the real Top-10 (cached by the service); past weeks are sample data.
 		private Task<TopScoresResult> DefaultProvider(LeaderboardTab tab, int weeksBack)
 		{
-			if (tab == LeaderboardTab.AllTime) return Task.FromResult(LeaderboardPlaceholderData.AllTime(m_selfName));
-			if (weeksBack > 0) return Task.FromResult(LeaderboardPlaceholderData.PastWeek(weeksBack, m_selfName));
+			if (tab == LeaderboardTab.Weekly && weeksBack > 0) return Task.FromResult(LeaderboardPlaceholderData.PastWeek(weeksBack, m_selfName));
 
 			var service = LeaderboardService.TryGetInstance();
-			return service != null ? service.GetTopScoresAsync(k_TopLimit) : Task.FromResult(TopScoresResult.Failed);
+			if (service == null) return Task.FromResult(TopScoresResult.Failed);
+
+			var board = tab == LeaderboardTab.AllTime ? LeaderboardBoard.AllTime : LeaderboardBoard.Weekly;
+			return service.GetTopScoresAsync(board, k_TopLimit);
 		}
 
 		// The sample boards borrow the player's real name once the real board has shown it.
 		private void CacheSelfName(TopScoresResult result)
 		{
-			if (m_tab != LeaderboardTab.Weekly || m_weeksBack != 0) return;
+			if (m_weeksBack != 0) return;
 
 			if (result.Self.HasValue)
 			{
@@ -325,7 +327,7 @@ namespace Opoint8182.UI
 			var now = DateTime.UtcNow;
 
 			SetDisplay(m_stepper, weekly);
-			SetDisplay(m_sampleTag, !weekly && LeaderboardPlaceholderData.ALL_TIME_IS_SAMPLE);
+			SetDisplay(m_sampleTag, !weekly && LeaderboardPlaceholderData.AllTimeIsSample);
 			SetDisplay(m_resetChip, weekly);
 
 			m_weekTitle.text = LeaderboardWeek.Name(m_weeksBack);
