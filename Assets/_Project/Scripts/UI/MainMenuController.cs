@@ -1,4 +1,5 @@
 using Alchemy.Inspector;
+using Opoint8182.Daily;
 using Opoint8182.Game;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,8 +14,8 @@ namespace Opoint8182.UI
 	/// <summary>
 	/// Main menu (S02): chips, mode tabs, PLAY, overflow menu, attempt-confirm and quit-confirm popups, built on the
 	/// UI foundation (<see cref="ScreenRouter"/>, <see cref="LipBox"/>, <see cref="TabBar"/>).
-	/// Attempts, practice clock, name and coins are static placeholders (see the Placeholder data block): the real
-	/// systems arrive with the "Daily play structure" and "Player profile &amp; run stats" milestones.
+	/// The attempts, the practice clock and the confirm popup read <see cref="DailyPlay"/>; PLAY begins the run through it.
+	/// Name and coins are still placeholders until the "Player profile &amp; run stats" milestone.
 	/// </summary>
 	[RequireComponent(typeof(PanelRenderer))]
 	public class MainMenuController : MonoBehaviour
@@ -33,15 +34,9 @@ namespace Opoint8182.UI
 		private const string k_CreditsScreenId = "credits";
 		private const string k_ComingSoonMessage = "COMING SOON";
 
-		// ---- Placeholder data (UI shell only, replaced by the real systems in later milestones) ----
-		private const int k_PlaceholderAttemptsMax = 3;
-		private const int k_PlaceholderAttemptsLeft = 3;
-		private const string k_PlaceholderPracticeClock = "28:14";
-
-		// Kept for the whole play session: the menu scene is unloaded when a run starts and loaded again when the
-		// player returns, so an instance field would forget it. Deliberately not persisted (Daily play structure
-		// decides that, decision 4 of the UI/art pass).
-		private static bool m_s_dontAskAttemptConfirm;
+		// The counters can roll over at UTC midnight while the menu is open: reading them applies the new day, and this
+		// refresh makes sure something reads them now and then.
+		private const long k_RefreshMilliseconds = 30000;
 
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private float m_baseSafeAreaPadding = 24f;
@@ -60,6 +55,13 @@ namespace Opoint8182.UI
 		private VisualElement m_statusPractice;
 		private Label m_playSublabel;
 		private VisualElement m_playPips;
+		private VisualElement m_playButton;
+		private Label m_statusCount;
+		private Label m_statusClock;
+		private Label m_attemptBody;
+		private VisualElement m_statusPips;
+		private VisualElement m_attemptPips;
+		private bool m_refreshing;
 		private VisualElement m_popupAttempt;
 		private VisualElement m_popupQuit;
 		private VisualElement m_popupOverflow;
@@ -77,10 +79,12 @@ namespace Opoint8182.UI
 		private void OnEnable()
 		{
 			m_panelRenderer.RegisterUIReloadCallback(OnUIReload);
+			DailyPlay.Changed += OnDailyChanged;
 		}
 
 		private void OnDisable()
 		{
+			DailyPlay.Changed -= OnDailyChanged;
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_loadedRoot = null;
 			m_leaderboardScreen?.Close();
@@ -150,6 +154,12 @@ namespace Opoint8182.UI
 			m_statusPractice = root.Q<VisualElement>("status-practice");
 			m_playSublabel = root.Q<Label>("play-sublabel");
 			m_playPips = root.Q<VisualElement>("play-pips");
+			m_playButton = root.Q<VisualElement>("play-button");
+			m_statusCount = root.Q<Label>("status-count");
+			m_statusClock = root.Q<Label>("status-clock");
+			m_attemptBody = root.Q<Label>("attempt-body");
+			m_statusPips = root.Q<VisualElement>("status-pips");
+			m_attemptPips = root.Q<VisualElement>("attempt-pips");
 			m_popupAttempt = root.Q<VisualElement>("popup-attempt");
 			m_popupQuit = root.Q<VisualElement>("popup-quit");
 			m_popupOverflow = root.Q<VisualElement>("popup-overflow");
@@ -169,9 +179,12 @@ namespace Opoint8182.UI
 			WirePlay(root);
 			WirePopups(root);
 
-			m_playMode = PlayMode.Competitive;
-			m_modeTabs.SetSelectedIndexWithoutNotify(0);
-			RefreshMode();
+			// Back from a practice run, the menu comes back on the Practice tab.
+			var practice = DailyPlay.LastMode == RunMode.Practice;
+			m_playMode = practice ? PlayMode.Practice : PlayMode.Competitive;
+			m_modeTabs.SetSelectedIndexWithoutNotify(practice ? 1 : 0);
+			RefreshDaily();
+			root.schedule.Execute(RefreshDaily).Every(k_RefreshMilliseconds);
 		}
 
 		private void PopulateStaticData(VisualElement root)
@@ -179,27 +192,23 @@ namespace Opoint8182.UI
 			m_profileNameLabel = root.Q<Label>("profile-name");
 			m_profileNameLabel.text = UiProfileState.DisplayName;
 			root.Q<Label>("currency-value").text = ProfilePlaceholderData.COINS;
-			root.Q<Label>("status-count").text = $"{k_PlaceholderAttemptsLeft}/{k_PlaceholderAttemptsMax}";
-			root.Q<Label>("status-clock").text = k_PlaceholderPracticeClock;
-
-			FillPips(root.Q<VisualElement>("status-pips"));
-			FillPips(m_playPips);
-			FillPips(root.Q<VisualElement>("attempt-pips"));
-
-			root.Q<Label>("attempt-body").text =
-				$"This run counts toward this week's leaderboard. You have {k_PlaceholderAttemptsLeft} of {k_PlaceholderAttemptsMax} attempts left today.";
 		}
 
-		private static void FillPips(VisualElement container)
+		private static void FillPips(VisualElement container, int max, int left)
 		{
 			container.Clear();
-			for (var i = 0; i < k_PlaceholderAttemptsMax; i++)
+			for (var i = 0; i < max; i++)
 			{
 				var pip = new VisualElement { pickingMode = PickingMode.Ignore };
 				pip.AddToClassList("pip");
-				pip.EnableInClassList("pip--off", i >= k_PlaceholderAttemptsLeft);
+				pip.EnableInClassList("pip--off", i >= left);
 				container.Add(pip);
 			}
+		}
+
+		private void OnDailyChanged()
+		{
+			if (m_loadedRoot != null) RefreshDaily();
 		}
 
 		private void WireHeader(VisualElement root)
@@ -236,7 +245,7 @@ namespace Opoint8182.UI
 			m_modeTabs.changed += index =>
 			{
 				m_playMode = index == 0 ? PlayMode.Competitive : PlayMode.Practice;
-				RefreshMode();
+				RefreshDaily();
 			};
 		}
 
@@ -305,21 +314,64 @@ namespace Opoint8182.UI
 			OnPlayClicked();
 		}
 
-		private void RefreshMode()
+		private RunMode CurrentRunMode => m_playMode == PlayMode.Competitive ? RunMode.Competitive : RunMode.Practice;
+
+		// Fills every chip, pip, label and the PLAY state from the daily counters and the selected mode. Reading the counters
+		// applies a new UTC day first, which raises Changed and comes back here, hence the guard.
+		private void RefreshDaily()
 		{
-			var competitive = m_playMode == PlayMode.Competitive;
-			m_statusCompetitive.style.display = competitive ? DisplayStyle.Flex : DisplayStyle.None;
-			m_statusPractice.style.display = competitive ? DisplayStyle.None : DisplayStyle.Flex;
-			m_playPips.style.display = competitive ? DisplayStyle.Flex : DisplayStyle.None;
-			m_playSublabel.text = competitive
-				? $"{k_PlaceholderAttemptsLeft} ATTEMPTS LEFT TODAY"
-				: $"{k_PlaceholderPracticeClock} LEFT TODAY";
+			if (m_refreshing || m_loadedRoot == null) return;
+
+			m_refreshing = true;
+			try
+			{
+				var max = DailyPlay.ATTEMPTS_MAX;
+				var left = DailyPlay.AttemptsLeft;
+				var practiceLeft = DailyPlay.PracticeRemainingSeconds;
+				var nextReset = DailyPlay.NextResetUtc;
+				var now = DailyPlay.Clock.UtcNow;
+
+				m_statusCount.text = DailyPlayText.AttemptsCount(left, max);
+				m_statusClock.text = DailyPlayText.PracticeClock(practiceLeft);
+				FillPips(m_statusPips, max, left);
+				FillPips(m_playPips, max, left);
+				FillPips(m_attemptPips, max, left);
+				m_attemptBody.text = DailyPlayText.ConfirmBody(left, max);
+
+				var competitive = m_playMode == PlayMode.Competitive;
+				m_statusCompetitive.style.display = competitive ? DisplayStyle.Flex : DisplayStyle.None;
+				m_statusPractice.style.display = competitive ? DisplayStyle.None : DisplayStyle.Flex;
+				m_playPips.style.display = competitive ? DisplayStyle.Flex : DisplayStyle.None;
+
+				// Nothing left: PLAY is greyed and inert and says when it comes back, in plain hours (no red, no countdown).
+				var locked = DailyPlay.CanBeginRun(CurrentRunMode) != BeginRunResult.Started;
+				m_playButton.EnableInClassList("menu-play--locked", locked);
+				if (competitive)
+				{
+					m_playSublabel.text = left > 0 ? DailyPlayText.AttemptsLeft(left) : DailyPlayText.NewAttemptsIn(nextReset, now);
+				}
+				else
+				{
+					m_playSublabel.text = practiceLeft > 0f ? DailyPlayText.PracticeLeft(practiceLeft) : DailyPlayText.PracticeReturnsIn(nextReset, now);
+				}
+			}
+			finally
+			{
+				m_refreshing = false;
+			}
 		}
 
 		private void OnPlayClicked()
 		{
-			// Practice never confirms; competitive confirms unless the player opted out earlier this session.
-			if (m_playMode == PlayMode.Competitive && !m_s_dontAskAttemptConfirm)
+			// A locked PLAY (no attempts or practice time left) does nothing; the sub-label says when it returns.
+			if (DailyPlay.CanBeginRun(CurrentRunMode) != BeginRunResult.Started)
+			{
+				RefreshDaily();
+				return;
+			}
+
+			// Practice never confirms; competitive confirms unless the player opted out earlier today.
+			if (m_playMode == PlayMode.Competitive && !DailyPlay.DontAskAgainToday)
 			{
 				m_dontAskToggle.SetValueWithoutNotify(false);
 				m_router.ShowPopup(m_popupAttempt);
@@ -331,7 +383,7 @@ namespace Opoint8182.UI
 
 		private void OnAttemptConfirmed()
 		{
-			if (m_dontAskToggle.value) m_s_dontAskAttemptConfirm = true;
+			if (m_dontAskToggle.value) DailyPlay.DontAskAgainToday = true;
 			m_router.ClosePopup();
 			StartRun();
 		}
@@ -339,6 +391,14 @@ namespace Opoint8182.UI
 		private void StartRun()
 		{
 			Debug.Log($"[MainMenu] PLAY pressed ({m_playMode})");
+
+			// The attempt is spent here, before the run starts, so the HUD builds with the right mode. The state can have
+			// changed since the button was drawn (UTC midnight, another instance): then the menu just refreshes.
+			if (DailyPlay.BeginRun(CurrentRunMode) != BeginRunResult.Started)
+			{
+				RefreshDaily();
+				return;
+			}
 
 			// Hide immediately so there's no chance of a leftover-menu flash once gameplay
 			// resumes - GameManager.EnterPlayingState only takes effect next frame (see

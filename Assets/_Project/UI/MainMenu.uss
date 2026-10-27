@@ -315,6 +315,9 @@
     padding: 24px 66px 28px 66px;
 }
 
+/* No attempts or practice time left: greyed and inert; the sub-label says when it returns. */
+.menu-play--locked { opacity: 0.45; }
+
 .menu-play-label {
     font-size: 118px;
     letter-spacing: 3px;

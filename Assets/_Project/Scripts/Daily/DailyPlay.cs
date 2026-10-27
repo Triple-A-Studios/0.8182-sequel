@@ -101,6 +101,12 @@ namespace Opoint8182.Daily
 		/// <summary>Which attempt of the day the current run is (1 to <see cref="ATTEMPTS_MAX"/>); 0 for a practice run or no run.</summary>
 		public static int CurrentAttemptNumber { get; private set; }
 
+		/// <summary>
+		/// The mode of the last run begun this session, kept after the run ends so the menu can come back on the same tab (None
+		/// before the first run).
+		/// </summary>
+		public static RunMode LastMode { get; private set; }
+
 		public static bool IsPracticeRun => Mode == RunMode.Practice;
 
 		/// <summary>
@@ -169,6 +175,7 @@ namespace Opoint8182.Daily
 			Flush();
 
 			Mode = mode;
+			LastMode = mode;
 			CurrentAttemptNumber = 0;
 			if (mode == RunMode.Competitive)
 			{
@@ -222,6 +229,21 @@ namespace Opoint8182.Daily
 			m_s_unsavedPracticeSeconds = 0f;
 		}
 
+		/// <summary>
+		/// Gives today's attempts and practice time back (and forgets "don't ask again today"). For testing and dev tools only; it
+		/// touches no other saved value.
+		/// </summary>
+		public static void ResetToday()
+		{
+			PlayerPrefs.DeleteKey(k_DayKey);
+			PlayerPrefs.DeleteKey(k_AttemptsUsedKey);
+			PlayerPrefs.DeleteKey(k_PracticeSecondsKey);
+			PlayerPrefs.DeleteKey(k_DontAskDayKey);
+			PlayerPrefs.Save();
+			ReloadFromPrefs();
+			Changed?.Invoke();
+		}
+
 		/// <summary>Drops the in-memory copy so the next read loads from <see cref="PlayerPrefs"/> again (for checks and dev tools).</summary>
 		public static void ReloadFromPrefs()
 		{
@@ -239,6 +261,7 @@ namespace Opoint8182.Daily
 			m_s_unsavedPracticeSeconds = 0f;
 			m_s_clock = new SystemDailyClock();
 			Mode = RunMode.None;
+			LastMode = RunMode.None;
 			CurrentAttemptNumber = 0;
 			Changed = null;
 
