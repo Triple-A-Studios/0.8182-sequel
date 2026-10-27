@@ -1,5 +1,6 @@
 using Alchemy.Inspector;
 using Opoint8182.Bootstrap;
+using Opoint8182.Daily;
 using Opoint8182.Game;
 using Opoint8182.Leaderboard;
 using Opoint8182.Score;
@@ -94,7 +95,7 @@ namespace Opoint8182.UI
 
 			if (score <= 0) return;
 
-			// A practice run never reaches a board and has no rank to show. (Pass 5 replaces this with the attempts API.)
+			// A practice run never reaches a board and has no rank to show (IsPracticeRun follows the run's DailyPlay mode).
 			if (m_gameManager != null && m_gameManager.IsPracticeRun) return;
 
 			var service = LeaderboardService.TryGetInstance();
@@ -133,8 +134,9 @@ namespace Opoint8182.UI
 		{
 			if (action == GameOverAction.Retry || action == GameOverAction.RetryNow)
 			{
-				if (m_gameManager != null) m_gameManager.RestartRun();
-				else SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				// A competitive RETRY spends the next attempt, a practice one needs practice time; refused, it says when that returns.
+				if (m_gameManager == null) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+				else if (!m_gameManager.RestartRun()) View?.ShowToast(DailyPlayText.RefusedLine(DailyPlay.Mode));
 				return;
 			}
 

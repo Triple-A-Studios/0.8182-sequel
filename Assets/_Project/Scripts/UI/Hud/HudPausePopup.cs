@@ -25,7 +25,12 @@ namespace Opoint8182.UI
 		private readonly Label m_modeLine;
 		private readonly Label m_quitNote;
 		private readonly VisualElement m_leavePopup;
+		private readonly VisualElement m_restartPopup;
+		private readonly Label m_restartBody;
+		private readonly LipButton m_restartButton;
 		private bool m_isPractice;
+		private int m_attemptNumber = 1;
+		private int m_attemptsMax = 3;
 		private bool m_soundDragging;
 		private readonly ThemedSlider m_sound;
 		private readonly Label m_soundValue;
@@ -56,6 +61,9 @@ namespace Opoint8182.UI
 		/// <summary>The leave-run confirm is showing (competitive runs only; it replaces the pause popup).</summary>
 		public bool IsLeaveConfirmOpen => m_router.OpenPopup == m_leavePopup;
 
+		/// <summary>The restart confirm is showing (competitive runs only; it replaces the pause popup).</summary>
+		public bool IsRestartConfirmOpen => m_router.OpenPopup == m_restartPopup;
+
 		public bool IsCountingDown => m_countdown.resolvedStyle.display == DisplayStyle.Flex;
 
 		public HudPausePopup(VisualElement root)
@@ -65,11 +73,15 @@ namespace Opoint8182.UI
 			m_modeLine = root.Q<Label>("pause-mode-line");
 			m_quitNote = root.Q<Label>("pause-quit-note");
 			m_leavePopup = root.Q<VisualElement>("hud-leave-popup");
+			m_restartPopup = root.Q<VisualElement>("hud-restart-popup");
+			m_restartBody = root.Q<Label>("restart-body");
+			m_restartButton = root.Q<LipButton>("pause-restart");
 
 			// Both cards share one popup layer and nothing else hides them: whichever the router is not showing must start
 			// (and stay) display:none, or opening the layer for one shows the other under it.
 			m_popup.style.display = DisplayStyle.None;
 			m_leavePopup.style.display = DisplayStyle.None;
+			m_restartPopup.style.display = DisplayStyle.None;
 			m_countdown = root.Q<VisualElement>("hud-countdown");
 			m_countdownNumber = root.Q<Label>("hud-countdown-number");
 
@@ -101,6 +113,8 @@ namespace Opoint8182.UI
 			root.Q<LipButton>("pause-quit").clicked += OnQuitClicked;
 			root.Q<LipButton>("leave-yes").clicked += OnLeaveConfirmed;
 			root.Q<LipButton>("leave-no").clicked += CancelLeaveConfirm;
+			root.Q<LipButton>("restart-yes").clicked += OnRestartConfirmed;
+			root.Q<LipButton>("restart-no").clicked += CancelRestartConfirm;
 
 			m_countdown.style.display = DisplayStyle.None;
 			m_countdownTick = m_countdown.schedule.Execute(OnCountdownTick).Every(k_AnimTickMs);
@@ -119,12 +133,27 @@ namespace Opoint8182.UI
 		/// The run's mode: a practice run has no attempt to lose, so QUIT TO MENU goes straight through and the quit warning
 		/// is hidden; a competitive run asks first (<see cref="ShowLeaveConfirm"/>). Also picks the mode line.
 		/// </summary>
-		public void SetPractice(bool isPractice)
+		public void SetPractice(bool isPractice) => SetRun(isPractice, 2, 3);
+
+		/// <summary>
+		/// <see cref="SetPractice"/> with the real attempt: "COMPETITIVE · ATTEMPT n/3", the quit warning for attempt n, and
+		/// the restart confirm (which names attempt n + 1).
+		/// </summary>
+		public void SetRun(bool isPractice, int attemptNumber, int attemptsMax)
 		{
 			m_isPractice = isPractice;
-			m_modeLine.text = isPractice ? HudPlaceholderData.PausePracticeModeLine : HudPlaceholderData.PauseModeLine;
-			m_quitNote.text = HudPlaceholderData.PauseQuitNote;
+			m_attemptNumber = Mathf.Max(1, attemptNumber);
+			m_attemptsMax = attemptsMax;
+			m_modeLine.text = isPractice ? HudPlaceholderData.PausePracticeModeLine : DailyPlayText.PauseModeLine(m_attemptNumber, attemptsMax);
+			m_quitNote.text = DailyPlayText.PauseQuitNote(m_attemptNumber, attemptsMax);
 			m_quitNote.style.display = isPractice ? DisplayStyle.None : DisplayStyle.Flex;
+			m_restartBody.text = DailyPlayText.RestartBody(m_attemptNumber + 1, attemptsMax);
+		}
+
+		/// <summary>RESTART RUN is greyed when starting over is not possible (no attempts left, or no practice time left).</summary>
+		public void SetRestartEnabled(bool enabled)
+		{
+			m_restartButton.SetEnabled(enabled);
 		}
 
 		/// <summary>Opens the leave-run confirm in place of the pause popup.</summary>
@@ -132,6 +161,19 @@ namespace Opoint8182.UI
 		{
 			CancelCountdown();
 			m_router.ShowPopup(m_leavePopup, dismissOnBackdrop: false);
+		}
+
+		/// <summary>Opens the restart confirm in place of the pause popup.</summary>
+		public void ShowRestartConfirm()
+		{
+			CancelCountdown();
+			m_router.ShowPopup(m_restartPopup, dismissOnBackdrop: false);
+		}
+
+		/// <summary>BACK on the restart confirm (or the back key): returns to the pause popup.</summary>
+		public void CancelRestartConfirm()
+		{
+			if (IsRestartConfirmOpen) Show();
 		}
 
 		/// <summary>BACK on the leave-run confirm (or the back key): returns to the pause popup.</summary>
@@ -173,7 +215,20 @@ namespace Opoint8182.UI
 			ResumeRequested?.Invoke();
 		}
 
+		// A competitive restart gives the current attempt up and uses the next one, so it asks first; practice restarts straight away.
 		private void OnRestartClicked()
+		{
+			if (!m_isPractice)
+			{
+				ShowRestartConfirm();
+				return;
+			}
+
+			Hide();
+			RestartRequested?.Invoke();
+		}
+
+		private void OnRestartConfirmed()
 		{
 			Hide();
 			RestartRequested?.Invoke();

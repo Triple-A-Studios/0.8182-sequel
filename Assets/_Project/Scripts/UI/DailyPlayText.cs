@@ -1,4 +1,5 @@
 using System;
+using Opoint8182.Daily;
 using UnityEngine;
 
 namespace Opoint8182.UI
@@ -39,6 +40,26 @@ namespace Opoint8182.UI
 		{
 			var hours = Math.Max(1, (int)Math.Ceiling((nextResetUtc - utcNow).TotalHours));
 			return $"{hours}h";
+		}
+
+		/// <summary>Pause popup mode line: "COMPETITIVE · ATTEMPT 2/3".</summary>
+		public static string PauseModeLine(int attemptNumber, int max) => $"COMPETITIVE · ATTEMPT {attemptNumber}/{max}";
+
+		/// <summary>Pause popup warning under the buttons.</summary>
+		public static string PauseQuitNote(int attemptNumber, int max) => $"Quitting still burns attempt {attemptNumber} of {max}.";
+
+		/// <summary>The restart confirm body: the current attempt is given up, the next one is used.</summary>
+		public static string RestartBody(int nextAttemptNumber, int max)
+		{
+			return $"This attempt is lost without submitting your score. The new run uses attempt {nextAttemptNumber} of {max}.";
+		}
+
+		/// <summary>What a refused restart or RETRY says: when the daily limit for that mode comes back (whole hours).</summary>
+		public static string RefusedLine(RunMode mode)
+		{
+			var nextReset = DailyPlay.NextResetUtc;
+			var now = DailyPlay.Clock.UtcNow;
+			return mode == RunMode.Practice ? PracticeReturnsIn(nextReset, now) : NewAttemptsIn(nextReset, now);
 		}
 
 		/// <summary>The PLAY sub-label with no attempts left.</summary>

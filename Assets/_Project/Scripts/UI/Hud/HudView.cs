@@ -244,10 +244,13 @@ namespace Opoint8182.UI
 			RefreshFrameEffects();
 		}
 
-		public void SetPractice(bool isPractice)
+		public void SetPractice(bool isPractice) => SetRun(isPractice, 2, 3);
+
+		/// <summary>The run's mode and, for a competitive run, which attempt of the day it is (shown in the pause popup).</summary>
+		public void SetRun(bool isPractice, int attemptNumber, int attemptsMax)
 		{
 			m_practiceTag.style.display = isPractice ? DisplayStyle.Flex : DisplayStyle.None;
-			m_pausePopup.SetPractice(isPractice);
+			m_pausePopup.SetRun(isPractice, attemptNumber, attemptsMax);
 		}
 
 		/// <summary>

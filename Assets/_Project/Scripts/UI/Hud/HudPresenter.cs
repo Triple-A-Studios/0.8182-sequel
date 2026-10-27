@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using Opoint8182.Altitude;
 using Opoint8182.Bootstrap;
+using Opoint8182.Daily;
 using Opoint8182.Fuel;
 using Opoint8182.Game;
 using Opoint8182.Health;
@@ -106,7 +107,7 @@ namespace Opoint8182.UI
 		protected override void OnViewReady(HudView view)
 		{
 			var gameManager = m_gameManager != null ? m_gameManager : GameManager.TryGetInstance();
-			view.SetPractice(gameManager != null && gameManager.IsPracticeRun);
+			view.SetRun(gameManager != null && gameManager.IsPracticeRun, DailyPlay.CurrentAttemptNumber, DailyPlay.ATTEMPTS_MAX);
 			view.SteerChanged += OnSteerChanged;
 			view.BoostChanged += OnBoostChanged;
 			view.PauseClicked += OnPauseClicked;
@@ -153,6 +154,7 @@ namespace Opoint8182.UI
 
 			if (!m_gameManager.IsPaused) m_gameManager.Pause();
 			else if (View.PausePopup.IsLeaveConfirmOpen) View.PausePopup.CancelLeaveConfirm();
+			else if (View.PausePopup.IsRestartConfirmOpen) View.PausePopup.CancelRestartConfirm();
 			else if (View.PausePopup.IsOpen) View.PausePopup.RequestResume();
 		}
 
@@ -207,6 +209,7 @@ namespace Opoint8182.UI
 			if (View == null) return;
 
 			View.SetPaused(true);
+			View.PausePopup.SetRestartEnabled(m_gameManager.CanRestartRun());
 			View.PausePopup.Show();
 		}
 
@@ -221,7 +224,15 @@ namespace Opoint8182.UI
 		// The game stays frozen through the 3-2-1; it unfreezes only when the countdown ends.
 		private void OnCountdownFinished() => m_gameManager?.Resume();
 
-		private void OnRestartRequested() => m_gameManager?.RestartRun();
+		// A restart spends the next attempt (competitive) or needs practice time left; when the limit is gone the run
+		// stays paused on the popup with a neutral line saying when it comes back.
+		private void OnRestartRequested()
+		{
+			if (m_gameManager == null || m_gameManager.RestartRun()) return;
+
+			View?.ShowToast(DailyPlayText.RefusedLine(DailyPlay.Mode));
+			View?.PausePopup.Show();
+		}
 
 		// Reloads the game scene into the menu. Without a Bootstrap loader (the game scene opened on its own) there is no
 		// menu to go back to: say so and stay paused on the popup.

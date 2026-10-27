@@ -147,21 +147,39 @@ namespace Opoint8182.Game
             m_resumeRequested = true;
         }
 
-        /// <summary>Reloads the game scene for a fresh run. Shared by Game Over RETRY and the pause popup's RESTART RUN.</summary>
-        public void RestartRun()
+        /// <summary>
+        /// Whether <see cref="RestartRun"/> would start a new run: false when the next competitive attempt or the day's practice time
+        /// is gone. True for a run that was not started through the menu (a scene opened on its own).
+        /// </summary>
+        public bool CanRestartRun()
         {
+            var mode = DailyPlay.Mode;
+            return mode == RunMode.None || DailyPlay.CanBeginRun(mode) == BeginRunResult.Started;
+        }
+
+        /// <summary>
+        /// Reloads the game scene for a fresh run. Shared by Game Over RETRY and the pause popup's RESTART RUN. A run started
+        /// from the menu begins its next run through <see cref="DailyPlay"/> first (a competitive restart spends the next
+        /// attempt); when that is refused nothing happens and this returns false.
+        /// </summary>
+        public bool RestartRun()
+        {
+            var mode = DailyPlay.Mode;
+            if (mode != RunMode.None && DailyPlay.BeginRun(mode) != BeginRunResult.Started) return false;
+
             // Started through Bootstrap: the loader does the reload behind the loading cover. Otherwise (a scene opened on
             // its own) reload straight away.
             if (BootstrapLoader.Instance != null)
             {
                 BootstrapLoader.Instance.RestartRun();
-                return;
+                return true;
             }
 
             Time.timeScale = 1f;
             Sfx.SetPaused(false);
             Sfx.StopAll();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            return true;
         }
 
         // Called only from PlayingState/MainMenuState.OnEnter - GameManager owns the events,

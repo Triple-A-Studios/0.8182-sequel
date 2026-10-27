@@ -143,6 +143,16 @@
                     <op:LipButton name="leave-no" text="BACK" variant="Secondary" class="hud-leave-secondary" />
                 </ui:VisualElement>
             </op:LipBox>
+
+            <!-- Restart confirm (competitive runs only): RESTART RUN gives this attempt up and uses the next one. -->
+            <op:LipBox name="hud-restart-popup" class="popup hud-leave-card">
+                <ui:Label text="RESTART THIS RUN?" class="popup__title" picking-mode="Ignore" />
+                <ui:Label name="restart-body" text="" class="popup__body" picking-mode="Ignore" />
+                <ui:VisualElement class="popup__actions hud-leave-actions">
+                    <op:LipButton name="restart-yes" text="RESTART" variant="Danger" class="hud-leave-primary" />
+                    <op:LipButton name="restart-no" text="BACK" variant="Secondary" class="hud-leave-secondary" />
+                </ui:VisualElement>
+            </op:LipBox>
         </ui:VisualElement>
 
         <!-- Portrait prompt: covers everything (popups included) while the screen is portrait during a run. HudPresenter
