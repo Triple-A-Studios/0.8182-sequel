@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Alchemy.Inspector;
 using Opoint8182.Audio;
+using Opoint8182.Daily;
 using Opoint8182.Game;
 using Opoint8182.UI;
 using UnityEngine;
@@ -83,6 +84,9 @@ namespace Opoint8182.Bootstrap
             // to 1 and unpauses the audio; the catch below does it when the load fails.
             Time.timeScale = 0f;
             Sfx.StopAll();
+
+            // The daily counters keep what was used; the run's mode ends here (a restart begins its own again).
+            if (toMenu) DailyPlay.EndRun();
 
             // Covers the reload with the loading screen. It lives on this object's child panel, so it survives the load.
             m_launchFlow?.ShowCover();

@@ -2,6 +2,7 @@ using System;
 using Opoint8182.Altitude;
 using Opoint8182.Audio;
 using Opoint8182.Bootstrap;
+using Opoint8182.Daily;
 using Opoint8182.Fuel;
 using Opoint8182.Game.States;
 using Opoint8182.Health;
@@ -15,16 +16,18 @@ namespace Opoint8182.Game
 {
     public class GameManager : GenericSingleton<GameManager>
     {
-        [Tooltip("Practice run (no leaderboard attempt). Set before pressing Play: the HUD tag and the pause popup read it when the HUD builds. Daily play structure replaces this with the real mode.")]
+        [Tooltip("Force a practice run (no leaderboard attempt) when the scene is opened on its own for testing. Set before pressing Play: the HUD tag and the pause popup read it when the HUD builds. A run started from the menu takes its mode from DailyPlay instead.")]
         [SerializeField] private bool m_isPracticeRun;
 
         [Tooltip("Pause when the Editor loses focus, like a player build does when the app is backgrounded. Off by default so alt-tabbing out of the Editor does not pause a test run.")]
         [SerializeField] private bool m_autoPauseInEditor;
 
+        private const float k_MaxPracticeFrameSeconds = 0.5f;
+
         public bool IsRunActive { get; private set; } = true;
 
         /// <summary>This run does not count as a leaderboard attempt, so leaving it costs nothing.</summary>
-        public bool IsPracticeRun => m_isPracticeRun;
+        public bool IsPracticeRun => m_isPracticeRun || DailyPlay.IsPracticeRun;
 
         /// <summary>Raised once when the run ends, with what ended it.</summary>
         public event Action<RunEndCause> RunEnded;
@@ -95,6 +98,10 @@ namespace Opoint8182.Game
         private void Update()
         {
             m_stateMachine.OnUpdate();
+
+            // Practice time counts only while the run is actually being flown: IsPlaying is false while paused (and through the resume countdown).
+            // A frame counts at most k_MaxPracticeFrameSeconds, so a stall (a background hitch, a debugger) cannot burn the day's practice.
+            if (IsPlaying && IsRunActive) DailyPlay.TickPractice(Mathf.Min(Time.unscaledDeltaTime, k_MaxPracticeFrameSeconds));
         }
 
         // Flips a flag rather than calling SetState directly - the transition fires on the next
@@ -254,6 +261,7 @@ namespace Opoint8182.Game
             if (!IsRunActive) return;
 
             IsRunActive = false;
+            DailyPlay.Flush();
             RunEnded?.Invoke(cause);
         }
     }
