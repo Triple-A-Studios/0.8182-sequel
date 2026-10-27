@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Opoint8182.UI
@@ -25,6 +26,24 @@ namespace Opoint8182.UI
 			if (done) return 1f;
 
 			return Mathf.Clamp01(rawProgress / LOAD_PROGRESS_CEILING);
+		}
+
+		/// <summary>How long the launch waits for the last-week lookup once the loading screen's minimum time is over.</summary>
+		public const float RESULTS_LOOKUP_SECONDS = 3f;
+
+		/// <summary>
+		/// The result of <paramref name="task"/> if it finishes within <paramref name="seconds"/> (unscaled, polled per frame,
+		/// so it works on WebGL where <c>Task.Delay</c> does not), otherwise null: a late result is dropped and the task is left to finish alone.
+		/// </summary>
+		public static async Task<T?> AwaitWithDeadline<T>(Task<T?> task, float seconds) where T : struct
+		{
+			var deadline = Time.unscaledTime + seconds;
+			while (!task.IsCompleted && Time.unscaledTime < deadline)
+			{
+				await Task.Yield();
+			}
+
+			return task.IsCompleted ? task.Result : null;
 		}
 
 		/// <summary>The page / window is taller than it is wide.</summary>

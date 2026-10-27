@@ -265,6 +265,12 @@ namespace Opoint8182.Leaderboard
 			}
 		}
 
+		/// <summary>
+		/// Whether this player has ever submitted a ranked run on this device (a stored best above zero on either board).
+		/// Soft like the stored bests themselves: clearing storage resets it.
+		/// </summary>
+		public static bool HasEverRanked() => PlayerPrefs.GetInt(k_WeeklyBestKey, 0) > 0 || PlayerPrefs.GetInt(k_AllTimeBestKey, 0) > 0;
+
 		/// <summary>True when a score can improve the stored best, so a submit is worth a call.</summary>
 		public static bool ShouldSubmit(int score, int storedBest) => score > storedBest;
 

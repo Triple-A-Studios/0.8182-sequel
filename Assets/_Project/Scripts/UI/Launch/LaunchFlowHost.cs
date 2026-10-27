@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Opoint8182.Leaderboard;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -26,6 +27,9 @@ namespace Opoint8182.UI
 		private LoadingScreen m_loading;
 		private LastWeekResultsScreen m_results;
 		private ILastWeekResultsSource m_source;
+		// The source in use and its lookup, started at the first progress report so it overlaps the loading screen.
+		private ILastWeekResultsSource m_lookupSource;
+		private Task<LastWeekResult?> m_lookup;
 
 		// Backlog #30: the minimum time used to run from Awake, so on a phone the heavy first frames (two scene loads and
 		// activations) could use up most of it before anything was drawn and the screen flashed by. It now counts frames the
@@ -44,8 +48,8 @@ namespace Opoint8182.UI
 		public LastWeekResultsScreen Results => m_results;
 
 		/// <summary>
-		/// Where closed weeks come from. Defaults to nothing (the flow goes straight to the menu); the weekly
-		/// leaderboard rework (backlog #28) plugs the real source in here.
+		/// Where closed weeks come from. Unset, the flow uses the leaderboard-backed source when the leaderboard service
+		/// exists (and nothing otherwise); a dev driver or test can set another one before the launch flow starts.
 		/// </summary>
 		public ILastWeekResultsSource ResultsSource
 		{
@@ -78,7 +82,30 @@ namespace Opoint8182.UI
 		/// <summary>Raw scene-load progress (<see cref="Opoint8182.Bootstrap.AsyncOperationGroup.Progress"/>).</summary>
 		public void ReportProgress(float rawProgress)
 		{
+			StartLookup();
 			m_target = LaunchFlow.MapProgress(rawProgress, m_loadsDone);
+		}
+
+		// Started once, early: the lookup (sign-in, versions, a closed week) runs alongside the scene loads and the minimum time.
+		private void StartLookup()
+		{
+			if (m_lookup != null) return;
+
+			m_lookupSource = ResolveSource();
+			m_lookup = LookupAsync(m_lookupSource);
+		}
+
+		private static async Task<LastWeekResult?> LookupAsync(ILastWeekResultsSource source)
+		{
+			try
+			{
+				return await source.GetPendingAsync();
+			}
+			catch (System.Exception e)
+			{
+				Debug.LogWarning($"[Launch] last week's results lookup failed: {e.GetType().Name}: {e.Message}");
+				return null;
+			}
 		}
 
 		/// <summary>Completes when the loads are done, the minimum time has passed and no rotate prompt is up; then hides.</summary>
@@ -93,9 +120,13 @@ namespace Opoint8182.UI
 				await Task.Yield();
 			}
 
-			var pending = ResolveSource().TryGetPending();
+			// Waits at most a few more seconds for the lookup; a late result is dropped (never shown mid-session, not marked
+			// as shown, so it comes back next launch).
+			StartLookup();
+			var pending = await LaunchFlow.AwaitWithDeadline(m_lookup, LaunchFlow.RESULTS_LOOKUP_SECONDS);
 			if (pending.HasValue && m_results != null && m_loading != null)
 			{
+				m_lookupSource.MarkShown();
 				m_loading.SetContentVisible(false);
 				await m_results.ShowAndWaitAsync(pending.Value);
 			}
@@ -142,7 +173,10 @@ namespace Opoint8182.UI
 				return new SampleLastWeekResultsSource(m_debugResults == LastWeekResultsDebugMode.WithRank);
 			}
 #endif
-			return m_source ?? new NullLastWeekResultsSource();
+			if (m_source != null) return m_source;
+
+			var service = LeaderboardService.TryGetInstance();
+			return service != null ? new LeaderboardLastWeekResultsSource(service) : new NullLastWeekResultsSource();
 		}
 
 		private void Update()

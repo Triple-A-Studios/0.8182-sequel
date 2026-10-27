@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Opoint8182.Leaderboard;
 
 namespace Opoint8182.UI
@@ -36,18 +37,29 @@ namespace Opoint8182.UI
 
 	/// <summary>
 	/// Where the launch flow asks whether a closed week still has to be shown. The shipped implementation is
-	/// <see cref="NullLastWeekResultsSource"/> (nothing, until the weekly leaderboard rework, backlog #28, supplies a
-	/// real one that compares the newest archived version id with the one last shown and records it afterwards).
+	/// <see cref="LeaderboardLastWeekResultsSource"/>; <see cref="NullLastWeekResultsSource"/> stands in when there is no
+	/// leaderboard service. The lookup is async (it reads the leaderboard), starts at boot so it overlaps the loading
+	/// screen, and the flow only waits a few seconds for it.
 	/// </summary>
 	public interface ILastWeekResultsSource
 	{
-		/// <summary>The results to show once now, or null when there is nothing new to show.</summary>
-		LastWeekResult? TryGetPending();
+		/// <summary>The results to show once now, or null when there is nothing new to show (or the lookup failed).</summary>
+		Task<LastWeekResult?> GetPendingAsync();
+
+		/// <summary>
+		/// Called by the launch flow the moment it actually shows what <see cref="GetPendingAsync"/> returned, so that week is
+		/// not shown again. A result the flow dropped (the lookup came too late) is never marked and comes back next launch.
+		/// </summary>
+		void MarkShown();
 	}
 
 	public sealed class NullLastWeekResultsSource : ILastWeekResultsSource
 	{
-		public LastWeekResult? TryGetPending() => null;
+		public Task<LastWeekResult?> GetPendingAsync() => Task.FromResult<LastWeekResult?>(null);
+
+		public void MarkShown()
+		{
+		}
 	}
 
 	/// <summary>Forces the screen in dev: set on the Bootstrap launch flow object (ignored in release builds).</summary>
@@ -68,6 +80,11 @@ namespace Opoint8182.UI
 			m_withRank = withRank;
 		}
 
-		public LastWeekResult? TryGetPending() => LastWeekResultsPlaceholderData.Sample(m_withRank, System.DateTime.UtcNow);
+		public Task<LastWeekResult?> GetPendingAsync() =>
+			Task.FromResult<LastWeekResult?>(LastWeekResultsPlaceholderData.Sample(m_withRank, System.DateTime.UtcNow));
+
+		public void MarkShown()
+		{
+		}
 	}
 }
