@@ -5,20 +5,17 @@ using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
 {
-	/// <summary>How the rank chip is dressed: amber (a rank in play), green and locked (final), or plain (unranked, messages).</summary>
+	/// <summary>How the rank chip is dressed: amber (a rank in play) or plain (unranked, messages).</summary>
 	public enum RankChipStyle
 	{
 		Amber,
-		Final,
 		Neutral
 	}
 
 	/// <summary>What a Game Over button does. The view only reports which one was tapped; the presenter decides what it means.</summary>
 	public enum GameOverAction
 	{
-		BankIt,
 		Retry,
-		RetryNow,
 		MainMenu,
 		Leaderboard,
 		Practice,
@@ -26,18 +23,15 @@ namespace Opoint8182.UI
 	}
 
 	/// <summary>
-	/// The attempt-driven variants of the button row (mockup S05 a / b / c and practice). Attempts do not exist yet, so play
-	/// uses <see cref="GameOverPlaceholderData.DefaultAttemptState"/> and the gallery shows the rest.
+	/// The attempt-driven variants of the button row (mockup S05, reworked in Daily play structure Pass 6: no BANK IT or
+	/// RETRY NOW, see design-doc). <see cref="GameOverRow"/> picks one from the real attempts data.
 	/// </summary>
 	public enum GameOverAttemptState
 	{
-		/// <summary>a: attempt 1 of 3, placed well. BANK IT is primary so the other attempts can be saved.</summary>
-		PlacedWell,
+		/// <summary>Attempts left (or a standalone scene): RETRY is primary.</summary>
+		Competitive,
 
-		/// <summary>b: attempt 1 of 3, did not place. RETRY stays primary.</summary>
-		DidNotPlace,
-
-		/// <summary>c: attempt 3 of 3. The rank locks; LEADERBOARD is primary and PRACTICE is greyed.</summary>
+		/// <summary>The last attempt is used: LEADERBOARD is primary, PRACTICE is the second secondary.</summary>
 		FinalAttempt,
 
 		/// <summary>Practice: the attempt row is dropped and SHARE keeps a "practice" tag.</summary>
@@ -55,7 +49,6 @@ namespace Opoint8182.UI
 
 		private const long k_SkeletonPulseMs = 520;
 		private const long k_CascadeTickMs = 16;
-		private const string k_RankFinalClass = "go-rank-chip--final";
 		private const string k_RankNeutralClass = "go-rank-chip--neutral";
 		private const string k_RankWordClass = "go-rank-value--word";
 		private const string k_SkeletonDimClass = "go-rank-skeleton--dim";
@@ -225,7 +218,7 @@ namespace Opoint8182.UI
 
 			Hide();
 			HideRank();
-			ApplyAttemptState(GameOverAttemptState.DidNotPlace);
+			ApplyAttemptState(GameOverAttemptState.Competitive);
 		}
 
 		/// <summary>Shows the screen and, unless <paramref name="animate"/> is false, plays the entry cascade.</summary>
@@ -279,30 +272,29 @@ namespace Opoint8182.UI
 			m_earned.text = EarnedText(earned);
 		}
 
+		/// <summary>Dresses the button row from a derived <see cref="GameOverRow"/>.</summary>
+		public void ApplyAttemptState(GameOverRow row) => ApplyAttemptState(row.State, row.Note, row.PrimaryEnabled, row.SecondaryBEnabled);
+
 		/// <summary>
 		/// Dresses the button row for an attempt state: which button is primary, the line under it, the two secondary
-		/// buttons, and the "practice" tag on SHARE.
+		/// buttons, the "practice" tag on SHARE, and whether the primary and the second secondary (PRACTICE on the final
+		/// attempt) can be used.
 		/// </summary>
-		public void ApplyAttemptState(GameOverAttemptState state)
+		public void ApplyAttemptState(GameOverAttemptState state, string note = "", bool primaryEnabled = true, bool secondaryBEnabled = true)
 		{
 			switch (state)
 			{
-				case GameOverAttemptState.PlacedWell:
-					SetActions(GameOverAction.BankIt, GameOverPlaceholderData.BankItNote, GameOverAction.RetryNow, GameOverAction.Leaderboard);
-					break;
 				case GameOverAttemptState.FinalAttempt:
-					SetActions(GameOverAction.Leaderboard, GameOverPlaceholderData.FinalAttemptNote, GameOverAction.MainMenu, GameOverAction.Practice);
-					break;
-				case GameOverAttemptState.Practice:
-					SetActions(GameOverAction.Retry, string.Empty, GameOverAction.MainMenu, GameOverAction.Leaderboard);
+					SetActions(GameOverAction.Leaderboard, note, GameOverAction.MainMenu, GameOverAction.Practice);
 					break;
 				default:
-					SetActions(GameOverAction.Retry, GameOverPlaceholderData.RetryNote, GameOverAction.MainMenu, GameOverAction.Leaderboard);
+					SetActions(GameOverAction.Retry, note, GameOverAction.MainMenu, GameOverAction.Leaderboard);
 					break;
 			}
 
 			m_shareTag.style.display = state == GameOverAttemptState.Practice ? DisplayStyle.Flex : DisplayStyle.None;
-			m_secondaryB.SetEnabled(state != GameOverAttemptState.FinalAttempt);
+			m_primary.SetEnabled(primaryEnabled);
+			m_secondaryB.SetEnabled(secondaryBEnabled);
 		}
 
 		/// <summary>Hides the whole rank chip (no score to rank).</summary>
@@ -411,9 +403,7 @@ namespace Opoint8182.UI
 		{
 			return action switch
 			{
-				GameOverAction.BankIt => "BANK IT",
 				GameOverAction.Retry => "RETRY",
-				GameOverAction.RetryNow => "RETRY NOW",
 				GameOverAction.MainMenu => "MAIN MENU",
 				GameOverAction.Leaderboard => "LEADERBOARD",
 				GameOverAction.Practice => "PRACTICE",
@@ -448,7 +438,6 @@ namespace Opoint8182.UI
 			m_rankTail.style.opacity = StyleKeyword.Null;
 			m_rankLead.style.display = DisplayStyle.None;
 			m_rankTail.style.display = DisplayStyle.None;
-			m_rankChip.RemoveFromClassList(k_RankFinalClass);
 			m_rankChip.RemoveFromClassList(k_RankNeutralClass);
 			m_rankValue.EnableInClassList(k_RankWordClass, false);
 
@@ -463,7 +452,6 @@ namespace Opoint8182.UI
 
 		private void ApplyRankStyle(RankChipStyle style)
 		{
-			m_rankChip.EnableInClassList(k_RankFinalClass, style == RankChipStyle.Final);
 			m_rankChip.EnableInClassList(k_RankNeutralClass, style == RankChipStyle.Neutral);
 		}
 

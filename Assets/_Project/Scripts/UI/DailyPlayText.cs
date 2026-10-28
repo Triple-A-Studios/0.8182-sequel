@@ -62,6 +62,24 @@ namespace Opoint8182.UI
 			return mode == RunMode.Practice ? PracticeReturnsIn(nextReset, now) : NewAttemptsIn(nextReset, now);
 		}
 
+		/// <summary>Game Over, under RETRY: "2 attempts left today", "1 attempt left today".</summary>
+		public static string RetryNote(int left) => left == 1 ? "1 attempt left today" : $"{left} attempts left today";
+
+		/// <summary>Game Over, under LEADERBOARD once the last attempt is used: "new attempts in 7h".</summary>
+		public static string NewAttemptsNote(DateTime nextResetUtc, DateTime utcNow) => $"new attempts in {ResetHours(nextResetUtc, utcNow)}";
+
+		/// <summary>Game Over, under RETRY in a practice run with time left: "28:14 left today".</summary>
+		public static string PracticeLeftNote(float seconds) => $"{PracticeClock(seconds)} left today";
+
+		/// <summary>Game Over, under a greyed RETRY in a practice run: "practice returns in 7h".</summary>
+		public static string PracticeReturnsNote(DateTime nextResetUtc, DateTime utcNow) => $"practice returns in {ResetHours(nextResetUtc, utcNow)}";
+
+		/// <summary>
+		/// Status after the rank chip's divider. The weekly rank is never locked (others can pass it until Monday), so it only
+		/// says how many attempts remain today.
+		/// </summary>
+		public static string RankStatus(int attemptsLeft) => attemptsLeft > 0 ? $"THIS WEEK · {attemptsLeft} LEFT TODAY" : "THIS WEEK · DONE TODAY";
+
 		/// <summary>The PLAY sub-label with no attempts left.</summary>
 		public static string NewAttemptsIn(DateTime nextResetUtc, DateTime utcNow) => $"NEW ATTEMPTS IN {ResetHours(nextResetUtc, utcNow)}";
 

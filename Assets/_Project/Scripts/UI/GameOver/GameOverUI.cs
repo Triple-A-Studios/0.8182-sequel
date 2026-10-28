@@ -25,6 +25,7 @@ namespace Opoint8182.UI
 		private GameManager m_gameManager;
 		private int m_submitToken;
 		private int m_lastScore;
+		private GameOverRow m_row;
 
 		protected override void OnEnable()
 		{
@@ -58,7 +59,7 @@ namespace Opoint8182.UI
 		{
 			view.SetNewBest(GameOverPlaceholderData.ShowNewBest);
 			view.SetStats(GameOverPlaceholderData.Distance, GameOverPlaceholderData.Flattened, GameOverPlaceholderData.BestCombo, GameOverPlaceholderData.Earned);
-			view.ApplyAttemptState(GameOverPlaceholderData.DefaultAttemptState);
+			view.ApplyAttemptState(GameOverAttemptState.Competitive);
 
 			view.ActionClicked += HandleActionClicked;
 			view.RankRetryClicked += HandleRankRetryClicked;
@@ -71,8 +72,13 @@ namespace Opoint8182.UI
 			if (m_scoreSystem != null) score = m_scoreSystem.CurrentScore;
 			m_lastScore = score;
 
+			// Attempts are spent at run start, so what is left now is what the row and the rank status report.
+			m_row = GameOverRow.Derive(DailyPlay.Mode, m_gameManager != null && m_gameManager.IsPracticeRun, DailyPlay.AttemptsLeft,
+				DailyPlay.PracticeRemainingSeconds, DailyPlay.NextResetUtc, DailyPlay.Clock.UtcNow);
+
 			if (View != null)
 			{
+				View.ApplyAttemptState(m_row);
 				View.SetCause(cause);
 				View.SetScore(score);
 				View.Show();
@@ -121,18 +127,15 @@ namespace Opoint8182.UI
 			if (result.Skipped && result.Rank <= 0) return;
 
 			// The chip starts as just the number. A better rank counts down to it, then the chip widens to bring in the
-			// arrow (no place count, the service does not report one) and the attempt status (static until attempts
-			// exist); same or worse: the rank alone (no red, no loss framing).
-			var state = GameOverPlaceholderData.DefaultAttemptState;
-			var style = state == GameOverAttemptState.FinalAttempt ? RankChipStyle.Final : RankChipStyle.Amber;
-			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, GameOverPlaceholderData.RankStatusFor(state), style, true);
+			// arrow (no place count, the service does not report one) and the attempts status ("THIS WEEK · 2 LEFT TODAY");
+			// same or worse: the rank alone (no red, no loss framing).
+			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, m_row.RankStatus, RankChipStyle.Amber, true);
 		}
 
-		// RETRY (and RETRY NOW, the same thing in the placed-well state) reloads the scene; MAIN MENU reloads it into the
-		// menu. BANK IT, PRACTICE, LEADERBOARD and SHARE wait for attempts and Pass 6.
+		// RETRY reloads the scene; MAIN MENU reloads it into the menu. PRACTICE and LEADERBOARD arrive in Pass 6b, SHARE in Pass 8.
 		private void HandleActionClicked(GameOverAction action)
 		{
-			if (action == GameOverAction.Retry || action == GameOverAction.RetryNow)
+			if (action == GameOverAction.Retry)
 			{
 				// A competitive RETRY spends the next attempt, a practice one needs practice time; refused, it says when that returns.
 				if (m_gameManager == null) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

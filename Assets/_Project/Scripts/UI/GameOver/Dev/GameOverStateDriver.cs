@@ -1,3 +1,5 @@
+using System;
+using Opoint8182.Daily;
 using Opoint8182.Game;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,10 +10,11 @@ namespace Opoint8182.UI
 	/// Dev-only harness for the Game Over screen: shows it with sample values and jumps between the mockup states, end
 	/// causes and rank chip states with hotkeys so each can be checked without playing to it. Lives in the GameOverGallery
 	/// scene only.
-	/// Keys: A / S / D / F the mockup states (S05 a placed well, b did not place, c final attempt, practice) with their
-	/// score, chips, rank and button row; 1-5 end cause; N toggle NEW BEST; M cycle the rank chip (ranking, ranked + arrow,
-	/// provisional, final, unranked + gap, rank only, failed + retry, unavailable, hidden); K replay the entry cascade;
-	/// H hide / show the whole screen (show replays the cascade).
+	/// Keys: A / S / D / F / G the button-row states (A attempt 1 with a strong run, S attempt 2 that did not place, D the
+	/// last attempt, F practice, G practice with no time left) with their score, chips, rank and button row; 1-5 end cause;
+	/// N toggle NEW BEST; M cycle the rank chip (ranking, ranked + arrow, attempts left, done today, unranked + gap, rank
+	/// only, failed + retry, unavailable, hidden); K replay the entry cascade; H hide / show the whole screen (show replays
+	/// the cascade). The rows come from GameOverRow.Derive, the same code play uses.
 	/// </summary>
 	public class GameOverStateDriver : GameOverHost
 	{
@@ -29,7 +32,7 @@ namespace Opoint8182.UI
 			view.RankClicked += ShowArrivesLaterToast;
 			view.RankRetryClicked += () => View?.ShowRanking();
 
-			ApplyMockupState(GameOverAttemptState.PlacedWell);
+			ApplyMockupState(SampleRow(RunMode.Competitive, 2, 1500f), true);
 			view.Show();
 		}
 
@@ -40,10 +43,11 @@ namespace Opoint8182.UI
 			var keyboard = Keyboard.current;
 			if (keyboard == null) return;
 
-			if (keyboard.aKey.wasPressedThisFrame) ApplyMockupState(GameOverAttemptState.PlacedWell, true);
-			if (keyboard.sKey.wasPressedThisFrame) ApplyMockupState(GameOverAttemptState.DidNotPlace, true);
-			if (keyboard.dKey.wasPressedThisFrame) ApplyMockupState(GameOverAttemptState.FinalAttempt, true);
-			if (keyboard.fKey.wasPressedThisFrame) ApplyMockupState(GameOverAttemptState.Practice, true);
+			if (keyboard.aKey.wasPressedThisFrame) ApplyMockupState(SampleRow(RunMode.Competitive, 2, 1500f), true, true);
+			if (keyboard.sKey.wasPressedThisFrame) ApplyMockupState(SampleRow(RunMode.Competitive, 1, 1500f), false, true);
+			if (keyboard.dKey.wasPressedThisFrame) ApplyMockupState(SampleRow(RunMode.Competitive, 0, 1500f), true, true);
+			if (keyboard.fKey.wasPressedThisFrame) ApplyMockupState(SampleRow(RunMode.Practice, 0, 1500f), true, true);
+			if (keyboard.gKey.wasPressedThisFrame) ApplyMockupState(SampleRow(RunMode.Practice, 0, 0f), true, true);
 
 			if (keyboard.digit1Key.wasPressedThisFrame) View.SetCause(RunEndCause.OutOfFuel);
 			if (keyboard.digit2Key.wasPressedThisFrame) View.SetCause(RunEndCause.Wrecked);
@@ -72,46 +76,35 @@ namespace Opoint8182.UI
 			}
 		}
 
-		// Mockup S05: a is the 184,920 run that beat the best, b the 96,310 run that did not place (YOUR BEST chip, unranked
-		// with the gap), c the same strong run on the last attempt (rank locked), practice drops the attempt row and the rank.
-		private void ApplyMockupState(GameOverAttemptState state, bool replay = false)
+		// The 184,920 run is the strong one (NEW BEST); the 96,310 run did not place (YOUR BEST chip, unranked with the gap).
+		// A practice run drops the rank. The row is derived the way play derives it, from a mode, attempts left and practice time.
+		private static GameOverRow SampleRow(RunMode mode, int attemptsLeft, float practiceSeconds)
 		{
-			var strong = state != GameOverAttemptState.DidNotPlace;
+			var now = new DateTime(2026, 10, 28, 17, 0, 0, DateTimeKind.Utc);
+			return GameOverRow.Derive(mode, mode == RunMode.Practice, attemptsLeft, practiceSeconds, now.Date.AddDays(1), now);
+		}
 
+		private void ApplyMockupState(GameOverRow row, bool strong, bool replay = false)
+		{
 			View.SetCause(RunEndCause.OutOfFuel);
 			View.SetScore(strong ? 184920 : 96310);
 			if (strong) View.SetStats("2.4 km", "38", "×7", 286);
 			else View.SetStats("1.3 km", "19", "×4", 148);
 
-			var showBest = state == GameOverAttemptState.PlacedWell || state == GameOverAttemptState.FinalAttempt;
-			m_newBest = showBest;
-			View.SetNewBest(showBest);
-			View.SetYourBest(state == GameOverAttemptState.DidNotPlace ? GameOverPlaceholderData.SampleBest : string.Empty);
+			m_newBest = strong;
+			View.SetNewBest(strong);
+			View.SetYourBest(strong ? string.Empty : GameOverPlaceholderData.SampleBest);
 
-			View.ApplyAttemptState(state);
+			View.ApplyAttemptState(row);
 
-			switch (state)
-			{
-				case GameOverAttemptState.PlacedWell:
-					m_rankState = 2;
-					break;
-				case GameOverAttemptState.DidNotPlace:
-					m_rankState = 4;
-					break;
-				case GameOverAttemptState.FinalAttempt:
-					m_rankState = 3;
-					break;
-				default:
-					m_rankState = 8;
-					break;
-			}
-
+			m_rankState = row.State == GameOverAttemptState.Practice ? 8 : !strong ? 4 : row.State == GameOverAttemptState.FinalAttempt ? 3 : 2;
 			ApplyRankState();
 			if (replay) View.Show();
 		}
 
-		// 0 RANKING skeleton, 1 ranked (up arrow, no place count: what play shows), 2 provisional (a), 3 final (c),
-		// 4 unranked with the gap (b), 5 rank only (no arrow: same or worse), 6 failed + retry, 7 unavailable, 8 hidden.
+		// 0 RANKING skeleton, 1 ranked (up arrow, no place count: what play shows), 2 ranked with attempts left today,
+		// 3 ranked with none left, 4 unranked with the gap, 5 rank only (no arrow: same or worse), 6 failed + retry,
+		// 7 unavailable, 8 hidden.
 		private void ApplyRankState()
 		{
 			switch (m_rankState)
@@ -123,13 +116,13 @@ namespace Opoint8182.UI
 					View.ShowRankResult(k_SampleRank, true, 0, GameOverView.DefaultRankCaption, "", RankChipStyle.Amber, true);
 					break;
 				case 2:
-					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, "TODAY'S RANK", GameOverPlaceholderData.SampleProvisionalStatus, RankChipStyle.Amber, true);
+					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, GameOverView.DefaultRankCaption, DailyPlayText.RankStatus(2), RankChipStyle.Amber, true);
 					break;
 				case 3:
-					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, "FINAL RANK", GameOverPlaceholderData.SampleFinalStatus, RankChipStyle.Final, true);
+					View.ShowRankResult(k_SampleRank, true, GameOverPlaceholderData.SampleRankDelta, GameOverView.DefaultRankCaption, DailyPlayText.RankStatus(0), RankChipStyle.Amber, true);
 					break;
 				case 4:
-					View.ShowRankUnranked(GameOverPlaceholderData.SampleGapStatus, "TODAY'S RANK");
+					View.ShowRankUnranked(GameOverPlaceholderData.SampleGapStatus);
 					break;
 				case 5:
 					View.ShowRankResult(k_SampleRank, false, 0, GameOverView.DefaultRankCaption, "", RankChipStyle.Amber, true);

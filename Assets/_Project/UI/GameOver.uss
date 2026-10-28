@@ -261,8 +261,7 @@
     border-color: rgba(240, 169, 59, 0.45);
 }
 
-/* States: default amber border; --final is the locked, green one; --neutral is the plain one (unranked / messages). */
-.go-rank-chip--final > .lipbox__face { border-color: rgba(95, 194, 106, 0.6); }
+/* States: default amber border; --neutral is the plain one (unranked / messages). */
 .go-rank-chip--neutral > .lipbox__face { border-color: var(--border-soft); }
 
 /* Clipped containers: GameOverView animates max-width from 0 to the measured content width (children keep their

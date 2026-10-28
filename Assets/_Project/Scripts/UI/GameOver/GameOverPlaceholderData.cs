@@ -21,46 +21,11 @@ namespace Opoint8182.UI
 		/// <summary>NEW BEST! sticker beside the score. Off: there is no stored personal best yet.</summary>
 		public const bool ShowNewBest = false;
 
-		/// <summary>
-		/// Which attempt-driven button row play shows: RETRY primary with the note below (S05 b). Attempts do not exist yet,
-		/// so every run shows this; the gallery shows the other states. Real value: "Daily play structure".
-		/// </summary>
-		public const GameOverAttemptState DefaultAttemptState = GameOverAttemptState.DidNotPlace;
-
-		/// <summary>Line under RETRY (S05 b). Real value: "Daily play structure" (attempts).</summary>
-		public const string RetryNote = "2 attempts left today";
-
-		/// <summary>Line under BANK IT (S05 a). Real value: "Daily play structure" (attempts).</summary>
-		public const string BankItNote = "keep 2 attempts for later today";
-
-		/// <summary>Line under LEADERBOARD on the final attempt (S05 c). Real value: "Daily play structure" (reset timer).</summary>
-		public const string FinalAttemptNote = "next attempts in 6h 12m";
-
 		/// <summary>Gallery only: the YOUR BEST chip value (S05 b). Real value: "Player profile and run stats".</summary>
 		public const string SampleBest = "184,920";
 
-		/// <summary>
-		/// Status after the divider on a ranked chip in play, from the attempt state: PROVISIONAL while attempts remain,
-		/// LOCKED once the last one is used, nothing in practice. Static until attempts exist ("Daily play structure").
-		/// </summary>
-		public static string RankStatusFor(GameOverAttemptState state)
-		{
-			return state switch
-			{
-				GameOverAttemptState.FinalAttempt => SampleFinalStatus,
-				GameOverAttemptState.Practice => string.Empty,
-				_ => SampleProvisionalStatus
-			};
-		}
-
 		/// <summary>Gallery only: places gained shown next to the up arrow ("38"). The score service reports no such number, so play shows the arrow alone.</summary>
 		public const int SampleRankDelta = 38;
-
-		/// <summary>Gallery only: status after the divider on a provisional rank. Real value: "Daily play structure" (attempts).</summary>
-		public const string SampleProvisionalStatus = "PROVISIONAL · 2 LEFT";
-
-		/// <summary>Gallery only: status on a locked, final rank (attempt 3 of 3).</summary>
-		public const string SampleFinalStatus = "LOCKED FOR TODAY";
 
 		/// <summary>Gallery only: gap shown beside UNRANKED (a run that did not place).</summary>
 		public const string SampleGapStatus = "143,690 TO TOP 500";
