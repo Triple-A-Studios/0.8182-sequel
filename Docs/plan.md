@@ -168,6 +168,10 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
   - **6b** — PRACTICE start and the LEADERBOARD deep link
   - **6c** — Close-out docs
 - **Pass 7** — Cloud Code validation and server-time enforcement
+  - **7a** — Spike: package, minimal scripts, Cloud Save lock, board writes from a script, revoking client writes
+  - **7b** — Server scripts: `StartRun`, `SubmitScore`, `GetDailyState`, `ResetAttempts`
+  - **7c** — Client wiring: server clock and attempts, ticketed submit, offline state
+  - **7d** — Close-out docs
 - **Pass 8** — Share to socials (opt-in)
 - **Pass 9** — Hardening, device checks and close-out
 
@@ -178,6 +182,12 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
 
 ### Milestone: Shop, currency, economy
 Unlockable planes, crash effects and skins funded by an in-game currency; the attempt and practice caps stay un-monetized.
+
+### Milestone: Optional sign-in
+*(not yet scoped)* Optional account linking for the anonymous UGS player (provider choice per platform, a conflict flow when a second device already has progress, practice time moved to Cloud Save) so progress and the attempt counter follow the player across devices. Needs a design-doc update to "no accounts".
+
+### Milestone: Android paid build
+*(not yet scoped)* Android APK sold as a paid app, WebGL stays free; the paid build unlocks extra cosmetics only, no gameplay, attempt or leaderboard difference. See design-doc section 11.
 
 ### Milestone: How to Play tutorial
 *(not yet scoped)* A separate tutorial replacing the menu's placeholder entry.
