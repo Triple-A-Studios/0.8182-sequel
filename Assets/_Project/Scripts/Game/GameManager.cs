@@ -167,19 +167,36 @@ namespace Opoint8182.Game
             var mode = DailyPlay.Mode;
             if (mode != RunMode.None && DailyPlay.BeginRun(mode) != BeginRunResult.Started) return false;
 
+            ReloadForNewRun();
+            return true;
+        }
+
+        /// <summary>
+        /// Game Over PRACTICE (after the last attempt): starts a practice run at once, with no confirm, reloading the game scene
+        /// like <see cref="RestartRun"/>. Uses no attempt. Returns false, and changes nothing, when the day's practice time is gone.
+        /// </summary>
+        public bool StartPracticeRun()
+        {
+            if (DailyPlay.BeginRun(RunMode.Practice) != BeginRunResult.Started) return false;
+
+            ReloadForNewRun();
+            return true;
+        }
+
+        private void ReloadForNewRun()
+        {
             // Started through Bootstrap: the loader does the reload behind the loading cover. Otherwise (a scene opened on
             // its own) reload straight away.
             if (BootstrapLoader.Instance != null)
             {
                 BootstrapLoader.Instance.RestartRun();
-                return true;
+                return;
             }
 
             Time.timeScale = 1f;
             Sfx.SetPaused(false);
             Sfx.StopAll();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            return true;
         }
 
         // Called only from PlayingState/MainMenuState.OnEnter - GameManager owns the events,

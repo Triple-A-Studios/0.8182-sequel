@@ -54,19 +54,27 @@ namespace Opoint8182.Bootstrap
         /// <see cref="RestartRun"/>) but starts it in the menu state, then loads the menu scene back in. The menu scene is
         /// unloaded when a run starts. Ignored while a reload is already in progress.
         /// </summary>
-        public void ReturnToMenu() => Reload(true);
+        public void ReturnToMenu() => Reload(true, false);
+
+        /// <summary>
+        /// <see cref="ReturnToMenu"/> that lands on the leaderboard screen (Game Over's LEADERBOARD and rank chip); back from
+        /// there is the menu. The request is consumed once by <see cref="MainMenuController"/> when the menu builds.
+        /// </summary>
+        public void ReturnToLeaderboard() => Reload(true, true);
 
         /// <summary>
         /// Starts a fresh run: reloads the game scene (it starts in the playing state) behind the same loading cover as
         /// <see cref="ReturnToMenu"/>. Called by <see cref="GameManager.RestartRun"/>. Ignored while a reload is already in progress.
         /// </summary>
-        public void RestartRun() => Reload(false);
+        public void RestartRun() => Reload(false, false);
 
-        private async void Reload(bool toMenu)
+        private async void Reload(bool toMenu, bool openLeaderboard)
         {
             if (m_reloading) return;
 
             m_reloading = true;
+            // Set (or cleared) after the re-entry guard so an ignored call cannot leave a stale request for the next menu.
+            MainMenuController.OpenLeaderboardOnLoad = toMenu && openLeaderboard;
             try
             {
                 await ReloadAsync(toMenu);
@@ -132,6 +140,7 @@ namespace Opoint8182.Bootstrap
             {
                 // A flag left set would start the next GameManager (a RETRY, say) in the menu with no menu to press PLAY on.
                 GameManager.ManagedByBootstrap = false;
+                MainMenuController.OpenLeaderboardOnLoad = false;
                 Time.timeScale = 1f;
                 Sfx.SetPaused(false);
                 Debug.LogException(exception);

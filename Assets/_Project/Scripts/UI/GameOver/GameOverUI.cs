@@ -63,7 +63,7 @@ namespace Opoint8182.UI
 
 			view.ActionClicked += HandleActionClicked;
 			view.RankRetryClicked += HandleRankRetryClicked;
-			view.RankClicked += ShowArrivesLaterToast;
+			view.RankClicked += OpenLeaderboard;
 		}
 
 		private void HandleRunEnded(RunEndCause cause)
@@ -132,7 +132,7 @@ namespace Opoint8182.UI
 			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, m_row.RankStatus, RankChipStyle.Amber, true);
 		}
 
-		// RETRY reloads the scene; MAIN MENU reloads it into the menu. PRACTICE and LEADERBOARD arrive in Pass 6b, SHARE in Pass 8.
+		// RETRY reloads the scene; MAIN MENU reloads it into the menu. PRACTICE starts a practice run, LEADERBOARD (and the rank chip) reload into the menu on the leaderboard screen; SHARE waits for Pass 8.
 		private void HandleActionClicked(GameOverAction action)
 		{
 			if (action == GameOverAction.Retry)
@@ -143,14 +143,37 @@ namespace Opoint8182.UI
 				return;
 			}
 
-			// Without a Bootstrap loader (the game scene opened on its own) there is no menu: fall through to the toast.
-			if (action == GameOverAction.MainMenu && BootstrapLoader.Instance != null)
+			// PRACTICE starts a practice run at once, no confirm; refused (the day's practice time is gone) it says when that returns.
+			if (action == GameOverAction.Practice && m_gameManager != null)
 			{
-				BootstrapLoader.Instance.ReturnToMenu();
+				if (!m_gameManager.StartPracticeRun()) View?.ShowToast(DailyPlayText.RefusedLine(RunMode.Practice));
 				return;
 			}
 
+			// Without a Bootstrap loader (the game scene opened on its own) there is no menu: fall through to the toast.
+			if (BootstrapLoader.Instance != null)
+			{
+				if (action == GameOverAction.MainMenu)
+				{
+					BootstrapLoader.Instance.ReturnToMenu();
+					return;
+				}
+
+				if (action == GameOverAction.Leaderboard)
+				{
+					OpenLeaderboard();
+					return;
+				}
+			}
+
 			ShowArrivesLaterToast();
+		}
+
+		// The leaderboard screen lives in the menu scene: go back to the menu and land on it.
+		private void OpenLeaderboard()
+		{
+			if (BootstrapLoader.Instance != null) BootstrapLoader.Instance.ReturnToLeaderboard();
+			else ShowArrivesLaterToast();
 		}
 
 		private void ShowArrivesLaterToast()

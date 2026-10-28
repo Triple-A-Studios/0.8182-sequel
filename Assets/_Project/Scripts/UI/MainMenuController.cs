@@ -71,6 +71,9 @@ namespace Opoint8182.UI
 
 		private PlayMode m_playMode = PlayMode.Competitive;
 
+		/// <summary>Set by <see cref="Opoint8182.Bootstrap.BootstrapLoader.ReturnToLeaderboard"/>; the next menu to build opens the leaderboard screen and clears it.</summary>
+		public static bool OpenLeaderboardOnLoad;
+
 		private void Awake()
 		{
 			m_panelRenderer = GetComponent<PanelRenderer>();
@@ -185,6 +188,13 @@ namespace Opoint8182.UI
 			m_modeTabs.SetSelectedIndexWithoutNotify(practice ? 1 : 0);
 			RefreshDaily();
 			root.schedule.Execute(RefreshDaily).Every(k_RefreshMilliseconds);
+
+			// Game Over's LEADERBOARD / rank chip: land on the leaderboard screen, with the menu one back press behind it.
+			if (OpenLeaderboardOnLoad)
+			{
+				OpenLeaderboardOnLoad = false;
+				m_router.Show(k_LeaderboardScreenId);
+			}
 		}
 
 		private void PopulateStaticData(VisualElement root)
