@@ -168,7 +168,7 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
   - **6b** — PRACTICE start and the LEADERBOARD deep link
   - **6c** — Close-out docs
 - **Pass 7** — Cloud Code validation and server-time enforcement
-  - **7a** — Spike: package, minimal scripts, Cloud Save lock, board writes from a script, revoking client writes
+  - **7a** — Spike in a separate `dev` environment: package, minimal scripts, Cloud Save lock, board writes from a script, revoking client writes
   - **7b** — Server scripts: `StartRun`, `SubmitScore`, `GetDailyState`, `ResetAttempts`
   - **7c** — Client wiring: server clock and attempts, ticketed submit, offline state
   - **7d** — Close-out docs
