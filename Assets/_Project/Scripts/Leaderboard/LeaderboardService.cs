@@ -5,6 +5,7 @@ using PrimeTween;
 using TripleA.Utils.Singletons;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
+using Unity.Services.Core.Environments;
 using Unity.Services.Leaderboards;
 using Unity.Services.Leaderboards.Exceptions;
 using Unity.Services.Leaderboards.Models;
@@ -172,6 +173,9 @@ namespace Opoint8182.Leaderboard
 		// Live boards are re-read at most this often; archives never change, so the versions result lives until the next reset.
 		private const float k_LiveCacheSeconds = 90f;
 
+		// The Unity Gaming Services environment the game talks to. "dev" while the server side (boards, Cloud Code, access
+		// policy) is built; set to "production" when it ships (Daily play structure Pass 9). Empty = the project's default environment.
+		[SerializeField] private string m_environmentName = "dev";
 		[SerializeField] private string m_weeklyBoardId = "weekly_scores";
 		[SerializeField] private string m_allTimeBoardId = "alltime_scores";
 		[SerializeField] private float m_requestTimeoutSeconds = 10f;
@@ -531,7 +535,11 @@ namespace Opoint8182.Leaderboard
 			try
 			{
 				if (UnityServices.State != ServicesInitializationState.Initialized)
-					await UnityServices.InitializeAsync();
+				{
+					var options = new InitializationOptions();
+					if (!string.IsNullOrEmpty(m_environmentName)) options.SetEnvironmentName(m_environmentName);
+					await UnityServices.InitializeAsync(options);
+				}
 				if (!AuthenticationService.Instance.IsSignedIn)
 					await AuthenticationService.Instance.SignInAnonymouslyAsync();
 				SetState(ServiceState.Ready);
