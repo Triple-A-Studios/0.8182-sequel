@@ -26,6 +26,7 @@ namespace Opoint8182.UI
 		private int m_submitToken;
 		private int m_lastScore;
 		private GameOverRow m_row;
+		private bool m_retrying;
 
 		protected override void OnEnable()
 		{
@@ -137,9 +138,8 @@ namespace Opoint8182.UI
 		{
 			if (action == GameOverAction.Retry)
 			{
-				// A competitive RETRY spends the next attempt, a practice one needs practice time; refused, it says when that returns.
 				if (m_gameManager == null) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-				else if (!m_gameManager.RestartRun()) View?.ShowToast(DailyPlayText.RefusedLine(DailyPlay.Mode));
+				else Retry();
 				return;
 			}
 
@@ -167,6 +167,27 @@ namespace Opoint8182.UI
 			}
 
 			ShowArrivesLaterToast();
+		}
+
+		// A competitive RETRY spends the next attempt on the server (so it takes a moment; taps are ignored meanwhile), a practice one
+		// needs practice time; refused or unreachable, nothing is spent or reloaded and a neutral line says why.
+		private async void Retry()
+		{
+			if (m_retrying) return;
+
+			m_retrying = true;
+			try
+			{
+				var mode = DailyPlay.Mode;
+				var result = await m_gameManager.RestartRunAsync();
+				if (result == BeginRunResult.Started || this == null || View == null) return;
+
+				View.ShowToast(DailyPlayText.StartRefusedLine(result, mode));
+			}
+			finally
+			{
+				m_retrying = false;
+			}
 		}
 
 		// The leaderboard screen lives in the menu scene: go back to the menu and land on it.

@@ -52,13 +52,13 @@ namespace Opoint8182.Daily
 	/// The daily limits: <see cref="ATTEMPTS_MAX"/> leaderboard attempts per UTC day and <see cref="PRACTICE_CAP_SECONDS"/> of practice
 	/// per UTC day, plus the mode of the run in progress. Static, like <see cref="SettingsService"/>: it needs no scene object, works from
 	/// Bootstrap, the menu, a standalone game scene and the galleries, and survives the game scene reloads (a restart, a return to the menu).
-	/// <para>Everything counted lives under one UTC day key and resets when the day changes, so unused attempts and practice time never
-	/// bank. The key never goes backwards (the highest day seen is kept), so setting the clock back does not hand attempts back; this is
-	/// still a soft cap until server time (Pass 7). Values load lazily, are clamped on load, and are written by <see cref="Flush"/>,
-	/// which also runs on focus loss and quit.</para>
-	/// <para>An attempt is spent when a run begins (<see cref="BeginRun"/>), not when it ends: a kill, a quit or an abandoned run all
-	/// count. The practice cap is soft: <see cref="TickPractice"/> keeps counting past it so the run in progress finishes, and only
-	/// the next practice <see cref="BeginRun"/> is refused.</para>
+	/// <para>The leaderboard attempts live on the server (Cloud Code, keyed by the player id): <see cref="AttemptsLeft"/> is the last count the
+	/// server reported and a competitive run only starts through <see cref="BeginRunAsync"/>, which spends the attempt there and keeps the
+	/// run's ticket. While the count is not known (never fetched, offline, or the UTC day rolled since) competitive play is unavailable.</para>
+	/// <para>Practice time is local and soft: it lives under one UTC day key (the server's day once the server has answered) that resets when the
+	/// day changes, so unused time never banks, and never goes backwards (the highest day seen is kept). Values load lazily, are clamped on load,
+	/// and are written by <see cref="Flush"/>, which also runs on focus loss and quit. The cap is soft: <see cref="TickPractice"/> keeps counting
+	/// past it so the run in progress finishes, and only the next practice <see cref="BeginRun"/> is refused.</para>
 	/// </summary>
 	public static class DailyPlay
 	{
@@ -66,7 +66,8 @@ namespace Opoint8182.Daily
 		public const float PRACTICE_CAP_SECONDS = 30f * 60f;
 
 		private const string k_DayKey = "daily.day";
-		private const string k_AttemptsUsedKey = "daily.attempts_used";
+		// The competitive count used to be stored here; it lives on the server now. Only removed on a reset.
+		private const string k_LegacyAttemptsUsedKey = "daily.attempts_used";
 		private const string k_PracticeSecondsKey = "daily.practice_seconds";
 		private const string k_DontAskDayKey = "daily.dont_ask_day";
 
@@ -78,7 +79,6 @@ namespace Opoint8182.Daily
 		private static bool m_s_loaded;
 		private static bool m_s_dirty;
 		private static int m_s_day;
-		private static int m_s_attemptsUsed;
 		private static float m_s_practiceSeconds;
 		private static int m_s_dontAskDay;
 		private static float m_s_unsavedPracticeSeconds;
@@ -133,11 +133,10 @@ namespace Opoint8182.Daily
 		/// </summary>
 		public static bool RunCountsAsAttempt => Mode != RunMode.Practice;
 
-		public static int AttemptsUsed
-		{
-			get { RollDay(); return m_s_attemptsUsed; }
-		}
+		/// <summary>Attempts spent today by the server's last count; <see cref="ATTEMPTS_MAX"/> while it is not known.</summary>
+		public static int AttemptsUsed => IsServerStateKnown ? m_s_serverUsed : ATTEMPTS_MAX;
 
+		/// <summary>Attempts left today by the server's last count; 0 while it is not known (see <see cref="IsServerStateKnown"/>).</summary>
 		public static int AttemptsLeft => Mathf.Max(0, ATTEMPTS_MAX - AttemptsUsed);
 
 		public static float PracticeUsedSeconds
@@ -147,10 +146,14 @@ namespace Opoint8182.Daily
 
 		public static float PracticeRemainingSeconds => Mathf.Max(0f, PRACTICE_CAP_SECONDS - PracticeUsedSeconds);
 
-		/// <summary>When the counters reset: the next UTC midnight (by <see cref="Clock"/>).</summary>
+		/// <summary>When the counters reset: the next UTC midnight (the server's once it has answered, else by <see cref="Clock"/>).</summary>
 		public static DateTime NextResetUtc
 		{
-			get { RollDay(); return m_S_Epoch.AddDays(m_s_day + 1); }
+			get
+			{
+				RollDay();
+				return IsServerStateKnown ? m_S_Epoch.AddMilliseconds(m_s_serverNextResetMs) : m_S_Epoch.AddDays(m_s_day + 1);
+			}
 		}
 
 		/// <summary>The attempt-confirm popup's "Don't ask again today": true until the UTC day changes.</summary>
@@ -174,15 +177,6 @@ namespace Opoint8182.Daily
 		/// play needs it; practice does not.
 		/// </summary>
 		public static bool IsServerStateKnown => m_s_serverUsed >= 0 && TodayKey() <= m_s_serverDay;
-
-		/// <summary>Attempts spent today as the server last reported them; -1 while <see cref="IsServerStateKnown"/> is false.</summary>
-		public static int ServerAttemptsUsed => IsServerStateKnown ? m_s_serverUsed : -1;
-
-		/// <summary>Attempts left today by the server's count; 0 while it is not known.</summary>
-		public static int ServerAttemptsLeft => IsServerStateKnown ? Mathf.Max(0, ATTEMPTS_MAX - m_s_serverUsed) : 0;
-
-		/// <summary>The next reset by the server's clock (UTC midnight); the local one while the server state is not known.</summary>
-		public static DateTime ServerNextResetUtc => IsServerStateKnown ? m_S_Epoch.AddMilliseconds(m_s_serverNextResetMs) : NextResetUtc;
 
 		/// <summary>
 		/// Takes the server's word for today: attempts spent, the server time (which also anchors <see cref="Clock"/> when it is a
@@ -239,18 +233,23 @@ namespace Opoint8182.Daily
 		{
 			switch (mode)
 			{
-				case RunMode.Competitive: return AttemptsLeft > 0 ? BeginRunResult.Started : BeginRunResult.NoAttemptsLeft;
+				case RunMode.Competitive:
+					if (!IsServerStateKnown) return BeginRunResult.ServerUnavailable;
+					return AttemptsLeft > 0 ? BeginRunResult.Started : BeginRunResult.NoAttemptsLeft;
 				case RunMode.Practice: return PracticeRemainingSeconds > 0f ? BeginRunResult.Started : BeginRunResult.NoPracticeTimeLeft;
 				default: return BeginRunResult.Started;
 			}
 		}
 
 		/// <summary>
-		/// Starts a run of the given mode. A competitive run spends an attempt and is refused when none are left; a practice run is
-		/// refused when the day's practice time is used up. Callers start the run only on <see cref="BeginRunResult.Started"/>.
+		/// Starts a practice run (or notes a run with no mode): refused when the day's practice time is used up. A competitive run needs the
+		/// server, so it only starts through <see cref="BeginRunAsync"/>; here it is <see cref="BeginRunResult.ServerUnavailable"/>. Callers
+		/// start the run only on <see cref="BeginRunResult.Started"/>.
 		/// </summary>
 		public static BeginRunResult BeginRun(RunMode mode)
 		{
+			if (mode == RunMode.Competitive) return BeginRunResult.ServerUnavailable;
+
 			var result = CanBeginRun(mode);
 			if (result != BeginRunResult.Started) return result;
 
@@ -260,14 +259,6 @@ namespace Opoint8182.Daily
 			Mode = mode;
 			LastMode = mode;
 			CurrentAttemptNumber = 0;
-			if (mode == RunMode.Competitive)
-			{
-				m_s_attemptsUsed++;
-				CurrentAttemptNumber = m_s_attemptsUsed;
-				m_s_dirty = true;
-				Flush();
-			}
-
 			Changed?.Invoke();
 			return BeginRunResult.Started;
 		}
@@ -304,7 +295,6 @@ namespace Opoint8182.Daily
 			if (!m_s_dirty) return;
 
 			PlayerPrefs.SetInt(k_DayKey, m_s_day);
-			PlayerPrefs.SetInt(k_AttemptsUsedKey, m_s_attemptsUsed);
 			PlayerPrefs.SetFloat(k_PracticeSecondsKey, m_s_practiceSeconds);
 			PlayerPrefs.SetInt(k_DontAskDayKey, m_s_dontAskDay);
 			PlayerPrefs.Save();
@@ -314,13 +304,14 @@ namespace Opoint8182.Daily
 		}
 
 		/// <summary>
-		/// Gives today's attempts and practice time back (and forgets "don't ask again today"). For testing and dev tools only; it
-		/// touches no other saved value.
+		/// Gives today's practice time back (and forgets "don't ask again today" and the server count, so the next menu visit asks again).
+		/// For testing and dev tools only; it touches no other saved value. The server's attempts reset through
+		/// <see cref="DailyServer.ResetDevStateAsync"/>.
 		/// </summary>
 		public static void ResetToday()
 		{
 			PlayerPrefs.DeleteKey(k_DayKey);
-			PlayerPrefs.DeleteKey(k_AttemptsUsedKey);
+			PlayerPrefs.DeleteKey(k_LegacyAttemptsUsedKey);
 			PlayerPrefs.DeleteKey(k_PracticeSecondsKey);
 			PlayerPrefs.DeleteKey(k_DontAskDayKey);
 			PlayerPrefs.Save();
@@ -376,7 +367,6 @@ namespace Opoint8182.Daily
 			if (!m_s_loaded)
 			{
 				m_s_day = PlayerPrefs.GetInt(k_DayKey, 0);
-				m_s_attemptsUsed = Mathf.Clamp(PlayerPrefs.GetInt(k_AttemptsUsedKey, 0), 0, ATTEMPTS_MAX);
 				m_s_practiceSeconds = Mathf.Max(0f, PlayerPrefs.GetFloat(k_PracticeSecondsKey, 0f));
 				m_s_dontAskDay = PlayerPrefs.GetInt(k_DontAskDayKey, 0);
 				m_s_loaded = true;
@@ -386,7 +376,6 @@ namespace Opoint8182.Daily
 			if (today == m_s_day) return;
 
 			m_s_day = today;
-			m_s_attemptsUsed = 0;
 			m_s_practiceSeconds = 0f;
 			m_s_unsavedPracticeSeconds = 0f;
 			m_s_dirty = true;

@@ -37,6 +37,7 @@ namespace Opoint8182.UI
 		// The counters can roll over at UTC midnight while the menu is open: reading them applies the new day, and this
 		// refresh makes sure something reads them now and then.
 		private const long k_RefreshMilliseconds = 30000;
+		private const float k_FetchRetrySeconds = 15f;
 
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private float m_baseSafeAreaPadding = 24f;
@@ -62,6 +63,9 @@ namespace Opoint8182.UI
 		private VisualElement m_statusPips;
 		private VisualElement m_attemptPips;
 		private bool m_refreshing;
+		private bool m_fetching;
+		private bool m_starting;
+		private float m_nextAutoFetch;
 		private VisualElement m_popupAttempt;
 		private VisualElement m_popupQuit;
 		private VisualElement m_popupOverflow;
@@ -187,7 +191,10 @@ namespace Opoint8182.UI
 			m_playMode = practice ? PlayMode.Practice : PlayMode.Competitive;
 			m_modeTabs.SetSelectedIndexWithoutNotify(practice ? 1 : 0);
 			RefreshDaily();
-			root.schedule.Execute(RefreshDaily).Every(k_RefreshMilliseconds);
+			root.schedule.Execute(DailyTick).Every(k_RefreshMilliseconds);
+
+			// The attempts live on the server: show the last known count now and ask again at every menu visit.
+			FetchDailyState(true);
 
 			// Game Over's LEADERBOARD / rank chip: land on the leaderboard screen, with the menu one back press behind it.
 			if (OpenLeaderboardOnLoad)
@@ -336,12 +343,13 @@ namespace Opoint8182.UI
 			try
 			{
 				var max = DailyPlay.ATTEMPTS_MAX;
+				var known = DailyPlay.IsServerStateKnown;
 				var left = DailyPlay.AttemptsLeft;
 				var practiceLeft = DailyPlay.PracticeRemainingSeconds;
 				var nextReset = DailyPlay.NextResetUtc;
 				var now = DailyPlay.Clock.UtcNow;
 
-				m_statusCount.text = DailyPlayText.AttemptsCount(left, max);
+				m_statusCount.text = known ? DailyPlayText.AttemptsCount(left, max) : DailyPlayText.AttemptsUnknown(max);
 				m_statusClock.text = DailyPlayText.PracticeClock(practiceLeft);
 				FillPips(m_statusPips, max, left);
 				FillPips(m_playPips, max, left);
@@ -353,12 +361,18 @@ namespace Opoint8182.UI
 				m_statusPractice.style.display = competitive ? DisplayStyle.None : DisplayStyle.Flex;
 				m_playPips.style.display = competitive ? DisplayStyle.Flex : DisplayStyle.None;
 
-				// Nothing left: PLAY is greyed and inert and says when it comes back, in plain hours (no red, no countdown).
-				var locked = DailyPlay.CanBeginRun(CurrentRunMode) != BeginRunResult.Started;
+				// Nothing left, or the server not answering: PLAY is greyed and inert and says so (when it comes back in plain hours, no red,
+				// no countdown). While the attempts are unknown a press of PLAY asks again.
+				var locked = DailyPlay.CanBeginRun(CurrentRunMode) != BeginRunResult.Started || m_starting;
 				m_playButton.EnableInClassList("menu-play--locked", locked);
-				if (competitive)
+				if (m_starting)
 				{
-					m_playSublabel.text = left > 0 ? DailyPlayText.AttemptsLeft(left) : DailyPlayText.NewAttemptsIn(nextReset, now);
+					m_playSublabel.text = DailyPlayText.Starting;
+				}
+				else if (competitive)
+				{
+					if (!known) m_playSublabel.text = m_fetching ? DailyPlayText.Checking : DailyPlayText.ServerUnreachable;
+					else m_playSublabel.text = left > 0 ? DailyPlayText.AttemptsLeft(left) : DailyPlayText.NewAttemptsIn(nextReset, now);
 				}
 				else
 				{
@@ -373,6 +387,15 @@ namespace Opoint8182.UI
 
 		private void OnPlayClicked()
 		{
+			if (m_starting) return;
+
+			// Competitive needs the server's count: until it is known a press asks again instead of starting.
+			if (m_playMode == PlayMode.Competitive && !DailyPlay.IsServerStateKnown)
+			{
+				FetchDailyState(true);
+				return;
+			}
+
 			// A locked PLAY (no attempts or practice time left) does nothing; the sub-label says when it returns.
 			if (DailyPlay.CanBeginRun(CurrentRunMode) != BeginRunResult.Started)
 			{
@@ -398,15 +421,66 @@ namespace Opoint8182.UI
 			StartRun();
 		}
 
-		private void StartRun()
+		// Fetches the attempts from the server, one request at a time (the menu shows the last known count meanwhile). A timed retry after
+		// a failure waits k_FetchRetrySeconds; a press of PLAY is not rate limited.
+		private async void FetchDailyState(bool force)
 		{
+			if (m_fetching || m_loadedRoot == null) return;
+			if (!force && Time.unscaledTime < m_nextAutoFetch) return;
+
+			m_fetching = true;
+			RefreshDaily();
+			var ok = false;
+			try
+			{
+				ok = await DailyPlay.RefreshFromServerAsync();
+			}
+			finally
+			{
+				m_fetching = false;
+			}
+
+			if (this == null || m_loadedRoot == null) return;
+
+			if (!ok) m_nextAutoFetch = Time.unscaledTime + k_FetchRetrySeconds;
+			RefreshDaily();
+		}
+
+		// The scheduled refresh: redraws, and asks the server again when the count is unknown (a failed fetch, or the UTC day rolled).
+		private void DailyTick()
+		{
+			RefreshDaily();
+			if (!DailyPlay.IsServerStateKnown) FetchDailyState(false);
+		}
+
+		private async void StartRun()
+		{
+			if (m_starting) return;
+
+			var mode = CurrentRunMode;
 			Debug.Log($"[MainMenu] PLAY pressed ({m_playMode})");
 
-			// The attempt is spent here, before the run starts, so the HUD builds with the right mode. The state can have
-			// changed since the button was drawn (UTC midnight, another instance): then the menu just refreshes.
-			if (DailyPlay.BeginRun(CurrentRunMode) != BeginRunResult.Started)
+			// The attempt is spent here (a competitive one by the server, which issues the run's ticket), before the run starts, so the HUD
+			// builds with the right mode. Taps are ignored while the request is out. Refused (UTC midnight, another device) the menu just
+			// refreshes; unreachable it says so and nothing was spent.
+			m_starting = true;
+			RefreshDaily();
+			BeginRunResult result;
+			try
+			{
+				result = await DailyPlay.BeginRunAsync(mode);
+			}
+			finally
+			{
+				m_starting = false;
+			}
+
+			if (this == null || m_loadedRoot == null) return;
+
+			if (result != BeginRunResult.Started)
 			{
 				RefreshDaily();
+				if (result == BeginRunResult.ServerUnavailable) m_toast.Show(DailyPlayText.ServerUnreachable);
 				return;
 			}
 

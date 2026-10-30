@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Opoint8182.Altitude;
 using Opoint8182.Audio;
 using Opoint8182.Bootstrap;
@@ -148,7 +149,7 @@ namespace Opoint8182.Game
         }
 
         /// <summary>
-        /// Whether <see cref="RestartRun"/> would start a new run: false when the next competitive attempt or the day's practice time
+        /// Whether <see cref="RestartRunAsync"/> would start a new run: false when the next competitive attempt or the day's practice time
         /// is gone. True for a run that was not started through the menu (a scene opened on its own).
         /// </summary>
         public bool CanRestartRun()
@@ -159,21 +160,26 @@ namespace Opoint8182.Game
 
         /// <summary>
         /// Reloads the game scene for a fresh run. Shared by Game Over RETRY and the pause popup's RESTART RUN. A run started
-        /// from the menu begins its next run through <see cref="DailyPlay"/> first (a competitive restart spends the next
-        /// attempt); when that is refused nothing happens and this returns false.
+        /// from the menu begins its next run through <see cref="DailyPlay.BeginRunAsync"/> first (a competitive restart asks the
+        /// server to spend the next attempt and issue a new ticket); when that is refused, or the server cannot be reached, nothing
+        /// is spent or reloaded and the reason comes back. A scene opened on its own (no run mode) reloads at once.
         /// </summary>
-        public bool RestartRun()
+        public async Task<BeginRunResult> RestartRunAsync()
         {
             var mode = DailyPlay.Mode;
-            if (mode != RunMode.None && DailyPlay.BeginRun(mode) != BeginRunResult.Started) return false;
+            if (mode != RunMode.None)
+            {
+                var result = await DailyPlay.BeginRunAsync(mode);
+                if (result != BeginRunResult.Started) return result;
+            }
 
             ReloadForNewRun();
-            return true;
+            return BeginRunResult.Started;
         }
 
         /// <summary>
         /// Game Over PRACTICE (after the last attempt): starts a practice run at once, with no confirm, reloading the game scene
-        /// like <see cref="RestartRun"/>. Uses no attempt. Returns false, and changes nothing, when the day's practice time is gone.
+        /// like <see cref="RestartRunAsync"/>. Uses no attempt. Returns false, and changes nothing, when the day's practice time is gone.
         /// </summary>
         public bool StartPracticeRun()
         {

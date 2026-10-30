@@ -36,6 +36,7 @@ namespace Opoint8182.UI
 
 		private float m_lastHealth = -1f;
 		private GameManager m_gameManager;
+		private bool m_restarting;
 
 		protected override void OnEnable()
 		{
@@ -224,14 +225,27 @@ namespace Opoint8182.UI
 		// The game stays frozen through the 3-2-1; it unfreezes only when the countdown ends.
 		private void OnCountdownFinished() => m_gameManager?.Resume();
 
-		// A restart spends the next attempt (competitive) or needs practice time left; when the limit is gone the run
-		// stays paused on the popup with a neutral line saying when it comes back.
-		private void OnRestartRequested()
+		// A restart spends the next attempt (competitive, asked of the server, so it takes a moment) or needs practice time left;
+		// when the limit is gone, or the server cannot be reached, the run stays paused on the popup with a neutral line. Taps are
+		// ignored while the request is out.
+		private async void OnRestartRequested()
 		{
-			if (m_gameManager == null || m_gameManager.RestartRun()) return;
+			if (m_gameManager == null || m_restarting) return;
 
-			View?.ShowToast(DailyPlayText.RefusedLine(DailyPlay.Mode));
-			View?.PausePopup.Show();
+			m_restarting = true;
+			try
+			{
+				var mode = DailyPlay.Mode;
+				var result = await m_gameManager.RestartRunAsync();
+				if (result == BeginRunResult.Started || this == null || View == null) return;
+
+				View.ShowToast(DailyPlayText.StartRefusedLine(result, mode));
+				View.PausePopup.Show();
+			}
+			finally
+			{
+				m_restarting = false;
+			}
 		}
 
 		// Reloads the game scene into the menu. Without a Bootstrap loader (the game scene opened on its own) there is no

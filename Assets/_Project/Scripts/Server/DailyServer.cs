@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Opoint8182.Leaderboard;
@@ -89,6 +90,19 @@ namespace Opoint8182.Server
 				return new StartRunReply(StartRunStatus.NoAttempts, null, 0, (int)reply["attemptsUsed"], (long)reply["nowMs"], (long)reply["nextResetMs"]);
 
 			return StartRunReply.Unavailable;
+		}
+
+		/// <summary>
+		/// Dev only: sets today's server attempts back to 0 and clears the ticket (the <c>DevSetState</c> script refuses in the production
+		/// environment). Backs the Tools > Daily Play reset item.
+		/// </summary>
+		public static async Task<bool> ResetDevStateAsync()
+		{
+			var service = LeaderboardService.TryGetInstance();
+			if (service == null) return false;
+
+			var reply = await service.CallServerAsync("DevSetState", new Dictionary<string, object> { { "used", 0 } });
+			return IsOk(reply);
 		}
 
 		private static async Task<JToken> CallAsync(string endpoint)

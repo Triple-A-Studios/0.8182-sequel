@@ -64,7 +64,7 @@ namespace Opoint8182.Bootstrap
 
         /// <summary>
         /// Starts a fresh run: reloads the game scene (it starts in the playing state) behind the same loading cover as
-        /// <see cref="ReturnToMenu"/>. Called by <see cref="GameManager.RestartRun"/>. Ignored while a reload is already in progress.
+        /// <see cref="ReturnToMenu"/>. Called by <see cref="GameManager.RestartRunAsync"/>. Ignored while a reload is already in progress.
         /// </summary>
         public void RestartRun() => Reload(false, false);
 

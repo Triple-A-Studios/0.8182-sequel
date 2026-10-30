@@ -19,6 +19,30 @@ namespace Opoint8182.UI
 		/// <summary>"2/3".</summary>
 		public static string AttemptsCount(int left, int max) => $"{left}/{max}";
 
+		/// <summary>The count while the server has not answered: "-/3".</summary>
+		public static string AttemptsUnknown(int max) => $"-/{max}";
+
+		/// <summary>The competitive PLAY sub-label while the server cannot be reached (neutral, no red).</summary>
+		public const string ServerUnreachable = "CAN'T REACH THE SERVER";
+
+		/// <summary>The competitive PLAY sub-label while the attempts are being fetched.</summary>
+		public const string Checking = "CHECKING";
+
+		/// <summary>The PLAY sub-label while a run is being started.</summary>
+		public const string Starting = "STARTING";
+
+		/// <summary>What a refused start says, from the result of <see cref="Opoint8182.Daily.DailyPlay.BeginRunAsync"/> (whole hours, never minutes).</summary>
+		public static string StartRefusedLine(BeginRunResult result, RunMode mode)
+		{
+			switch (result)
+			{
+				case BeginRunResult.ServerUnavailable: return ServerUnreachable;
+				case BeginRunResult.NoAttemptsLeft: return NewAttemptsIn(DailyPlay.NextResetUtc, DailyPlay.Clock.UtcNow);
+				case BeginRunResult.NoPracticeTimeLeft: return PracticeReturnsIn(DailyPlay.NextResetUtc, DailyPlay.Clock.UtcNow);
+				default: return string.Empty;
+			}
+		}
+
 		/// <summary>The attempt-confirm popup body.</summary>
 		public static string ConfirmBody(int left, int max)
 		{
