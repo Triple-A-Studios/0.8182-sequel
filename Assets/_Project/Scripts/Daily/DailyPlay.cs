@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using Opoint8182.Server;
 using UnityEngine;
 
 namespace Opoint8182.Daily
@@ -16,11 +18,14 @@ namespace Opoint8182.Daily
 		Started,
 		NoAttemptsLeft,
 		NoPracticeTimeLeft,
+
+		/// <summary>A competitive run needs the server (it spends the attempt and issues the ticket) and it could not be reached.</summary>
+		ServerUnavailable,
 	}
 
 	/// <summary>
-	/// The time source for the daily counters. The device clock today; Daily play structure Pass 7 swaps in server time
-	/// (the attempt day is a UTC day and a device clock can be changed to regain attempts).
+	/// The time source for the daily counters (the attempt day is a UTC day and a device clock can be changed to regain attempts).
+	/// <see cref="ServerDailyClock"/> by default: server time once the server has answered, the device clock before that.
 	/// </summary>
 	public interface IDailyClock
 	{
@@ -78,12 +83,19 @@ namespace Opoint8182.Daily
 		private static int m_s_dontAskDay;
 		private static float m_s_unsavedPracticeSeconds;
 
-		private static IDailyClock m_s_clock = new SystemDailyClock();
+		private static IDailyClock m_s_clock = new ServerDailyClock();
+
+		// Competitive attempts as the server last reported them (Pass 7c). -1 = not known yet. The server day is the UTC day number the
+		// count belongs to, so a count from yesterday is treated as unknown once the day rolls.
+		private static int m_s_serverUsed = -1;
+		private static long m_s_serverDay = -1;
+		private static long m_s_serverNextResetMs;
+		private const long k_DayMs = 86400000L;
 
 		/// <summary>Raised when the counters or the run mode changed (a run began or ended, a new day started), not on every practice tick.</summary>
 		public static event Action Changed;
 
-		/// <summary>The time source. Settable so Pass 7 can use server time (and so a check can fake the day).</summary>
+		/// <summary>The time source. Settable so a check can fake the day.</summary>
 		public static IDailyClock Clock
 		{
 			get => m_s_clock;
@@ -97,6 +109,12 @@ namespace Opoint8182.Daily
 
 		/// <summary>The mode of the run in progress (None until a run is begun through <see cref="BeginRun"/>).</summary>
 		public static RunMode Mode { get; private set; }
+
+		/// <summary>
+		/// The server's ticket for the competitive run in progress (<see cref="BeginRunAsync"/>), which its score is submitted with; null
+		/// for practice or no run. Kept until the run ends.
+		/// </summary>
+		public static string CurrentTicketId { get; private set; }
 
 		/// <summary>Which attempt of the day the current run is (1 to <see cref="ATTEMPTS_MAX"/>); 0 for a practice run or no run.</summary>
 		public static int CurrentAttemptNumber { get; private set; }
@@ -151,6 +169,71 @@ namespace Opoint8182.Daily
 			}
 		}
 
+		/// <summary>
+		/// Whether the server's attempt count for today is known (a server reply arrived and the UTC day has not rolled since). Competitive
+		/// play needs it; practice does not.
+		/// </summary>
+		public static bool IsServerStateKnown => m_s_serverUsed >= 0 && TodayKey() <= m_s_serverDay;
+
+		/// <summary>Attempts spent today as the server last reported them; -1 while <see cref="IsServerStateKnown"/> is false.</summary>
+		public static int ServerAttemptsUsed => IsServerStateKnown ? m_s_serverUsed : -1;
+
+		/// <summary>Attempts left today by the server's count; 0 while it is not known.</summary>
+		public static int ServerAttemptsLeft => IsServerStateKnown ? Mathf.Max(0, ATTEMPTS_MAX - m_s_serverUsed) : 0;
+
+		/// <summary>The next reset by the server's clock (UTC midnight); the local one while the server state is not known.</summary>
+		public static DateTime ServerNextResetUtc => IsServerStateKnown ? m_S_Epoch.AddMilliseconds(m_s_serverNextResetMs) : NextResetUtc;
+
+		/// <summary>
+		/// Takes the server's word for today: attempts spent, the server time (which also anchors <see cref="Clock"/> when it is a
+		/// <see cref="ServerDailyClock"/>) and the next reset. Raises <see cref="Changed"/>.
+		/// </summary>
+		public static void ApplyServerState(int attemptsUsed, long nowMs, long nextResetMs)
+		{
+			if (m_s_clock is ServerDailyClock serverClock) serverClock.Sync(nowMs);
+
+			m_s_serverUsed = Mathf.Clamp(attemptsUsed, 0, ATTEMPTS_MAX);
+			m_s_serverDay = nowMs / k_DayMs;
+			m_s_serverNextResetMs = nextResetMs;
+			Changed?.Invoke();
+		}
+
+		/// <summary>Asks the server for today's attempts and applies them. False when it could not be reached (the known state is left as it was).</summary>
+		public static async Task<bool> RefreshFromServerAsync()
+		{
+			var reply = await DailyServer.GetStateAsync();
+			if (!reply.Success) return false;
+
+			ApplyServerState(reply.AttemptsUsed, reply.NowMs, reply.NextResetMs);
+			return true;
+		}
+
+		/// <summary>
+		/// Starts a run of the given mode, asking the server for a competitive one: <c>StartRun</c> spends the attempt and issues the
+		/// ticket (<see cref="CurrentTicketId"/>), <see cref="BeginRunResult.NoAttemptsLeft"/> comes back when the server says none are
+		/// left and <see cref="BeginRunResult.ServerUnavailable"/> when it could not be reached (nothing is spent). Practice is the
+		/// synchronous <see cref="BeginRun"/>.
+		/// </summary>
+		public static async Task<BeginRunResult> BeginRunAsync(RunMode mode)
+		{
+			if (mode != RunMode.Competitive) return BeginRun(mode);
+
+			var reply = await DailyServer.StartRunAsync();
+			if (reply.Status == StartRunStatus.Unavailable) return BeginRunResult.ServerUnavailable;
+
+			ApplyServerState(reply.AttemptsUsed, reply.NowMs, reply.NextResetMs);
+			if (reply.Status == StartRunStatus.NoAttempts) return BeginRunResult.NoAttemptsLeft;
+
+			// The previous run's practice time is committed before the mode changes.
+			Flush();
+			Mode = RunMode.Competitive;
+			LastMode = RunMode.Competitive;
+			CurrentAttemptNumber = reply.AttemptNumber;
+			CurrentTicketId = reply.TicketId;
+			Changed?.Invoke();
+			return BeginRunResult.Started;
+		}
+
 		/// <summary>Whether a run of this mode could begin now (so the menu can disable PLAY without spending anything).</summary>
 		public static BeginRunResult CanBeginRun(RunMode mode)
 		{
@@ -195,6 +278,7 @@ namespace Opoint8182.Daily
 			var hadRun = Mode != RunMode.None;
 			Mode = RunMode.None;
 			CurrentAttemptNumber = 0;
+			CurrentTicketId = null;
 			Flush();
 			if (hadRun) Changed?.Invoke();
 		}
@@ -241,6 +325,7 @@ namespace Opoint8182.Daily
 			PlayerPrefs.DeleteKey(k_DontAskDayKey);
 			PlayerPrefs.Save();
 			ReloadFromPrefs();
+			m_s_serverUsed = -1;
 			Changed?.Invoke();
 		}
 
@@ -259,7 +344,10 @@ namespace Opoint8182.Daily
 			m_s_loaded = false;
 			m_s_dirty = false;
 			m_s_unsavedPracticeSeconds = 0f;
-			m_s_clock = new SystemDailyClock();
+			m_s_clock = new ServerDailyClock();
+			m_s_serverUsed = -1;
+			m_s_serverDay = -1;
+			CurrentTicketId = null;
 			Mode = RunMode.None;
 			LastMode = RunMode.None;
 			CurrentAttemptNumber = 0;

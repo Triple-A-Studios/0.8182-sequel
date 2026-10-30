@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using PrimeTween;
 using TripleA.Utils.Singletons;
 using Unity.Services.Authentication;
+using Unity.Services.CloudCode;
 using Unity.Services.Core;
 using Unity.Services.Core.Environments;
 using Unity.Services.Leaderboards;
@@ -527,6 +529,30 @@ namespace Opoint8182.Leaderboard
 		public static RankTrend Compare(bool hasPrevious, int previousRank, int newRank)
 		{
 			return !hasPrevious || newRank < previousRank ? RankTrend.Up : RankTrend.Same;
+		}
+
+		/// <summary>
+		/// Calls a Cloud Code script as the signed-in player (Daily play structure Pass 7, <c>Assets/_Project/CloudCode</c>): signs in first,
+		/// fails fast when the device is offline and gives up after the request timeout. Returns the script's result object, or null when
+		/// the call could not be made or failed (the reason is logged); a script's own refusal ("ok": false) comes back as that object.
+		/// </summary>
+		public async Task<JToken> CallServerAsync(string endpoint, Dictionary<string, object> args = null)
+		{
+			if (IsOffline()) return null;
+
+			return await WithTimeout<JToken>(async _ =>
+			{
+				try
+				{
+					await EnsureReadyAsync();
+					return await CloudCodeService.Instance.CallEndpointAsync<JToken>(endpoint, args ?? new Dictionary<string, object>());
+				}
+				catch (Exception e)
+				{
+					Debug.LogWarning(k_LogPrefix + $"Server call {endpoint} failed: {e.GetType().Name}: {e.Message}");
+					return null;
+				}
+			}, null);
 		}
 
 		private async Task InitializeAsync()
