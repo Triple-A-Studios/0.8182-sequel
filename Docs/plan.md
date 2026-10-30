@@ -175,6 +175,11 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
   - **7e** — Ticketed score submit and the Game Over messages
   - **7f** — Close-out docs
 - **Pass 8** — Share to socials (opt-in)
+  - **8a** — Share card rendering (score card and rank card to a PNG)
+  - **8b** — Android share sheet
+  - **8c** — WebGL download
+  - **8d** — Wiring: `ShareService` and the three SHARE buttons
+  - **8e** — Close-out docs
 - **Pass 9** — Hardening, device checks and close-out
 
 ### Milestone: Player profile & run stats
