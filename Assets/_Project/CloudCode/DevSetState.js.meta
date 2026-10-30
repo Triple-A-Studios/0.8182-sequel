@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 56ea94fa908ee1a4d840e3c277ff74b9
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: fbc33bd6a5704c0881dc7a9ead54089b, type: 3}
+  Parameters:
+  - Name: used
+    ParameterType: 1
+    Required: 0
+  - Name: dayOffset
+    ParameterType: 1
+    Required: 0
+  - Name: ticketStartedAgoMs
+    ParameterType: 1
+    Required: 0
+  Source: 0

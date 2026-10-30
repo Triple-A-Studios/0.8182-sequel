@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f878e2a2100b1514890d86faf4e3a54a
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: fbc33bd6a5704c0881dc7a9ead54089b, type: 3}
+  Parameters:
+  - Name: ticketId
+    ParameterType: 0
+    Required: 1
+  - Name: score
+    ParameterType: 1
+    Required: 1
+  Source: 0
