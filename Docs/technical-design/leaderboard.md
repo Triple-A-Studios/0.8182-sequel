@@ -1,6 +1,6 @@
 # Leaderboard
 
-`LeaderboardService` (`Assets/_Project/Scripts/Leaderboard/LeaderboardService.cs`, namespace `Opoint8182.Leaderboard`) is a thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in, serving two boards: a **weekly** board (resets Monday 00:00 UTC, archived) and an **all-time** board. Backend choice and the reasoning behind it are in [design-doc.md](../design-doc.md) (Alpha section, "Leaderboards & daily attempts"); packages in [dependencies.md](dependencies.md). The weekly + all-time rework (backlog #28) landed in Daily play structure Passes 2-3 (the leaderboard screen's archive browsing and the Last week's results screen are Pass 4).
+`LeaderboardService` (`Assets/_Project/Scripts/Leaderboard/LeaderboardService.cs`, namespace `Opoint8182.Leaderboard`) is a thin wrapper over Unity Leaderboards (UGS) with anonymous sign-in, serving two boards: a **weekly** board (resets Monday 00:00 UTC, archived) and an **all-time** board. Backend choice and the reasoning behind it are in [design-doc.md](../design-doc.md) (Alpha section, "Leaderboards & daily attempts"); packages in [dependencies.md](dependencies.md). The weekly + all-time rework (backlog #28) landed in Daily play structure Passes 2-3 (the leaderboard screen's archive browsing and the Last week's results screen are Pass 4). Since Pass 7 the client no longer writes scores: the server does (see [Submission](#submission-pass-3b-through-the-server-since-pass-7e) and [Server scripts](#server-scripts-daily-play-structure-pass-7)).
 
 ## Service
 
@@ -15,30 +15,57 @@ A `PersistentSingleton<LeaderboardService>` (`TripleA.Utils.Singletons`) on the 
 
 ## Boards
 
-Created in the Unity dashboard (the project has no deployment package, so boards cannot be created from code); the ids are the serialized `m_weeklyBoardId` / `m_allTimeBoardId` on the Bootstrap scene object (a stale serialized value overrides a code default, so change both).
+Created in the Unity dashboard, once per environment (the game talks to the environment named by the serialized `m_environmentName` on the same object: `dev` while the server side is built, production at Pass 9); the ids are the serialized `m_weeklyBoardId` / `m_allTimeBoardId` on the Bootstrap scene object (a stale serialized value overrides a code default, so change both).
 
 | Board | Id | Config |
 |---|---|---|
 | Weekly | `weekly_scores` | High to Low, Best Score, reset Monday 00:00 UTC, archive on reset |
 | All-time | `alltime_scores` | High to Low, Best Score, never resets |
 
-The old `daily_scores` board is no longer used by any code (delete it in the dashboard). Score submission is client-side via the SDK; Cloud Code validation is Daily play structure Pass 7 (design-doc.md).
+The old `daily_scores` board is no longer used by any code (delete it in the dashboard). Scores are written by the server, not the client (Submission and Server scripts below).
 
-## Submission (Pass 3b)
+## Submission (Pass 3b, through the server since Pass 7e)
 
-`SubmitScoreAsync(int score)` returns a `SubmitResult` (`Success`, 1-based `Rank`, `Score`, `Trend`, `Skipped`). Scores of zero or less are not submitted.
+`SubmitScoreAsync(int score)` returns a `SubmitResult` (`Success`, 1-based `Rank`, `Score`, `Trend`, `Skipped`, `Failure`). Scores of zero or less are not submitted. The client does not write to the boards (the access policy denies it): the score goes through the `SubmitScore` script with the run's ticket (`DailyPlay.CurrentTicketId`, kept by `DailyPlay.BeginRunAsync`).
 
-1. Read the weekly version info (`GetWeeklyVersionsAsync`, cached). The stored weekly best is only valid for the live version ID: a different ID (a new week) counts as no stored best. If the versions call fails the stored values are trusted (the server keeps the best anyway).
-2. A board is only sent the score when it **beats the stored best** for that board (`ShouldSubmit`); the server's keep-best would ignore a lower score, so this only saves calls.
-3. The weekly board is sent first and its result is the one returned. If it fails the result is `Failed` and **nothing stored changes**, so a retry (Game Over's retry button) sends it again.
-4. The all-time board is sent best-effort in the background (the run's result does not wait for it); a failure only means the next qualifying run sends it again.
-5. After a successful submit the best stored is the **server's best** from the response (so a wiped local best self-corrects), and the cached live-board reads are dropped.
+1. **No ticket** (a game scene opened on its own) is `Failure == Unavailable`; **offline** is a `Retryable` failure. Nothing is called in either case.
+2. Read the weekly version info (`GetWeeklyVersionsAsync`, cached). The stored weekly best is only valid for the live version ID: a different ID (a new week) counts as no stored best. If the versions call fails the stored values are trusted (the server keeps the best anyway).
+3. The score is only sent when it **beats the stored weekly best** (`ShouldSubmit`). This is the only client gate: the server writes both boards, keeps the best on each, and an all-time best is never below a week's, so one gate saves the calls. A gated run leaves its ticket unused.
+4. `DailyServer.SubmitScoreAsync(ticketId, score)` sorts the reply (table below).
+5. On success the stored weekly best, rank and version come from the reply, the all-time best too when the reply has it (so a wiped local best self-corrects), the cached live-board reads are dropped, and the trend is worked out as before.
 
-**A run that does not beat the weekly best is `Skipped`:** no call is made, `Rank` and `Score` are the last known weekly ones (rank 0 if there are none) and the trend is `Same`. Game Over shows that rank alone (and nothing when it is 0). A practice run never submits: `GameOverUI` skips it (`GameManager.IsPracticeRun`) until the attempts API (Pass 5).
+| Server reply | `SubmitFailure` | Game Over shows |
+|---|---|---|
+| Offline, timed out, `BUSY`, `BOARD_ERROR`, `ERROR` | `Retryable` | "Couldn't submit score" with the chip's RETRY (the ticket is still valid, nothing stored changed) |
+| `NO_TICKET`, `TICKET_USED`, `TICKET_EXPIRED`, `IMPLAUSIBLE` | `NotAccepted` | "Score not accepted", no retry |
+| No ticket on the client | `Unavailable` | "Leaderboard unavailable", no retry |
+
+**A run that does not beat the weekly best is `Skipped`:** no call is made, `Rank` and `Score` are the last known weekly ones (rank 0 if there are none) and the trend is `Same`. Game Over shows that rank alone (and nothing when it is 0). A practice run never submits: `GameOverUI` skips it (`GameManager.IsPracticeRun`).
 
 **Rank trend:** `Compare(hasPrevious, previousRank, newRank)` (pure, static): `Up` for a first entry in the version or a lower rank number, otherwise `Same`. A worse rank is never reported as a drop (UX rules): `RankTrend` has no `Down`.
 
 **Stored values** (`PlayerPrefs`, deliberately soft: clearing storage only costs a redundant submit): `lb_weekly_best`, `lb_weekly_version`, `lb_weekly_rank`, `lb_alltime_best`. The old daily-board keys `lb_last_rank` / `lb_last_utc_date` are deleted on startup.
+
+## Server scripts (Daily play structure, Pass 7)
+
+JavaScript Cloud Code scripts in `Assets/_Project/CloudCode/` (each self-contained: scripts deploy one file at a time, nothing is bundled) and the access policy `Access/LeaderboardsAccessControl.ac`. The client path is `LeaderboardService.CallServerAsync` (signs in first, fails fast offline, 10 s timeout, null on any failure) then `DailyServer` (typed replies, never throws) then `DailyPlay` / `LeaderboardService`.
+
+**State** is ONE Cloud Save private custom item per player, `daily`, keyed only by the authenticated player id (`context.playerId`; nothing is keyed to the device): `{ day, used, ticket }` where `day` is the server UTC day number and `ticket` is `{ id, startedAtMs, used }` or null. Counter and ticket share the item, so one write lock guards both (a stale lock is a 409: a second `StartRun` at the same moment retries once and then sees the new count). A ticket survives the day roll (a run that crosses UTC midnight can still submit); the count does not.
+
+| Script | Parameters | Does | Returns |
+|---|---|---|---|
+| `GetDailyState` | none | reads today's count on the server's day (nothing written) | `{ ok, attemptsUsed, attemptsLeft, attemptsMax, nowMs, nextResetMs }` |
+| `StartRun` | none | spends one of the 3 attempts and writes a fresh ticket (an unused earlier ticket is replaced, so an abandoned run still counts and cannot be submitted) | `{ ok, ticketId, attemptNumber, attemptsLeft, nowMs, nextResetMs }` or `{ ok: false, code: NO_ATTEMPTS / BUSY / ERROR }` |
+| `SubmitScore` | `ticketId` (String), `score` (Numeric) | checks the ticket and the score, marks the ticket used, writes both boards with the service token and reads each entry back (the add call returns an empty body) | `{ ok, weekly: { rank (1-based), score }, allTime: { score } or null }` or `{ ok: false, code: NO_TICKET / TICKET_USED / TICKET_EXPIRED / IMPLAUSIBLE / BUSY / BOARD_ERROR / ERROR }` |
+| `DevSetState` | `used`, `dayOffset`, `ticketStartedAgoMs` (Numeric, optional) | sets the state for checks and the Tools > Daily Play reset item; refuses when `context.environmentName` is `production` | `{ ok, used, day, ticketId, nowMs }` or `{ ok: false, code: NOT_ALLOWED }` |
+
+**`SubmitScore` checks, in order:** the score is a positive whole number within int range; the caller has a ticket with that id; it is unused; it is younger than `MAX_RUN_AGE_MS` (3 h); and `score <= MAX_SCORE_PER_SECOND (1500) * server elapsed seconds since the ticket + SCORE_SLACK (5000)` (elapsed time is the server's own, never client-reported). An implausible score burns the ticket, so the bound cannot be probed. The ticket is marked used with the lock before the boards are written; a weekly-board error restores it so the client's retry works, an all-time error only leaves that board unwritten. Every accepted submit logs `score` and `elapsedSec` (Cloud Code logs in the dashboard): tune the bound from those. The combo multiplier tops out at x4 and building values are small, so real runs sit far below it.
+
+**Access policy.** `Deny` / `Write` / `Player` on `urn:ugs:leaderboards:*` (a Player token cannot write a score; reads and the scripts' service-token writes still work). Unity's documented narrower resource (`.../scores/players/*`) did not block client writes in the spike; the broad one does.
+
+**Deploying** (Editor, Window > Services > Deployment, with the right environment selected; no CLI needed): reimport the scripts first (right-click > Reimport: the Editor loses the loaded scripts' names after a recompile and the deploy fails with "found duplicated"), then deploy the four scripts and the `.ac`. Script parameters live in each script's `.meta` (`Parameters:` with `ParameterType` 0 String / 1 Numeric and `Required`), not in the code: the dashboard and the Editor ignore `module.exports.params` here. The boards themselves are created in the dashboard, once per environment.
+
+**Environments.** The Editor and the game use `dev` (the existing environment) while the server side is built: `LeaderboardService.m_environmentName` (serialized on the Bootstrap scene object) and the Editor's selected environment (`ProjectSettings/Packages/com.unity.services.core/Settings.json`). Go-live (Pass 9): recreate both boards in production, deploy the four scripts and the policy to production, set `m_environmentName` to production, then delete the leftover spike scripts, the `spike_counter` Cloud Save data and the test entries from production.
 
 ## Reads and cache (Pass 3a)
 
@@ -86,7 +113,7 @@ Run 2026-10-29 in the `dev` environment (the existing one, reused). Throwaway sc
 - **Cloud Save from a script.** `new DataApi(context)` with `setPrivateCustomItem` / `getPrivateCustomItems` works, keyed by `context.playerId`. The write lock works: a write with a stale `writeLock` is rejected with 409 (code 7012), so two quick `StartRun` calls cannot both spend an attempt.
 - **Leaderboards from a script.** `new LeaderboardsApi({ accessToken: context.serviceToken })` (the service token, not the player's, so the call is not a `Player` call) with `addLeaderboardPlayerScore(projectId, boardId, playerId, { score })`. The response body is **empty**; read the entry back with `getLeaderboardPlayerScore` for the rank (zero-based) and score.
 - **Revoking client writes.** The access policy is an Access Control Configuration asset (`.ac`) deployed from the Editor. Unity's documented narrow resource (`urn:ugs:leaderboards:/v1/projects/*/leaderboards/*/scores/players/*`) did **not** block a client write (a Cloud Save deny with the same form did: 403, code 56). The broad form works: `Deny` / `Write` / `Player` on `urn:ugs:leaderboards:*` makes the client's `AddPlayerScoreAsync` throw `LeaderboardsException` "Access has been restricted", while player reads and the script's service-token write still work.
-- **Consequence.** With the policy live in an environment, the game's direct `AddPlayerScoreAsync` submit fails there until Pass 7c sends scores through the script. The Editor's anonymous test player in `dev` is a new player (the spike signed out once).
+- **Consequence.** With the policy live in an environment, the game's direct `AddPlayerScoreAsync` submit fails there (resolved in Pass 7e: scores now go through the `SubmitScore` script). The Editor's anonymous test player in `dev` is a new player (the spike signed out once).
 
 ## Anonymous identity
 
