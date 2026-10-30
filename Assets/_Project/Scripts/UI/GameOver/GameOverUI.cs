@@ -21,6 +21,7 @@ namespace Opoint8182.UI
 
 		private const string k_UnavailableText = "Leaderboard unavailable";
 		private const string k_SubmitFailedText = "Couldn't submit score";
+		private const string k_NotAcceptedText = "Score not accepted";
 
 		private GameManager m_gameManager;
 		private int m_submitToken;
@@ -117,9 +118,23 @@ namespace Opoint8182.UI
 			var result = await service.SubmitScoreAsync(score);
 			if (this == null || token != m_submitToken || View == null) return;
 
+			// Retry is only offered when it can help: the server refusing the score for good, or there being no ticket to send it with
+			// (a game scene opened on its own), cannot be fixed by sending it again.
 			if (!result.Success)
 			{
-				View.ShowRankMessage(k_SubmitFailedText, true);
+				switch (result.Failure)
+				{
+					case SubmitFailure.NotAccepted:
+						View.ShowRankMessage(k_NotAcceptedText, false);
+						break;
+					case SubmitFailure.Unavailable:
+						View.ShowRankMessage(k_UnavailableText, false);
+						break;
+					default:
+						View.ShowRankMessage(k_SubmitFailedText, true);
+						break;
+				}
+
 				return;
 			}
 

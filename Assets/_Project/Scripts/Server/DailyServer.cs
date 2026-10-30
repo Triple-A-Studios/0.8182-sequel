@@ -55,6 +55,39 @@ namespace Opoint8182.Server
 		public static StartRunReply Unavailable => new(StartRunStatus.Unavailable, null, 0, 0, 0, 0);
 	}
 
+	public enum SubmitStatus
+	{
+		Ok,
+
+		/// <summary>The server refused the score (no or used or expired ticket, an implausible score): retrying cannot help.</summary>
+		Rejected,
+
+		/// <summary>The score did not get through (offline, timed out, busy, a board error): the ticket is still valid, a retry can work.</summary>
+		Failed
+	}
+
+	/// <summary>What the <c>SubmitScore</c> script said.</summary>
+	public readonly struct SubmitScoreReply
+	{
+		public readonly SubmitStatus Status;
+		/// <summary>1-based weekly rank after the submit.</summary>
+		public readonly int WeeklyRank;
+		/// <summary>The player's best weekly score after the submit (the server keeps the best), not necessarily the one sent.</summary>
+		public readonly int WeeklyScore;
+		/// <summary>The player's best all-time score after the submit, or 0 when that board could not be written this time.</summary>
+		public readonly int AllTimeScore;
+
+		public SubmitScoreReply(SubmitStatus status, int weeklyRank, int weeklyScore, int allTimeScore)
+		{
+			Status = status;
+			WeeklyRank = weeklyRank;
+			WeeklyScore = weeklyScore;
+			AllTimeScore = allTimeScore;
+		}
+
+		public static SubmitScoreReply Failed => new(SubmitStatus.Failed, 0, 0, 0);
+	}
+
 	/// <summary>
 	/// The game's side of the Cloud Code scripts in <c>Assets/_Project/CloudCode</c> (Daily play structure Pass 7): typed calls over
 	/// <see cref="LeaderboardService.CallServerAsync"/>, which signs in, fails fast offline and times out. The server reads the player id
@@ -90,6 +123,43 @@ namespace Opoint8182.Server
 				return new StartRunReply(StartRunStatus.NoAttempts, null, 0, (int)reply["attemptsUsed"], (long)reply["nowMs"], (long)reply["nextResetMs"]);
 
 			return StartRunReply.Unavailable;
+		}
+
+		/// <summary>
+		/// Sends a finished competitive run's score with the ticket <c>StartRun</c> issued. The server checks the ticket and the score against
+		/// the time since the ticket, then writes both boards itself (the access policy denies the client's own writes).
+		/// </summary>
+		public static async Task<SubmitScoreReply> SubmitScoreAsync(string ticketId, int score)
+		{
+			var service = LeaderboardService.TryGetInstance();
+			if (service == null) return SubmitScoreReply.Failed;
+
+			var reply = await service.CallServerAsync("SubmitScore", new Dictionary<string, object> { { "ticketId", ticketId }, { "score", score } });
+			var status = Classify(reply);
+			if (status != SubmitStatus.Ok) return new SubmitScoreReply(status, 0, 0, 0);
+
+			var weekly = reply["weekly"];
+			var allTime = reply["allTime"];
+			var allTimeScore = allTime != null && allTime.Type == JTokenType.Object ? (int)allTime["score"] : 0;
+			return new SubmitScoreReply(SubmitStatus.Ok, (int)weekly["rank"], (int)weekly["score"], allTimeScore);
+		}
+
+		/// <summary>Sorts a <c>SubmitScore</c> reply: accepted, refused for good, or failed in a way a retry can fix.</summary>
+		public static SubmitStatus Classify(JToken reply)
+		{
+			if (reply == null) return SubmitStatus.Failed;
+			if (IsOk(reply)) return reply["weekly"] != null ? SubmitStatus.Ok : SubmitStatus.Failed;
+
+			switch ((string)reply["code"])
+			{
+				case "NO_TICKET":
+				case "TICKET_USED":
+				case "TICKET_EXPIRED":
+				case "IMPLAUSIBLE":
+					return SubmitStatus.Rejected;
+				default:
+					return SubmitStatus.Failed;
+			}
 		}
 
 		/// <summary>

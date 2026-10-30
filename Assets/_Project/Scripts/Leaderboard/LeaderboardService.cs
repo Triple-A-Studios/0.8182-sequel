@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Opoint8182.Daily;
+using Opoint8182.Server;
 using PrimeTween;
 using TripleA.Utils.Singletons;
 using Unity.Services.Authentication;
@@ -37,6 +39,21 @@ namespace Opoint8182.Leaderboard
 		Same
 	}
 
+	/// <summary>Why a submit did not go through, so Game Over can say the right thing and offer a retry only when one can help.</summary>
+	public enum SubmitFailure
+	{
+		None,
+
+		/// <summary>Offline, timed out or a server error: the ticket is still valid, a retry can work.</summary>
+		Retryable,
+
+		/// <summary>The server refused the score (ticket missing, used or expired, or an implausible score): a retry cannot help.</summary>
+		NotAccepted,
+
+		/// <summary>No ticket to send it with (a game scene opened on its own): there is no leaderboard for this run.</summary>
+		Unavailable
+	}
+
 	public readonly struct SubmitResult
 	{
 		public readonly bool Success;
@@ -51,16 +68,24 @@ namespace Opoint8182.Leaderboard
 		/// </summary>
 		public readonly bool Skipped;
 
-		public SubmitResult(bool success, int rank, int score, RankTrend trend, bool skipped = false)
+		/// <summary>Why it failed when <see cref="Success"/> is false.</summary>
+		public readonly SubmitFailure Failure;
+
+		public SubmitResult(bool success, int rank, int score, RankTrend trend, bool skipped = false, SubmitFailure failure = SubmitFailure.None)
 		{
 			Success = success;
 			Rank = rank;
 			Score = score;
 			Trend = trend;
 			Skipped = skipped;
+			Failure = failure;
 		}
 
-		public static SubmitResult Failed => new(false, 0, 0, RankTrend.Same);
+		public static SubmitResult Failed => new(false, 0, 0, RankTrend.Same, false, SubmitFailure.Retryable);
+
+		public static SubmitResult NotAccepted => new(false, 0, 0, RankTrend.Same, false, SubmitFailure.NotAccepted);
+
+		public static SubmitResult Unavailable => new(false, 0, 0, RankTrend.Same, false, SubmitFailure.Unavailable);
 	}
 
 	public readonly struct LeaderboardRow
@@ -222,16 +247,20 @@ namespace Opoint8182.Leaderboard
 		}
 
 		/// <summary>
-		/// Submits a finished run's score. Each board is only sent the score when it beats the player's stored best for it
-		/// (the weekly best is keyed to the live weekly version, so a new week starts from none); the weekly board goes first
-		/// and its result is the one returned, the all-time board is sent best-effort in the background. A run that does
-		/// not beat the weekly best comes back as <see cref="SubmitResult.Skipped"/> with the last known weekly rank and no
-		/// call is made. Scores of zero or less are not submitted; a failed weekly submit changes nothing stored, so a retry
-		/// sends it again.
+		/// Submits a finished competitive run's score through the server (Daily play structure Pass 7): the <c>SubmitScore</c> script checks it
+		/// against the ticket <see cref="DailyPlay.BeginRunAsync"/> kept and writes both boards itself; the access policy denies the client's own
+		/// writes. The score is only sent when it beats the player's stored weekly best (keyed to the live weekly version, so a new week starts
+		/// from none); a run that does not comes back as <see cref="SubmitResult.Skipped"/> with the last known weekly rank, nothing is called
+		/// and its ticket stays unused. A failed or refused submit changes nothing stored, so a retry sends it again. With no ticket (a game scene
+		/// opened on its own) the result is <see cref="SubmitFailure.Unavailable"/>.
 		/// </summary>
 		public async Task<SubmitResult> SubmitScoreAsync(int score)
 		{
-			if (score <= 0 || IsOffline()) return SubmitResult.Failed;
+			if (score <= 0) return SubmitResult.Failed;
+
+			var ticketId = DailyPlay.CurrentTicketId;
+			if (string.IsNullOrEmpty(ticketId)) return SubmitResult.Unavailable;
+			if (IsOffline()) return SubmitResult.Failed;
 
 			try
 			{
@@ -242,27 +271,21 @@ namespace Opoint8182.Leaderboard
 				int weeklyBest = sameWeek ? PlayerPrefs.GetInt(k_WeeklyBestKey, 0) : 0;
 				int weeklyRank = sameWeek ? PlayerPrefs.GetInt(k_WeeklyRankKey, 0) : 0;
 
-				SubmitResult result;
-				if (ShouldSubmit(score, weeklyBest))
-				{
-					var weekly = await WithTimeout(_ => SubmitBoardAsync(m_weeklyBoardId, score), BoardSubmit.Failed);
-					if (!weekly.Success) return SubmitResult.Failed;
+				if (!ShouldSubmit(score, weeklyBest)) return new SubmitResult(true, weeklyRank, weeklyBest, RankTrend.Same, true);
 
-					var trend = Compare(weeklyRank > 0, weeklyRank, weekly.Rank);
-					PlayerPrefs.SetInt(k_WeeklyBestKey, weekly.Score);
-					PlayerPrefs.SetInt(k_WeeklyRankKey, weekly.Rank);
-					if (liveVersion != null) PlayerPrefs.SetString(k_WeeklyVersionKey, liveVersion);
-					PlayerPrefs.Save();
-					InvalidateLiveBoards();
-					result = new SubmitResult(true, weekly.Rank, weekly.Score, trend);
-				}
-				else
-				{
-					result = new SubmitResult(true, weeklyRank, weeklyBest, RankTrend.Same, true);
-				}
+				var reply = await DailyServer.SubmitScoreAsync(ticketId, score);
+				if (reply.Status == SubmitStatus.Rejected) return SubmitResult.NotAccepted;
+				if (reply.Status != SubmitStatus.Ok) return SubmitResult.Failed;
 
-				if (ShouldSubmit(score, PlayerPrefs.GetInt(k_AllTimeBestKey, 0))) _ = SubmitAllTimeAsync(score);
-				return result;
+				// The server's bests win over the local ones, so a wiped or stale local best corrects itself.
+				var trend = Compare(weeklyRank > 0, weeklyRank, reply.WeeklyRank);
+				PlayerPrefs.SetInt(k_WeeklyBestKey, reply.WeeklyScore);
+				PlayerPrefs.SetInt(k_WeeklyRankKey, reply.WeeklyRank);
+				if (liveVersion != null) PlayerPrefs.SetString(k_WeeklyVersionKey, liveVersion);
+				if (reply.AllTimeScore > 0) PlayerPrefs.SetInt(k_AllTimeBestKey, reply.AllTimeScore);
+				PlayerPrefs.Save();
+				InvalidateLiveBoards();
+				return new SubmitResult(true, reply.WeeklyRank, reply.WeeklyScore, trend);
 			}
 			catch (Exception e)
 			{
@@ -279,50 +302,6 @@ namespace Opoint8182.Leaderboard
 
 		/// <summary>True when a score can improve the stored best, so a submit is worth a call.</summary>
 		public static bool ShouldSubmit(int score, int storedBest) => score > storedBest;
-
-		private readonly struct BoardSubmit
-		{
-			public readonly bool Success;
-			/// <summary>1-based rank.</summary>
-			public readonly int Rank;
-			/// <summary>The player's best on the board after the submit (the server keeps the best), not necessarily the score sent.</summary>
-			public readonly int Score;
-
-			public BoardSubmit(bool success, int rank, int score)
-			{
-				Success = success;
-				Rank = rank;
-				Score = score;
-			}
-
-			public static BoardSubmit Failed => new(false, 0, 0);
-		}
-
-		private async Task<BoardSubmit> SubmitBoardAsync(string boardId, int score)
-		{
-			try
-			{
-				await EnsureReadyAsync();
-				var entry = await LeaderboardsService.Instance.AddPlayerScoreAsync(boardId, score);
-				return new BoardSubmit(true, entry.Rank + 1, (int)entry.Score);
-			}
-			catch (Exception e)
-			{
-				Debug.LogWarning(k_LogPrefix + $"Submit to {boardId} failed: {e.GetType().Name}: {e.Message}");
-				return BoardSubmit.Failed;
-			}
-		}
-
-		// Best-effort: the run's result does not wait for it and a failure only means the next qualifying run sends it again.
-		private async Task SubmitAllTimeAsync(int score)
-		{
-			var allTime = await WithTimeout(_ => SubmitBoardAsync(m_allTimeBoardId, score), BoardSubmit.Failed);
-			if (!allTime.Success) return;
-
-			PlayerPrefs.SetInt(k_AllTimeBestKey, allTime.Score);
-			PlayerPrefs.Save();
-			InvalidateLiveBoards();
-		}
 
 		/// <summary>The weekly board's top scores; the same as <c>GetTopScoresAsync(LeaderboardBoard.Weekly, limit)</c>.</summary>
 		public Task<TopScoresResult> GetTopScoresAsync(int limit = 10) => GetTopScoresAsync(LeaderboardBoard.Weekly, limit);
