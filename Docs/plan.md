@@ -181,6 +181,10 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
   - **8d** — Wiring: `ShareService` and the three SHARE buttons
   - **8e** — Close-out docs
 - **Pass 9** — Hardening, device checks and close-out
+  - **9a** — Editor hardening sweep (and the cold-start retry, #37)
+  - **9b** — Server go-live preparation (environment by build type)
+  - **9c** — Device checks and the score bound (#36)
+  - **9d** — Docs refresh and milestone close
 
 ### Milestone: Player profile & run stats
 *(not yet scoped)* Display name and rename, persisted lifetime stats, per-run stats feeding Game Over, NEW BEST detection and badges.

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Opoint8182.Share
@@ -51,6 +52,12 @@ namespace Opoint8182.Share
 #else
 				return ShareResult.Failed;
 #endif
+			}
+			catch (Exception e)
+			{
+				// A card that cannot be filled or handed on must end as a neutral failure, not an unhandled exception from a button.
+				Debug.LogWarning("[Share] share failed: " + e.GetType().Name + ": " + e.Message);
+				return ShareResult.Failed;
 			}
 			finally
 			{

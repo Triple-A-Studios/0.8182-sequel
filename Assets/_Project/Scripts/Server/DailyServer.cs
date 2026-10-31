@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Opoint8182.Leaderboard;
+using UnityEngine;
 
 namespace Opoint8182.Server
 {
@@ -99,6 +101,10 @@ namespace Opoint8182.Server
 		public static async Task<DailyStateReply> GetStateAsync()
 		{
 			var reply = await CallAsync("GetDailyState");
+
+			// The first Cloud Code call after a cold start can time out once and then work (backlog #37). This call only reads, so it is
+			// tried once more when the device is online; StartRun and SubmitScore are never retried here (a StartRun spends an attempt).
+			if (reply == null && Application.internetReachability != NetworkReachability.NotReachable) reply = await CallAsync("GetDailyState");
 			if (!IsOk(reply)) return default;
 
 			return new DailyStateReply(true, (int)reply["attemptsUsed"], (long)reply["nowMs"], (long)reply["nextResetMs"]);
@@ -175,8 +181,13 @@ namespace Opoint8182.Server
 			return IsOk(reply);
 		}
 
+		/// <summary>Replaces the Cloud Code call (a test seam: the checks feed timeouts and replies without a server). Null uses the service.</summary>
+		public static Func<string, Task<JToken>> Caller { get; set; }
+
 		private static async Task<JToken> CallAsync(string endpoint)
 		{
+			if (Caller != null) return await Caller(endpoint);
+
 			var service = LeaderboardService.TryGetInstance();
 			if (service == null) return null;
 

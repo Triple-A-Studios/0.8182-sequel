@@ -213,12 +213,14 @@
 
 .stat-tile--first { margin-left: 0; }
 
-.stat-tile.card > .lipbox__face { padding: 16px 28px 8px 28px; }
+/* Narrow panels (16:10, 4:3: the default WebGL canvas is 16:10) give a tile about 235 px of text: the padding and the label spacing are
+   kept tight and ProfileScreen shrinks a value that still does not fit. */
+.stat-tile.card > .lipbox__face { padding: 16px 22px 8px 22px; }
 
 .stat-tile__label {
     -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
-    font-size: 26px;
-    letter-spacing: 3px;
+    font-size: 24px;
+    letter-spacing: 2px;
     color: var(--ink-55);
 }
 

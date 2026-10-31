@@ -155,7 +155,7 @@
 }
 
 .go-best-caption {
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 3px;
     color: var(--ink-55);
     white-space: nowrap;

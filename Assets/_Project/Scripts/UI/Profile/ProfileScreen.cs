@@ -21,6 +21,9 @@ namespace Opoint8182.UI
 		private const string k_EditHintWeb = "Tap the name to type · up to 16 characters";
 		private const float k_KeyboardMargin = 24f;
 		private const long k_KeyboardPollMs = 100;
+		private const float k_StatValueSize = 72f;
+		private const float k_StatValueMinSize = 44f;
+		private static readonly string[] m_S_StatValueNames = { "stat-high-score", "stat-distance", "stat-buildings", "stat-combo", "stat-runs", "stat-perfect" };
 
 		private readonly VisualElement m_root;
 		private readonly Label m_nameLabel;
@@ -77,6 +80,7 @@ namespace Opoint8182.UI
 			m_nameInput.maxLength = UiProfileState.MAX_NAME_LENGTH;
 
 			BindStats();
+			FitStatValues();
 			m_badgeTiles = BuildBadges();
 
 			root.Q<LipButton>("profile-back").clicked += () => BackRequested?.Invoke();
@@ -121,10 +125,11 @@ namespace Opoint8182.UI
 			CancelEdit();
 		}
 
-		/// <summary>Reloads the name from <see cref="UiProfileState"/>.</summary>
+		/// <summary>Reloads the name from <see cref="UiProfileState"/> and fits the stat values to their tiles again.</summary>
 		public void Refresh()
 		{
 			m_nameLabel.text = UiProfileState.DisplayName;
+			foreach (var name in m_S_StatValueNames) FitStatValue(m_root.Q<Label>(name));
 		}
 
 		/// <summary>Leaves edit mode without saving. False when nothing was being edited (so Escape can go back instead).</summary>
@@ -252,6 +257,29 @@ namespace Opoint8182.UI
 			SetText("stat-perfect", ProfilePlaceholderData.PERFECT_CRASHES);
 			SetText("profile-plane", ProfilePlaceholderData.EQUIPPED_PLANE);
 			SetText("profile-fx", ProfilePlaceholderData.CRASH_FX);
+		}
+
+		// A stat value is one big number in a tile whose width follows the panel's aspect; on a narrow panel (16:10 is the default WebGL canvas) a
+		// long number would clip, so its font shrinks to fit (never below k_StatValueMinSize). Re-fits whenever the tile's width changes.
+		private void FitStatValues()
+		{
+			foreach (var name in m_S_StatValueNames)
+			{
+				var label = m_root.Q<Label>(name);
+				label.RegisterCallback<GeometryChangedEvent>(_ => FitStatValue(label));
+			}
+		}
+
+		private static void FitStatValue(Label label)
+		{
+			var box = label.contentRect.width;
+			if (box <= 1f || string.IsNullOrEmpty(label.text)) return;
+
+			var current = label.resolvedStyle.fontSize;
+			var measured = label.MeasureTextSize(label.text, 0f, VisualElement.MeasureMode.Undefined, 0f, VisualElement.MeasureMode.Undefined).x;
+			var natural = measured * k_StatValueSize / Mathf.Max(current, 1f);
+			var target = Mathf.Clamp(k_StatValueSize * box / Mathf.Max(natural, 1f), k_StatValueMinSize, k_StatValueSize);
+			if (Mathf.Abs(target - current) > 0.5f) label.style.fontSize = target;
 		}
 
 		private VisualElement[] BuildBadges()

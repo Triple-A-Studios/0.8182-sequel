@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 9ea26f4e0eb6d02429c51ec88f5b098c, type: 3}
   m_Name: HapticProfiles
   m_EditorClassIdentifier: Assembly-CSharp:Opoint8182:HapticProfiles
   profiles:

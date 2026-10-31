@@ -508,7 +508,7 @@ namespace Opoint8182.UI
 			// GameManager's own comment on why), unloading MainMenu is fire-and-forget.
 			m_loadedRoot.style.display = DisplayStyle.None;
 			GameManager.TryGetInstance()?.EnterPlayingState();
-			SceneManager.UnloadSceneAsync(gameObject.scene);
+			_ = SceneManager.UnloadSceneAsync(gameObject.scene);
 		}
 
 		private static void QuitGame()
