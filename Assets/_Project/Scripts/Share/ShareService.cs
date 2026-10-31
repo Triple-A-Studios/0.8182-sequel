@@ -20,7 +20,7 @@ namespace Opoint8182.Share
 	/// <summary>
 	/// The one entry for every SHARE button (Daily play structure, Pass 8): renders the card and hands it to the platform.
 	/// Android opens the share sheet with the image and the one-line text (no storage permission, nothing saved to the gallery;
-	/// the sheet offers Save itself), the Editor writes a PNG into <c>ShareCards/</c>, WebGL downloads the PNG (Pass 8c). Sharing is
+	/// the sheet offers Save itself), the Editor writes a PNG into <c>ShareCards/</c>, WebGL downloads the PNG. Sharing is
 	/// only ever called from a tap, and one share runs at a time.
 	/// </summary>
 	public static class ShareService
@@ -46,6 +46,8 @@ namespace Opoint8182.Share
 				return ShareResult.Saved;
 #elif UNITY_ANDROID
 				return AndroidShareSheet.Share(png, data.Text) ? ShareResult.Shared : ShareResult.Failed;
+#elif UNITY_WEBGL
+				return WebGlShareDownload.Download(png, data.FileName) ? ShareResult.Saved : ShareResult.Failed;
 #else
 				return ShareResult.Failed;
 #endif

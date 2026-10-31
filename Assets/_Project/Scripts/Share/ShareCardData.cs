@@ -156,6 +156,20 @@ namespace Opoint8182.Share
 			}
 		}
 
+		/// <summary>Name of the downloaded image (WebGL); the browser numbers repeats itself.</summary>
+		public string FileName
+		{
+			get
+			{
+				switch (Kind)
+				{
+					case ShareCardKind.Run: return "opoint8182-score.png";
+					case ShareCardKind.Profile: return "opoint8182-profile.png";
+					default: return "opoint8182-rank.png";
+				}
+			}
+		}
+
 		private string RunText()
 		{
 			if (IsPractice) return "I scored " + Format(Score) + " in a practice run on Opoint8182!";
