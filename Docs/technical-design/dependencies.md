@@ -9,6 +9,7 @@ Third-party packages/plugins used by the project, beyond default Unity modules.
 | `com.triple-a-studios.core-setup` | Editor/project core setup utilities | Pulled from private repo `Triple-A-Studios/TripleA-CoreSetup` |
 | `com.triple-a-studios.utils` | Gameplay/editor helper utilities | Pulled via git URL from `Triple-A-Studios/TripleA-Utils` — `GenericSingleton<T>` backs `GameManager`/`SpawnManager` |
 | `com.triple-a-studios.statemachine` | Finite state machine | Pulled via git URL from `Triple-A-Studios/TripleA-StateMachine`. Plain C#, predicate-driven (`TripleA.StateMachine.FSM`). Backs `GameManager`'s `MainMenuState`/`PlayingState` gate (Feel polish, Pass 5 — see [game-flow.md](game-flow.md)) |
+| `com.unity.mobile.android-logcat` (1.4.7) | Editor-only: Android Logcat window for device checks | Added by the developer during Daily play structure Pass 8 (no runtime effect). Share needs **no** third-party package: Android uses our own `ShareHelper.java` / `ShareFileProvider.java`, WebGL our own `ShareDownload.jslib` ([share.md](share.md)) |
 | `com.unity.inputsystem` | New Input System | Action map: `Assets/_Project/Settings/InputSystem_Actions.inputactions` |
 | `com.unity.render-pipelines.universal` | URP rendering | Separate PC/Mobile render pipeline assets in `Assets/_Project/Settings` |
 | `com.unity.cinemachine` (3.1.5) | Camera work | Third-person follow cam, crash-impact shake/juice |

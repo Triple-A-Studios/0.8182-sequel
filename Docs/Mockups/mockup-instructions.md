@@ -167,5 +167,5 @@ S10 Credits solo dev · thanks · attributions · links · support
 **Variants / labels:** ‹ CREDITS MADE BY ONE PERSON YOUR NAMEHERE Design, code, art, sound and every questionable physics decision. itch.io @handle email SUPPORT THE DEV ♥ THANKS TO THE CRASH TEST CREW playtester one · playtester twoplaytester three · playtester fourand everyone who asked "why can't I dodge?" BUILT WITH Unity · Baloo 2 + Nunito (OFL)SFX pack attribution linemusic attribution lineleaderboard service TBD BACK TO MENU v0.1.0 · build 182
 
 **Notes:**
-- Next steps: (1) drop your real icon set and logo in place of the placeholders, (2) confirm whether share exports a framed screenshot or a score card, (3) I can add the rotate-device gate and a first-run how-to-play overlay on request.
+- Next steps: (1) drop your real icon set and logo in place of the placeholders, (2) confirm whether share exports a framed screenshot or a score card (resolved in Daily play structure Pass 8: the game's own screen layouts rendered to an image without their buttons, see technical-design/share.md), (3) I can add the rotate-device gate and a first-run how-to-play overlay on request.
 

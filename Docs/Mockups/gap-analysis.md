@@ -199,5 +199,5 @@ Mockup change: S07 is now WEEKLY / ALL-TIME with ‹ › browsing of the last 4 
 4. **Sample dates are illustrative:** S07/S11 show "Oct 6 – Oct 12" and "Sep 29 – Oct 5" (Monday to Sunday), consistent with a Monday reset. The shipped labels come from `LeaderboardVersion.Start/End` in UTC; decide whether to show them in UTC or local date to avoid an off-by-one near the boundary.
 5. The S11 header says "skipped-week variant", but the only variant mocked is "no ranked run". A player away for several weeks sees only the most recent closed week (design doc), so no separate variant is needed.
 6. `mockup-instructions.md` flow diagram and §5 do not list S11. Add it: LOADING, then S11 (once after a reset), then MAIN MENU.
-7. "SHARE MY RANK" (S07) and "SHARE MY RESULT" (S11) must open the share sheet only on tap, never automatically.
+7. "SHARE MY RANK" (S07) and "SHARE MY RESULT" (S11) must open the share sheet only on tap, never automatically. (Built in Daily play structure Pass 8: Android share sheet, WebGL download; see technical-design/share.md.)
 
