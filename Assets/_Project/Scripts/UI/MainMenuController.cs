@@ -147,6 +147,7 @@ namespace Opoint8182.UI
 
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profileScreen.BackRequested += () => m_router.Back();
+			m_profileScreen.ShareRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();

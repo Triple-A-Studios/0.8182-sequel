@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+    <Style src="ShareCard.uss" />
+    <Template name="GameOverScreen" src="GameOver.uxml" />
+    <Template name="LastWeekResultsScreen" src="LastWeekResults.uxml" />
+    <Template name="ProfileScreen" src="Profile.uxml" />
+    <!-- Share card (Daily play structure, Pass 8a). Never shown on screen: ShareCardRenderer renders it to a texture (2400 x 1152
+         reference px at 1x) and the PNG goes to the share sheet / download. It holds the game's own screens, of which ShareCardView
+         shows one and drops its buttons: Game Over (a run), the results layout (a leaderboard result, last week / this week /
+         all-time) and Profile. A footer under them carries the game name. -->
+    <ui:VisualElement name="share-card" class="theme sc-root">
+        <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
+        <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
+
+        <ui:VisualElement class="sc-stage" picking-mode="Ignore">
+            <ui:Instance template="GameOverScreen" name="sc-run" class="sc-screen" picking-mode="Ignore" />
+            <ui:Instance template="LastWeekResultsScreen" name="sc-rank" class="sc-screen sc-screen--flow" picking-mode="Ignore" />
+            <ui:Instance template="ProfileScreen" name="sc-profile" class="sc-screen sc-screen--flow" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="sc-footer" picking-mode="Ignore">
+            <ui:VisualElement class="sc-footer__row" picking-mode="Ignore">
+                <ui:Label text="OPOINT8182" class="sc-wordmark" picking-mode="Ignore" />
+                <ui:VisualElement name="sc-practice-chip" class="sc-practice-chip" picking-mode="Ignore">
+                    <ui:Label text="PRACTICE RUN" class="sc-practice-chip__label" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="sc-tape" picking-mode="Ignore" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

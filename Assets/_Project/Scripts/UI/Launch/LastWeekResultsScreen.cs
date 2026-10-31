@@ -83,6 +83,28 @@ namespace Opoint8182.UI
 			m_root.style.display = DisplayStyle.Flex;
 		}
 
+		/// <summary>
+		/// For the share card, after <see cref="Show"/>: swaps the wording that says "last week" for another board's (the
+		/// leaderboard's this-week and all-time boards share this layout). <paramref name="tag"/> empty drops the dot and the tag
+		/// from the range chip.
+		/// </summary>
+		public void ApplyShareLabels(string title, string range, string tag, string kicker, string caption)
+		{
+			m_root.Q<Label>("lw-title").text = title;
+			m_range.text = range;
+			m_root.Q<Label>("lw-final").text = tag;
+			m_root.Q<Label>("lw-dot").style.display = tag.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+			m_root.Q<Label>("lw-final").style.display = tag.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+			m_root.Q<Label>("lw-you").text = kicker;
+			if (!m_card.ClassListContains("lw-card--norank")) m_name.text = caption;
+		}
+
+		/// <summary>For the share card: drops SHARE and CONTINUE (an image has no buttons).</summary>
+		public void HideButtons()
+		{
+			m_root.Q<VisualElement>("lw-buttons").style.display = DisplayStyle.None;
+		}
+
 		/// <summary>Shows the result and completes when CONTINUE is tapped.</summary>
 		public Task ShowAndWaitAsync(LastWeekResult result)
 		{

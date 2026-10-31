@@ -7,6 +7,8 @@
         <ui:VisualElement class="screen-header" picking-mode="Ignore">
             <op:LipButton name="profile-back" class="screen-header__back" text="&#8249;" />
             <ui:Label text="PROFILE" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
+            <op:LipButton name="profile-share" text="SHARE" variant="Primary" class="profile-share" />
         </ui:VisualElement>
 
         <ui:VisualElement class="profile-columns" picking-mode="Ignore">

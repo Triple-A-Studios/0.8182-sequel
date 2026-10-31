@@ -5,12 +5,12 @@
     <ui:VisualElement name="results-root" class="lw-screen" picking-mode="Ignore">
 
         <ui:VisualElement class="screen-header" picking-mode="Ignore">
-            <ui:Label text="LAST WEEK'S RESULTS" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+            <ui:Label name="lw-title" text="LAST WEEK'S RESULTS" class="screen-title screen-title--tilt" picking-mode="Ignore" />
             <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
             <op:LipBox class="lw-range-chip">
                 <ui:Label name="lw-range" text="SEP 29 – OCT 5" class="lw-range" picking-mode="Ignore" />
-                <ui:Label text="·" class="lw-range lw-range--dot" picking-mode="Ignore" />
-                <ui:Label text="FINAL" class="lw-range lw-range--final" picking-mode="Ignore" />
+                <ui:Label name="lw-dot" text="·" class="lw-range lw-range--dot" picking-mode="Ignore" />
+                <ui:Label name="lw-final" text="FINAL" class="lw-range lw-range--final" picking-mode="Ignore" />
             </op:LipBox>
         </ui:VisualElement>
 
@@ -22,12 +22,12 @@
             </ui:VisualElement>
 
             <op:LipBox name="lw-card" class="card lw-card">
-                <ui:Label text="YOU FINISHED" class="lw-card__kicker" picking-mode="Ignore" />
+                <ui:Label name="lw-you" text="YOU FINISHED" class="lw-card__kicker" picking-mode="Ignore" />
                 <ui:Label name="lw-rank" text="#31" class="lw-card__rank" picking-mode="Ignore" />
                 <ui:Label name="lw-pilots" text="of 2,418 pilots · top 2%" class="lw-card__pilots" picking-mode="Ignore" />
                 <ui:Label name="lw-score" text="412,880" class="lw-card__score" picking-mode="Ignore" />
                 <ui:Label name="lw-name" text="RustyBiplane47 · best run of the week" class="lw-card__name" picking-mode="Ignore" />
-                <ui:VisualElement class="lw-card__buttons" picking-mode="Ignore">
+                <ui:VisualElement name="lw-buttons" class="lw-card__buttons" picking-mode="Ignore">
                     <op:LipButton name="lw-share" text="SHARE MY RESULT" variant="Primary" class="lw-share" />
                     <op:LipButton name="lw-continue" text="CONTINUE" variant="Secondary" class="lw-continue" />
                 </ui:VisualElement>

@@ -159,7 +159,8 @@ namespace Opoint8182.UI
 		/// <summary>The rank chip's own retry (a failed score submit): send the score again.</summary>
 		public event Action RankRetryClicked;
 
-		public GameOverView(VisualElement root)
+		/// <param name="applySafeArea">False for the share card, which is rendered to a texture and must not inset by the device's notch.</param>
+		public GameOverView(VisualElement root, bool applySafeArea = true)
 		{
 			Root = root;
 
@@ -198,7 +199,7 @@ namespace Opoint8182.UI
 			for (var i = 0; i < k_StatChipCount && i < chips.Count; i++) m_statChips[i] = chips[i];
 
 			// No base padding: positions in GameOver.uss are measured from the screen edge like the mockup; the helper only adds device insets.
-			SafeAreaHelper.Apply(root.Q<VisualElement>("go-safe"), 0f);
+			if (applySafeArea) SafeAreaHelper.Apply(root.Q<VisualElement>("go-safe"), 0f);
 
 			m_primary.clicked += () => ActionClicked?.Invoke(m_primaryAction);
 			m_secondaryA.clicked += () => ActionClicked?.Invoke(m_secondaryAAction);

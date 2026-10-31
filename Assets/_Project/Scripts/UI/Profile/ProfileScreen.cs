@@ -46,6 +46,9 @@ namespace Opoint8182.UI
 		/// <summary>The display name was changed and confirmed (the menu chip refreshes on return).</summary>
 		public event Action NameChanged;
 
+		/// <summary>SHARE was tapped: the owner shares a render of this screen.</summary>
+		public event Action ShareRequested;
+
 		public bool IsEditing => m_editing;
 
 		/// <summary>Height in screen pixels of the phone keyboard covering the bottom of the screen, 0 when there is none. A test can swap it.</summary>
@@ -77,6 +80,7 @@ namespace Opoint8182.UI
 			m_badgeTiles = BuildBadges();
 
 			root.Q<LipButton>("profile-back").clicked += () => BackRequested?.Invoke();
+			root.Q<LipButton>("profile-share").clicked += () => ShareRequested?.Invoke();
 			m_editButton.clicked += BeginEdit;
 			m_diceButton.clicked += RollName;
 			m_confirmButton.clicked += ConfirmEdit;
@@ -95,6 +99,20 @@ namespace Opoint8182.UI
 			SelectBadge(-1);
 			m_badgeScroll.scrollOffset = Vector2.zero;
 			Refresh();
+		}
+
+		/// <summary>
+		/// For the share card: drops the buttons and the hint lines (back, SHARE, rename, the dev caption in the portrait slot, the
+		/// "tap a badge" line and the badge row's scroll bar), leaving the profile as an image.
+		/// </summary>
+		public void PrepareForShare()
+		{
+			SetDisplay(m_root.Q<VisualElement>("profile-back"), false);
+			SetDisplay(m_root.Q<VisualElement>("profile-share"), false);
+			SetDisplay(m_editButton, false);
+			SetDisplay(m_root.Q<VisualElement>(className: "profile-portrait__caption"), false);
+			SetDisplay(m_badgeCaption, false);
+			m_badgeScroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
 		}
 
 		/// <summary>Drops an edit in progress. Call when the router hides the screen.</summary>

@@ -29,6 +29,25 @@
     flex-shrink: 0;
 }
 
+/* ---- Header: SHARE (top right, same size as the leaderboard's SHARE MY RANK) ---- */
+
+.profile-share {
+    height: 94px;
+    margin-right: 8px;
+}
+
+.profile-share > .lipbox__face {
+    padding: 0 40px;
+    border-radius: 18px;
+}
+
+.profile-share > .lipbox__lip { border-radius: 18px; }
+
+.profile-share .lipbox__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 32px;
+}
+
 /* ---- Shared small labels ---- */
 
 .profile-label {

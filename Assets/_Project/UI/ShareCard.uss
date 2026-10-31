@@ -1,0 +1,81 @@
+/* Share card (Daily play structure, Pass 8a). A 2400 x 1152 frame: the game's own screen (1080 high, the layouts' reference size)
+   above a 72 px footer with the game name. Colours, fonts and the background come from Theme/Theme.uss; the screens keep their own
+   USS. The minimum text size and touch size rules do not apply: this is an image, not a screen. */
+
+.sc-root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* The area above the footer; each screen fills it. */
+.sc-stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 72px;
+}
+
+.sc-screen {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* The flow screens sit in the menu's safe area padding. */
+.sc-screen--flow { padding: 24px; }
+
+/* ---- Footer: game name, practice tag, hazard tape ---- */
+
+.sc-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 72px;
+}
+
+.sc-footer__row {
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.sc-wordmark {
+    -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
+    font-size: 34px;
+    letter-spacing: 6px;
+    color: rgba(246, 239, 226, 0.75);
+}
+
+.sc-practice-chip {
+    padding: 0 22px;
+    border-width: 3px;
+    border-radius: 18px;
+    border-color: var(--border-strong);
+    background-color: var(--panel);
+}
+
+.sc-practice-chip__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--ink-70);
+}
+
+.sc-tape {
+    flex-shrink: 0;
+    height: 16px;
+    border-top-width: 3px;
+    border-top-color: rgba(16, 24, 35, 0.6);
+    background-color: var(--amber);
+    background-image: url("../Art/Textures/UI/Tex_UiHazardTape.png");
+    background-repeat: repeat repeat;
+    background-size: 54px 54px;
+    background-position: left top;
+}

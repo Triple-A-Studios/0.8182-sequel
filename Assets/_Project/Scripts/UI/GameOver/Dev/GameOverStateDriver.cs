@@ -1,6 +1,7 @@
 using System;
 using Opoint8182.Daily;
 using Opoint8182.Game;
+using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,7 +15,7 @@ namespace Opoint8182.UI
 	/// last attempt, F practice, G practice with no time left) with their score, chips, rank and button row; 1-5 end cause;
 	/// N toggle NEW BEST; M cycle the rank chip (ranking, ranked + arrow, attempts left, done today, unranked + gap, rank
 	/// only, failed + retry, unavailable, hidden); K replay the entry cascade; H hide / show the whole screen (show replays
-	/// the cascade). The rows come from GameOverRow.Derive, the same code play uses.
+	/// the cascade); X render the sample share cards (the Editor saves them into ShareCards/). The rows come from GameOverRow.Derive, the same code play uses.
 	/// </summary>
 	public class GameOverStateDriver : GameOverHost
 	{
@@ -73,6 +74,27 @@ namespace Opoint8182.UI
 			{
 				if (View.IsVisible) View.Hide();
 				else View.Show();
+			}
+
+			if (keyboard.xKey.wasPressedThisFrame) _ = RenderShareSamplesAsync();
+		}
+
+		// Renders every sample share card and, in the Editor, writes the PNGs into ShareCards/ next to the project.
+		private static async Awaitable RenderShareSamplesAsync()
+		{
+			foreach (var (label, data) in ShareCardSamples.All())
+			{
+				var png = await ShareCardRenderer.RenderPngAsync(data);
+				if (png == null)
+				{
+					Debug.LogWarning($"[Share] sample {label}: no card rendered");
+					continue;
+				}
+#if UNITY_EDITOR
+				Debug.Log($"[Share] sample {label}: {ShareCardEditorSave.Save(png, label)} ({png.Length} bytes)");
+#else
+				Debug.Log($"[Share] sample {label}: {png.Length} bytes");
+#endif
 			}
 		}
 
