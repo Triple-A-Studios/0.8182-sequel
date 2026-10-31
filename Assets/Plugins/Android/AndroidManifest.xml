@@ -8,6 +8,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application>
+        <!-- Share cards (Daily play structure, Pass 8b): serves the card PNG to the app picked in the share sheet. Not a permission;
+             access is the URI grant the share intent carries, and it only reaches the cache/share folder (ShareFileProvider.java). -->
+        <provider android:name="com.tripleastudios.opoint8182.share.ShareFileProvider"
+                  android:authorities="${applicationId}.share"
+                  android:exported="false"
+                  android:grantUriPermissions="true" />
+
         <!--Used when Application Entry is set to Activity, otherwise remove this activity block-->
         <activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">

@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using Opoint8182.Daily;
 using Opoint8182.Game;
+using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -147,7 +148,7 @@ namespace Opoint8182.UI
 
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profileScreen.BackRequested += () => m_router.Back();
-			m_profileScreen.ShareRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
+			m_profileScreen.ShareRequested += OnProfileShare;
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();
@@ -452,6 +453,15 @@ namespace Opoint8182.UI
 		{
 			RefreshDaily();
 			if (!DailyPlay.IsServerStateKnown) FetchDailyState(false);
+		}
+
+		// SHARE on the Profile screen: renders the profile card and hands it to the platform (Android share sheet, an Editor PNG).
+		// Only ever on this tap; a second tap while one runs is ignored, a failure says so neutrally.
+		private async void OnProfileShare()
+		{
+			var result = await ShareService.ShareAsync(ShareCardData.ForProfile());
+			var message = ShareService.ToastFor(result);
+			if (message != null && this != null && m_toast != null) m_toast.Show(message);
 		}
 
 		private async void StartRun()
