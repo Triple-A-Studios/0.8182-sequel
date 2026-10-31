@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Opoint8182.Leaderboard;
+using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -90,11 +91,16 @@ namespace Opoint8182.UI
 			m_leaderboard.VersionsProvider = LoadSampleVersions;
 			LeaderboardPlaceholderData.AllTimeIsSample = true;
 			m_leaderboard.BackRequested += () => m_router.Back();
-			m_leaderboard.ShareRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
+			// SHARE renders the sample board's card (the Editor saves it into ShareCards/).
+			m_leaderboard.ShareRequested += () =>
+			{
+				if (m_leaderboard.TryBuildShareCard(out var card)) _ = ShareService.ShareAsync(card);
+			};
 			m_leaderboard.FlyNowRequested += () => ShowToast("FLY NOW: the menu starts a run here");
 			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
 			m_profile = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profile.BackRequested += () => m_router.Back();
+			m_profile.ShareRequested += () => _ = ShareService.ShareAsync(ShareCardData.ForProfile());
 
 			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
 			m_shop = new ShopScreen(root.Q<VisualElement>("screen-shop"));

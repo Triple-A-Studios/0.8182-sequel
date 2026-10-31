@@ -18,9 +18,6 @@ namespace Opoint8182.UI
 		/// <summary>EARNED chip amount. Real value: the currency / shop milestone.</summary>
 		public const int Earned = 286;
 
-		/// <summary>NEW BEST! sticker beside the score. Off: there is no stored personal best yet.</summary>
-		public const bool ShowNewBest = false;
-
 		/// <summary>Gallery only: the YOUR BEST chip value (S05 b). Real value: "Player profile and run stats".</summary>
 		public const string SampleBest = "184,920";
 

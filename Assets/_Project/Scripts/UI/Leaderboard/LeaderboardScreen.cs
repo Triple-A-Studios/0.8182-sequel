@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Opoint8182.Leaderboard;
+using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -88,6 +89,8 @@ namespace Opoint8182.UI
 		private StateAction m_action = StateAction.None;
 		private VisualElement m_selfRow;
 		private string m_selfName = LeaderboardPlaceholderData.SAMPLE_SELF_NAME;
+		// The last successful read of the board on show, kept for the share card (null while loading, empty or failed).
+		private TopScoresResult? m_lastRead;
 
 		/// <summary>Replaces the default data source (the dev gallery uses this to force states).</summary>
 		public LeaderboardProvider Provider { get; set; }
@@ -98,7 +101,7 @@ namespace Opoint8182.UI
 		/// <summary>The back chevron was tapped (the owner pops the router).</summary>
 		public event Action BackRequested;
 
-		/// <summary>SHARE MY RANK was tapped. Sharing is not built yet, so the owner shows an arrives-later toast.</summary>
+		/// <summary>SHARE MY RANK was tapped; the owner asks <see cref="TryBuildShareCard"/> for the card and shares it.</summary>
 		public event Action ShareRequested;
 
 		/// <summary>FLY NOW on the empty state was tapped (the owner leaves the screen and starts the run flow).</summary>
@@ -155,6 +158,24 @@ namespace Opoint8182.UI
 			m_weeksBack = 0;
 			m_tabs.SetSelectedIndexWithoutNotify(0);
 			Load();
+		}
+
+		/// <summary>
+		/// The share card for the board on show: its top five and the player's own finish in the results layout (this week, an
+		/// earlier closed week or all-time). False when there is nothing to share (no board read yet, or the player has no row on it).
+		/// </summary>
+		public bool TryBuildShareCard(out ShareCardData card)
+		{
+			card = null;
+			if (!m_lastRead.HasValue) return false;
+
+			var weekly = m_tab == LeaderboardTab.Weekly;
+			var result = LeaderboardLastWeekResultsSource.Build(weekly ? m_weekRange.text : string.Empty, m_lastRead.Value);
+			if (!result.HasValue || !result.Value.HasRank) return false;
+
+			var board = !weekly ? ShareBoard.AllTime : m_weeksBack == 0 ? ShareBoard.ThisWeek : ShareBoard.ClosedWeek;
+			card = ShareCardData.ForRank(board, result.Value);
+			return true;
 		}
 
 		/// <summary>Drops any request still in flight. Call when the router hides the screen.</summary>
@@ -234,6 +255,7 @@ namespace Opoint8182.UI
 		private async void Load()
 		{
 			var token = ++m_loadToken;
+			m_lastRead = null;
 
 			RefreshHeader();
 			ShowLoading();
@@ -275,6 +297,7 @@ namespace Opoint8182.UI
 			}
 
 			CacheSelfName(result);
+			m_lastRead = result;
 			ShowRows(result.Rows, result.Self);
 		}
 

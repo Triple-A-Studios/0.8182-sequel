@@ -163,6 +163,13 @@ namespace Opoint8182.UI
 
 		private void OnActionClicked(GameOverAction action)
 		{
+			// SHARE renders a sample run card (the Editor saves it into ShareCards/); the other buttons have nothing to do here.
+			if (action == GameOverAction.Share)
+			{
+				_ = ShareService.ShareAsync(ShareCardData.ForRun(184920, RunEndCause.Wrecked, false, 87, true));
+				return;
+			}
+
 			ShowArrivesLaterToast();
 		}
 

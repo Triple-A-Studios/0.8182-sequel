@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Opoint8182.Share;
 using UnityEngine.UIElements;
 
 namespace Opoint8182.UI
@@ -9,8 +10,8 @@ namespace Opoint8182.UI
 	/// Last week's results (mockup S11): the closed week's top five on the left, the player's finish on the right with
 	/// SHARE MY RESULT (only when they have a ranked run) and CONTINUE. Plain class over the instance's root, like the
 	/// menu screens. Shown by <see cref="LaunchFlowHost"/> between loading and the menu; all data comes in as a
-	/// <see cref="LastWeekResult"/>. SHARE shows the arrives-later toast (share belongs to the Daily play structure
-	/// milestone, and it only ever runs on a tap).
+	/// <see cref="LastWeekResult"/>. SHARE shares the result as an image through <see cref="ShareService"/> (only on the tap)
+	/// and the toast reports a save or a failure.
 	/// </summary>
 	public class LastWeekResultsScreen
 	{
@@ -26,11 +27,12 @@ namespace Opoint8182.UI
 		private readonly UiToast m_toast;
 
 		private TaskCompletionSource<bool> m_continued;
+		private LastWeekResult m_result;
 
 		/// <summary>CONTINUE was tapped.</summary>
 		public event Action ContinueRequested;
 
-		/// <summary>SHARE MY RESULT was tapped (the screen itself shows the toast).</summary>
+		/// <summary>SHARE MY RESULT was tapped (the screen itself shares the card and shows the toast).</summary>
 		public event Action ShareRequested;
 
 		public bool IsVisible => m_root.resolvedStyle.display != DisplayStyle.None;
@@ -58,6 +60,7 @@ namespace Opoint8182.UI
 
 		public void Show(LastWeekResult result)
 		{
+			m_result = result;
 			m_range.text = result.RangeText.ToUpperInvariant();
 
 			BuildRows(result);
@@ -65,7 +68,7 @@ namespace Opoint8182.UI
 			m_card.EnableInClassList("lw-card--norank", !result.HasRank);
 			if (result.HasRank)
 			{
-				m_rank.text = $"#{result.Rank}";
+				m_rank.text = $"#{result.Rank.ToString("N0", CultureInfo.InvariantCulture)}";
 				m_pilots.text = $"of {result.Pilots.ToString("N0", CultureInfo.InvariantCulture)} pilots · top {result.TopPercent}%";
 				m_score.text = result.BestScore.ToString("N0", CultureInfo.InvariantCulture);
 				m_name.text = $"{result.PlayerName} · best run of the week";
@@ -142,11 +145,13 @@ namespace Opoint8182.UI
 			}
 		}
 
-		private void OnShare()
+		private async void OnShare()
 		{
 			ShareRequested?.Invoke();
 
-			m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
+			var result = await ShareService.ShareAsync(ShareCardData.ForRank(ShareBoard.LastWeek, m_result));
+			var message = ShareService.ToastFor(result);
+			if (message != null) m_toast.Show(message);
 		}
 
 		private void OnContinue()

@@ -300,6 +300,12 @@ namespace Opoint8182.Leaderboard
 		/// </summary>
 		public static bool HasEverRanked() => PlayerPrefs.GetInt(k_WeeklyBestKey, 0) > 0 || PlayerPrefs.GetInt(k_AllTimeBestKey, 0) > 0;
 
+		/// <summary>
+		/// The player's all-time best as last stored on this device (set from the server's reply to a submit), 0 when there is none.
+		/// Game Over compares a run with it for NEW BEST! / YOUR BEST. Soft like the other stored bests: clearing storage resets it.
+		/// </summary>
+		public static int StoredAllTimeBest => PlayerPrefs.GetInt(k_AllTimeBestKey, 0);
+
 		/// <summary>True when a score can improve the stored best, so a submit is worth a call.</summary>
 		public static bool ShouldSubmit(int score, int storedBest) => score > storedBest;
 

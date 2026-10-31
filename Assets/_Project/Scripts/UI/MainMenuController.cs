@@ -143,7 +143,7 @@ namespace Opoint8182.UI
 
 			m_leaderboardScreen = new LeaderboardScreen(root.Q<VisualElement>("screen-leaderboard"));
 			m_leaderboardScreen.BackRequested += () => m_router.Back();
-			m_leaderboardScreen.ShareRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage);
+			m_leaderboardScreen.ShareRequested += OnLeaderboardShare;
 			m_leaderboardScreen.FlyNowRequested += OnLeaderboardFlyNow;
 
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
@@ -455,11 +455,19 @@ namespace Opoint8182.UI
 			if (!DailyPlay.IsServerStateKnown) FetchDailyState(false);
 		}
 
-		// SHARE on the Profile screen: renders the profile card and hands it to the platform (Android share sheet, an Editor PNG).
-		// Only ever on this tap; a second tap while one runs is ignored, a failure says so neutrally.
-		private async void OnProfileShare()
+		// SHARE on the Profile screen and on the leaderboard: renders the card and hands it to the platform (Android share sheet, WebGL
+		// download, an Editor PNG). Only ever on a tap; a second tap while one runs is ignored, a failure says so neutrally.
+		private void OnProfileShare() => ShareCard(ShareCardData.ForProfile());
+
+		// SHARE MY RANK: the board on show (this week, a closed week or all-time) with the player's own finish, as an image.
+		private void OnLeaderboardShare()
 		{
-			var result = await ShareService.ShareAsync(ShareCardData.ForProfile());
+			if (m_leaderboardScreen.TryBuildShareCard(out var card)) ShareCard(card);
+		}
+
+		private async void ShareCard(ShareCardData card)
+		{
+			var result = await ShareService.ShareAsync(card);
 			var message = ShareService.ToastFor(result);
 			if (message != null && this != null && m_toast != null) m_toast.Show(message);
 		}

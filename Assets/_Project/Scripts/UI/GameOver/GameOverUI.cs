@@ -4,6 +4,7 @@ using Opoint8182.Daily;
 using Opoint8182.Game;
 using Opoint8182.Leaderboard;
 using Opoint8182.Score;
+using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,6 +29,13 @@ namespace Opoint8182.UI
 		private int m_lastScore;
 		private GameOverRow m_row;
 		private bool m_retrying;
+
+		// What the share card needs about the run that just ended (set at run end, the rank once the submit answers).
+		private RunEndCause m_lastCause;
+		private int m_lastRank;
+		private int m_bestBefore;
+		private bool m_lastNewBest;
+		private bool m_lastPractice;
 
 		protected override void OnEnable()
 		{
@@ -59,7 +67,7 @@ namespace Opoint8182.UI
 
 		protected override void OnViewReady(GameOverView view)
 		{
-			view.SetNewBest(GameOverPlaceholderData.ShowNewBest);
+			view.SetNewBest(false);
 			view.SetStats(GameOverPlaceholderData.Distance, GameOverPlaceholderData.Flattened, GameOverPlaceholderData.BestCombo, GameOverPlaceholderData.Earned);
 			view.ApplyAttemptState(GameOverAttemptState.Competitive);
 
@@ -73,6 +81,13 @@ namespace Opoint8182.UI
 			var score = 0;
 			if (m_scoreSystem != null) score = m_scoreSystem.CurrentScore;
 			m_lastScore = score;
+			m_lastCause = cause;
+			m_lastPractice = m_gameManager != null && m_gameManager.IsPracticeRun;
+
+			// NEW BEST! when a competitive run beats the stored all-time best (read before the submit updates it), otherwise YOUR BEST with
+			// that best. A practice run reaches no board, so it never counts as a new best.
+			m_bestBefore = LeaderboardService.StoredAllTimeBest;
+			m_lastNewBest = !m_lastPractice && score > m_bestBefore;
 
 			// Attempts are spent at run start, so what is left now is what the row and the rank status report.
 			m_row = GameOverRow.Derive(DailyPlay.Mode, m_gameManager != null && m_gameManager.IsPracticeRun, DailyPlay.AttemptsLeft,
@@ -83,6 +98,8 @@ namespace Opoint8182.UI
 				View.ApplyAttemptState(m_row);
 				View.SetCause(cause);
 				View.SetScore(score);
+				View.SetNewBest(m_lastNewBest);
+				View.SetYourBest(!m_lastNewBest && m_bestBefore > 0 ? m_bestBefore.ToString("N0") : null);
 				View.Show();
 			}
 
@@ -99,6 +116,7 @@ namespace Opoint8182.UI
 			// Each run end (or retry) bumps the token so a result that lands after a newer attempt (or after the scene
 			// reloaded under it) is dropped instead of overwriting the chip.
 			var token = ++m_submitToken;
+			m_lastRank = 0;
 			View?.HideRank();
 
 			if (score <= 0) return;
@@ -142,15 +160,23 @@ namespace Opoint8182.UI
 			// there is none (a cleared device).
 			if (result.Skipped && result.Rank <= 0) return;
 
+			m_lastRank = result.Rank;
+
 			// The chip starts as just the number. A better rank counts down to it, then the chip widens to bring in the
 			// arrow (no place count, the service does not report one) and the attempts status ("THIS WEEK · 2 LEFT TODAY");
 			// same or worse: the rank alone (no red, no loss framing).
 			View.ShowRankResult(result.Rank, result.Trend == RankTrend.Up, 0, GameOverView.DefaultRankCaption, m_row.RankStatus, RankChipStyle.Amber, true);
 		}
 
-		// RETRY reloads the scene; MAIN MENU reloads it into the menu. PRACTICE starts a practice run, LEADERBOARD (and the rank chip) reload into the menu on the leaderboard screen; SHARE waits for Pass 8.
+		// RETRY reloads the scene; MAIN MENU reloads it into the menu. PRACTICE starts a practice run, LEADERBOARD (and the rank chip) reload into the menu on the leaderboard screen; SHARE shares the run as an image.
 		private void HandleActionClicked(GameOverAction action)
 		{
+			if (action == GameOverAction.Share)
+			{
+				ShareRun();
+				return;
+			}
+
 			if (action == GameOverAction.Retry)
 			{
 				if (m_gameManager == null) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -182,6 +208,16 @@ namespace Opoint8182.UI
 			}
 
 			ShowArrivesLaterToast();
+		}
+
+		// SHARE: the Game Over screen as an image (the run's score, cause, rank chip with the player's name, NEW BEST! / YOUR BEST), only on this tap.
+		// A second tap while one runs is ignored; a failure says so neutrally.
+		private async void ShareRun()
+		{
+			var card = ShareCardData.ForRun(m_lastScore, m_lastCause, m_lastPractice, m_lastRank, m_lastNewBest, m_bestBefore);
+			var result = await ShareService.ShareAsync(card);
+			var message = ShareService.ToastFor(result);
+			if (message != null && this != null && View != null) View.ShowToast(message);
 		}
 
 		// A competitive RETRY spends the next attempt on the server (so it takes a moment; taps are ignored meanwhile), a practice one

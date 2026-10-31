@@ -87,11 +87,17 @@ namespace Opoint8182.UI
 		/// <c>IsSelf</c> among the rows or the pinned <c>Self</c>; without one it is the neutral no-rank variant. The top
 		/// percent is the rank over the entry count, rounded up, 1 to 100.
 		/// </summary>
-		public static LastWeekResult? Build(ArchivedWeek week, TopScoresResult read)
+		public static LastWeekResult? Build(ArchivedWeek week, TopScoresResult read) =>
+			Build(LeaderboardWeek.RangeText(week.StartUtc, week.EndUtc), read);
+
+		/// <summary>
+		/// The same, for any board read and a range text of the caller's choosing (the leaderboard screen builds its share card
+		/// from the board it is showing).
+		/// </summary>
+		public static LastWeekResult? Build(string range, TopScoresResult read)
 		{
 			if (read.Rows.Count == 0 && !read.Self.HasValue) return null;
 
-			var range = LeaderboardWeek.RangeText(week.StartUtc, week.EndUtc);
 			var winners = new List<LeaderboardRow>(k_WinnerCount);
 			LeaderboardRow? own = null;
 			for (var i = 0; i < read.Rows.Count; i++)
