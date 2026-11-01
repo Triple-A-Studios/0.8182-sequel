@@ -39,7 +39,7 @@ Naming is enforced by `.editorconfig` (ReSharper naming rules) — follow it for
 ## Platform constraints
 
 - Landscape-only. Android builds are locked to landscape; the web build detects a portrait page on the loading screen and shows a "rotate your device" prompt (it holds the hand-off to the menu until the page is landscape).
-- Server side: the game talks to the Unity Gaming Services environment named by `LeaderboardService.m_environmentName` (the Bootstrap scene object): `dev` while the Cloud Code / boards work is in progress, production at Daily play structure Pass 9 (go-live checklist in `Docs/technical-design/leaderboard.md`). Competitive play needs the server; practice works offline.
+- Server side: the game talks to the Unity Gaming Services environment its build type picks (`LeaderboardService.EnvironmentName`, two names serialized on the Bootstrap scene object): the Editor and Development Builds use `dev`, release builds use `production` (go-live checklist in `Docs/technical-design/leaderboard.md`; the dev-only `DevSetState` script is never deployed to production). Competitive play needs the server; practice works offline.
 - Build/deploy: iterate in the Editor, check on an Android phone and on WebGL (the developer uses a private itch.io draft page for the phone-browser check); a public web deploy (itch.io or a custom site) is for after the Alpha systems are in. The project builds WebGL with Brotli and no decompression fallback (an itch upload may need Gzip or the fallback), and every WebGL build rewrites the tracked `Data/Plugins/lib_burst_generated.wasm` (restore it with `git checkout` rather than committing it).
 
 <!-- game-dev-docs:start -->

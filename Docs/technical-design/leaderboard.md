@@ -15,7 +15,7 @@ A `PersistentSingleton<LeaderboardService>` (`TripleA.Utils.Singletons`) on the 
 
 ## Boards
 
-Created in the Unity dashboard, once per environment (the game talks to the environment named by the serialized `m_environmentName` on the same object: `dev` while the server side is built, production at Pass 9); the ids are the serialized `m_weeklyBoardId` / `m_allTimeBoardId` on the Bootstrap scene object (a stale serialized value overrides a code default, so change both).
+Created in the Unity dashboard, once per environment (the game talks to the environment the build type picks, see [Environments](#environments-and-go-live-daily-play-structure-pass-9b)); the ids are the serialized `m_weeklyBoardId` / `m_allTimeBoardId` on the Bootstrap scene object (a stale serialized value overrides a code default, so change both).
 
 | Board | Id | Config |
 |---|---|---|
@@ -57,15 +57,27 @@ JavaScript Cloud Code scripts in `Assets/_Project/CloudCode/` (each self-contain
 | `GetDailyState` | none | reads today's count on the server's day (nothing written) | `{ ok, attemptsUsed, attemptsLeft, attemptsMax, nowMs, nextResetMs }` |
 | `StartRun` | none | spends one of the 3 attempts and writes a fresh ticket (an unused earlier ticket is replaced, so an abandoned run still counts and cannot be submitted) | `{ ok, ticketId, attemptNumber, attemptsLeft, nowMs, nextResetMs }` or `{ ok: false, code: NO_ATTEMPTS / BUSY / ERROR }` |
 | `SubmitScore` | `ticketId` (String), `score` (Numeric) | checks the ticket and the score, marks the ticket used, writes both boards with the service token and reads each entry back (the add call returns an empty body) | `{ ok, weekly: { rank (1-based), score }, allTime: { score } or null }` or `{ ok: false, code: NO_TICKET / TICKET_USED / TICKET_EXPIRED / IMPLAUSIBLE / BUSY / BOARD_ERROR / ERROR }` |
-| `DevSetState` | `used`, `dayOffset`, `ticketStartedAgoMs` (Numeric, optional) | sets the state for checks and the Tools > Daily Play reset item; refuses when `context.environmentName` is `production` | `{ ok, used, day, ticketId, nowMs }` or `{ ok: false, code: NOT_ALLOWED }` |
+| `DevSetState` | `used`, `dayOffset`, `ticketStartedAgoMs` (Numeric, optional) | sets the state for checks and the Tools > Daily Play reset item; refuses when `context.environmentName` is `production`, and is **not deployed to production** | `{ ok, used, day, ticketId, nowMs }` or `{ ok: false, code: NOT_ALLOWED }` |
 
 **`SubmitScore` checks, in order:** the score is a positive whole number within int range; the caller has a ticket with that id; it is unused; it is younger than `MAX_RUN_AGE_MS` (3 h); and `score <= MAX_SCORE_PER_SECOND (1500) * server elapsed seconds since the ticket + SCORE_SLACK (5000)` (elapsed time is the server's own, never client-reported). An implausible score burns the ticket, so the bound cannot be probed. The ticket is marked used with the lock before the boards are written; a weekly-board error restores it so the client's retry works, an all-time error only leaves that board unwritten. Every accepted submit logs `score` and `elapsedSec` (Cloud Code logs in the dashboard): tune the bound from those. The combo multiplier tops out at x4 and building values are small, so real runs sit far below it.
 
 **Access policy.** `Deny` / `Write` / `Player` on `urn:ugs:leaderboards:*` (a Player token cannot write a score; reads and the scripts' service-token writes still work). Unity's documented narrower resource (`.../scores/players/*`) did not block client writes in the spike; the broad one does.
 
-**Deploying** (Editor, Window > Services > Deployment, with the right environment selected; no CLI needed): reimport the scripts first (right-click > Reimport: the Editor loses the loaded scripts' names after a recompile and the deploy fails with "found duplicated"), then deploy the four scripts and the `.ac`. Script parameters live in each script's `.meta` (`Parameters:` with `ParameterType` 0 String / 1 Numeric and `Required`), not in the code: the dashboard and the Editor ignore `module.exports.params` here. The boards themselves are created in the dashboard, once per environment.
+**Deploying** (Editor, Window > Services > Deployment, with the right environment selected; no CLI needed): reimport the scripts first (right-click > Reimport: the Editor loses the loaded scripts' names after a recompile and the deploy fails with "found duplicated"), then deploy `GetDailyState`, `StartRun`, `SubmitScore` and the `.ac` (`DevSetState` only ever goes to `dev`). Script parameters live in each script's `.meta` (`Parameters:` with `ParameterType` 0 String / 1 Numeric and `Required`), not in the code: the dashboard and the Editor ignore `module.exports.params` here. The boards themselves are created in the dashboard, once per environment.
 
-**Environments.** The Editor and the game use `dev` (the existing environment) while the server side is built: `LeaderboardService.m_environmentName` (serialized on the Bootstrap scene object) and the Editor's selected environment (`ProjectSettings/Packages/com.unity.services.core/Settings.json`). Go-live (Pass 9): recreate both boards in production, deploy the four scripts and the policy to production, set `m_environmentName` to production, then delete the leftover spike scripts, the `spike_counter` Cloud Save data and the test entries from production.
+## Environments and go-live (Daily play structure, Pass 9b)
+
+**The environment follows the build type.** `LeaderboardService` has two serialized names on the Bootstrap scene object, `m_developmentEnvironmentName` (`dev`) and `m_releaseEnvironmentName` (`production`), and `EnvironmentName` picks one with `ResolveEnvironmentName(Application.isEditor || Debug.isDebugBuild, ...)`: the Editor and **Development Builds** use `dev`, every **release build** (Development Build unticked: what players get, including the itch page) uses `production`. The chosen name is logged once at start-up (`[LeaderboardService] Unity Gaming Services environment: ...`, in the Editor console, the browser console and `adb logcat`). The Editor's selected environment for the Deployment window stays `dev` (`ProjectSettings/Packages/com.unity.services.core/Settings.json`); pick production in that window only to deploy to it. Boards, scripts, the access policy and Cloud Save data are all per environment, so `dev` and `production` never share a score.
+
+**Go-live checklist (developer steps in the dashboard and the Deployment window; none of it can be done from code):**
+1. In the production environment create the two boards from the table above: `weekly_scores` (High to Low, Best Score, reset weekly on Monday 00:00 UTC, archive on reset) and `alltime_scores` (High to Low, Best Score, never resets).
+2. In the Editor open Window > Services > Deployment, select the **production** environment, reimport the scripts (right-click > Reimport) and deploy `GetDailyState.js`, `StartRun.js`, `SubmitScore.js` **and** `Access/LeaderboardsAccessControl.ac`. Production had no access policy, so the policy goes up with the first deploy or clients could write to the boards. Do **not** deploy `DevSetState.js` to production.
+3. Delete what the spike left in production: the spike Cloud Code scripts, the `spike_counter` Cloud Save data and any test entries on both boards (dashboard: Leaderboards, then the board's entries).
+4. Delete the unused `daily_scores` board (every environment that has it).
+5. Switch the Deployment window's environment back to `dev`.
+6. Check from a **release build** (see Pass 9c): a competitive run puts the player on both production boards (dashboard), the dashboard's Access Control page shows the deny rule on `urn:ugs:leaderboards:*`, and a Development Build still logs and uses `dev`.
+
+Until step 2 is done a release build finds no scripts in production: competitive PLAY shows the unreachable state (practice still works).
 
 ## Reads and cache (Pass 3a)
 
@@ -104,7 +116,7 @@ Run 2026-10-25 against the real boards. The spike was a throwaway script run thr
 
 Run 2026-10-29 in the `dev` environment (the existing one, reused). Throwaway scripts driven from the Unity CLI in play mode; the findings below are what the real scripts (7b) and client (7c) build on.
 
-- **Environment.** Everything is per environment: boards, scripts, the access policy and Cloud Save data. The game picks the environment with `LeaderboardService.m_environmentName` (`InitializationOptions.SetEnvironmentName`; `dev` for now, Pass 9 moves it to production). `weekly_scores` / `alltime_scores` were recreated in `dev`.
+- **Environment.** Everything is per environment: boards, scripts, the access policy and Cloud Save data. The game picks the environment by build type (`LeaderboardService.EnvironmentName` through `InitializationOptions.SetEnvironmentName`; Editor and Development Builds `dev`, release builds `production`, see [Environments and go-live](#environments-and-go-live-daily-play-structure-pass-9b)). `weekly_scores` / `alltime_scores` were recreated in `dev`.
 - **Packages.** `com.unity.services.cloudcode` **2.10.4** (3.0.0 needs Unity 6000.7), `com.unity.services.deployment` 1.7.2 and `com.unity.services.tooling` 1.4.1 (the last adds Create > Services > Access Control Configuration). Scripts and the policy deploy from the Editor's Deployment window; no CLI needed.
 - **Script context.** `{ params, context, logger }`; `context` has `playerId`, `projectId`, `environmentId`, `environmentName`, `accessToken` and `serviceToken`. The server clock is `Date.now()`.
 - **Client call.** `CloudCodeService.Instance.CallEndpointAsync<JToken>(name, dict)`: an object result cannot be read as `string` (`DeserializationException`).

@@ -200,9 +200,11 @@ namespace Opoint8182.Leaderboard
 		// Live boards are re-read at most this often; archives never change, so the versions result lives until the next reset.
 		private const float k_LiveCacheSeconds = 90f;
 
-		// The Unity Gaming Services environment the game talks to. "dev" while the server side (boards, Cloud Code, access
-		// policy) is built; set to "production" when it ships (Daily play structure Pass 9). Empty = the project's default environment.
-		[SerializeField] private string m_environmentName = "dev";
+		// The Unity Gaming Services environment the game talks to follows the build type (Daily play structure Pass 9b): the Editor and
+		// Development Builds use the development one, so testing never touches the real boards, and release builds use the release one.
+		// Empty = the project's default environment. Everything (boards, scripts, access policy, Cloud Save data) is per environment.
+		[SerializeField] private string m_developmentEnvironmentName = "dev";
+		[SerializeField] private string m_releaseEnvironmentName = "production";
 		[SerializeField] private string m_weeklyBoardId = "weekly_scores";
 		[SerializeField] private string m_allTimeBoardId = "alltime_scores";
 		[SerializeField] private float m_requestTimeoutSeconds = 10f;
@@ -219,6 +221,13 @@ namespace Opoint8182.Leaderboard
 		// Closed weeks never change, so a read of one lasts the whole session (no TTL, not touched by a submit).
 		private readonly Dictionary<string, Task<TopScoresResult>> m_archiveCache = new();
 		private Task m_readyTask;
+
+		/// <summary>The Unity Gaming Services environment this build talks to (chosen by <see cref="ResolveEnvironmentName"/>).</summary>
+		public string EnvironmentName => ResolveEnvironmentName(Application.isEditor || Debug.isDebugBuild, m_developmentEnvironmentName, m_releaseEnvironmentName);
+
+		/// <summary>The development environment for the Editor and Development Builds, the release one for everything else.</summary>
+		public static string ResolveEnvironmentName(bool developmentBuild, string developmentName, string releaseName) =>
+			developmentBuild ? developmentName : releaseName;
 
 		public ServiceState State { get; private set; } = ServiceState.Idle;
 		public event Action<ServiceState> StateChanged;
@@ -548,7 +557,9 @@ namespace Opoint8182.Leaderboard
 				if (UnityServices.State != ServicesInitializationState.Initialized)
 				{
 					var options = new InitializationOptions();
-					if (!string.IsNullOrEmpty(m_environmentName)) options.SetEnvironmentName(m_environmentName);
+					var environment = EnvironmentName;
+					if (!string.IsNullOrEmpty(environment)) options.SetEnvironmentName(environment);
+					Debug.Log(k_LogPrefix + "Unity Gaming Services environment: " + (string.IsNullOrEmpty(environment) ? "(project default)" : environment));
 					await UnityServices.InitializeAsync(options);
 				}
 				if (!AuthenticationService.Instance.IsSignedIn)
