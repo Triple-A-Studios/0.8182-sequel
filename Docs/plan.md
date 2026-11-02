@@ -194,7 +194,13 @@ Display name and rename, persisted lifetime stats, per-run stats feeding Game Ov
 - **Pass 3** — Profile screen real stats (replaces `ProfilePlaceholderData`)
 - **Pass 4** — Display name persistence and moderation
 - **Pass 5** — Badges (11 tiered badges, a hidden one, tap popup, Game Over toast, hidden-badge pip)
-- **Pass 6** — Badge UI changes *(not yet scoped; the changes are decided when the pass is reached)*
+- **Pass 6** — Badge UI changes: an Achievements screen, picked badges on the Profile ([plan in badges.md](technical-design/badges.md#pass-6-plan-badge-ui-changes))
+  - **6a** — Plan the new badge UI
+  - **6b** — Badge picks store (picked set, default, persistence)
+  - **6c** — Profile badge card (picked tiles, bigger tiles, two-line ellipsis, chevron header)
+  - **6d** — Achievements screen (route, list, rows, pips, popup)
+  - **6e** — Pick mode
+  - **6f** — Hardening, share card, galleries, docs
 - **Pass 7** — Hardening, device checks and close-out
 
 ### Milestone: Backlog and Alpha close-out

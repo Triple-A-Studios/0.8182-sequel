@@ -53,3 +53,36 @@ Editor menu `Tools > Badges` (`Scripts/Editor/BadgeMenu.cs`): Log Badges, Evalua
 ## Out of scope
 
 Distinct looks for the future paid Android build, other profile effects, and badge effects on Game Over and the boards: later (Beta).
+
+## Pass 6 plan: badge UI changes
+
+Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. No mockup file exists for these screens; the layout below was reviewed as a sketch in the planning chat, so sizes are proposals to adjust when each sub-pass is built.
+
+### What changes
+
+1. **Profile badge card:** shows only the badges the player **picked** (up to 6) plus every **earned hidden** badge (hidden ones first, outside the 6). Tiles get a little bigger so the full name reads: **152 reference px wide** (was 128), square, and the row **shrinks the tiles slightly to fit** instead of scrolling when 6 + hidden are too wide. If a name still does not fit, each of the two title lines ends in an ellipsis ("HOARD..."). The line under the row ("Tap a badge to see its tiers.") is **removed**; the card header becomes the entry point: **BADGES  x / 11  ›** with a chevron, the whole header row tappable (at least 80 px tall). Tapping a tile still opens the tier popup, as now.
+2. **Achievements screen** (new, route **Menu > Profile > Achievements**, back returns to the Profile): a vertically scrollable list of **every counted badge plus the earned hidden ones**. Row = name as the heading, the description under it, the **three tier pips on the right** (bronze, silver, gold; earned ones filled in their colour, unearned hollow). Locked badges show name, description and empty pips, dimmed. Earned hidden badges come first with the gold outline and the same coral "new" pip until opened; unearned hidden badges are not listed. Tapping a row opens the **same tier popup** as on the Profile (the popup layer is shared, so it opens over the Achievements screen). The header carries the back chevron, ACHIEVEMENTS, the `x / 11` chip and the **PICK** button on the right.
+3. **Pick mode** (PICK turns the same list into a checklist): a checkbox per **earned counted** badge (locked rows and hidden rows have none), the chip reads "x / 6 picked", PICK becomes DONE. At 6 ticked, the unticked rows' checkboxes grey out (untick one to free a slot; no error message). The whole row toggles the tick in this mode (no popup). **DONE saves**; back or Escape **discards** the ticks (same rule as the name edit). PICK is **hidden** until at least one counted badge is earned.
+
+### Rules
+
+- **Picked set:** earned counted badges only, **catalog order** on the Profile (not pick order). Before the player has ever pressed DONE, the Profile shows the **first 6 earned** in catalog order (derived live). After the first DONE the set is stored and **never changes by itself**: a badge earned later appears only once picked; fewer than 6 picked leaves no placeholder slots (only real tiles are drawn). Hidden earned badges are always shown and never count toward the 6.
+- **Names:** the tile and the row heading both use the current stand-in titles (DEMO CREW, HOT STREAK...), single line in the list; the descriptive names stay in the catalog notes.
+- **Storage:** `PlayerPrefs` like the rest (a `badge.picked` string of ids plus a "has picked" flag); local only.
+- **Chevron** is drawn as a shape (rotated border corner), not a glyph, because only baked glyphs may be used.
+- **Ellipsis:** UI Toolkit ellipsises only a single non-wrapping line, so a tile title becomes two labels (one per line), each `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`.
+- **Share card:** the Profile share card shows the picked tiles and drops the chevron (`PrepareForShare`).
+- **Pip cue for a hidden badge** stays as in Pass 5 (Profile tile, menu PROFILE chip) and is also shown on the hidden row in the Achievements list; opening its popup from either place marks it seen.
+- **Layout budget:** the tiles grow 24 px but the caption line (about 40 px) goes, so the card is no taller; the aspect sweep (panels down to 1029 px logical height) must still pass.
+- **Touch targets:** list rows, the header row, PICK / DONE and the checkboxes are at least 80 reference px.
+
+### Sub-passes
+
+| Sub-pass | Content |
+|---|---|
+| 6a | Plan the new UI (this section) |
+| 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu |
+| 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route |
+| 6d | Achievements screen: `AchievementsScreen.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back |
+| 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned |
+| 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
