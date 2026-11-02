@@ -12,6 +12,12 @@ namespace Opoint8182.UI
 				? (meters / 1000f).ToString("0.0", CultureInfo.InvariantCulture) + " km"
 				: Mathf.RoundToInt(meters).ToString(CultureInfo.InvariantCulture) + " m";
 
+		/// <summary>A lifetime distance for the Profile tile: meters, then one decimal of km, then whole km from 100 km ("850 m", "12.4 km", "418 km").</summary>
+		public static string TotalDistance(float meters) =>
+			meters >= 100000f
+				? Count(Mathf.RoundToInt(meters / 1000f)) + " km"
+				: Distance(meters);
+
 		public static string Count(int value) => value.ToString("N0", CultureInfo.InvariantCulture);
 	}
 }

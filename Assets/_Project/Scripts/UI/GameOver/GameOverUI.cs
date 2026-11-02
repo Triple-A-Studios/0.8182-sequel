@@ -89,7 +89,7 @@ namespace Opoint8182.UI
 			// NEW BEST! when a competitive run beats the player's best: the larger of the stored all-time best (read before the submit
 			// updates it) and the local high score as it stood before this run (the run itself is already recorded). Otherwise YOUR
 			// BEST with that best. A practice run reaches no board, so it never counts as a new best.
-			m_bestBefore = Mathf.Max(LeaderboardService.StoredAllTimeBest, m_gameManager != null ? m_gameManager.PreviousHighScore : 0);
+			m_bestBefore = PlayerBest.Of(m_gameManager != null ? m_gameManager.PreviousHighScore : 0);
 			m_lastNewBest = !m_lastPractice && score > m_bestBefore;
 			m_lastRun = m_gameManager != null ? m_gameManager.LastRun : default;
 

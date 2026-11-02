@@ -1,4 +1,5 @@
 using System;
+using Opoint8182.Stats;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,8 +7,9 @@ namespace Opoint8182.UI
 {
 	/// <summary>
 	/// Profile screen (mockup S08): portrait slot, display name card, six stat tiles, equipped plane / crash FX cards
-	/// and the badge row. Plain class over the instance's root, like <see cref="SettingsScreen"/>. Everything except the
-	/// display name is static placeholder data (<see cref="ProfilePlaceholderData"/>); the name is edited in place
+	/// and the badge row. Plain class over the instance's root, like <see cref="SettingsScreen"/>. The six stat tiles are the
+	/// player's real lifetime stats (<see cref="PlayerStats"/>); the rest except the display name is static placeholder data
+	/// (<see cref="ProfilePlaceholderData"/>); the name is edited in place
 	/// (pencil -> text field with dice re-roll and a tick, <see cref="UiProfileState.MAX_NAME_LENGTH"/> characters) and
 	/// kept in <see cref="UiProfileState"/> for the session only.
 	/// </summary>
@@ -125,10 +127,11 @@ namespace Opoint8182.UI
 			CancelEdit();
 		}
 
-		/// <summary>Reloads the name from <see cref="UiProfileState"/> and fits the stat values to their tiles again.</summary>
+		/// <summary>Reloads the name from <see cref="UiProfileState"/> and the stats from <see cref="PlayerStats"/>, and fits the stat values to their tiles again.</summary>
 		public void Refresh()
 		{
 			m_nameLabel.text = UiProfileState.DisplayName;
+			BindLifetimeStats();
 			foreach (var name in m_S_StatValueNames) FitStatValue(m_root.Q<Label>(name));
 		}
 
@@ -249,14 +252,20 @@ namespace Opoint8182.UI
 		{
 			SetText("profile-id", ProfilePlaceholderData.ID_LINE);
 			SetText("profile-coins", ProfilePlaceholderData.COINS);
-			SetText("stat-high-score", ProfilePlaceholderData.HIGH_SCORE);
-			SetText("stat-distance", ProfilePlaceholderData.DISTANCE_FLOWN);
-			SetText("stat-buildings", ProfilePlaceholderData.BUILDINGS_DOWN);
-			SetText("stat-combo", ProfilePlaceholderData.BEST_COMBO);
-			SetText("stat-runs", ProfilePlaceholderData.RUNS_FLOWN);
-			SetText("stat-perfect", ProfilePlaceholderData.PERFECT_CRASHES);
+			BindLifetimeStats();
 			SetText("profile-plane", ProfilePlaceholderData.EQUIPPED_PLANE);
 			SetText("profile-fx", ProfilePlaceholderData.CRASH_FX);
+		}
+
+		// The six tiles are the player's lifetime stats; HIGH SCORE is the same best Game Over compares a run with.
+		private void BindLifetimeStats()
+		{
+			SetText("stat-high-score", RunStatsFormat.Count(PlayerBest.Current));
+			SetText("stat-distance", RunStatsFormat.TotalDistance(PlayerStats.DistanceMeters));
+			SetText("stat-buildings", RunStatsFormat.Count(PlayerStats.BuildingsDestroyed));
+			SetText("stat-combo", RunStatsFormat.Count(PlayerStats.BestCombo));
+			SetText("stat-runs", RunStatsFormat.Count(PlayerStats.RunsFlown));
+			SetText("stat-perfect", RunStatsFormat.Count(PlayerStats.PerfectCrashes));
 		}
 
 		// A stat value is one big number in a tile whose width follows the panel's aspect; on a narrow panel (16:10 is the default WebGL canvas) a

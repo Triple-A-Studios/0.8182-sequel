@@ -1,4 +1,4 @@
-# Player stats (Player profile & run stats, Passes 1-2)
+# Player stats (Player profile & run stats, Passes 1-3)
 
 `Scripts/Stats/PlayerStats.cs`, namespace `Opoint8182.Stats`. A static class like [`SettingsService`](settings.md), so it needs no scene object and works from `Bootstrap` or a standalone scene. It holds the player's lifetime stats, the six tiles on the Profile screen. Local only (`PlayerPrefs`), no cloud, soft: clearing storage resets them.
 
@@ -25,7 +25,7 @@ Values load lazily and are clamped to zero or more. Integer totals saturate at `
 
 ## Wiring
 
-Recorded by `GameManager.EndRun` since Pass 2 (see the last section); the Profile tiles reading `PlayerStats` instead of `ProfilePlaceholderData` is Pass 3.
+Recorded by `GameManager.EndRun` since Pass 2 (see the last section); the Profile tiles read `PlayerStats` since Pass 3 (below).
 
 ## Testing
 
@@ -40,3 +40,9 @@ Editor menu `Tools > Player Stats` (`Scripts/Editor/PlayerStatsMenu.cs`): Log St
 **Game Over** (`GameOverUI`): the DISTANCE, FLATTENED and BEST COMBO chips come from `LastRun` through `RunStatsFormat` ("850 m" / "2.4 km", "1,204", "7": a plain count, no multiplication sign); the share card gets the same through `ShareCardData.ForRun(..., stats)`. EARNED stays `GameOverPlaceholderData.Earned` (currency milestone).
 
 **NEW BEST decision:** a competitive run is a new best when its score beats `max(LeaderboardService.StoredAllTimeBest, PreviousHighScore)`; otherwise YOUR BEST shows that larger value (a practice run never sets one). The two stores are both soft `PlayerPrefs`: the server-confirmed best covers a player who had ranked runs before the local store existed, the local one covers runs the server never confirmed (offline, refused).
+
+## Profile tiles (Pass 3)
+
+`ProfileScreen.BindLifetimeStats` fills the six tiles (also on every `Open()` / `Refresh()`, so the screen is current after a run; the share card builds a fresh screen so it is too): HIGH SCORE `PlayerBest.Current`, DISTANCE FLOWN `RunStatsFormat.TotalDistance` ("850 m", "12.4 km", whole km from 100 km), BUILDINGS DOWN, BEST COMBO (a plain count), RUNS FLOWN, PERFECT CRASHES (`N0` counts). A fresh install shows zeros.
+
+**`PlayerBest`** (`Scripts/Stats`) is the one definition of "the player's best score": the larger of the local `PlayerStats.HighScore` and `LeaderboardService.StoredAllTimeBest`. The HIGH SCORE tile and Game Over's NEW BEST / YOUR BEST both use it (`PlayerBest.Of(previousHighScore)` for the run being shown), so the two never disagree. The dev galleries (`MenuScreensGallery`, share samples) now show whatever is in the Editor's PlayerPrefs instead of the old sample numbers.

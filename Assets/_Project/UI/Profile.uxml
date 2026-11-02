@@ -66,7 +66,7 @@
                 <ui:VisualElement class="profile-row" picking-mode="Ignore">
                     <op:LipBox class="card stat-tile stat-tile--first">
                         <ui:Label text="BEST COMBO" class="stat-tile__label" picking-mode="Ignore" />
-                        <ui:Label name="stat-combo" text="&#215;11" class="stat-tile__value" picking-mode="Ignore" />
+                        <ui:Label name="stat-combo" text="11" class="stat-tile__value" picking-mode="Ignore" />
                     </op:LipBox>
                     <op:LipBox class="card stat-tile">
                         <ui:Label text="RUNS FLOWN" class="stat-tile__label" picking-mode="Ignore" />

@@ -18,22 +18,16 @@ namespace Opoint8182.UI
 	}
 
 	/// <summary>
-	/// Static stand-ins for what the profile screen cannot get yet (UI/art pass, Pass 6c): the stats, coins, id,
+	/// Static stand-ins for what the profile screen cannot get yet (UI/art pass, Pass 6c): the coins, id,
 	/// equipped plane / crash FX and the badge list. Nothing here is saved or earned; the real values arrive with the
-	/// "Player profile and run stats" milestone (stats, id, coins) and the shop / cosmetics milestone (equipped items).
+	/// "Player profile and run stats" milestone (id, badges), the currency (coins) and the shop / cosmetics milestone (equipped items).
+	/// The six stat tiles are real since that milestone's Pass 3 (<see cref="Opoint8182.Stats.PlayerStats"/>).
 	/// The display name is the one live part, see <see cref="UiProfileState"/>.
 	/// </summary>
 	public static class ProfilePlaceholderData
 	{
 		public const string ID_LINE = "ID #2VULYCQUJ · no account";
 		public const string COINS = "12,480";
-
-		public const string HIGH_SCORE = "184,920";
-		public const string DISTANCE_FLOWN = "418 km";
-		public const string BUILDINGS_DOWN = "6,204";
-		public const string BEST_COMBO = "×11";
-		public const string RUNS_FLOWN = "312";
-		public const string PERFECT_CRASHES = "1,088";
 
 		public const string EQUIPPED_PLANE = "Crop Duster Mk.II";
 		public const string CRASH_FX = "Confetti Blast";
