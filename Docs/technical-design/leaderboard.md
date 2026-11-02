@@ -59,7 +59,7 @@ JavaScript Cloud Code scripts in `Assets/_Project/CloudCode/` (each self-contain
 | `SubmitScore` | `ticketId` (String), `score` (Numeric) | checks the ticket and the score, marks the ticket used, writes both boards with the service token and reads each entry back (the add call returns an empty body) | `{ ok, weekly: { rank (1-based), score }, allTime: { score } or null }` or `{ ok: false, code: NO_TICKET / TICKET_USED / TICKET_EXPIRED / IMPLAUSIBLE / BUSY / BOARD_ERROR / ERROR }` |
 | `DevSetState` | `used`, `dayOffset`, `ticketStartedAgoMs` (Numeric, optional) | sets the state for checks and the Tools > Daily Play reset item; refuses when `context.environmentName` is `production`, and is **not deployed to production** | `{ ok, used, day, ticketId, nowMs }` or `{ ok: false, code: NOT_ALLOWED }` |
 
-**`SubmitScore` checks, in order:** the score is a positive whole number within int range; the caller has a ticket with that id; it is unused; it is younger than `MAX_RUN_AGE_MS` (3 h); and `score <= MAX_SCORE_PER_SECOND (1500) * server elapsed seconds since the ticket + SCORE_SLACK (5000)` (elapsed time is the server's own, never client-reported). An implausible score burns the ticket, so the bound cannot be probed. The ticket is marked used with the lock before the boards are written; a weekly-board error restores it so the client's retry works, an all-time error only leaves that board unwritten. Every accepted submit logs `score` and `elapsedSec` (Cloud Code logs in the dashboard): tune the bound from those. The combo multiplier tops out at x4 and building values are small, so real runs sit far below it.
+**`SubmitScore` checks, in order:** the score is a positive whole number within int range; the caller has a ticket with that id; it is unused; it is younger than `MAX_RUN_AGE_MS` (3 h); and `score <= MAX_SCORE_PER_SECOND (500, tuned in Pass 9c) * server elapsed seconds since the ticket + SCORE_SLACK (5000)` (elapsed time is the server's own, never client-reported). An implausible score burns the ticket, so the bound cannot be probed. The ticket is marked used with the lock before the boards are written; a weekly-board error restores it so the client's retry works, an all-time error only leaves that board unwritten. Every accepted submit logs `score` and `elapsedSec` (Cloud Code logs in the dashboard): tune the bound from those. The combo multiplier tops out at x4 and building values are small, so real runs sit far below it.
 
 **Access policy.** `Deny` / `Write` / `Player` on `urn:ugs:leaderboards:*` (a Player token cannot write a score; reads and the scripts' service-token writes still work). Unity's documented narrower resource (`.../scores/players/*`) did not block client writes in the spike; the broad one does.
 
@@ -78,6 +78,22 @@ JavaScript Cloud Code scripts in `Assets/_Project/CloudCode/` (each self-contain
 6. Check from a **release build** (see Pass 9c): a competitive run puts the player on both production boards (dashboard), the dashboard's Access Control page shows the deny rule on `urn:ugs:leaderboards:*`, and a Development Build still logs and uses `dev`.
 
 Until step 2 is done a release build finds no scripts in production: competitive PLAY shows the unreachable state (practice still works).
+
+## Device checks (Daily play structure, Pass 9c)
+
+Developer checks on **release builds** (Development Build unticked, so they use `production`) of Android and WebGL (desktop browser and phone browser). `Debug.Log` still prints in a release build: `adb logcat -s Unity` on Android, the browser console on WebGL. Note the result of each line (pass, or what happened) in the 9c row of `progress.md`.
+
+1. **Environment.** The start-up log says `Unity Gaming Services environment: production` on the release build and `dev` on a Development Build.
+2. **Cold start (#37).** Fresh install or cleared data (a new anonymous player), on mobile data: the menu shows the attempts (3 left) without a stuck state; note the time it took and whether the first `GetDailyState` timed out and the single retry fixed it.
+3. **Launch cap.** On a slow connection (throttled, or toggling airplane mode right at launch) the loading screen never waits longer than about 3 s for the last-week results, and the menu opens. With a closed week to show, the results screen appears once.
+4. **Cloud Code from the browser.** On WebGL (desktop and phone browser) `GetDailyState`, `StartRun` and `SubmitScore` succeed with no CORS or network errors in the console.
+5. **Full competitive flow.** Three competitive runs: each spends an attempt, Game Over shows the rank chip, the player appears on `weekly_scores` and `alltime_scores` in the production dashboard (once, with the best score). The fourth PLAY is refused with practice offered; a practice run writes nothing.
+6. **Direct write refused.** The production dashboard's Access Control page shows the deny rule on `urn:ugs:leaderboards:*`.
+7. **Offline.** Airplane mode at the menu: PLAY shows the unreachable state (nothing spent), practice works, nothing hangs. Airplane mode at the end of a competitive run: Game Over shows the score and a neutral line, nothing crashes; note whether the attempt was spent.
+8. **Share on the release build.** Game Over, the leaderboard and the profile: Android share sheet; WebGL downloads the PNG.
+9. **Frame rate around a share.** Starting a share from Game Over or the profile causes no freeze longer than a moment and the next run is smooth.
+
+**#36 score bound.** Every accepted submit logs `SubmitScore ok score=<n> elapsedSec=<s>` (Cloud Code logs in the dashboard, per environment; `SubmitScore IMPLAUSIBLE ...` lines are rejections). Collect the pairs from `dev` (all the testing so far) and `production` (these checks), including a few best-effort high-scoring runs, then set `MAX_SCORE_PER_SECOND` to about 1.5 times the highest observed score per second, `SCORE_SLACK` to a few of the largest crashes, and keep `MAX_RUN_AGE_MS` above the longest realistic run plus pauses; redeploy `SubmitScore` to **both** environments from the Deployment window and check one accepted run on each.
 
 ## Reads and cache (Pass 3a)
 

@@ -21,9 +21,10 @@ const KEY = "daily";
 const WEEKLY_BOARD = "weekly_scores";
 const ALLTIME_BOARD = "alltime_scores";
 
-// Start generous and tune from the logged { score, elapsedSec } pairs (Cloud Code logs in the dashboard). Combo multiplier
-// tops out at x4 and building values are small, so real runs sit far below this.
-const MAX_SCORE_PER_SECOND = 1500;
+// Tuned in Pass 9c from the logged { score, elapsedSec } pairs (Cloud Code logs in the dashboard): five device runs peaked at
+// about 73 points per second with the combo multiplier capped at x4. 500 leaves room for a skilled player and for the cap
+// going up to about x10 (the rate scales with it); re-check when the cap changes.
+const MAX_SCORE_PER_SECOND = 500;
 const SCORE_SLACK = 5000;
 const MAX_RUN_AGE_MS = 3 * 60 * 60 * 1000;
 const MAX_SCORE = 2147483647;
