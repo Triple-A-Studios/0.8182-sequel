@@ -466,14 +466,14 @@ namespace Opoint8182.UI
 			{
 				var row = own.Value;
 				m_ownRank.text = $"#{row.Rank.ToString("N0", CultureInfo.InvariantCulture)}";
-				m_ownName.text = row.Name;
+				PlayerNameText.Apply(m_ownName, row.Name, row.Tag);
 				m_ownHint.text = "· you";
 				m_ownScore.text = FormatScore(row.Score);
 				return;
 			}
 
 			m_ownRank.text = "–";
-			m_ownName.text = "No score yet";
+			PlayerNameText.Apply(m_ownName, "No score yet", string.Empty);
 			m_ownHint.text = m_weeksBack == 0 ? "· fly a run to get on the board" : "· you didn't fly that week";
 		}
 
@@ -497,7 +497,9 @@ namespace Opoint8182.UI
 			if (row.IsSelf) element.AddToClassList("lb-row--self");
 
 			element.Add(CreateLabel(row.Rank.ToString("N0", CultureInfo.InvariantCulture), "lb-row__rank"));
-			element.Add(CreateLabel(row.Name, "lb-row__name"));
+			var nameLabel = CreateLabel(string.Empty, "lb-row__name");
+			PlayerNameText.Apply(nameLabel, row.Name, row.Tag);
+			element.Add(nameLabel);
 			element.Add(CreateLabel(FormatScore(row.Score), "lb-row__score"));
 			return element;
 		}

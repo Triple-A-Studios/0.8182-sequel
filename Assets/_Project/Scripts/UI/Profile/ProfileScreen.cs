@@ -11,7 +11,7 @@ namespace Opoint8182.UI
 	/// player's real lifetime stats (<see cref="PlayerStats"/>); the rest except the display name is static placeholder data
 	/// (<see cref="ProfilePlaceholderData"/>); the name is edited in place
 	/// (pencil -> text field with dice re-roll and a tick, <see cref="UiProfileState.MAX_NAME_LENGTH"/> characters) and
-	/// kept in <see cref="UiProfileState"/> for the session only.
+	/// saved (and sent to the leaderboards) through <see cref="UiProfileState"/>; <see cref="DisplayNameRules"/> says what a name may be.
 	/// </summary>
 	public class ProfileScreen
 	{
@@ -19,8 +19,10 @@ namespace Opoint8182.UI
 		private const string k_BadgeLockedClass = "badge--locked";
 		private const string k_BadgeSelectedClass = "is-selected";
 		private const string k_DefaultCaption = "Tap a locked badge to see how to unlock it.";
-		private const string k_EditHint = "Up to 16 characters";
-		private const string k_EditHintWeb = "Tap the name to type · up to 16 characters";
+		private const string k_EditHint = "3-16 letters, numbers, _ or -";
+		private const string k_EditHintWeb = "Tap the name to type · 3-16 letters, numbers, _ or -";
+		private const string k_TooShortHint = "Use at least 3 letters or numbers";
+		private const string k_NotAllowedHint = "That name isn't available, try another";
 		private const float k_KeyboardMargin = 24f;
 		private const long k_KeyboardPollMs = 100;
 		private const float k_StatValueSize = 72f;
@@ -130,7 +132,7 @@ namespace Opoint8182.UI
 		/// <summary>Reloads the name from <see cref="UiProfileState"/> and the stats from <see cref="PlayerStats"/>, and fits the stat values to their tiles again.</summary>
 		public void Refresh()
 		{
-			m_nameLabel.text = UiProfileState.DisplayName;
+			PlayerNameText.Apply(m_nameLabel, UiProfileState.DisplayName, UiProfileState.NameTag);
 			BindLifetimeStats();
 			foreach (var name in m_S_StatValueNames) FitStatValue(m_root.Q<Label>(name));
 		}
@@ -163,13 +165,35 @@ namespace Opoint8182.UI
 		{
 			if (!m_editing) return;
 
-			var name = UiProfileState.Sanitize(m_nameInput.value);
-			var changed = name.Length > 0 && name != UiProfileState.DisplayName;
-			if (changed) UiProfileState.DisplayName = name;
+			// Nothing usable typed (or the same name): leave the edit and keep the old name. Too short or on the blocklist: stay in the edit and say so.
+			var name = DisplayNameRules.Sanitize(m_nameInput.value);
+			if (name.Length > 0 && name != UiProfileState.DisplayName)
+			{
+				var check = DisplayNameRules.Check(name);
+				if (check != NameCheck.Ok)
+				{
+					m_idLabel.text = check == NameCheck.TooShort ? k_TooShortHint : k_NotAllowedHint;
+					return;
+				}
+
+				UiProfileState.DisplayName = name;
+				var sync = UiProfileState.SyncToServiceAsync();
+				SetEditing(false);
+				Refresh();
+				NameChanged?.Invoke();
+				RefreshWhenSynced(sync);
+				return;
+			}
 
 			SetEditing(false);
 			Refresh();
-			if (changed) NameChanged?.Invoke();
+		}
+
+		// The service hands out the name's "#1234" tag when it accepts the name: show it once it has.
+		private async void RefreshWhenSynced(System.Threading.Tasks.Task sync)
+		{
+			await sync;
+			if (!m_editing) PlayerNameText.Apply(m_nameLabel, UiProfileState.DisplayName, UiProfileState.NameTag);
 		}
 
 		// Re-roll fills the field; the name only counts once it is confirmed.

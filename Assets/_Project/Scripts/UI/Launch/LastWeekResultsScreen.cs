@@ -139,7 +139,9 @@ namespace Opoint8182.UI
 				});
 
 				row.Add(MakeLabel(winners[i].Rank.ToString(CultureInfo.InvariantCulture), "lw-row__rank"));
-				row.Add(MakeLabel(winners[i].Name, "lw-row__name"));
+				var nameLabel = MakeLabel(string.Empty, "lw-row__name");
+				PlayerNameText.Apply(nameLabel, winners[i].Name, winners[i].Tag);
+				row.Add(nameLabel);
 				row.Add(MakeLabel(winners[i].Score.ToString("N0", CultureInfo.InvariantCulture), "lw-row__score"));
 				m_rows.Add(row);
 			}

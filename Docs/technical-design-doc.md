@@ -16,6 +16,7 @@ Index of documented systems. Read the relevant file(s) before working in that sy
 - [Leaderboard](technical-design/leaderboard.md)
 - [Share to socials](technical-design/share.md)
 - [Player stats](technical-design/player-stats.md)
+- [Display name](technical-design/profile-name.md)
 - [Game Flow](technical-design/game-flow.md)
 - [Camera Feel](technical-design/camera-feel.md)
 - [UI (UI Toolkit)](technical-design/ui.md)

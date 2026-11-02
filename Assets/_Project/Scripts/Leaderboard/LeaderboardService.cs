@@ -40,6 +40,19 @@ namespace Opoint8182.Leaderboard
 	}
 
 	/// <summary>Why a submit did not go through, so Game Over can say the right thing and offer a retry only when one can help.</summary>
+	/// <summary>How <see cref="LeaderboardService.SetPlayerNameAsync"/> ended.</summary>
+	public enum NameSyncResult
+	{
+		/// <summary>The service now has the name.</summary>
+		Synced,
+
+		/// <summary>The service refused the name for good (retrying cannot help).</summary>
+		Rejected,
+
+		/// <summary>Offline, timed out or any other error: try again later.</summary>
+		Failed,
+	}
+
 	public enum SubmitFailure
 	{
 		None,
@@ -92,16 +105,49 @@ namespace Opoint8182.Leaderboard
 	{
 		/// <summary>1-based rank for display.</summary>
 		public readonly int Rank;
+		/// <summary>The name without Unity's "#1234" tag, and without angle brackets (the UI draws names as rich text).</summary>
 		public readonly string Name;
+
+		/// <summary>Unity's "#1234" uniqueness tag of the name ("" for none); the UI draws it muted beside <see cref="Name"/>.</summary>
+		public readonly string Tag;
+
 		public readonly int Score;
 		public readonly bool IsSelf;
 
 		public LeaderboardRow(int rank, string name, int score, bool isSelf)
 		{
 			Rank = rank;
-			Name = name;
+			SplitName(name, out Name, out Tag);
 			Score = score;
 			IsSelf = isSelf;
+		}
+
+		/// <summary>
+		/// Unity Authentication appends "#1234" to every player name to keep them unique. Splits a raw name into the name and that tag
+		/// (empty when there is none), and drops angle brackets from the name: names are drawn as rich text and come from other players.
+		/// </summary>
+		public static void SplitName(string raw, out string name, out string tag)
+		{
+			name = raw ?? string.Empty;
+			tag = string.Empty;
+
+			var hash = name.LastIndexOf('#');
+			if (hash > 0 && hash < name.Length - 1)
+			{
+				var digits = true;
+				for (var i = hash + 1; i < name.Length; i++)
+				{
+					if (name[i] < '0' || name[i] > '9') digits = false;
+				}
+
+				if (digits)
+				{
+					tag = name.Substring(hash);
+					name = name.Substring(0, hash);
+				}
+			}
+
+			name = name.Replace("<", string.Empty).Replace(">", string.Empty);
 		}
 	}
 
@@ -523,6 +569,67 @@ namespace Opoint8182.Leaderboard
 		public static RankTrend Compare(bool hasPrevious, int previousRank, int newRank)
 		{
 			return !hasPrevious || newRank < previousRank ? RankTrend.Up : RankTrend.Same;
+		}
+
+		/// <summary>The "#1234" tag Unity gave the player's name at the last <see cref="SetPlayerNameAsync"/> or <see cref="FetchPlayerNameTagAsync"/> ("" for none).</summary>
+		public string PlayerNameTag { get; private set; } = string.Empty;
+
+		/// <summary>Reads the player's current "#1234" tag from Unity Authentication (one call). Returns false when it could not be read.</summary>
+		public async Task<bool> FetchPlayerNameTagAsync()
+		{
+			if (IsOffline()) return false;
+
+			return await WithTimeout(async attempt =>
+			{
+				try
+				{
+					await EnsureReadyAsync();
+					var full = await AuthenticationService.Instance.GetPlayerNameAsync(false);
+					LeaderboardRow.SplitName(full, out _, out var tag);
+					PlayerNameTag = tag;
+					return true;
+				}
+				catch (Exception e)
+				{
+					Debug.LogWarning(k_LogPrefix + $"Fetch player name failed: {e.GetType().Name}: {e.Message}");
+					return false;
+				}
+			}, false);
+		}
+
+		/// <summary>
+		/// Sets the signed-in player's name in Unity Authentication, which is what the boards show (Player profile & run stats Pass 4).
+		/// Signs in first, fails fast offline and gives up after the request timeout. The service adds its own "#1234" suffix.
+		/// </summary>
+		public async Task<NameSyncResult> SetPlayerNameAsync(string name)
+		{
+			if (IsOffline()) return NameSyncResult.Failed;
+
+			var result = await WithTimeout(async attempt =>
+			{
+				try
+				{
+					await EnsureReadyAsync();
+					var full = await AuthenticationService.Instance.UpdatePlayerNameAsync(name);
+					LeaderboardRow.SplitName(full, out _, out var tag);
+					PlayerNameTag = tag;
+					return NameSyncResult.Synced;
+				}
+				catch (AuthenticationException e) when (e.ErrorCode == AuthenticationErrorCodes.InvalidParameters)
+				{
+					Debug.LogWarning(k_LogPrefix + $"The service refused the player name '{name}': {e.Message}");
+					return NameSyncResult.Rejected;
+				}
+				catch (Exception e)
+				{
+					Debug.LogWarning(k_LogPrefix + $"Set player name failed: {e.GetType().Name}: {e.Message}");
+					return NameSyncResult.Failed;
+				}
+			}, NameSyncResult.Failed);
+
+			// The boards carry the name, so the cached reads are stale now.
+			if (result == NameSyncResult.Synced) InvalidateLiveBoards();
+			return result;
 		}
 
 		/// <summary>

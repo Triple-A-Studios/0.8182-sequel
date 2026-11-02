@@ -210,6 +210,7 @@ namespace Opoint8182.UI
 		{
 			m_profileNameLabel = root.Q<Label>("profile-name");
 			m_profileNameLabel.text = UiProfileState.DisplayName;
+			_ = UiProfileState.SyncToServiceAsync();
 			root.Q<Label>("currency-value").text = ProfilePlaceholderData.COINS;
 		}
 
@@ -313,8 +314,13 @@ namespace Opoint8182.UI
 
 			if (screenId == k_ShopScreenId) m_shopScreen.Open();
 
-			// The profile screen may have renamed the player; the chip follows when the menu is shown again.
-			if (screenId == k_MenuScreenId) m_profileNameLabel.text = UiProfileState.DisplayName;
+			// The profile screen may have renamed the player; the chip follows when the menu is shown again. A name the leaderboards
+			// have not accepted yet (renamed offline, or the first launch) is sent now; a no-op once it is.
+			if (screenId == k_MenuScreenId)
+			{
+				m_profileNameLabel.text = UiProfileState.DisplayName;
+				_ = UiProfileState.SyncToServiceAsync();
+			}
 		}
 
 		// An empty URL is a placeholder chip that is not filled in yet: nothing to open.
