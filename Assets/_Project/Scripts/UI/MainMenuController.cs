@@ -1,4 +1,5 @@
 using Alchemy.Inspector;
+using Opoint8182.Badges;
 using Opoint8182.Daily;
 using Opoint8182.Game;
 using Opoint8182.Share;
@@ -70,6 +71,9 @@ namespace Opoint8182.UI
 		private VisualElement m_popupAttempt;
 		private VisualElement m_popupQuit;
 		private VisualElement m_popupOverflow;
+		private VisualElement m_popupBadge;
+		private BadgePopup m_badgePopup;
+		private VisualElement m_profilePip;
 		private Toggle m_dontAskToggle;
 		private TabBar m_modeTabs;
 		private UiToast m_toast;
@@ -149,6 +153,7 @@ namespace Opoint8182.UI
 			m_profileScreen = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profileScreen.BackRequested += () => m_router.Back();
 			m_profileScreen.ShareRequested += OnProfileShare;
+			m_profileScreen.BadgeRequested += OnBadgeRequested;
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();
@@ -179,6 +184,10 @@ namespace Opoint8182.UI
 			m_popupAttempt.style.display = DisplayStyle.None;
 			m_popupQuit.style.display = DisplayStyle.None;
 			m_popupOverflow.style.display = DisplayStyle.None;
+
+			m_popupBadge = root.Q<VisualElement>("popup-badge");
+			m_popupBadge.style.display = DisplayStyle.None;
+			m_badgePopup = new BadgePopup(m_popupBadge);
 
 			m_toast = new UiToast(root.Q<VisualElement>("root"));
 
@@ -211,6 +220,8 @@ namespace Opoint8182.UI
 			m_profileNameLabel = root.Q<Label>("profile-name");
 			m_profileNameLabel.text = UiProfileState.DisplayName;
 			_ = UiProfileState.SyncToServiceAsync();
+			m_profilePip = root.Q<VisualElement>("profile-pip");
+			RefreshProfilePip();
 			root.Q<Label>("currency-value").text = ProfilePlaceholderData.COINS;
 		}
 
@@ -269,6 +280,21 @@ namespace Opoint8182.UI
 			};
 		}
 
+		// The cue for an earned hidden badge nobody has opened yet; a run's end evaluates the badges before the menu is shown again.
+		private void RefreshProfilePip()
+		{
+			m_profilePip?.EnableInClassList("is-on", BadgeService.HasUnseenHidden());
+		}
+
+		private void OnBadgeRequested(string badgeId)
+		{
+			var badge = BadgeCatalog.Find(badgeId);
+			if (badge == null) return;
+
+			m_badgePopup.Bind(badge);
+			m_router.ShowPopup(m_popupBadge);
+		}
+
 		private void WirePopups(VisualElement root)
 		{
 			root.Q<LipButton>("attempt-yes").clicked += OnAttemptConfirmed;
@@ -281,6 +307,7 @@ namespace Opoint8182.UI
 
 			root.Q<LipButton>("quit-yes").clicked += QuitGame;
 			root.Q<LipButton>("quit-no").clicked += () => m_router.ClosePopup();
+			root.Q<LipButton>("badge-popup-close").clicked += () => m_router.ClosePopup();
 
 			WireOverflowRow(root, "overflow-settings", () => m_router.Show(k_SettingsScreenId));
 			WireOverflowRow(root, "overflow-howto", () => ShowComingLater());
@@ -320,6 +347,7 @@ namespace Opoint8182.UI
 			{
 				m_profileNameLabel.text = UiProfileState.DisplayName;
 				_ = UiProfileState.SyncToServiceAsync();
+				RefreshProfilePip();
 			}
 		}
 

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Opoint8182.Badges;
 using Opoint8182.Stats;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,8 +19,8 @@ namespace Opoint8182.UI
 	{
 		private const string k_BadgeClass = "badge";
 		private const string k_BadgeLockedClass = "badge--locked";
-		private const string k_BadgeSelectedClass = "is-selected";
-		private const string k_DefaultCaption = "Tap a locked badge to see how to unlock it.";
+		private const string k_DefaultCaption = "Tap a badge to see its tiers.";
+		private const long k_GlowPulseMs = 900;
 		private const string k_EditHint = "3-16 letters, numbers, _ or -";
 		private const string k_EditHintWeb = "Tap the name to type · 3-16 letters, numbers, _ or -";
 		private const string k_TooShortHint = "Use at least 3 letters or numbers";
@@ -39,19 +41,23 @@ namespace Opoint8182.UI
 		private readonly Label m_badgeTitleCount;
 		private readonly Label m_badgeCaption;
 		private readonly ScrollView m_badgeScroll;
-		private readonly VisualElement[] m_badgeTiles;
+		private readonly List<VisualElement> m_hiddenBadgeTiles = new();
+		private IVisualElementScheduledItem m_glowPulse;
+		private bool m_glowOn;
 		private readonly VisualElement m_nameField;
 		private IVisualElementScheduledItem m_keyboardPoll;
 		private float m_keyboardShift;
 
 		private bool m_editing;
-		private int m_selectedBadge = -1;
 
 		/// <summary>The back chevron was tapped (the owner pops the router).</summary>
 		public event Action BackRequested;
 
 		/// <summary>The display name was changed and confirmed (the menu chip refreshes on return).</summary>
 		public event Action NameChanged;
+
+		/// <summary>A badge tile was tapped; the owner opens its popup (the popup layer belongs to the menu).</summary>
+		public event Action<string> BadgeRequested;
 
 		/// <summary>SHARE was tapped: the owner shares a render of this screen.</summary>
 		public event Action ShareRequested;
@@ -85,7 +91,7 @@ namespace Opoint8182.UI
 
 			BindStats();
 			FitStatValues();
-			m_badgeTiles = BuildBadges();
+			BuildBadges();
 
 			root.Q<LipButton>("profile-back").clicked += () => BackRequested?.Invoke();
 			root.Q<LipButton>("profile-share").clicked += () => ShareRequested?.Invoke();
@@ -104,7 +110,11 @@ namespace Opoint8182.UI
 		public void Open()
 		{
 			CancelEdit();
-			SelectBadge(-1);
+
+			// Badges for stats that existed before the badges (or an unlock the Game Over toast already announced) are picked up silently.
+			BadgeService.Evaluate();
+			BadgeService.TakeNewUnlocks();
+			BuildBadges();
 			m_badgeScroll.scrollOffset = Vector2.zero;
 			Refresh();
 		}
@@ -127,6 +137,8 @@ namespace Opoint8182.UI
 		public void Close()
 		{
 			CancelEdit();
+			m_glowPulse?.Pause();
+			m_glowPulse = null;
 		}
 
 		/// <summary>Reloads the name from <see cref="UiProfileState"/> and the stats from <see cref="PlayerStats"/>, and fits the stat values to their tiles again.</summary>
@@ -315,56 +327,97 @@ namespace Opoint8182.UI
 			if (Mathf.Abs(target - current) > 0.5f) label.style.fontSize = target;
 		}
 
-		private VisualElement[] BuildBadges()
+		// Every visible badge as a tile: the best tier earned colours it (bronze, silver, gold), pips count the tiers, an unearned counted badge is
+		// a "?", and an earned hidden badge comes first with a pulsing gold outline. The header counts the counted badges that have a tier.
+		private void BuildBadges()
 		{
-			var definitions = ProfilePlaceholderData.Badges;
-			var tiles = new VisualElement[definitions.Length];
-			var unlocked = 0;
+			m_badgeScroll.Clear();
+			m_hiddenBadgeTiles.Clear();
 
-			for (var i = 0; i < definitions.Length; i++)
+			foreach (var badge in BadgeCatalog.VisibleOrdered())
 			{
-				var index = i;
-				var definition = definitions[i];
-				if (definition.Unlocked) unlocked++;
-
-				var tile = new LipBox { variant = definition.Unlocked ? LipVariant.Primary : LipVariant.Secondary };
-				tile.AddToClassList(k_BadgeClass);
-				if (!definition.Unlocked) tile.AddToClassList(k_BadgeLockedClass);
-
-				var label = new Label(definition.Unlocked ? definition.Title : "?") { pickingMode = PickingMode.Ignore };
-				label.AddToClassList("badge__label");
-				tile.Add(label);
-
-				tile.AddManipulator(new PressedClassManipulator());
-				tile.RegisterCallback<ClickEvent>(_ => SelectBadge(index));
-
+				var tile = CreateBadgeTile(badge);
+				if (badge.Hidden) m_hiddenBadgeTiles.Add(tile);
 				m_badgeScroll.Add(tile);
-				tiles[i] = tile;
 			}
 
-			m_badgeTitleCount.text = $"{unlocked} / {definitions.Length}";
+			m_badgeTitleCount.text = $"{BadgeService.CountedEarned()} / {BadgeCatalog.CountedTotal}";
 			m_badgeCaption.text = k_DefaultCaption;
-			return tiles;
+			UpdateGlowPulse();
 		}
 
-		// Tapping a tile shows its condition in the caption line; tapping it again (or reopening) clears it.
-		private void SelectBadge(int index)
+		private VisualElement CreateBadgeTile(BadgeDefinition badge)
 		{
-			if (index == m_selectedBadge) index = -1;
+			var earned = BadgeService.EarnedTiers(badge);
+			var locked = earned == 0;
 
-			for (var i = 0; i < m_badgeTiles.Length; i++) m_badgeTiles[i].EnableInClassList(k_BadgeSelectedClass, i == index);
-			m_selectedBadge = index;
+			var tile = new LipBox { variant = locked ? LipVariant.Secondary : LipVariant.Primary };
+			tile.AddToClassList(k_BadgeClass);
 
-			if (index < 0)
+			if (locked) tile.AddToClassList(k_BadgeLockedClass);
+			else if (badge.Hidden) tile.AddToClassList("badge--hidden");
+			else tile.AddToClassList(BadgeService.HighestTier(badge) switch { 3 => "badge--bronze", 2 => "badge--silver", _ => "badge--gold" });
+
+			var label = new Label(locked ? "?" : badge.Title) { pickingMode = PickingMode.Ignore };
+			label.AddToClassList("badge__label");
+			tile.Add(label);
+
+			if (!locked && !badge.Hidden)
 			{
-				m_badgeCaption.text = k_DefaultCaption;
+				tile.AddToClassList("badge--pips");
+				var pips = new VisualElement { pickingMode = PickingMode.Ignore };
+				pips.AddToClassList("badge__pips");
+				for (var i = 0; i < badge.TierCount; i++)
+				{
+					var pip = new VisualElement { pickingMode = PickingMode.Ignore };
+					pip.AddToClassList("badge__pip");
+					if (i < earned) pip.AddToClassList("badge__pip--on");
+					pips.Add(pip);
+				}
+
+				tile.Add(pips);
+			}
+
+			// A hidden badge the player has not opened yet carries a pip until they tap it.
+			VisualElement newPip = null;
+			if (BadgeService.IsUnseen(badge))
+			{
+				newPip = new VisualElement { pickingMode = PickingMode.Ignore };
+				newPip.AddToClassList("badge__new");
+				tile.Add(newPip);
+			}
+
+			tile.AddManipulator(new PressedClassManipulator());
+			var id = badge.Id;
+			tile.RegisterCallback<ClickEvent>(_ =>
+			{
+				if (newPip != null)
+				{
+					BadgeService.MarkSeen(badge);
+					newPip.RemoveFromHierarchy();
+					newPip = null;
+				}
+
+				BadgeRequested?.Invoke(id);
+			});
+			return tile;
+		}
+
+		// The hidden badge's outline alternates between two golds (a USS transition does the fade) while the screen is open.
+		private void UpdateGlowPulse()
+		{
+			if (m_hiddenBadgeTiles.Count == 0)
+			{
+				m_glowPulse?.Pause();
+				m_glowPulse = null;
 				return;
 			}
 
-			var definition = ProfilePlaceholderData.Badges[index];
-			m_badgeCaption.text = definition.Unlocked
-				? $"{definition.SingleLineTitle} · {definition.Condition}"
-				: $"LOCKED · {definition.Condition}";
+			m_glowPulse ??= m_root.schedule.Execute(() =>
+			{
+				m_glowOn = !m_glowOn;
+				foreach (var tile in m_hiddenBadgeTiles) tile.EnableInClassList("is-glow", m_glowOn);
+			}).Every(k_GlowPulseMs);
 		}
 
 		private void SetText(string labelName, string text)

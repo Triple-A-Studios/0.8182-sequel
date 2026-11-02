@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Alchemy.Inspector;
+using Opoint8182.Badges;
 using Opoint8182.Bootstrap;
 using Opoint8182.Daily;
 using Opoint8182.Game;
@@ -6,6 +8,7 @@ using Opoint8182.Leaderboard;
 using Opoint8182.Score;
 using Opoint8182.Share;
 using Opoint8182.Stats;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,6 +27,8 @@ namespace Opoint8182.UI
 		private const string k_UnavailableText = "Leaderboard unavailable";
 		private const string k_SubmitFailedText = "Couldn't submit score";
 		private const string k_NotAcceptedText = "Score not accepted";
+		private const float k_BadgeToastDelaySeconds = 2.2f;
+		private const long k_BadgeToastLongMs = 4000;
 
 		private GameManager m_gameManager;
 		private int m_submitToken;
@@ -110,6 +115,54 @@ namespace Opoint8182.UI
 			}
 
 			SubmitAndShowRank(score);
+			AnnounceBadges();
+		}
+
+		// A neutral toast for the badges this run earned, once the entry cascade has settled. One toast, however many: see BadgeToastText.
+		private void AnnounceBadges()
+		{
+			if (m_gameManager == null || m_gameManager.LastUnlocks.Count == 0) return;
+
+			var text = BadgeToastText(m_gameManager.LastUnlocks, out var badgeCount);
+			var token = m_submitToken;
+			Tween.Delay(k_BadgeToastDelaySeconds, () =>
+			{
+				if (this != null && View != null && token == m_submitToken) View.ShowToast(text, badgeCount > 1 ? k_BadgeToastLongMs : UiToast.DEFAULT_DURATION_MS);
+			}, useUnscaledTime: true);
+		}
+
+		/// <summary>
+		/// The toast line for a run's unlocks. A badge that gained several tiers at once counts once, at its best tier. One badge reads
+		/// "BADGE UNLOCKED · DEMO CREW TIER 3", two name both, more name the first two and add "+N MORE" (the Profile has the rest).
+		/// </summary>
+		public static string BadgeToastText(IReadOnlyList<BadgeUnlock> unlocks, out int badgeCount)
+		{
+			var names = new List<string>();
+			var best = new Dictionary<string, int>();
+			var order = new List<BadgeDefinition>();
+			foreach (var unlock in unlocks)
+			{
+				if (!best.TryGetValue(unlock.Badge.Id, out var tier))
+				{
+					order.Add(unlock.Badge);
+					best[unlock.Badge.Id] = unlock.Tier;
+				}
+				else if (unlock.Tier < tier)
+				{
+					best[unlock.Badge.Id] = unlock.Tier;
+				}
+			}
+
+			foreach (var badge in order)
+			{
+				names.Add(badge.Hidden ? badge.SingleLineTitle : $"{badge.SingleLineTitle} TIER {best[badge.Id]}");
+			}
+
+			badgeCount = names.Count;
+			if (names.Count == 0) return string.Empty;
+			if (names.Count == 1) return "BADGE UNLOCKED · " + names[0];
+			if (names.Count == 2) return "BADGES UNLOCKED · " + names[0] + ", " + names[1];
+			return "BADGES UNLOCKED · " + names[0] + ", " + names[1] + " +" + (names.Count - 2) + " MORE";
 		}
 
 		private void HandleRankRetryClicked()

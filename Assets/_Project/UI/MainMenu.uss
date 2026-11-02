@@ -68,6 +68,22 @@
 
 .menu-profile-text { flex-direction: column; }
 
+/* Notification pip on the PROFILE chip while an earned hidden badge has not been opened (shown with .is-on). */
+.menu-profile-pip {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    border-width: 4px;
+    border-color: var(--ink);
+    background-color: var(--coral);
+}
+
+.menu-profile-pip.is-on { display: flex; }
+
 .menu-profile-name {
     font-size: 28px;
     color: var(--ink);
@@ -352,6 +368,74 @@
 
 .menu-popup-attempt { width: 1020px; }
 .menu-popup-quit { width: 900px; }
+
+/* Badge popup (Player profile & run stats Pass 5): the badge's tiers, what is done and what is next. */
+.menu-popup-badge { width: 1060px; }
+
+.menu-popup-badge > .lipbox__face { padding: 40px 48px; }
+
+.badge-tiers {
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.badge-tier {
+    flex-direction: row;
+    align-items: center;
+    height: 88px;
+    padding: 0 20px;
+    margin-bottom: 10px;
+    border-radius: 24px;
+    background-color: rgba(16, 24, 35, 0.45);
+}
+
+.badge-tier--next { border-width: 3px; border-color: var(--ink-35); }
+
+.badge-tier__medal {
+    width: 48px;
+    height: 48px;
+    margin-right: 22px;
+    border-radius: 24px;
+    border-width: 4px;
+    border-color: rgba(42, 26, 6, 0.55);
+}
+
+.badge-tier__medal--bronze { background-color: var(--bronze); }
+.badge-tier__medal--silver { background-color: var(--silver); }
+.badge-tier__medal--gold { background-color: var(--gold); }
+
+.badge-tier__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 32px;
+    color: var(--ink);
+}
+
+.badge-tier__state {
+    flex-shrink: 0;
+    margin-left: 20px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 30px;
+    color: var(--ink-70);
+}
+
+.badge-tier--done .badge-tier__state { color: var(--green); }
+
+/* A tier not reached yet is dimmed; the next one keeps full text so its progress reads. */
+.badge-tier--locked { opacity: 0.5; }
+.badge-tier--locked .badge-tier__medal { background-color: transparent; border-color: var(--ink-35); }
+
+.badge-total {
+    margin-top: 6px;
+    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
+    font-size: 28px;
+    color: var(--ink-55);
+    white-space: normal;
+}
 
 .menu-attempt-row {
     flex-direction: row;

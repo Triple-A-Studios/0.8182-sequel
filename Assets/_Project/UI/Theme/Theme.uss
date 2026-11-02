@@ -28,6 +28,14 @@
     --danger-face: #4A3B47;
     --danger-text: #FFAE9A;
     --danger-border: #B5503A;
+
+    /* Badge tiers: tier 3 bronze, tier 2 silver, tier 1 gold (face + lip) */
+    --bronze: #CD8A52;
+    --bronze-lip: #8A5326;
+    --silver: #C9D2DA;
+    --silver-lip: #7F8A95;
+    --gold: #F7CB4A;
+    --gold-lip: #B58A14;
     --backdrop: rgba(8, 14, 22, 0.72);
 
     /* Secondary text = ink at 55-70% alpha, disabled = ink at 35% */

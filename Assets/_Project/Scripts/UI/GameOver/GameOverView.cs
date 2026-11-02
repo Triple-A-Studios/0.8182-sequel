@@ -382,9 +382,9 @@ namespace Opoint8182.UI
 			m_rankRetry.style.display = showRetry ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 
-		public void ShowToast(string message)
+		public void ShowToast(string message, long durationMs = UiToast.DEFAULT_DURATION_MS)
 		{
-			m_toast.Show(message);
+			m_toast.Show(message, durationMs);
 		}
 
 		public static string CauseText(RunEndCause cause)

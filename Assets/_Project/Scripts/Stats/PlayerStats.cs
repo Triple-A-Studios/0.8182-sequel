@@ -16,8 +16,29 @@ namespace Opoint8182.Stats
 		public readonly int PerfectCrashes;
 		public readonly bool IsPractice;
 
-		public RunStats(int score, float distanceMeters, int buildingsDestroyed, int bestCombo, int perfectCrashes, bool isPractice)
+		/// <summary>Tough buildings broken properly (a mistimed hit does not count).</summary>
+		public readonly int ToughBroken;
+
+		/// <summary>Heal buildings that restored health.</summary>
+		public readonly int HealsUsed;
+
+		/// <summary>The most perfect crashes in a row in the run.</summary>
+		public readonly int BestPerfectStreak;
+
+		/// <summary>Time spent flying (paused time excluded).</summary>
+		public readonly float DurationSeconds;
+
+		/// <summary>Coins collected in the run. Nothing collects coins yet (the currency arrives with the Beta shop milestone), so it is 0.</summary>
+		public readonly int Coins;
+
+		public RunStats(int score, float distanceMeters, int buildingsDestroyed, int bestCombo, int perfectCrashes, bool isPractice,
+			int toughBroken = 0, int healsUsed = 0, int bestPerfectStreak = 0, float durationSeconds = 0f, int coins = 0)
 		{
+			Coins = Mathf.Max(0, coins);
+			ToughBroken = Mathf.Max(0, toughBroken);
+			HealsUsed = Mathf.Max(0, healsUsed);
+			BestPerfectStreak = Mathf.Max(0, bestPerfectStreak);
+			DurationSeconds = Mathf.Max(0f, durationSeconds);
 			Score = Mathf.Max(0, score);
 			DistanceMeters = Mathf.Max(0f, distanceMeters);
 			BuildingsDestroyed = Mathf.Max(0, buildingsDestroyed);
@@ -42,6 +63,12 @@ namespace Opoint8182.Stats
 		private const string k_BestComboKey = "stats.best_combo";
 		private const string k_RunsKey = "stats.runs";
 		private const string k_PerfectKey = "stats.perfect";
+		private const string k_ToughKey = "stats.tough";
+		private const string k_HealsKey = "stats.heals";
+		private const string k_PerfectStreakKey = "stats.perfect_streak";
+		private const string k_LongestRunKey = "stats.longest_run_s";
+		private const string k_TotalScoreKey = "stats.total_score";
+		private const string k_CoinsKey = "stats.coins";
 
 		private static bool m_s_loaded;
 
@@ -51,6 +78,12 @@ namespace Opoint8182.Stats
 		private static int m_s_bestCombo;
 		private static int m_s_runsFlown;
 		private static int m_s_perfectCrashes;
+		private static int m_s_toughBroken;
+		private static int m_s_healsUsed;
+		private static int m_s_bestPerfectStreak;
+		private static float m_s_longestRunSeconds;
+		private static int m_s_totalScore;
+		private static int m_s_coinsCollected;
 
 		/// <summary>Raised after a run was recorded or the stats were reset.</summary>
 		public static event Action Changed;
@@ -71,6 +104,24 @@ namespace Opoint8182.Stats
 
 		public static int PerfectCrashes { get { EnsureLoaded(); return m_s_perfectCrashes; } }
 
+		/// <summary>Tough buildings broken properly, over all runs.</summary>
+		public static int ToughBroken { get { EnsureLoaded(); return m_s_toughBroken; } }
+
+		/// <summary>Heal buildings that restored health, over all runs.</summary>
+		public static int HealsUsed { get { EnsureLoaded(); return m_s_healsUsed; } }
+
+		/// <summary>The most perfect crashes in a row in any one run.</summary>
+		public static int BestPerfectStreak { get { EnsureLoaded(); return m_s_bestPerfectStreak; } }
+
+		/// <summary>The longest time spent flying in any one run.</summary>
+		public static float LongestRunSeconds { get { EnsureLoaded(); return m_s_longestRunSeconds; } }
+
+		/// <summary>Points scored over all runs, practice included.</summary>
+		public static int TotalScore { get { EnsureLoaded(); return m_s_totalScore; } }
+
+		/// <summary>Coins collected over all runs (earned, not the balance). Stays 0 until the currency exists.</summary>
+		public static int CoinsCollected { get { EnsureLoaded(); return m_s_coinsCollected; } }
+
 		/// <summary>
 		/// Adds a finished run to the lifetime stats and saves. Returns true when it set a new <see cref="HighScore"/>
 		/// (a competitive run above the previous best; a first scoring run counts).
@@ -87,6 +138,12 @@ namespace Opoint8182.Stats
 			m_s_bestCombo = Mathf.Max(m_s_bestCombo, run.BestCombo);
 			m_s_runsFlown = SaturatingAdd(m_s_runsFlown, 1);
 			m_s_perfectCrashes = SaturatingAdd(m_s_perfectCrashes, run.PerfectCrashes);
+			m_s_toughBroken = SaturatingAdd(m_s_toughBroken, run.ToughBroken);
+			m_s_healsUsed = SaturatingAdd(m_s_healsUsed, run.HealsUsed);
+			m_s_bestPerfectStreak = Mathf.Max(m_s_bestPerfectStreak, run.BestPerfectStreak);
+			m_s_longestRunSeconds = Mathf.Max(m_s_longestRunSeconds, run.DurationSeconds);
+			m_s_totalScore = SaturatingAdd(m_s_totalScore, run.Score);
+			m_s_coinsCollected = SaturatingAdd(m_s_coinsCollected, run.Coins);
 
 			Save();
 			Changed?.Invoke();
@@ -103,6 +160,12 @@ namespace Opoint8182.Stats
 			m_s_bestCombo = 0;
 			m_s_runsFlown = 0;
 			m_s_perfectCrashes = 0;
+			m_s_toughBroken = 0;
+			m_s_healsUsed = 0;
+			m_s_bestPerfectStreak = 0;
+			m_s_longestRunSeconds = 0f;
+			m_s_totalScore = 0;
+			m_s_coinsCollected = 0;
 
 			Save();
 			Changed?.Invoke();
@@ -124,6 +187,12 @@ namespace Opoint8182.Stats
 			PlayerPrefs.SetInt(k_BestComboKey, m_s_bestCombo);
 			PlayerPrefs.SetInt(k_RunsKey, m_s_runsFlown);
 			PlayerPrefs.SetInt(k_PerfectKey, m_s_perfectCrashes);
+			PlayerPrefs.SetInt(k_ToughKey, m_s_toughBroken);
+			PlayerPrefs.SetInt(k_HealsKey, m_s_healsUsed);
+			PlayerPrefs.SetInt(k_PerfectStreakKey, m_s_bestPerfectStreak);
+			PlayerPrefs.SetFloat(k_LongestRunKey, m_s_longestRunSeconds);
+			PlayerPrefs.SetInt(k_TotalScoreKey, m_s_totalScore);
+			PlayerPrefs.SetInt(k_CoinsKey, m_s_coinsCollected);
 			PlayerPrefs.Save();
 		}
 
@@ -138,6 +207,12 @@ namespace Opoint8182.Stats
 			m_s_bestCombo = Mathf.Max(0, PlayerPrefs.GetInt(k_BestComboKey, 0));
 			m_s_runsFlown = Mathf.Max(0, PlayerPrefs.GetInt(k_RunsKey, 0));
 			m_s_perfectCrashes = Mathf.Max(0, PlayerPrefs.GetInt(k_PerfectKey, 0));
+			m_s_toughBroken = Mathf.Max(0, PlayerPrefs.GetInt(k_ToughKey, 0));
+			m_s_healsUsed = Mathf.Max(0, PlayerPrefs.GetInt(k_HealsKey, 0));
+			m_s_bestPerfectStreak = Mathf.Max(0, PlayerPrefs.GetInt(k_PerfectStreakKey, 0));
+			m_s_longestRunSeconds = Mathf.Max(0f, PlayerPrefs.GetFloat(k_LongestRunKey, 0f));
+			m_s_totalScore = Mathf.Max(0, PlayerPrefs.GetInt(k_TotalScoreKey, 0));
+			m_s_coinsCollected = Mathf.Max(0, PlayerPrefs.GetInt(k_CoinsKey, 0));
 		}
 
 		private static int SaturatingAdd(int total, int amount) => amount > int.MaxValue - total ? int.MaxValue : total + amount;

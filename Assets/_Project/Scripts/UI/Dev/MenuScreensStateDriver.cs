@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Opoint8182.Badges;
 using Opoint8182.Leaderboard;
 using Opoint8182.Share;
 using UnityEngine;
@@ -101,6 +102,20 @@ namespace Opoint8182.UI
 			m_profile = new ProfileScreen(root.Q<VisualElement>("screen-profile"));
 			m_profile.BackRequested += () => m_router.Back();
 			m_profile.ShareRequested += () => _ = ShareService.ShareAsync(ShareCardData.ForProfile());
+
+			// The badge popup, as in the menu.
+			var popupBadge = root.Q<VisualElement>("popup-badge");
+			popupBadge.style.display = DisplayStyle.None;
+			var badgePopup = new BadgePopup(popupBadge);
+			root.Q<LipButton>("badge-popup-close").clicked += () => m_router.ClosePopup();
+			m_profile.BadgeRequested += id =>
+			{
+				var badge = BadgeCatalog.Find(id);
+				if (badge == null) return;
+
+				badgePopup.Bind(badge);
+				m_router.ShowPopup(popupBadge);
+			};
 
 			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
 			m_shop = new ShopScreen(root.Q<VisualElement>("screen-shop"));

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Opoint8182.Altitude;
+using Opoint8182.Badges;
 using Opoint8182.Audio;
 using Opoint8182.Bootstrap;
 using Opoint8182.Daily;
@@ -36,6 +38,9 @@ namespace Opoint8182.Game
 
         /// <summary>The lifetime <see cref="PlayerStats.HighScore"/> as it was before <see cref="LastRun"/> was recorded.</summary>
         public int PreviousHighScore { get; private set; }
+
+        /// <summary>The badge tiers earned by the run that just ended (or by an easter egg during it), set before <see cref="RunEnded"/> fires.</summary>
+        public IReadOnlyList<BadgeUnlock> LastUnlocks { get; private set; } = Array.Empty<BadgeUnlock>();
 
         /// <summary>Raised once when the run ends, with what ended it.</summary>
         public event Action<RunEndCause> RunEnded;
@@ -318,6 +323,8 @@ namespace Opoint8182.Game
             LastRun = m_runStatsTracker.Snapshot(IsPracticeRun);
             PreviousHighScore = PlayerStats.HighScore;
             PlayerStats.RecordRun(LastRun);
+            BadgeService.Evaluate();
+            LastUnlocks = BadgeService.TakeNewUnlocks();
 
             RunEnded?.Invoke(cause);
         }

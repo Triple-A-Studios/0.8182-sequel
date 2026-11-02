@@ -193,8 +193,12 @@ Display name and rename, persisted lifetime stats, per-run stats feeding Game Ov
 - **Pass 2** — Per-run stats and NEW BEST on Game Over (replaces `GameOverPlaceholderData`)
 - **Pass 3** — Profile screen real stats (replaces `ProfilePlaceholderData`)
 - **Pass 4** — Display name persistence and moderation
-- **Pass 5** — Badges
-- **Pass 6** — Hardening, device checks and close-out
+- **Pass 5** — Badges (11 tiered badges, a hidden one, tap popup, Game Over toast, hidden-badge pip)
+- **Pass 6** — Badge UI changes *(not yet scoped; the changes are decided when the pass is reached)*
+- **Pass 7** — Hardening, device checks and close-out
+
+### Milestone: Backlog and Alpha close-out
+*(not yet scoped)* Works through the open backlog items worth doing before Beta (checked with the developer, item by item) and closes the Alpha phase: docs refresh, device checks on Android and WebGL, and a go/no-go for starting Beta. Scoped when the developer starts it.
 
 ## Phase: Beta
 
@@ -210,7 +214,12 @@ Unlockable planes, crash effects and skins funded by an in-game currency; the at
 ### Milestone: How to Play tutorial
 *(not yet scoped)* A separate tutorial replacing the menu's placeholder entry.
 
+### Milestone: Easter eggs
+*(not yet scoped)* Secrets hidden in the game that the player finds by playing, each unlocking a hidden badge (the hidden-badge system lands in Player profile & run stats Pass 5, so an egg only needs to call it).
+
 ## Phase: Full Launch
 
 ### Milestone: Polish pass
 Polished, complete version of everything above.
+
+- Hidden badge unlock animation (until then a pip on the badge tile and the menu's PROFILE chip is the cue; see [badges.md](technical-design/badges.md))

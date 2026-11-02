@@ -365,6 +365,64 @@
     -unity-text-align: middle-center;
 }
 
+/* Tier colours: the best tier earned picks the tile's colour (tier 3 bronze, tier 2 silver, tier 1 gold). */
+.badge.badge--bronze.lipbox--primary > .lipbox__face { background-color: var(--bronze); background-image: none; }
+.badge.badge--bronze.lipbox--primary > .lipbox__lip { background-color: var(--bronze-lip); }
+.badge.badge--silver.lipbox--primary > .lipbox__face { background-color: var(--silver); background-image: none; }
+.badge.badge--silver.lipbox--primary > .lipbox__lip { background-color: var(--silver-lip); }
+.badge.badge--gold.lipbox--primary > .lipbox__face { background-color: var(--gold); background-image: none; }
+.badge.badge--gold.lipbox--primary > .lipbox__lip { background-color: var(--gold-lip); }
+
+/* Tier pips under the label: one dot per tier, filled for the tiers earned. */
+.badge__pips {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.badge__pip {
+    width: 14px;
+    height: 14px;
+    margin: 0 4px;
+    border-radius: 7px;
+    border-width: 2px;
+    border-color: rgba(42, 26, 6, 0.6);
+}
+
+.badge__pip--on { background-color: rgba(42, 26, 6, 0.85); }
+
+.badge--pips .badge__label { margin-bottom: 14px; }
+
+/* Hidden badge (earned): drawn first, dark tile with a gold label and an outline that pulses between two golds. */
+.badge.badge--hidden.lipbox--primary > .lipbox__face {
+    background-color: var(--panel-inner);
+    background-image: none;
+    border-width: 6px;
+    border-color: var(--gold);
+    transition-property: border-color;
+    transition-duration: 0.9s;
+}
+
+.badge.badge--hidden.lipbox--primary > .lipbox__lip { background-color: var(--gold-lip); }
+.badge.badge--hidden.is-glow.lipbox--primary > .lipbox__face { border-color: #FFF4C2; }
+.badge--hidden .badge__label { color: var(--gold); }
+
+/* The "new" pip on an earned hidden badge the player has not opened yet. */
+.badge__new {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    border-width: 4px;
+    border-color: var(--ink);
+    background-color: var(--coral);
+}
+
 .badge--locked > .lipbox__face {
     border-width: 4px;
     border-color: rgba(246, 239, 226, 0.3);

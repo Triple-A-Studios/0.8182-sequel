@@ -1,4 +1,4 @@
-# Player stats (Player profile & run stats, Passes 1-3)
+# Player stats (Player profile & run stats, Passes 1-3 and 5)
 
 `Scripts/Stats/PlayerStats.cs`, namespace `Opoint8182.Stats`. A static class like [`SettingsService`](settings.md), so it needs no scene object and works from `Bootstrap` or a standalone scene. It holds the player's lifetime stats, the six tiles on the Profile screen. Local only (`PlayerPrefs`), no cloud, soft: clearing storage resets them.
 
@@ -46,3 +46,7 @@ Editor menu `Tools > Player Stats` (`Scripts/Editor/PlayerStatsMenu.cs`): Log St
 `ProfileScreen.BindLifetimeStats` fills the six tiles (also on every `Open()` / `Refresh()`, so the screen is current after a run; the share card builds a fresh screen so it is too): HIGH SCORE `PlayerBest.Current`, DISTANCE FLOWN `RunStatsFormat.TotalDistance` ("850 m", "12.4 km", whole km from 100 km), BUILDINGS DOWN, BEST COMBO (a plain count), RUNS FLOWN, PERFECT CRASHES (`N0` counts). A fresh install shows zeros.
 
 **`PlayerBest`** (`Scripts/Stats`) is the one definition of "the player's best score": the larger of the local `PlayerStats.HighScore` and `LeaderboardService.StoredAllTimeBest`. The HIGH SCORE tile and Game Over's NEW BEST / YOUR BEST both use it (`PlayerBest.Of(previousHighScore)` for the run being shown), so the two never disagree. The dev galleries (`MenuScreensGallery`, share samples) now show whatever is in the Editor's PlayerPrefs instead of the old sample numbers.
+
+## Stats for the badges (Pass 5)
+
+Six more lifetime values feed [badges](badges.md), carried by `RunStats` (new optional constructor arguments) and collected by `RunStatsTracker`: `ToughBroken` (`stats.tough`), `HealsUsed` (`stats.heals`), `BestPerfectStreak` (`stats.perfect_streak`, a maximum), `LongestRunSeconds` (`stats.longest_run_s`, a maximum) `TotalScore` (`stats.total_score`) and `CoinsCollected` (`stats.coins`, always 0 until the currency exists). They have no tile on the Profile; only the badges read them.

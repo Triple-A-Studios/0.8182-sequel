@@ -17,6 +17,7 @@
 
                 <ui:VisualElement name="top-left-cluster" class="top-left-cluster" picking-mode="Ignore">
                     <op:LipBox name="profile-chip" class="menu-chip menu-profile-chip">
+                        <ui:VisualElement name="profile-pip" class="menu-profile-pip" picking-mode="Ignore" />
                         <ui:VisualElement class="menu-avatar" picking-mode="Ignore">
                             <ui:VisualElement class="menu-avatar__head" />
                             <ui:VisualElement class="menu-avatar__body" />
@@ -131,6 +132,16 @@
                 <ui:VisualElement class="popup__actions menu-attempt-actions">
                     <op:LipButton name="quit-yes" text="QUIT" variant="Danger" class="menu-popup-primary" />
                     <op:LipButton name="quit-no" text="CANCEL" variant="Secondary" class="menu-popup-secondary" />
+                </ui:VisualElement>
+            </op:LipBox>
+
+            <op:LipBox name="popup-badge" class="popup menu-popup-badge">
+                <ui:Label name="badge-popup-title" text="DEMO CREW" class="popup__title" />
+                <ui:Label name="badge-popup-sub" text="Buildings you have flattened" class="popup__body" />
+                <ui:VisualElement name="badge-popup-tiers" class="badge-tiers" />
+                <ui:Label name="badge-popup-total" text="Total: 1,234 buildings flattened" class="badge-total" />
+                <ui:VisualElement class="popup__actions menu-attempt-actions">
+                    <op:LipButton name="badge-popup-close" text="CLOSE" variant="Secondary" class="menu-popup-secondary" />
                 </ui:VisualElement>
             </op:LipBox>
 
