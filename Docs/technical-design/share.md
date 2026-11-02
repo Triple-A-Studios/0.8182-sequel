@@ -106,5 +106,5 @@ Decided with the developer in 8d: the run card and the real Game Over screen use
 
 - A game link in the share text (one place, `ShareCardData.Text`).
 - 3D portrait and thumbnails in the Profile card: the 3D art pass.
-- Real stat chips on the run card follow the Game Over chips (Player profile & run stats); the player name is the session display name until the profile is persisted.
+- The run card's DISTANCE, FLATTENED and BEST COMBO are the run's real values since Player profile & run stats Pass 2 (`ShareCardData.ForRun(..., stats)`; without `stats` the samples and galleries fall back to the placeholders); EARNED stays a stand-in until the currency. The player name is the session display name until the profile is persisted.
 - Optional: save to the gallery on Android (needs a storage permission on Android 8-9), a Web Share API path on WebGL.

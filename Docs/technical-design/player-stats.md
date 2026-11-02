@@ -1,4 +1,4 @@
-# Player stats (Player profile & run stats, Pass 1)
+# Player stats (Player profile & run stats, Passes 1-2)
 
 `Scripts/Stats/PlayerStats.cs`, namespace `Opoint8182.Stats`. A static class like [`SettingsService`](settings.md), so it needs no scene object and works from `Bootstrap` or a standalone scene. It holds the player's lifetime stats, the six tiles on the Profile screen. Local only (`PlayerPrefs`), no cloud, soft: clearing storage resets them.
 
@@ -9,7 +9,7 @@
 | `HighScore` | best score of a **competitive** run (0 = none) | `stats.high_score` |
 | `DistanceMeters` | total distance flown | `stats.distance_m` (float) |
 | `BuildingsDestroyed` | total buildings brought down | `stats.buildings` |
-| `BestCombo` | highest combo multiplier ever reached | `stats.best_combo` |
+| `BestCombo` | longest combo streak ever: buildings crashed in a row without the combo being disrupted (not the capped multiplier) | `stats.best_combo` |
 | `RunsFlown` | finished runs | `stats.runs` |
 | `PerfectCrashes` | total perfect crashes | `stats.perfect` |
 
@@ -23,10 +23,20 @@ Values load lazily and are clamped to zero or more. Integer totals saturate at `
 
 `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]` drops the cache and the `Changed` handlers, so Editor Play with domain reload off keeps no stale values.
 
-## Not wired yet
+## Wiring
 
-Nothing calls `RecordRun` in play: collecting the per-run values (distance, buildings, best combo, perfect crashes) and the Game Over chips is Pass 2; the Profile tiles reading `PlayerStats` instead of `ProfilePlaceholderData` is Pass 3. Game Over's NEW BEST still compares against `LeaderboardService.StoredAllTimeBest`; Pass 2 decides whether the local `HighScore` joins or replaces it.
+Recorded by `GameManager.EndRun` since Pass 2 (see the last section); the Profile tiles reading `PlayerStats` instead of `ProfilePlaceholderData` is Pass 3.
 
 ## Testing
 
 Editor menu `Tools > Player Stats` (`Scripts/Editor/PlayerStatsMenu.cs`): Log Stats, Record Sample Competitive Run, Record Sample Practice Run, Reset Stats.
+
+## Per-run stats and NEW BEST (Pass 2)
+
+**`RunStatsTracker`** (`Scripts/Stats`, a `MonoBehaviour` that `GameManager.Awake` adds to its own object, so no scene edit) counts the run in progress: buildings brought down (every `CombatEvents.Crashed`, which only buildings raise, a mistimed tough hit included), perfect crashes (the `perfect` flag of `ScoreSystem.PointsAwarded`), the longest combo streak (`ScoreSystem.ComboStreakChanged`, see [score-system.md](score-system.md): +1 per combo crash, reset by a hazard hit or a missed building, not by the window lapsing; heal buildings never feed it). The game scene reloads for every run, so it always starts from zero. `Snapshot(isPractice)` freezes it (a plane flying off after the end no longer counts) and adds the score and the distance (`SpawnManager.DistanceTraveled`, world units = meters).
+
+**`GameManager.EndRun`** takes the snapshot, keeps it as `LastRun`, keeps the lifetime high score as it stood as `PreviousHighScore`, calls `PlayerStats.RecordRun`, then raises `RunEnded`. So Game Over (and anything on `RunEnded`) reads a run that is already recorded. A run left before it ends (QUIT TO MENU, a mid-run restart) is **not** recorded.
+
+**Game Over** (`GameOverUI`): the DISTANCE, FLATTENED and BEST COMBO chips come from `LastRun` through `RunStatsFormat` ("850 m" / "2.4 km", "1,204", "7": a plain count, no multiplication sign); the share card gets the same through `ShareCardData.ForRun(..., stats)`. EARNED stays `GameOverPlaceholderData.Earned` (currency milestone).
+
+**NEW BEST decision:** a competitive run is a new best when its score beats `max(LeaderboardService.StoredAllTimeBest, PreviousHighScore)`; otherwise YOUR BEST shows that larger value (a practice run never sets one). The two stores are both soft `PlayerPrefs`: the server-confirmed best covers a player who had ranked runs before the local store existed, the local one covers runs the server never confirmed (offline, refused).

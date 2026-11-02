@@ -5,6 +5,7 @@ using Opoint8182.Game;
 using Opoint8182.Leaderboard;
 using Opoint8182.Score;
 using Opoint8182.Share;
+using Opoint8182.Stats;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -36,6 +37,7 @@ namespace Opoint8182.UI
 		private int m_bestBefore;
 		private bool m_lastNewBest;
 		private bool m_lastPractice;
+		private RunStats m_lastRun;
 
 		protected override void OnEnable()
 		{
@@ -84,10 +86,12 @@ namespace Opoint8182.UI
 			m_lastCause = cause;
 			m_lastPractice = m_gameManager != null && m_gameManager.IsPracticeRun;
 
-			// NEW BEST! when a competitive run beats the stored all-time best (read before the submit updates it), otherwise YOUR BEST with
-			// that best. A practice run reaches no board, so it never counts as a new best.
-			m_bestBefore = LeaderboardService.StoredAllTimeBest;
+			// NEW BEST! when a competitive run beats the player's best: the larger of the stored all-time best (read before the submit
+			// updates it) and the local high score as it stood before this run (the run itself is already recorded). Otherwise YOUR
+			// BEST with that best. A practice run reaches no board, so it never counts as a new best.
+			m_bestBefore = Mathf.Max(LeaderboardService.StoredAllTimeBest, m_gameManager != null ? m_gameManager.PreviousHighScore : 0);
 			m_lastNewBest = !m_lastPractice && score > m_bestBefore;
+			m_lastRun = m_gameManager != null ? m_gameManager.LastRun : default;
 
 			// Attempts are spent at run start, so what is left now is what the row and the rank status report.
 			m_row = GameOverRow.Derive(DailyPlay.Mode, m_gameManager != null && m_gameManager.IsPracticeRun, DailyPlay.AttemptsLeft,
@@ -96,6 +100,8 @@ namespace Opoint8182.UI
 			if (View != null)
 			{
 				View.ApplyAttemptState(m_row);
+				View.SetStats(RunStatsFormat.Distance(m_lastRun.DistanceMeters), RunStatsFormat.Count(m_lastRun.BuildingsDestroyed),
+					RunStatsFormat.Count(m_lastRun.BestCombo), GameOverPlaceholderData.Earned);
 				View.SetCause(cause);
 				View.SetScore(score);
 				View.SetNewBest(m_lastNewBest);
@@ -214,7 +220,7 @@ namespace Opoint8182.UI
 		// A second tap while one runs is ignored; a failure says so neutrally.
 		private async void ShareRun()
 		{
-			var card = ShareCardData.ForRun(m_lastScore, m_lastCause, m_lastPractice, m_lastRank, m_lastNewBest, m_bestBefore);
+			var card = ShareCardData.ForRun(m_lastScore, m_lastCause, m_lastPractice, m_lastRank, m_lastNewBest, m_bestBefore, null, m_lastRun);
 			var result = await ShareService.ShareAsync(card);
 			var message = ShareService.ToastFor(result);
 			if (message != null && this != null && View != null) View.ShowToast(message);

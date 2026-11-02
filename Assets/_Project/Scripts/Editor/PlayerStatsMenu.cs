@@ -11,7 +11,7 @@ namespace Opoint8182.StatsEditor
 		private static void LogStats()
 		{
 			Debug.Log($"[PlayerStats] high score {PlayerStats.HighScore}, distance {PlayerStats.DistanceMeters:0.#} m, buildings {PlayerStats.BuildingsDestroyed}, " +
-			          $"best combo x{PlayerStats.BestCombo}, runs {PlayerStats.RunsFlown}, perfect crashes {PlayerStats.PerfectCrashes}");
+			          $"best combo streak {PlayerStats.BestCombo}, runs {PlayerStats.RunsFlown}, perfect crashes {PlayerStats.PerfectCrashes}");
 		}
 
 		[MenuItem("Tools/Player Stats/Record Sample Competitive Run")]
@@ -30,7 +30,7 @@ namespace Opoint8182.StatsEditor
 		private static void Record(bool practice)
 		{
 			var newHighScore = PlayerStats.RecordRun(new RunStats(12000, 1500f, 20, 5, 3, practice));
-			Debug.Log($"[PlayerStats] recorded a sample {(practice ? "practice" : "competitive")} run (12000 points, 1500 m, 20 buildings, x5, 3 perfect). New high score: {newHighScore}.");
+			Debug.Log($"[PlayerStats] recorded a sample {(practice ? "practice" : "competitive")} run (12000 points, 1500 m, 20 buildings, combo streak 5, 3 perfect). New high score: {newHighScore}.");
 			LogStats();
 		}
 	}

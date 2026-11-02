@@ -110,8 +110,8 @@ namespace Opoint8182.UI
 		{
 			View.SetCause(RunEndCause.OutOfFuel);
 			View.SetScore(strong ? 184920 : 96310);
-			if (strong) View.SetStats("2.4 km", "38", "×7", 286);
-			else View.SetStats("1.3 km", "19", "×4", 148);
+			if (strong) View.SetStats("2.4 km", "38", "7", 286);
+			else View.SetStats("1.3 km", "19", "4", 148);
 
 			m_newBest = strong;
 			View.SetNewBest(strong);

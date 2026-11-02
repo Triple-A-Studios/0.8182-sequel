@@ -10,7 +10,7 @@ namespace Opoint8182.Stats
 		public readonly float DistanceMeters;
 		public readonly int BuildingsDestroyed;
 
-		/// <summary>The highest combo multiplier reached in the run.</summary>
+		/// <summary>The longest combo streak of the run: buildings crashed in a row without the combo being disrupted.</summary>
 		public readonly int BestCombo;
 
 		public readonly int PerfectCrashes;
@@ -64,7 +64,7 @@ namespace Opoint8182.Stats
 		/// <summary>Total buildings brought down.</summary>
 		public static int BuildingsDestroyed { get { EnsureLoaded(); return m_s_buildingsDestroyed; } }
 
-		/// <summary>Highest combo multiplier ever reached.</summary>
+		/// <summary>Longest combo streak ever: buildings crashed in a row without the combo being disrupted.</summary>
 		public static int BestCombo { get { EnsureLoaded(); return m_s_bestCombo; } }
 
 		public static int RunsFlown { get { EnsureLoaded(); return m_s_runsFlown; } }

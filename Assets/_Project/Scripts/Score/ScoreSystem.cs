@@ -18,6 +18,13 @@ namespace Opoint8182.Score
         public int CurrentScore => Score.Value;
         public int CurrentMultiplier => Multiplier.Value;
 
+        /// <summary>
+        /// Buildings crashed in a row for the combo without a mistake: counts every crash that feeds the combo, back to 0 on a hazard hit
+        /// (damage taken, a mistimed tough hit included) or a missed building, whether or not the combo timer is running. The combo window
+        /// lapsing does not reset it (that only steps the multiplier down). Unlike the multiplier it has no cap.
+        /// </summary>
+        public int ComboStreak { get; private set; }
+
         private int m_chainCrashCount;
 
         private ObservableInt m_score;
@@ -37,6 +44,9 @@ namespace Opoint8182.Score
 
         /// <summary>Raised after each crash is scored: points added (multiplier included), the impact point, and whether it was a perfect (quality 1) crash.</summary>
         public event Action<int, Vector3, bool> PointsAwarded;
+
+        /// <summary>Raised when <see cref="ComboStreak"/> changes (a crash adds one, a disruption resets it to 0).</summary>
+        public event Action<int> ComboStreakChanged;
 
         private void OnEnable()
         {
@@ -68,6 +78,7 @@ namespace Opoint8182.Score
             if (!countsForCombo) return;
 
             m_chainCrashCount++;
+            SetComboStreak(ComboStreak + 1);
             ComboTimer.Set(m_comboWindow);
 
             var tierIndex = Multiplier.Value - 1;
@@ -80,6 +91,7 @@ namespace Opoint8182.Score
 
         private void HandleHazardHit(IDamageDealer source, float damage)
         {
+            SetComboStreak(0);
             if (ComboTimer.Value <= 0f) return;
 
             Tick(m_hazardTimerPenalty);
@@ -88,10 +100,19 @@ namespace Opoint8182.Score
         private void HandleEntityCulled(SpawnedEntity entity)
         {
             if (entity.Kind != SpawnKind.BuildingNormal && entity.Kind != SpawnKind.BuildingTough) return;
+            SetComboStreak(0);
             if (ComboTimer.Value <= 0f) return;
 
             Debug.LogWarning($"[ScoreSystem] Missed {entity.Kind} - combo timer {ComboTimer.Value:0.00} -{m_missedBuildingTimerPenalty:0.00}");
             Tick(m_missedBuildingTimerPenalty);
+        }
+
+        private void SetComboStreak(int value)
+        {
+            if (value == ComboStreak) return;
+
+            ComboStreak = value;
+            ComboStreakChanged?.Invoke(value);
         }
 
         // Shared by the per-frame decay and the hazard-hit timer penalty, so the zero-crossing

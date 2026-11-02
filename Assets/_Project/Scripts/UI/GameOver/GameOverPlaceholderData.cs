@@ -12,8 +12,8 @@ namespace Opoint8182.UI
 		/// <summary>FLATTENED chip (buildings destroyed). Real value: "Player profile and run stats".</summary>
 		public const string Flattened = "38";
 
-		/// <summary>BEST COMBO chip (highest multiplier this run). Real value: "Player profile and run stats".</summary>
-		public const string BestCombo = "×7";
+		/// <summary>BEST COMBO chip (longest combo streak this run, in buildings). Real since Player profile and run stats Pass 2; gallery / sample fallback only.</summary>
+		public const string BestCombo = "7";
 
 		/// <summary>EARNED chip amount. Real value: the currency / shop milestone.</summary>
 		public const int Earned = 286;

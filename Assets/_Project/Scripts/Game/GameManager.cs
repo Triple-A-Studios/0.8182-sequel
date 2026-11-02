@@ -8,6 +8,7 @@ using Opoint8182.Fuel;
 using Opoint8182.Game.States;
 using Opoint8182.Health;
 using Opoint8182.Lateral;
+using Opoint8182.Stats;
 using TripleA.StateMachine.FSM;
 using TripleA.Utils.Singletons;
 using UnityEngine;
@@ -30,6 +31,12 @@ namespace Opoint8182.Game
         /// <summary>This run does not count as a leaderboard attempt, so leaving it costs nothing.</summary>
         public bool IsPracticeRun => m_isPracticeRun || DailyPlay.IsPracticeRun;
 
+        /// <summary>The stats of the run that just ended, recorded in <see cref="PlayerStats"/> before <see cref="RunEnded"/> fires. Default until then.</summary>
+        public RunStats LastRun { get; private set; }
+
+        /// <summary>The lifetime <see cref="PlayerStats.HighScore"/> as it was before <see cref="LastRun"/> was recorded.</summary>
+        public int PreviousHighScore { get; private set; }
+
         /// <summary>Raised once when the run ends, with what ended it.</summary>
         public event Action<RunEndCause> RunEnded;
         public event Action RunStarted;
@@ -46,6 +53,7 @@ namespace Opoint8182.Game
         private AltitudeSystem m_altitudeSystem;
         private LateralSystem m_lateralSystem;
 
+        private RunStatsTracker m_runStatsTracker;
         private StateMachine m_stateMachine;
         private MainMenuState m_mainMenuState;
         private PlayingState m_playingState;
@@ -78,6 +86,8 @@ namespace Opoint8182.Game
             // A pause (or hit-stop) cut off by a scene reload must not leak its timeScale into the new scene.
             Time.timeScale = 1f;
             Sfx.SetPaused(false);
+
+            m_runStatsTracker = gameObject.AddComponent<RunStatsTracker>();
 
             var startInMenu = ManagedByBootstrap;
             ManagedByBootstrap = false;
@@ -303,6 +313,12 @@ namespace Opoint8182.Game
 
             IsRunActive = false;
             DailyPlay.Flush();
+
+            // Recorded before RunEnded, so Game Over reads the finished run and the best as it stood before this run.
+            LastRun = m_runStatsTracker.Snapshot(IsPracticeRun);
+            PreviousHighScore = PlayerStats.HighScore;
+            PlayerStats.RecordRun(LastRun);
+
             RunEnded?.Invoke(cause);
         }
     }

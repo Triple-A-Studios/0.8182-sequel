@@ -98,7 +98,7 @@ Every static stand-in is in one block per screen, flagged in code. Replacing it 
 | Standalone-scene fallbacks (the "arrives later" toast for QUIT TO MENU / MAIN MENU / LEADERBOARD without a Bootstrap loader, the Inspector practice checkbox `GameManager.m_isPracticeRun`) | `HudPresenter.OnQuitRequested`, `GameOverUI`, `GameManager` | kept on purpose for testing |
 | Sound effects: generated stand-in WAVs | `Assets/_Project/Audio/Placeholder` (`Tools/generate_placeholder_sfx.py`) | the developer's real clips, dropped in by name (see [audio.md](audio.md)) |
 | Haptic patterns: default arrays | `Resources/HapticProfiles.asset` | the developer's tuning (see [haptics.md](haptics.md)) |
-| Stat chips, gallery samples (the attempt notes and the rank status are real since Daily play structure Pass 6, NEW BEST / YOUR BEST since Pass 8) | `GameOverPlaceholderData` | Player profile & run stats |
+| EARNED chip amount and the gallery samples (DISTANCE, FLATTENED and BEST COMBO (the longest combo streak, a plain count) are real since Player profile & run stats Pass 2, the attempt notes and the rank status since Daily play structure Pass 6, NEW BEST / YOUR BEST since Pass 8) | `GameOverPlaceholderData` | Beta currency, the dev galleries |
 | Profile stats, equipped plane / FX, 12 badges | `ProfilePlaceholderData` | Player profile & run stats, Beta shop |
 | Sample weeks and own sample (the gallery only; play reads the real boards) | `LeaderboardPlaceholderData` | nothing left to replace in play |
 | Plane cards | `ShopPlaceholderData` | Beta "Shop, currency, economy" |

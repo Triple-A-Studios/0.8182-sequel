@@ -1,5 +1,6 @@
 using System.Globalization;
 using Opoint8182.Game;
+using Opoint8182.Stats;
 using Opoint8182.UI;
 
 namespace Opoint8182.Share
@@ -71,7 +72,7 @@ namespace Opoint8182.Share
 		/// <param name="isNewBest">The run beat the player's best (NEW BEST! sticker). Otherwise YOUR BEST shows <paramref name="bestScore"/>.</param>
 		/// <param name="playerName">Shown beside the rank; null reads the session display name.</param>
 		public static ShareCardData ForRun(int score, RunEndCause cause, bool isPractice, int weeklyRank = 0, bool isNewBest = false,
-			int bestScore = 0, string playerName = null) =>
+			int bestScore = 0, string playerName = null, RunStats? stats = null) =>
 			new ShareCardData
 			{
 				Kind = ShareCardKind.Run,
@@ -82,9 +83,9 @@ namespace Opoint8182.Share
 				IsNewBest = isNewBest,
 				BestScore = bestScore,
 				PlayerName = playerName ?? UiProfileState.DisplayName,
-				Distance = GameOverPlaceholderData.Distance,
-				Flattened = GameOverPlaceholderData.Flattened,
-				BestCombo = GameOverPlaceholderData.BestCombo,
+				Distance = stats.HasValue ? RunStatsFormat.Distance(stats.Value.DistanceMeters) : GameOverPlaceholderData.Distance,
+				Flattened = stats.HasValue ? RunStatsFormat.Count(stats.Value.BuildingsDestroyed) : GameOverPlaceholderData.Flattened,
+				BestCombo = stats.HasValue ? RunStatsFormat.Count(stats.Value.BestCombo) : GameOverPlaceholderData.BestCombo,
 				Earned = GameOverPlaceholderData.Earned,
 			};
 
