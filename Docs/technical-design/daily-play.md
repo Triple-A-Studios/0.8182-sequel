@@ -55,5 +55,5 @@ The healthy-usage structure from the design doc ([Leaderboards & daily attempts]
 
 ## Open / later
 
-- Share to socials: landed in Pass 8 ([share.md](share.md)). Device checks of all of this, tuning the plausibility bound from the logged runs and the production go-live of the server side: Pass 9 (checklist in [leaderboard.md](leaderboard.md#server-scripts-daily-play-structure-pass-7)).
+- Share to socials: landed in Pass 8 ([share.md](share.md)). The device checks of all of this on release builds, the plausibility-bound tuning from logged runs and the production go-live of the server side were done in Pass 9 ([leaderboard.md](leaderboard.md#environments-and-go-live-daily-play-structure-pass-9b)); the bound is worth re-checking when the combo cap is raised (backlog #36).
 - Backlog #35: a minimum visible duration and a shimmer for network retries; #34: a tap on the attempts chip explaining what is left and when it resets.
