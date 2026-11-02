@@ -187,7 +187,14 @@ A real return to the menu, weekly + all-time boards, 3 attempts a day plus cappe
   - **9d** — Docs refresh and milestone close
 
 ### Milestone: Player profile & run stats
-*(not yet scoped)* Display name and rename, persisted lifetime stats, per-run stats feeding Game Over, NEW BEST detection and badges.
+Display name and rename, persisted lifetime stats, per-run stats feeding Game Over, NEW BEST detection and badges. Branch `alpha-ms13/player-profile-and-run-stats`.
+
+- **Pass 1** — Local stats store (lifetime stats persisted)
+- **Pass 2** — Per-run stats and NEW BEST on Game Over (replaces `GameOverPlaceholderData`)
+- **Pass 3** — Profile screen real stats (replaces `ProfilePlaceholderData`)
+- **Pass 4** — Display name persistence and moderation
+- **Pass 5** — Badges
+- **Pass 6** — Hardening, device checks and close-out
 
 ## Phase: Beta
 
