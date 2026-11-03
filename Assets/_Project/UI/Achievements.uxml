@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:op="Opoint8182.UI">
+    <Style src="Achievements.uss" />
+    <!-- Achievements screen (Player profile & run stats Pass 6d). Instanced into MainMenu.uxml as a ScreenRouter screen,
+         reached from the Profile's BADGES header; logic in AchievementsScreen.cs. The rows are built in code. -->
+    <ui:VisualElement name="achievements-root" class="achievements-screen" picking-mode="Ignore">
+
+        <ui:VisualElement class="screen-header" picking-mode="Ignore">
+            <op:LipButton name="achievements-back" class="screen-header__back" text="&#8249;" />
+            <ui:Label text="ACHIEVEMENTS" class="screen-title screen-title--tilt" picking-mode="Ignore" />
+            <ui:Label name="achievements-count" text="3 / 11" class="achievements-count" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-header__spacer" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:ScrollView name="achievements-scroll" class="achievements-scroll" mode="Vertical" horizontal-scroller-visibility="Hidden" touch-scroll-type="Elastic" />
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -27,6 +27,7 @@ namespace Opoint8182.UI
 		private const string k_ProfileScreenId = "profile";
 		private const string k_ShopScreenId = "shop";
 		private const string k_CreditsScreenId = "credits";
+		private const string k_AchievementsScreenId = "achievements";
 
 		private enum BoardScenario
 		{
@@ -44,6 +45,7 @@ namespace Opoint8182.UI
 		private ProfileScreen m_profile;
 		private ShopScreen m_shop;
 		private CreditsScreen m_credits;
+		private AchievementsScreen m_achievements;
 		private UiToast m_toast;
 		private BoardScenario m_scenario = BoardScenario.SampleBoard;
 		private string m_selfName = LeaderboardPlaceholderData.SAMPLE_SELF_NAME;
@@ -63,12 +65,14 @@ namespace Opoint8182.UI
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
 			m_leaderboard?.Close();
 			m_profile?.Close();
+			m_achievements?.Close();
 			m_loadedRoot = null;
 			m_router = null;
 			m_leaderboard = null;
 			m_profile = null;
 			m_shop = null;
 			m_credits = null;
+			m_achievements = null;
 		}
 
 		private void OnUIReload(PanelRenderer renderer, VisualElement root, int version)
@@ -108,14 +112,21 @@ namespace Opoint8182.UI
 			popupBadge.style.display = DisplayStyle.None;
 			var badgePopup = new BadgePopup(popupBadge);
 			root.Q<LipButton>("badge-popup-close").clicked += () => m_router.ClosePopup();
-			m_profile.BadgeRequested += id =>
+			void OpenBadgePopup(string id)
 			{
 				var badge = BadgeCatalog.Find(id);
 				if (badge == null) return;
 
 				badgePopup.Bind(badge);
 				m_router.ShowPopup(popupBadge);
-			};
+			}
+
+			m_profile.BadgeRequested += OpenBadgePopup;
+			m_profile.AchievementsRequested += () => m_router.Show(k_AchievementsScreenId);
+
+			m_achievements = new AchievementsScreen(root.Q<VisualElement>("screen-achievements"));
+			m_achievements.BackRequested += () => m_router.Back();
+			m_achievements.BadgeRequested += OpenBadgePopup;
 
 			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
 			m_shop = new ShopScreen(root.Q<VisualElement>("screen-shop"));
@@ -123,6 +134,7 @@ namespace Opoint8182.UI
 			m_shop.ActionRequested += () => ShowToast(GameOverPlaceholderData.ArrivesLaterMessage);
 
 			m_router.Register(k_CreditsScreenId, root.Q<VisualElement>("screen-credits"));
+			m_router.Register(k_AchievementsScreenId, root.Q<VisualElement>("screen-achievements"));
 			m_credits = new CreditsScreen(root.Q<VisualElement>("screen-credits"));
 			m_credits.BackRequested += () => m_router.Back();
 			m_credits.LinkRequested += link => ShowToast($"LINK: {link.Label} -> {(string.IsNullOrEmpty(link.Url) ? "(no URL yet)" : link.Url)}");
@@ -144,6 +156,7 @@ namespace Opoint8182.UI
 			if (keyboard.eKey.wasPressedThisFrame && m_router.CurrentScreenId == k_ProfileScreenId) m_profile.BeginEdit();
 			if (keyboard.hKey.wasPressedThisFrame) m_router.Show(k_ShopScreenId);
 			if (keyboard.cKey.wasPressedThisFrame) m_router.Show(k_CreditsScreenId);
+			if (keyboard.bKey.wasPressedThisFrame) m_router.Show(k_AchievementsScreenId);
 			if (m_router.CurrentScreenId == k_ShopScreenId)
 			{
 				if (keyboard.digit1Key.wasPressedThisFrame) m_shop.SelectTab(0);
@@ -182,6 +195,9 @@ namespace Opoint8182.UI
 			else m_profile.Close();
 
 			if (screenId == k_ShopScreenId) m_shop.Open();
+
+			if (screenId == k_AchievementsScreenId) m_achievements.Open();
+			else m_achievements.Close();
 		}
 
 		private void SetScenario(BoardScenario scenario)

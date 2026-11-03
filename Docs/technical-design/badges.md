@@ -83,7 +83,7 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 | 6a | Plan the new UI (this section) |
 | 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu (**landed**, see below) |
 | 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route (**landed**, see below) |
-| 6d | Achievements screen: `AchievementsScreen.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back |
+| 6d | Achievements screen: `Achievements.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back (**landed**, see below) |
 | 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned |
 | 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
 
@@ -103,3 +103,10 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 - **Names:** a tile title is a column of one `Label` per line (`badge__title` > `badge__label`), each `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`, so a squeezed tile reads "HOARD..." instead of clipping (UI Toolkit ellipsises only a single non-wrapping line, which is why the two lines are separate). Unearned counted badges are no longer drawn (a locked "?" tile can only appear for a picked badge that is not earned, which `BadgePicks` does not allow).
 - **Header:** the caption line is gone. The BADGES row (`profile-badges-header`, at least 80 px tall, pressed feedback) is the tap target and ends in a chevron drawn as a rotated corner (`profile-badges__chevron`, no glyph). Its tap raises `ProfileScreen.AchievementsRequested`; until 6d the menu answers with the "ARRIVES IN A LATER UPDATE" toast. The count reads `x / 11`. `PrepareForShare` hides the chevron.
 - `BadgeCatalog.VisibleOrdered()` (hidden earned first, then every counted badge) is no longer used by the Profile; 6d's Achievements list uses it.
+
+### 6d: the Achievements screen
+
+- **Files:** `UI/Achievements.uxml` + `Achievements.uss` (a template instanced in `MainMenu.uxml` as `screen-achievements`) and `Scripts/UI/Profile/AchievementsScreen.cs`. Route id `achievements`: Menu > Profile > (BADGES header) > Achievements; back pops to the Profile. `MainMenuController` registers it, shows it on `ProfileScreen.AchievementsRequested` (the 6c stand-in toast is gone) and calls `Open()` / `Close()` from `OnScreenChanged`. `MenuScreensGallery` has it too (key **B**).
+- **List:** a vertical `ScrollView` of `BadgeCatalog.VisibleOrdered()` (earned hidden first, then every counted badge, in catalog order; unearned hidden badges are not listed). Header: back chevron, ACHIEVEMENTS, the `x / 11` count. No PICK button yet (6e).
+- **Row** (`ach-row`, at least 112 px tall, whole row tappable): the badge title on one line as the heading, the description under it, and on the right one pip per tier. Pips are bronze, silver, gold for tiers 3, 2, 1 when earned and hollow otherwise (a hidden badge has one gold pip). A badge with no tier is dimmed. An earned hidden badge has the gold outline and gold name; while unseen it also carries the coral "new" pip, which a tap removes and marks seen.
+- **Popup:** a tap raises `BadgeRequested`; the menu (and the gallery) open the same `popup-badge` as on the Profile, over the Achievements screen. `Open()` evaluates the badges silently, like the Profile.

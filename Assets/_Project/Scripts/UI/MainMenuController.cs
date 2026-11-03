@@ -34,6 +34,7 @@ namespace Opoint8182.UI
 		private const string k_ProfileScreenId = "profile";
 		private const string k_ShopScreenId = "shop";
 		private const string k_CreditsScreenId = "credits";
+		private const string k_AchievementsScreenId = "achievements";
 		private const string k_ComingSoonMessage = "COMING SOON";
 
 		// The counters can roll over at UTC midnight while the menu is open: reading them applies the new day, and this
@@ -52,6 +53,7 @@ namespace Opoint8182.UI
 		private ProfileScreen m_profileScreen;
 		private ShopScreen m_shopScreen;
 		private CreditsScreen m_creditsScreen;
+		private AchievementsScreen m_achievementsScreen;
 		private Label m_profileNameLabel;
 
 		private VisualElement m_statusCompetitive;
@@ -101,12 +103,14 @@ namespace Opoint8182.UI
 			m_loadedRoot = null;
 			m_leaderboardScreen?.Close();
 			m_profileScreen?.Close();
+			m_achievementsScreen?.Close();
 			m_router = null;
 			m_settingsScreen = null;
 			m_leaderboardScreen = null;
 			m_profileScreen = null;
 			m_shopScreen = null;
 			m_creditsScreen = null;
+			m_achievementsScreen = null;
 			m_profileNameLabel = null;
 		}
 
@@ -140,6 +144,7 @@ namespace Opoint8182.UI
 			m_router.Register(k_ProfileScreenId, root.Q<VisualElement>("screen-profile"));
 			m_router.Register(k_ShopScreenId, root.Q<VisualElement>("screen-shop"));
 			m_router.Register(k_CreditsScreenId, root.Q<VisualElement>("screen-credits"));
+			m_router.Register(k_AchievementsScreenId, root.Q<VisualElement>("screen-achievements"));
 			m_router.SetRoot(k_MenuScreenId);
 
 			m_settingsScreen = new SettingsScreen(root.Q<VisualElement>("screen-settings"));
@@ -154,7 +159,11 @@ namespace Opoint8182.UI
 			m_profileScreen.BackRequested += () => m_router.Back();
 			m_profileScreen.ShareRequested += OnProfileShare;
 			m_profileScreen.BadgeRequested += OnBadgeRequested;
-			m_profileScreen.AchievementsRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage); // the Achievements screen arrives in 6d
+			m_profileScreen.AchievementsRequested += () => m_router.Show(k_AchievementsScreenId);
+
+			m_achievementsScreen = new AchievementsScreen(root.Q<VisualElement>("screen-achievements"));
+			m_achievementsScreen.BackRequested += () => m_router.Back();
+			m_achievementsScreen.BadgeRequested += OnBadgeRequested;
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();
@@ -341,6 +350,9 @@ namespace Opoint8182.UI
 			else m_profileScreen.Close();
 
 			if (screenId == k_ShopScreenId) m_shopScreen.Open();
+
+			if (screenId == k_AchievementsScreenId) m_achievementsScreen.Open();
+			else m_achievementsScreen.Close();
 
 			// The profile screen may have renamed the player; the chip follows when the menu is shown again. A name the leaderboards
 			// have not accepted yet (renamed offline, or the first launch) is sent now; a no-op once it is.

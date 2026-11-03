@@ -6,6 +6,7 @@
     <Template name="ProfileScreen" src="Profile.uxml" />
     <Template name="ShopScreen" src="Shop.uxml" />
     <Template name="CreditsScreen" src="Credits.uxml" />
+    <Template name="AchievementsScreen" src="Achievements.uxml" />
     <ui:VisualElement name="root" class="theme menu-root">
         <ui:VisualElement class="screen-bg" picking-mode="Ignore" />
         <ui:VisualElement class="screen-stripes" picking-mode="Ignore" />
@@ -103,6 +104,7 @@
             <ui:Instance template="ProfileScreen" name="screen-profile" class="screen-instance" />
             <ui:Instance template="ShopScreen" name="screen-shop" class="screen-instance" />
             <ui:Instance template="CreditsScreen" name="screen-credits" class="screen-instance" />
+            <ui:Instance template="AchievementsScreen" name="screen-achievements" class="screen-instance" />
 
         </ui:VisualElement>
 
