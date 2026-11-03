@@ -82,7 +82,7 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 |---|---|
 | 6a | Plan the new UI (this section) |
 | 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu (**landed**, see below) |
-| 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route |
+| 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route (**landed**, see below) |
 | 6d | Achievements screen: `AchievementsScreen.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back |
 | 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned |
 | 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
@@ -96,3 +96,10 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 - `IsPickable(badge)`: a counted badge with at least one tier. `AnythingToPick()`: any pickable badge (the PICK button shows only then). `IsPicked(badge)`.
 - `Save(ids)`: keeps the ids that are known, counted, earned and not repeated, in catalog order, at most 6; marks the set as stored; raises `Changed`; returns how many were kept. `Reset()` forgets it (the set is derived again); `BadgeService.Reset()` calls it.
 - Test menu `Tools > Badges`: Log Picks, Save Picks: Last 3 Earned, Save Picks: Try 8 (keeps 6), Clear Picks.
+
+### 6c: the Profile badge card
+
+- **Row:** `ProfileScreen.BuildBadges` draws `BadgePicks.ProfileBadges()` (earned hidden first, then the picked ones). The old horizontal `ScrollView` is a plain flex row (`profile-badge-row`, `overflow: hidden`): tiles are **152 x 152** reference px with `flex-shrink: 1` and `min-width: 100px`, so a crowded row (4:3, or 6 picks plus hidden ones) squeezes them evenly instead of scrolling. The tier colours, pips, glow and "new" pip are unchanged.
+- **Names:** a tile title is a column of one `Label` per line (`badge__title` > `badge__label`), each `white-space: nowrap; overflow: hidden; text-overflow: ellipsis`, so a squeezed tile reads "HOARD..." instead of clipping (UI Toolkit ellipsises only a single non-wrapping line, which is why the two lines are separate). Unearned counted badges are no longer drawn (a locked "?" tile can only appear for a picked badge that is not earned, which `BadgePicks` does not allow).
+- **Header:** the caption line is gone. The BADGES row (`profile-badges-header`, at least 80 px tall, pressed feedback) is the tap target and ends in a chevron drawn as a rotated corner (`profile-badges__chevron`, no glyph). Its tap raises `ProfileScreen.AchievementsRequested`; until 6d the menu answers with the "ARRIVES IN A LATER UPDATE" toast. The count reads `x / 11`. `PrepareForShare` hides the chevron.
+- `BadgeCatalog.VisibleOrdered()` (hidden earned first, then every counted badge) is no longer used by the Profile; 6d's Achievements list uses it.

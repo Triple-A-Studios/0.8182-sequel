@@ -19,7 +19,6 @@ namespace Opoint8182.UI
 	{
 		private const string k_BadgeClass = "badge";
 		private const string k_BadgeLockedClass = "badge--locked";
-		private const string k_DefaultCaption = "Tap a badge to see its tiers.";
 		private const long k_GlowPulseMs = 900;
 		private const string k_EditHint = "3-16 letters, numbers, _ or -";
 		private const string k_EditHintWeb = "Tap the name to type · 3-16 letters, numbers, _ or -";
@@ -39,8 +38,8 @@ namespace Opoint8182.UI
 		private readonly LipButton m_confirmButton;
 		private readonly Label m_idLabel;
 		private readonly Label m_badgeTitleCount;
-		private readonly Label m_badgeCaption;
-		private readonly ScrollView m_badgeScroll;
+		private readonly VisualElement m_badgeHeader;
+		private readonly VisualElement m_badgeRow;
 		private readonly List<VisualElement> m_hiddenBadgeTiles = new();
 		private IVisualElementScheduledItem m_glowPulse;
 		private bool m_glowOn;
@@ -55,6 +54,9 @@ namespace Opoint8182.UI
 
 		/// <summary>The display name was changed and confirmed (the menu chip refreshes on return).</summary>
 		public event Action NameChanged;
+
+		/// <summary>The BADGES header (with its chevron) was tapped: the owner opens the Achievements screen.</summary>
+		public event Action AchievementsRequested;
 
 		/// <summary>A badge tile was tapped; the owner opens its popup (the popup layer belongs to the menu).</summary>
 		public event Action<string> BadgeRequested;
@@ -83,8 +85,8 @@ namespace Opoint8182.UI
 			m_confirmButton = root.Q<LipButton>("profile-confirm");
 			m_idLabel = root.Q<Label>("profile-id");
 			m_badgeTitleCount = root.Q<Label>("profile-badge-count");
-			m_badgeCaption = root.Q<Label>("profile-badge-caption");
-			m_badgeScroll = root.Q<ScrollView>("profile-badge-scroll");
+			m_badgeHeader = root.Q<VisualElement>("profile-badges-header");
+			m_badgeRow = root.Q<VisualElement>("profile-badge-row");
 			m_nameField = root.Q<VisualElement>(className: "profile-name-field");
 
 			m_nameInput.maxLength = UiProfileState.MAX_NAME_LENGTH;
@@ -98,6 +100,10 @@ namespace Opoint8182.UI
 			m_editButton.clicked += BeginEdit;
 			m_diceButton.clicked += RollName;
 			m_confirmButton.clicked += ConfirmEdit;
+
+			// The whole header row is the way into the Achievements screen.
+			m_badgeHeader.AddManipulator(new PressedClassManipulator());
+			m_badgeHeader.RegisterCallback<ClickEvent>(_ => AchievementsRequested?.Invoke());
 
 			// Trickle so Enter is seen before the text field's own handling of the key.
 			m_nameInput.RegisterCallback<KeyDownEvent>(OnNameKeyDown, TrickleDown.TrickleDown);
@@ -115,13 +121,12 @@ namespace Opoint8182.UI
 			BadgeService.Evaluate();
 			BadgeService.TakeNewUnlocks();
 			BuildBadges();
-			m_badgeScroll.scrollOffset = Vector2.zero;
 			Refresh();
 		}
 
 		/// <summary>
 		/// For the share card: drops the buttons and the hint lines (back, SHARE, rename, the dev caption in the portrait slot, the
-		/// "tap a badge" line and the badge row's scroll bar), leaving the profile as an image.
+		/// header's chevron), leaving the profile as an image.
 		/// </summary>
 		public void PrepareForShare()
 		{
@@ -129,8 +134,7 @@ namespace Opoint8182.UI
 			SetDisplay(m_root.Q<VisualElement>("profile-share"), false);
 			SetDisplay(m_editButton, false);
 			SetDisplay(m_root.Q<VisualElement>(className: "profile-portrait__caption"), false);
-			SetDisplay(m_badgeCaption, false);
-			m_badgeScroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+			SetDisplay(m_root.Q<VisualElement>(className: "profile-badges__chevron"), false);
 		}
 
 		/// <summary>Drops an edit in progress. Call when the router hides the screen.</summary>
@@ -331,18 +335,17 @@ namespace Opoint8182.UI
 		// a "?", and an earned hidden badge comes first with a pulsing gold outline. The header counts the counted badges that have a tier.
 		private void BuildBadges()
 		{
-			m_badgeScroll.Clear();
+			m_badgeRow.Clear();
 			m_hiddenBadgeTiles.Clear();
 
-			foreach (var badge in BadgeCatalog.VisibleOrdered())
+			foreach (var badge in BadgePicks.ProfileBadges())
 			{
 				var tile = CreateBadgeTile(badge);
 				if (badge.Hidden) m_hiddenBadgeTiles.Add(tile);
-				m_badgeScroll.Add(tile);
+				m_badgeRow.Add(tile);
 			}
 
 			m_badgeTitleCount.text = $"{BadgeService.CountedEarned()} / {BadgeCatalog.CountedTotal}";
-			m_badgeCaption.text = k_DefaultCaption;
 			UpdateGlowPulse();
 		}
 
@@ -358,9 +361,26 @@ namespace Opoint8182.UI
 			else if (badge.Hidden) tile.AddToClassList("badge--hidden");
 			else tile.AddToClassList(BadgeService.HighestTier(badge) switch { 3 => "badge--bronze", 2 => "badge--silver", _ => "badge--gold" });
 
-			var label = new Label(locked ? "?" : badge.Title) { pickingMode = PickingMode.Ignore };
-			label.AddToClassList("badge__label");
-			tile.Add(label);
+			if (locked)
+			{
+				var mark = new Label("?") { pickingMode = PickingMode.Ignore };
+				mark.AddToClassList("badge__label");
+				tile.Add(mark);
+			}
+			else
+			{
+				// One label per title line, so each can end in an ellipsis when the tile is squeezed.
+				var title = new VisualElement { pickingMode = PickingMode.Ignore };
+				title.AddToClassList("badge__title");
+				foreach (var line in badge.Title.Split('\n'))
+				{
+					var label = new Label(line) { pickingMode = PickingMode.Ignore };
+					label.AddToClassList("badge__label");
+					title.Add(label);
+				}
+
+				tile.Add(title);
+			}
 
 			if (!locked && !badge.Hidden)
 			{

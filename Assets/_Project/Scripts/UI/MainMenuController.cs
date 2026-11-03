@@ -154,6 +154,7 @@ namespace Opoint8182.UI
 			m_profileScreen.BackRequested += () => m_router.Back();
 			m_profileScreen.ShareRequested += OnProfileShare;
 			m_profileScreen.BadgeRequested += OnBadgeRequested;
+			m_profileScreen.AchievementsRequested += () => m_toast.Show(GameOverPlaceholderData.ArrivesLaterMessage); // the Achievements screen arrives in 6d
 
 			m_shopScreen = new ShopScreen(root.Q<VisualElement>("screen-shop"));
 			m_shopScreen.BackRequested += () => m_router.Back();

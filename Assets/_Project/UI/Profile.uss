@@ -300,6 +300,20 @@
     flex-direction: row;
     align-items: center;
     flex-shrink: 0;
+    min-height: 80px;
+}
+
+/* A chevron drawn as a rotated corner (no glyph needed): the header opens the Achievements screen. */
+.profile-badges__chevron {
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    margin-right: 14px;
+    border-right-width: 6px;
+    border-top-width: 6px;
+    border-right-color: var(--ink);
+    border-top-color: var(--ink);
+    rotate: 45deg;
 }
 
 .profile-badge-count {
@@ -310,40 +324,21 @@
     color: var(--amber);
 }
 
-.profile-badge-scroll {
+.profile-badge-row {
+    flex-direction: row;
     flex-grow: 0;
     flex-shrink: 0;
-    margin-top: 12px;
-}
-
-.profile-badge-scroll .unity-scroller--horizontal {
-    height: 12px;
-    margin-top: 8px;
-}
-
-.profile-badge-scroll .unity-repeat-button { display: none; }
-
-.profile-badge-scroll .unity-base-slider--horizontal { margin: 0; }
-
-.profile-badge-scroll .unity-base-slider__tracker {
-    height: 12px;
-    border-width: 0;
-    border-radius: 6px;
-    background-color: rgba(16, 24, 35, 0.4);
-}
-
-.profile-badge-scroll .unity-base-slider__dragger {
-    height: 12px;
-    border-width: 0;
-    border-radius: 6px;
-    background-color: var(--ink-35);
+    margin-top: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
 }
 
 .badge {
-    width: 128px;
-    height: 128px;
+    width: 152px;
+    height: 152px;
+    min-width: 100px;
     margin-right: 14px;
-    flex-shrink: 0;
+    flex-shrink: 1;
 }
 
 .badge > .lipbox__face {
@@ -361,8 +356,19 @@
     -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
     font-size: 24px;
     color: var(--ink-dark);
-    white-space: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
     -unity-text-align: middle-center;
+}
+
+/* The two title lines are separate labels so each can end in an ellipsis (UI Toolkit ellipsises only a single non-wrapping line). */
+.badge__title {
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    padding: 0 8px;
 }
 
 /* Tier colours: the best tier earned picks the tile's colour (tier 3 bronze, tier 2 silver, tier 1 gold). */
@@ -394,7 +400,7 @@
 
 .badge__pip--on { background-color: rgba(42, 26, 6, 0.85); }
 
-.badge--pips .badge__label { margin-bottom: 14px; }
+.badge--pips .badge__title { margin-bottom: 14px; }
 
 /* Hidden badge (earned): drawn first, dark tile with a gold label and an outline that pulses between two golds. */
 .badge.badge--hidden.lipbox--primary > .lipbox__face {
@@ -438,13 +444,4 @@
 .badge.is-selected > .lipbox__face {
     border-width: 4px;
     border-color: var(--ink);
-}
-
-.profile-badge-caption {
-    flex-shrink: 0;
-    margin-top: 8px;
-    white-space: normal;
-    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
-    font-size: 26px;
-    color: var(--ink-70);
 }

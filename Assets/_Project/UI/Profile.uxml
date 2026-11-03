@@ -96,12 +96,12 @@
                 </ui:VisualElement>
 
                 <op:LipBox class="card profile-badges">
-                    <ui:VisualElement class="profile-badges__title" picking-mode="Ignore">
+                    <ui:VisualElement name="profile-badges-header" class="profile-badges__title">
                         <ui:Label text="BADGES" class="profile-label profile-label--big" picking-mode="Ignore" />
-                        <ui:Label name="profile-badge-count" text="3 / 12" class="profile-badge-count" picking-mode="Ignore" />
+                        <ui:Label name="profile-badge-count" text="3 / 11" class="profile-badge-count" picking-mode="Ignore" />
+                        <ui:VisualElement class="profile-badges__chevron" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:ScrollView name="profile-badge-scroll" class="profile-badge-scroll" mode="Horizontal" vertical-scroller-visibility="Hidden" touch-scroll-type="Elastic" />
-                    <ui:Label name="profile-badge-caption" text="Tap a locked badge to see how to unlock it." class="profile-badge-caption" picking-mode="Ignore" />
+                    <ui:VisualElement name="profile-badge-row" class="profile-badge-row" picking-mode="Ignore" />
                 </op:LipBox>
             </ui:VisualElement>
 
