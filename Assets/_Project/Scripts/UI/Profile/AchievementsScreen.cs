@@ -75,6 +75,12 @@ namespace Opoint8182.UI
 			m_picking = false;
 		}
 
+		/// <summary>Starts pick mode, as the PICK button does. Does nothing when already picking or when there is nothing to pick (the dev gallery's key).</summary>
+		public void BeginPick()
+		{
+			if (!m_picking) OnPickClicked();
+		}
+
 		/// <summary>Leaves pick mode without saving. False when not picking (so back / Escape can leave the screen instead).</summary>
 		public bool CancelPick()
 		{

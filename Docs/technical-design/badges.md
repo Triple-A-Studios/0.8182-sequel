@@ -85,7 +85,7 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 | 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route (**landed**, see below) |
 | 6d | Achievements screen: `Achievements.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back (**landed**, see below) |
 | 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned (**landed**, see below) |
-| 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
+| 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` (**landed**, see below) |
 
 ### 6b: the picks store (`BadgePicks`)
 
@@ -120,3 +120,10 @@ All in `AchievementsScreen` (plus a PICK button in `Achievements.uxml`).
 - **DONE** saves through `BadgePicks.Save` (catalog order, so the tick order does not matter) and leaves pick mode; zero ticks is allowed and gives a Profile row with only hidden badges. The Profile re-reads the picks when it is opened, so it is current on return.
 - **Back / Escape** while picking only **leaves pick mode and drops the ticks**; the next one leaves the screen (the same rule as the name edit). Leaving the screen another way (`Close`) also drops them. `MainMenuController.Update` and the gallery driver both check `CancelPick()` before going back (not while a popup is open).
 - The list keeps its scroll position when the mode flips.
+
+### 6f: hardening
+
+- **Aspect sweep** (driven from the Unity CLI in the `MenuScreensGallery`, the method in [ui.md](ui.md): the menu's `safe-area` element sized to each logical panel, each screen shown, the visual tree scanned for elements outside their screen, interactive targets under 80 px, text under 24 px and truncated labels), with 6 picks plus the hidden badge and the full 12-row list: **1800x1350 (4:3), 1920x1200 (16:10), 2400x1080 (16:9), 2514x1029 (22:9)** x Profile, Achievements, Achievements in pick mode. **No overflow, no target under 80 px, no text under 24 px on any of them.** The only truncation: at 4:3 the seven Profile tiles squeeze to about 126 px and the longest title word (POINT **HOARDER**) ends in an ellipsis; 16:10 and wider fit every title. The squeeze was tightened in this pass (tile gap 14 to 12 px, title padding 8 to 2 px) so PERFECT PILOT now fits at 4:3 too.
+- **Share card:** the Profile card draws the picked tiles and the hidden badge, with no chevron; the hidden badge's coral "new" pip is now hidden on it too (`PrepareForShare`; it was showing on the rendered image).
+- **Gallery and test menu:** `MenuScreensGallery` keys: **B** Achievements, **K** toggles pick mode while on it. `Tools > Badges > Unlock Hidden: ALL STAR (test)` earns the hidden badge.
+- **Not covered:** a real phone (touch-drag scrolling of the list against row taps, the safe area on a notch) is for Pass 7's device checks.

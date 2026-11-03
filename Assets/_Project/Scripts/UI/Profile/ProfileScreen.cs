@@ -135,6 +135,7 @@ namespace Opoint8182.UI
 			SetDisplay(m_editButton, false);
 			SetDisplay(m_root.Q<VisualElement>(className: "profile-portrait__caption"), false);
 			SetDisplay(m_root.Q<VisualElement>(className: "profile-badges__chevron"), false);
+			foreach (var pip in m_root.Query<VisualElement>(className: "badge__new").ToList()) SetDisplay(pip, false);
 		}
 
 		/// <summary>Drops an edit in progress. Call when the router hides the screen.</summary>

@@ -159,6 +159,7 @@ namespace Opoint8182.UI
 			if (keyboard.hKey.wasPressedThisFrame) m_router.Show(k_ShopScreenId);
 			if (keyboard.cKey.wasPressedThisFrame) m_router.Show(k_CreditsScreenId);
 			if (keyboard.bKey.wasPressedThisFrame) m_router.Show(k_AchievementsScreenId);
+			if (keyboard.kKey.wasPressedThisFrame && m_router.CurrentScreenId == k_AchievementsScreenId && !m_achievements.CancelPick()) m_achievements.BeginPick();
 			if (m_router.CurrentScreenId == k_ShopScreenId)
 			{
 				if (keyboard.digit1Key.wasPressedThisFrame) m_shop.SelectTab(0);

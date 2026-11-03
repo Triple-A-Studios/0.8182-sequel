@@ -66,6 +66,13 @@ namespace Opoint8182.BadgesEditor
 			return string.Join(", ", names);
 		}
 
+		[MenuItem("Tools/Badges/Unlock Hidden: ALL STAR (test)")]
+		private static void UnlockAllStar()
+		{
+			Debug.Log($"[Badges] ALL STAR unlocked: {BadgeService.Unlock("allstar")} (false = already earned).");
+			LogBadges();
+		}
+
 		[MenuItem("Tools/Badges/Evaluate Now")]
 		private static void EvaluateNow()
 		{
