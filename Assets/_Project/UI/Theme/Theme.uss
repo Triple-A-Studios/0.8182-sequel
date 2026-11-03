@@ -29,13 +29,16 @@
     --danger-text: #FFAE9A;
     --danger-border: #B5503A;
 
-    /* Badge tiers: tier 3 bronze, tier 2 silver, tier 1 gold (face + lip) */
-    --bronze: #CD8A52;
-    --bronze-lip: #8A5326;
-    --silver: #C9D2DA;
-    --silver-lip: #7F8A95;
-    --gold: #F7CB4A;
-    --gold-lip: #B58A14;
+    /* Badge tiers: tier 3 bronze, tier 2 silver, tier 1 gold. Face, a lighter rim (the tile's border) and a darker lip: three flat tones that read as metal, no gradient or glow. */
+    --bronze: #D97A40;
+    --bronze-rim: #F4B98C;
+    --bronze-lip: #8F3F1C;
+    --silver: #CBD4DC;
+    --silver-rim: #F3F6F9;
+    --silver-lip: #7B8793;
+    --gold: #EDB22B;
+    --gold-rim: #FFE08A;
+    --gold-lip: #9C6E08;
     --backdrop: rgba(8, 14, 22, 0.72);
 
     /* Secondary text = ink at 55-70% alpha, disabled = ink at 35% */

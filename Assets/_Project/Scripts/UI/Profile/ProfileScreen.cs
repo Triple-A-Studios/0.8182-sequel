@@ -332,7 +332,7 @@ namespace Opoint8182.UI
 			if (Mathf.Abs(target - current) > 0.5f) label.style.fontSize = target;
 		}
 
-		// Every visible badge as a tile: the best tier earned colours it (bronze, silver, gold), pips count the tiers, an unearned counted badge is
+		// Every visible badge as a tile: the best tier earned colours it (bronze, silver, gold; the colour is the only tier cue on a tile), an unearned counted badge is
 		// a "?", and an earned hidden badge comes first with a pulsing gold outline. The header counts the counted badges that have a tier.
 		private void BuildBadges()
 		{
@@ -381,22 +381,6 @@ namespace Opoint8182.UI
 				}
 
 				tile.Add(title);
-			}
-
-			if (!locked && !badge.Hidden)
-			{
-				tile.AddToClassList("badge--pips");
-				var pips = new VisualElement { pickingMode = PickingMode.Ignore };
-				pips.AddToClassList("badge__pips");
-				for (var i = 0; i < badge.TierCount; i++)
-				{
-					var pip = new VisualElement { pickingMode = PickingMode.Ignore };
-					pip.AddToClassList("badge__pip");
-					if (i < earned) pip.AddToClassList("badge__pip--on");
-					pips.Add(pip);
-				}
-
-				tile.Add(pips);
 			}
 
 			// A hidden badge the player has not opened yet carries a pip until they tap it.
