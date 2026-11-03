@@ -8,7 +8,7 @@ namespace Opoint8182.UI
 	public static class RunStatsFormat
 	{
 		public static string Distance(float meters) =>
-			meters >= 1000f
+			Mathf.Round(meters) >= 1000f
 				? (meters / 1000f).ToString("0.0", CultureInfo.InvariantCulture) + " km"
 				: Mathf.RoundToInt(meters).ToString(CultureInfo.InvariantCulture) + " m";
 

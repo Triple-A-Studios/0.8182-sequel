@@ -202,6 +202,9 @@ Display name and rename, persisted lifetime stats, per-run stats feeding Game Ov
   - **6e** — Pick mode
   - **6f** — Hardening, share card, galleries, docs
 - **Pass 7** — Hardening, device checks and close-out
+  - **7a** — Editor hardening sweep (edge cases of stats, name, badges, Achievements)
+  - **7b** — Device checks (Android and WebGL)
+  - **7c** — Docs and milestone close
 
 ### Milestone: Backlog and Alpha close-out
 *(not yet scoped)* Works through the open backlog items worth doing before Beta (checked with the developer, item by item) and closes the Alpha phase: docs refresh, device checks on Android and WebGL, and a go/no-go for starting Beta. Scoped when the developer starts it.

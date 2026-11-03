@@ -22,8 +22,8 @@ namespace Opoint8182.Badges
 			BadgeDefinition.Tiered("perfect", "PERFECT\nPILOT", "Perfect crashes on a weak point",
 				new long[] { 25, 150, 600 }, () => PlayerStats.PerfectCrashes, Count, "perfect crashes"),
 
-			BadgeDefinition.Tiered("bigrun", "BIG\nRUN", "Score in a single ranked run",
-				new long[] { 3000, 8000, 20000 }, () => PlayerStats.HighScore, Count, "points in one run", true),
+			BadgeDefinition.Tiered("bigrun", "BIG\nRUN", "Best score in a single ranked run",
+				new long[] { 3000, 8000, 20000 }, () => PlayerBest.Current, Count, "points in one run", true),
 
 			BadgeDefinition.Tiered("roadtrip", "ROAD\nTRIP", "Distance flown in total",
 				new long[] { 25000, 100000, 300000 }, () => (long)PlayerStats.DistanceMeters, Kilometers, "flown"),

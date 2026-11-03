@@ -127,3 +127,28 @@ All in `AchievementsScreen` (plus a PICK button in `Achievements.uxml`).
 - **Share card:** the Profile card draws the picked tiles and the hidden badge, with no chevron; the hidden badge's coral "new" pip is now hidden on it too (`PrepareForShare`; it was showing on the rendered image).
 - **Gallery and test menu:** `MenuScreensGallery` keys: **B** Achievements, **K** toggles pick mode while on it. `Tools > Badges > Unlock Hidden: ALL STAR (test)` earns the hidden badge.
 - **Not covered:** a real phone (touch-drag scrolling of the list against row taps, the safe area on a notch) is for Pass 7's device checks.
+
+### 7a: Editor hardening sweep
+
+Checked in the Editor (a scripted pass through the Unity CLI against the real classes, preferences backed up and restored around it): the name rules (charset, length, padded and leetspeak blocked words, generated names always valid over 300 rolls), the `#1234` split (leading hash, non-digit tail, angle brackets, null), the rich-text name, `RunStats` clamping, the toast text (a badge that gained two tiers counts once at its best, two names plus "+N MORE", a hidden badge without a tier), several tiers of one badge earned by one `Evaluate` and no repeat on the next, the picks store (derived first 6 in catalog order, 8 offered keeps 6, hidden / unearned / unknown ids ignored, zero picks allowed, `Reset` back to derived), hidden-badge unlock once, the unseen cue and `MarkSeen`, practice runs never setting the high score, totals saturating at `int.MaxValue`, badges surviving a stats reset. All passed (two checks of the script itself were wrong: a typo in an expected string and a "fresh state earns nothing" assumption that the stored server best breaks, see below).
+
+Found and fixed:
+- **BIG RUN used only the local high score** while the Profile's HIGH SCORE tile shows the larger of that and the server-confirmed all-time best, so a player with a server best and no local run saw a high score but no BIG RUN tier. BIG RUN now reads `PlayerBest.Current`, the same best everywhere. (Consequence: a stored server best earns BIG RUN tiers at the next `Evaluate`, by design.)
+- **`RunStatsFormat.Distance(999.6f)`** showed "1000 m"; it now reads "1.0 km".
+
+Known, left as is:
+- Backlog **#39**: tier thresholds are placeholders (the developer's stored server best of 120,000 already tops BIG RUN's gold tier of 20,000).
+- The blocklist is a short starting list; the developer maintains it (`DisplayNameRules.m_S_Blocked`).
+- A run left before it ends (QUIT TO MENU, a restart) is not recorded, by decision.
+
+### 7b: device checks (for the developer, Android and WebGL)
+
+1. **Achievements list:** scroll with a finger drag on the 12 rows, then tap a row: a drag must not open a popup, a tap must. Also with the list in pick mode (a drag must not toggle ticks).
+2. **Profile row:** the picked tiles and the hidden one fit without overlap at the phone's aspect; the BADGES header is easy to tap (the whole row), the chevron is visible.
+3. **Pick mode:** PICK, tick up to 6, the others grey out, DONE saves, the Profile shows the picks; back / the Android back key while picking drops the ticks and stays, the next press leaves.
+4. **Popup:** opens from a Profile tile and from an Achievements row, closes with CLOSE and with a tap outside.
+5. **Unlock toast:** fly a run that earns a badge tier (Tools > Badges is Editor-only, so use a lowered threshold in a development build, or play): one toast on Game Over, about two seconds after the screen settles.
+6. **Hidden badge cue:** (`BadgeService.Unlock` from a debug build or a temporary condition) the coral pip on the menu's PROFILE chip and on the tile, cleared by tapping the tile.
+7. **Name:** rename on the phone (the keyboard avoids the field), the `#1234` tag appears muted on the Profile and on the boards after a moment, the name survives a restart, and a rename while offline goes out at the next menu visit.
+8. **Share:** the Profile share image (Android share sheet / WebGL download) shows the picked tiles, no chevron and no new-pip.
+9. **WebGL:** the same list scrolling with the mouse wheel and drag, and `PlayerPrefs` persistence of the picks and the name across a page reload.
