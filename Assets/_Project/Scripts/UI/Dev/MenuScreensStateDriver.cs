@@ -150,7 +150,9 @@ namespace Opoint8182.UI
 			var keyboard = Keyboard.current;
 			if (keyboard == null) return;
 
-			if (keyboard.escapeKey.wasPressedThisFrame && !(m_router.CurrentScreenId == k_ProfileScreenId && m_profile.CancelEdit())) m_router.HandleBackRequested();
+			if (keyboard.escapeKey.wasPressedThisFrame
+			    && !(m_router.CurrentScreenId == k_ProfileScreenId && m_profile.CancelEdit())
+			    && !(m_router.CurrentScreenId == k_AchievementsScreenId && !m_router.HasOpenPopup && m_achievements.CancelPick())) m_router.HandleBackRequested();
 			if (keyboard.mKey.wasPressedThisFrame) m_router.Show(k_LeaderboardScreenId);
 			if (keyboard.yKey.wasPressedThisFrame) m_router.Show(k_ProfileScreenId);
 			if (keyboard.eKey.wasPressedThisFrame && m_router.CurrentScreenId == k_ProfileScreenId) m_profile.BeginEdit();

@@ -14,6 +14,24 @@
     color: var(--amber);
 }
 
+.achievements-pick {
+    height: 94px;
+    min-width: 200px;
+    margin-right: 8px;
+}
+
+.achievements-pick > .lipbox__face {
+    padding: 0 40px;
+    border-radius: 18px;
+}
+
+.achievements-pick > .lipbox__lip { border-radius: 18px; }
+
+.achievements-pick .lipbox__label {
+    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
+    font-size: 32px;
+}
+
 .achievements-scroll {
     flex-grow: 1;
     flex-shrink: 1;
@@ -128,3 +146,39 @@
     border-color: var(--ink);
     background-color: var(--coral);
 }
+
+/* ---- Pick mode: a checkbox on every row that can be picked; at the limit the unticked rows grey out ---- */
+
+.ach-check {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    margin-right: 28px;
+    border-width: 4px;
+    border-radius: 12px;
+    border-color: var(--ink-55);
+    align-items: center;
+    justify-content: center;
+}
+
+.ach-check--on {
+    border-color: var(--amber);
+    background-color: var(--amber);
+}
+
+/* The tick is a rotated corner, so no glyph is needed. */
+.ach-check__mark {
+    display: none;
+    width: 14px;
+    height: 26px;
+    margin-bottom: 4px;
+    border-right-width: 6px;
+    border-bottom-width: 6px;
+    border-right-color: var(--ink-dark);
+    border-bottom-color: var(--ink-dark);
+    rotate: 45deg;
+}
+
+.ach-check--on .ach-check__mark { display: flex; }
+
+.ach-row--off { opacity: 0.45; }

@@ -125,6 +125,9 @@ namespace Opoint8182.UI
 			// Escape while renaming only leaves the text field; the screen stays.
 			if (m_router.CurrentScreenId == k_ProfileScreenId && m_profileScreen.CancelEdit()) return;
 
+			// Likewise while picking badges: the first Escape drops the ticks, the next one goes back.
+			if (m_router.CurrentScreenId == k_AchievementsScreenId && !m_router.HasOpenPopup && m_achievementsScreen.CancelPick()) return;
+
 			m_router.HandleBackRequested();
 		}
 

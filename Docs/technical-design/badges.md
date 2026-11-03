@@ -84,7 +84,7 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 | 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu (**landed**, see below) |
 | 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route (**landed**, see below) |
 | 6d | Achievements screen: `Achievements.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back (**landed**, see below) |
-| 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned |
+| 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned (**landed**, see below) |
 | 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
 
 ### 6b: the picks store (`BadgePicks`)
@@ -110,3 +110,13 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 - **List:** a vertical `ScrollView` of `BadgeCatalog.VisibleOrdered()` (earned hidden first, then every counted badge, in catalog order; unearned hidden badges are not listed). Header: back chevron, ACHIEVEMENTS, the `x / 11` count. No PICK button yet (6e).
 - **Row** (`ach-row`, at least 112 px tall, whole row tappable): the badge title on one line as the heading, the description under it, and on the right one pip per tier. Pips are bronze, silver, gold for tiers 3, 2, 1 when earned and hollow otherwise (a hidden badge has one gold pip). A badge with no tier is dimmed. An earned hidden badge has the gold outline and gold name; while unseen it also carries the coral "new" pip, which a tap removes and marks seen.
 - **Popup:** a tap raises `BadgeRequested`; the menu (and the gallery) open the same `popup-badge` as on the Profile, over the Achievements screen. `Open()` evaluates the badges silently, like the Profile.
+
+### 6e: pick mode
+
+All in `AchievementsScreen` (plus a PICK button in `Achievements.uxml`).
+
+- **PICK** sits at the right of the header and shows only when `BadgePicks.AnythingToPick()` (at least one counted badge earned). It starts pick mode with the ticks seeded from `BadgePicks.Current()` (so a player who never picked starts from the derived first six).
+- **In pick mode** the title reads PICK BADGES, the count chip reads "x / 6 picked", PICK becomes **DONE** (primary variant). Earned counted rows get a checkbox on the left (a drawn tick, no glyph); locked rows and hidden rows have none and cannot be ticked. **The whole row toggles** the tick and the tier popup is not available. At 6 ticks the **unticked rows grey out** and ignore taps (untick one to free a slot); no message.
+- **DONE** saves through `BadgePicks.Save` (catalog order, so the tick order does not matter) and leaves pick mode; zero ticks is allowed and gives a Profile row with only hidden badges. The Profile re-reads the picks when it is opened, so it is current on return.
+- **Back / Escape** while picking only **leaves pick mode and drops the ticks**; the next one leaves the screen (the same rule as the name edit). Leaving the screen another way (`Close`) also drops them. `MainMenuController.Update` and the gallery driver both check `CancelPick()` before going back (not while a popup is open).
+- The list keeps its scroll position when the mode flips.
