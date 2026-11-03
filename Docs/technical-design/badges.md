@@ -81,8 +81,18 @@ Status: **planned (6a), not built.** Decided with the developer on 2026-11-02. N
 | Sub-pass | Content |
 |---|---|
 | 6a | Plan the new UI (this section) |
-| 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu |
+| 6b | Badge picks store: picked ids, "has picked", default first 6 earned, catalog-order read, save on DONE, Editor test menu (**landed**, see below) |
 | 6c | Profile badge card: picked + hidden tiles, 152 px shrink-to-fit, two-line ellipsis labels, chevron header, caption removed, header tap raises the route |
 | 6d | Achievements screen: `AchievementsScreen.uxml/uss`, router route, list rows with name / description / tier pips, hidden rows first, popup from rows, unseen pip, back |
 | 6e | Pick mode: PICK / DONE, checkbox rows, counter chip, 6-limit greying, discard on back, hide PICK with nothing earned |
 | 6f | Hardening: share card, `MenuScreensGallery` states (key for Achievements and pick mode), aspect sweep, 80 px targets, docs (`ui.md`, this file), `current-state.md` |
+
+### 6b: the picks store (`BadgePicks`)
+
+`Scripts/Badges/BadgePicks.cs`, static, `PlayerPrefs` (`badge.picked` = comma-separated ids, `badge.has_picked` = 1 after the first save). No UI uses it yet; 6c reads it for the Profile row and 6e writes it from DONE.
+
+- `Current()`: the picked counted badges in **catalog order**, at most `MAX` (6). Until the first `Save` it is derived: the first 6 earned counted badges in catalog order. After it, the stored ids are used (ids that are no longer pickable are skipped) and the set never changes by itself.
+- `ProfileBadges()`: what the Profile row shows: every earned hidden badge first, then `Current()`.
+- `IsPickable(badge)`: a counted badge with at least one tier. `AnythingToPick()`: any pickable badge (the PICK button shows only then). `IsPicked(badge)`.
+- `Save(ids)`: keeps the ids that are known, counted, earned and not repeated, in catalog order, at most 6; marks the set as stored; raises `Changed`; returns how many were kept. `Reset()` forgets it (the set is derived again); `BadgeService.Reset()` calls it.
+- Test menu `Tools > Badges`: Log Picks, Save Picks: Last 3 Earned, Save Picks: Try 8 (keeps 6), Clear Picks.

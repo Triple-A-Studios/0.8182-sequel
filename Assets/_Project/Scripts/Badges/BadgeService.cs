@@ -150,6 +150,7 @@ namespace Opoint8182.Badges
 			PlayerPrefs.Save();
 			m_S_Earned.Clear();
 			m_S_Pending.Clear();
+			BadgePicks.Reset(); // a pick of badges that are no longer earned means nothing
 		}
 
 		private static void Earn(BadgeDefinition badge, List<BadgeUnlock> fresh)

@@ -20,6 +20,52 @@ namespace Opoint8182.BadgesEditor
 			Debug.Log(lines.ToString());
 		}
 
+		[MenuItem("Tools/Badges/Log Picks")]
+		private static void LogPicks()
+		{
+			Debug.Log($"[Badges] picks: {(BadgePicks.HasPicked ? "stored" : "derived (first 6 earned)")}, anything to pick: {BadgePicks.AnythingToPick()}\n" +
+			          $"  picked: {Names(BadgePicks.Current())}\n  profile row: {Names(BadgePicks.ProfileBadges())}");
+		}
+
+		[MenuItem("Tools/Badges/Save Picks: Last 3 Earned")]
+		private static void SaveLastThree()
+		{
+			var earned = new System.Collections.Generic.List<string>();
+			foreach (var badge in BadgeCatalog.All)
+			{
+				if (BadgePicks.IsPickable(badge)) earned.Add(badge.Id);
+			}
+
+			var last = earned.GetRange(System.Math.Max(0, earned.Count - 3), System.Math.Min(3, earned.Count));
+			Debug.Log($"[Badges] saved {BadgePicks.Save(last)} pick(s).");
+			LogPicks();
+		}
+
+		[MenuItem("Tools/Badges/Save Picks: Try 8 (keeps 6)")]
+		private static void SaveEight()
+		{
+			var all = new System.Collections.Generic.List<string>();
+			foreach (var badge in BadgeCatalog.All) all.Add(badge.Id);
+			Debug.Log($"[Badges] saved {BadgePicks.Save(all)} pick(s) of {all.Count} offered (hidden, unearned and the 7th onwards are dropped).");
+			LogPicks();
+		}
+
+		[MenuItem("Tools/Badges/Clear Picks")]
+		private static void ClearPicks()
+		{
+			BadgePicks.Reset();
+			Debug.Log("[Badges] picks cleared (derived again).");
+			LogPicks();
+		}
+
+		private static string Names(System.Collections.Generic.List<BadgeDefinition> badges)
+		{
+			if (badges.Count == 0) return "(none)";
+			var names = new System.Collections.Generic.List<string>();
+			foreach (var badge in badges) names.Add(badge.Id);
+			return string.Join(", ", names);
+		}
+
 		[MenuItem("Tools/Badges/Evaluate Now")]
 		private static void EvaluateNow()
 		{
