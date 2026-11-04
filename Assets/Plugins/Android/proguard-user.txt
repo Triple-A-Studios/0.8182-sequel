@@ -1,0 +1,4 @@
+# Keep the share plugin: ShareHelper and ShareFileProvider are called only from C# (AndroidJavaClass) and the manifest, so R8 cannot see
+# the C# calls and strips or renames their methods in a minified build. See Docs/technical-design/share.md.
+-keep class com.tripleastudios.opoint8182.dev.share.** { *; }
+-keep class com.tripleastudios.opoint8182.share.** { *; }
