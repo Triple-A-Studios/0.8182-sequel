@@ -212,7 +212,7 @@ Display name and rename, persisted lifetime stats, per-run stats feeding Game Ov
 ## Phase: Beta
 
 ### Milestone: Shop, currency, economy
-Unlockable planes, crash effects and skins funded by an in-game currency; the attempt and practice caps stay un-monetized.
+Unlockable planes, crash effects and skins funded by an in-game currency; the attempt and practice caps stay un-monetized. When coins exist, pass the run's coins into `RunStats.Coins` so the COIN STASH badge can be earned (and with it ALL STAR).
 
 ### Milestone: Optional sign-in
 *(not yet scoped)* Optional account linking for the anonymous UGS player (provider choice per platform, a conflict flow when a second device already has progress, practice time moved to Cloud Save) so progress and the attempt counter follow the player across devices. Needs a design-doc update to "no accounts".
