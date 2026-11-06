@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f787f542a82754d824ee8f64355ff7, type: 3}
+  m_Name: Plane_Primitive
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.PlaneDefinition
+  m_id: primitive
+  m_displayName: 404 - Plane Not Found
+  m_visualPrefab: {fileID: 8320734687088561122, guid: 0bbfb4bc266a1f94b95ce5a7b261bd72, type: 3}
+  m_thumbnail: {fileID: 0}

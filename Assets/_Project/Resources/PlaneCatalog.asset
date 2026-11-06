@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0b402318872c7d4dabce897f80275b3, type: 3}
+  m_Name: PlaneCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.PlaneCatalog
+  m_planes:
+  - {fileID: 11400000, guid: 8359074195b171243b6f6f790cb09ac7, type: 2}
+  - {fileID: 11400000, guid: 1353974a78a5977489de451470fd6b47, type: 2}
+  m_defaultId: airbus

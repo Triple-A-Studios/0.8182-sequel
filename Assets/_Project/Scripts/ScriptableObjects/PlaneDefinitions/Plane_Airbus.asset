@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f787f542a82754d824ee8f64355ff7, type: 3}
+  m_Name: Plane_Airbus
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.PlaneDefinition
+  m_id: airbus
+  m_displayName: Airbus
+  m_visualPrefab: {fileID: 2089292021909547519, guid: 3384fa0ece449fb46afdb4d6cb473320, type: 3}
+  m_thumbnail: {fileID: 0}

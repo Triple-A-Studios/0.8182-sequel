@@ -106,7 +106,7 @@ Every static stand-in is in one block per screen, flagged in code. Replacing it 
 | Last week's results sample (gallery and the Editor debug mode only; play uses `LeaderboardLastWeekResultsSource`) | `LastWeekResultsPlaceholderData` | nothing left to replace in play |
 | Loading quips | `LoadingQuips` | the developer rewriting them |
 
-**3D slots** (transparent, bordered, with dev captions to delete when the art exists): menu `plane-slot` + `plane-slot-caption` ("3D: equipped plane on a rooftop..."), Profile `profile-portrait-slot` + caption and the two `.profile-thumb`s, Shop `.shop-thumb`s, Loading `.loading-key-slot` (the studio logo stands in for key art). The takeoff transition and smoke / plane-wear VFX are 3D work. All belong to the **3D art pass** milestone (see [plan.md](../plan.md#phase-alpha)).
+**3D slots** (transparent, bordered, with dev captions to delete when the art exists): menu `plane-slot` + `plane-slot-caption` ("3D: equipped plane on a rooftop..."), Profile `profile-portrait-slot` + caption and the two `.profile-thumb`s, Shop `.shop-thumb`s, Loading `.loading-key-slot` (the studio logo stands in for key art). The takeoff transition and smoke / plane-wear VFX are 3D work. A plane model for any of these slots is put in the world with `PlaneVisualHost.Spawn` ([planes.md](planes.md)). All belong to the **3D art pass** milestone (see [plan.md](../plan.md#phase-alpha)).
 
 ## Dev galleries and test seams
 

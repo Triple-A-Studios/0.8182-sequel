@@ -140,7 +140,12 @@ Functional pause, persisted settings applied in play, sound effects (no music, b
   - **7c** — Docs and milestone close
 
 ### Milestone: 3D art pass
-*(not yet scoped)* Replace the primitive 3D with final art and fill every 3D slot the UI left empty; scoped when the developer starts it.
+Replace the primitive 3D with final art and fill every 3D slot the UI left empty. Art comes from imported asset packs (swapped in per system, with material, scale and mobile/WebGL budget fixups). Branch `alpha-ms14/3d-art`. Passes are scoped incrementally, one system at a time; no backlog items folded in (2026-11-05).
+
+- **Pass 1** — Plane (pack model on a selectable-plane foundation for the Beta shop; collider, pivot and flight numbers unchanged so flight and crash feel are the same). Device performance check (Android and WebGL) is deferred until after the obstacles and pickups pass, so one device round covers the new art together.
+- **Pass 2** — Buildings (Normal, Tough, Heal with the visible weak point kept readable)
+
+Later passes are scoped as they are reached. Candidates, in rough order: obstacles and pickups; environment and lighting; crash, smoke and plane-wear VFX; menu 3D slots (plane on a rooftop) and the takeoff transition; Profile portrait / thumbnails, loading key art and the share card; hardening, device checks and close-out.
 
 ### Milestone: Daily play structure
 A real return to the menu, weekly + all-time boards, 3 attempts a day plus capped practice, server-validated scores and opt-in share. Branch `alpha-ms12/daily-play-structure`.

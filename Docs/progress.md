@@ -202,8 +202,8 @@ Milestone complete — every mockup screen exists as UITK UI with static placeho
 
 Milestone complete — pause, every setting, sound effects (no music, by design) and haptics are real, verified in the Editor, on an Android phone and in WebGL (phone browser). Backlog #25, #29 and #30 resolved. Decisions: pause is state-based through `GameManager` but only the Paused state touches `Time.timeScale`; no audio mixer (priority, voice stealing and ducking are code); settings are local PlayerPrefs; QUIT TO MENU stays a toast stub until Daily play structure; generated stand-in clips and default haptic patterns are replaceable with no code change. System docs: [game-flow.md](technical-design/game-flow.md), [settings.md](technical-design/settings.md), [audio.md](technical-design/audio.md), [haptics.md](technical-design/haptics.md).
 
-### Milestone: 3D art pass — Upcoming
-See [plan.md](plan.md#phase-alpha) for scope. Not yet scoped.
+### Milestone: 3D art pass — In Progress
+See [current-state.md](current-state.md) for live pass status and [plan.md](plan.md#phase-alpha) for scope.
 
 ### Milestone: Daily play structure — Completed
 
