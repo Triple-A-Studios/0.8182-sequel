@@ -143,7 +143,10 @@ Functional pause, persisted settings applied in play, sound effects (no music, b
 Replace the primitive 3D with final art and fill every 3D slot the UI left empty. Art comes from imported asset packs (swapped in per system, with material, scale and mobile/WebGL budget fixups). Branch `alpha-ms14/3d-art`. Passes are scoped incrementally, one system at a time; no backlog items folded in (2026-11-05).
 
 - **Pass 1** — Plane (pack model on a selectable-plane foundation for the Beta shop; collider, pivot and flight numbers unchanged so flight and crash feel are the same). Device performance check (Android and WebGL) is deferred until after the obstacles and pickups pass, so one device round covers the new art together.
-- **Pass 2** — Buildings (Normal, Tough, Heal with the visible weak point kept readable)
+- **Pass 2** — Buildings (Normal, Tough, Heal; scoped 2026-11-06, landed 2026-11-13)
+  - One pack model (Mellow Fox Building 4, decimated to about 25k triangles) shared by the three types, no spawner change; the type reads by a runtime tint of one material slot (`BuildingTint`: Normal light grey, Tough yellow, Heal green; red now belongs to `Obstacle_Large`). Spare decimated models stay for a later variety pass.
+  - The 6 x 6 x 8 footprint was a placeholder: the buildings are about 25 high, the trigger box is 6 x 20 x 8 (the mesh is bigger on purpose: ledges, windows and antennas must not collide), the weak point is at height 10 on the -Z face with hit radius 2, as a flat red disc. Varied weak-point heights per building come in a later pass.
+  - Android / WebGL performance check deferred with Pass 1 (shadows on buildings are still on, about 43k vertices and 5 draw calls each).
 
 Later passes are scoped as they are reached. Candidates, in rough order: obstacles and pickups; environment and lighting; crash, smoke and plane-wear VFX; menu 3D slots (plane on a rooftop) and the takeoff transition; Profile portrait / thumbnails, loading key art and the share card; hardening, device checks and close-out.
 
