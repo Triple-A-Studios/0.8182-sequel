@@ -4,7 +4,7 @@
 
 ## Two independent thresholds, two distinct events
 
-`m_ceilingY` (default `30`) and `m_groundHardY` (default `-1`, matching the scene's `Ground` mesh's actual top surface; renamed from `m_groundY` in Alpha's "MVP bug fix" milestone Pass 4 via `[FormerlySerializedAs]`) are both plain `[SerializeField]` tunables, checked every `FixedUpdate` against `transform.position.y`. Ground additionally has `m_groundSoftY` (default `3`) — see [Ground soft warning](#ground-soft-warning) below. Crossing either raises its own parameterless event exactly once, guarded the same way `HealthSystem.MarkDepleted`/`FuelSystem.MarkDepleted` guard `Depleted`:
+`m_ceilingY` (default `30`) and `m_groundHardY` (default `0.5`, set 2026-11-23 in the 3D art pass Pass 4 when the endless ground tiles replaced the old `Ground` mesh: the tile top is at y 0.2 and the plane's capsule radius is 0.5, so the run ends when the plane touches the visible ground; it was `-1`, which let the plane sink about a unit into the new ground first; renamed from `m_groundY` in Alpha's "MVP bug fix" milestone Pass 4 via `[FormerlySerializedAs]`) are both plain `[SerializeField]` tunables, checked every `FixedUpdate` against `transform.position.y`. Ground additionally has `m_groundSoftY` (default `3`) — see [Ground soft warning](#ground-soft-warning) below. Crossing either raises its own parameterless event exactly once, guarded the same way `HealthSystem.MarkDepleted`/`FuelSystem.MarkDepleted` guard `Depleted`:
 
 - `public event Action GroundHit` — instant, no grace period.
 - `public event Action CeilingExceeded` — only after the ceiling warning countdown (below) expires.

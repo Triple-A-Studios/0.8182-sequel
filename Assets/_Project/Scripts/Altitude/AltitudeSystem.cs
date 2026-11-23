@@ -12,7 +12,7 @@ namespace Opoint8182.Altitude
     {
         [Title("Tunables")]
         [FoldoutGroup("Tunables")] [SerializeField] private float m_ceilingY = 30f;
-        [FoldoutGroup("Tunables")] [FormerlySerializedAs("m_groundY")] [SerializeField] private float m_groundHardY = -1f;
+        [FoldoutGroup("Tunables")] [FormerlySerializedAs("m_groundY")] [SerializeField] private float m_groundHardY = 0.5f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_groundSoftY = 3f;
         [FoldoutGroup("Tunables")] [SerializeField] private float m_ceilingWarningSeconds = 4f;
 

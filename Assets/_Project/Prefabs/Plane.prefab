@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ceilingY: 30
-  m_groundHardY: -1
+  m_groundHardY: 0.5
   m_groundSoftY: 3
   m_ceilingWarningSeconds: 3
 --- !u!114 &900000010001
