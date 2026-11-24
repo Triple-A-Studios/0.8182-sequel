@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="project://database/Assets/_Project/UI/Theme/Theme.uss" />
+    <Style src="PerfOverlay.uss" />
+    <!-- Perf overlay (3D art pass, Pass 5b): development builds and the Editor only. Logic in Scripts/Perf/PerfOverlay.cs.
+         Opened with F9 or a three-finger tap. Lives in the Bootstrap scene above the launch panel. -->
+    <ui:VisualElement name="perf-root" class="theme perf-root" picking-mode="Ignore">
+        <ui:VisualElement name="perf-safe-area" class="ui-safe-area perf-safe-area" picking-mode="Ignore">
+            <ui:VisualElement name="perf-panel" class="perf-panel">
+                <ui:Label name="perf-fps" text="-- FPS" class="perf-line perf-line--big" picking-mode="Ignore" />
+                <ui:Label name="perf-hitch" text="HITCH" class="perf-line" picking-mode="Ignore" />
+                <ui:Label name="perf-gfx" text="DRAW" class="perf-line" picking-mode="Ignore" />
+                <ui:Label name="perf-mem" text="MEM" class="perf-line" picking-mode="Ignore" />
+                <ui:Label name="perf-last" text="NO RUN YET" class="perf-line perf-line--last" picking-mode="Ignore" />
+                <ui:VisualElement class="perf-buttons">
+                    <ui:Button name="perf-target" text="TARGET" class="perf-btn" />
+                    <ui:Button name="perf-reset" text="RESET" class="perf-btn" />
+                    <ui:Button name="perf-hide" text="HIDE" class="perf-btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

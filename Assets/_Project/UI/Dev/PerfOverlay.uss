@@ -1,0 +1,64 @@
+/* Perf overlay (dev builds and the Editor only). Reference size 2400x1080, minimum text 24 px, buttons 80 px high. */
+
+.perf-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: none;
+}
+
+.perf-root.is-open {
+    display: flex;
+}
+
+.perf-safe-area {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.perf-panel {
+    width: 820px;
+    padding: 20px 24px;
+    background-color: rgba(10, 18, 30, 0.72);
+    border-radius: 20px;
+}
+
+.perf-line {
+    color: rgb(255, 255, 255);
+    font-size: 26px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+.perf-line--big {
+    font-size: 44px;
+    margin-bottom: 8px;
+}
+
+.perf-line--last {
+    margin-top: 8px;
+    margin-bottom: 20px;
+    color: rgb(255, 214, 120);
+}
+
+.perf-buttons {
+    flex-direction: row;
+    flex-shrink: 0;
+}
+
+.perf-btn {
+    flex-grow: 1;
+    min-height: 80px;
+    margin: 0 8px 0 0;
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    background-color: rgba(60, 90, 140, 0.9);
+    border-radius: 16px;
+    border-width: 0;
+}
