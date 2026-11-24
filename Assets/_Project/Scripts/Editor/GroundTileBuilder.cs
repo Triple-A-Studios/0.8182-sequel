@@ -7,7 +7,8 @@ namespace Opoint8182.WorldEditor
 	/// <summary>
 	/// Merges the pack's hand-built <c>Prefabs/Misc/Ground.prefab</c> (45 road and lot pieces, one material) into one mesh and
 	/// one renderer, so a recycled ground tile costs a single draw call. Output: <c>Prefabs/World/GroundTile.prefab</c> and
-	/// its mesh. Re-running updates both in place, so references to the prefab and the mesh stay valid.
+	/// its mesh. Re-running updates both in place, so references to the prefab and the mesh stay valid. It ends by running
+	/// <see cref="GroundDressingBuilder"/>, which adds the side dressing variants to the tile prefab.
 	/// </summary>
 	public static class GroundTileBuilder
 	{
@@ -59,7 +60,10 @@ namespace Opoint8182.WorldEditor
 			Object.DestroyImmediate(root);
 			AssetDatabase.SaveAssets();
 
-			return $"[World] Built {k_PrefabPath}: {filters.Length} pieces merged, {mesh.vertexCount} vertices, {mesh.triangles.Length / 3} triangles, bounds {mesh.bounds.size}.";
+			var result = $"[World] Built {k_PrefabPath}: {filters.Length} pieces merged, {mesh.vertexCount} vertices, {mesh.triangles.Length / 3} triangles, bounds {mesh.bounds.size}.";
+
+			// The prefab was just rewritten from scratch, so the side dressing has to be put back on it.
+			return result + "\n" + GroundDressingBuilder.Build();
 		}
 	}
 }

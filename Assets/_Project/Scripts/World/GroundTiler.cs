@@ -28,6 +28,8 @@ namespace Opoint8182.World
 		[SerializeField] private PlaneController m_planeController;
 
 		private Transform[] m_tiles;
+		private GroundTileView[] m_views;
+		private int[] m_slotIndex;
 		private float m_originZ;
 		private int m_lastIndex = int.MinValue;
 
@@ -50,9 +52,13 @@ namespace Opoint8182.World
 
 			var count = m_tilesAhead + m_tilesBehind + 1;
 			m_tiles = new Transform[count];
+			m_views = new GroundTileView[count];
+			m_slotIndex = new int[count];
 			for (var i = 0; i < count; i++)
 			{
 				m_tiles[i] = Instantiate(m_tilePrefab, transform).transform;
+				m_views[i] = m_tiles[i].GetComponent<GroundTileView>();
+				m_slotIndex[i] = int.MinValue;
 			}
 
 			Layout(CurrentIndex());
@@ -75,7 +81,7 @@ namespace Opoint8182.World
 			return Mathf.FloorToInt((m_planeController.transform.position.z - m_originZ) / m_tileLength + 0.5f);
 		}
 
-		// Tile k always lives in slot k mod count, so only the tiles that left the window actually move.
+		// Tile k always lives in slot k mod count, so only the tiles that left the window actually move (and are re-dressed).
 		private void Layout(int index)
 		{
 			m_lastIndex = index;
@@ -85,11 +91,24 @@ namespace Opoint8182.World
 			for (var k = first; k < first + count; k++)
 			{
 				var slot = ((k % count) + count) % count;
+				if (m_slotIndex[slot] == k) continue;
+
 				var tile = m_tiles[slot];
 				var position = tile.position;
-				var z = m_originZ + k * m_tileLength;
-				if (!Mathf.Approximately(position.z, z)) tile.position = new Vector3(position.x, position.y, z);
+				tile.position = new Vector3(position.x, position.y, m_originZ + k * m_tileLength);
+				m_slotIndex[slot] = k;
+
+				var view = m_views[slot];
+				if (view != null && view.DressingCount > 0) view.SetDressing(DressingFor(k, view.DressingCount));
 			}
+		}
+
+		// A fixed hash of the tile index, so the same stretch of ground is always dressed the same way and neighbours
+		// vary without a pattern.
+		private static int DressingFor(int tileIndex, int count)
+		{
+			var hash = unchecked((uint)tileIndex * 2654435761u + 40503u);
+			return (int)((hash >> 8) % (uint)count);
 		}
 	}
 }
