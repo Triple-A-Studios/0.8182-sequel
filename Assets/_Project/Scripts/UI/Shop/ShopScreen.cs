@@ -4,10 +4,10 @@ using UnityEngine.UIElements;
 namespace Opoint8182.UI
 {
 	/// <summary>
-	/// Hangar shop (mockup S09): coin chip, PLANES / CRASH FX / BUILDING SKINS tabs and the four plane cards. Plain
-	/// class over the instance's root, like <see cref="SettingsScreen"/>. Everything is static placeholder data
-	/// (<see cref="ShopPlaceholderData"/>); the two Beta tabs show the hazard-tape banner. BUY and EQUIPPED raise
-	/// <see cref="ActionRequested"/> (the owner shows the arrives-later toast), the other two states are inert.
+	/// Hangar shop (mockup S09): coin chip, PLANES / CRASH FX / BUILDING SKINS tabs and the plane cards. Plain
+	/// class over the instance's root, like <see cref="SettingsScreen"/>. The first card is the equipped plane, the others are
+	/// teasers; the copy and the coins are static (<see cref="ShopPlaceholderData"/>); the two Beta tabs show the hazard-tape
+	/// banner. EQUIPPED raises <see cref="ActionRequested"/> (the owner shows the arrives-later toast), teasers are inert.
 	/// </summary>
 	public class ShopScreen
 	{
@@ -20,7 +20,7 @@ namespace Opoint8182.UI
 		/// <summary>The back chevron was tapped (the owner pops the router).</summary>
 		public event Action BackRequested;
 
-		/// <summary>BUY or EQUIPPED was tapped on a card (nothing can be bought yet).</summary>
+		/// <summary>EQUIPPED was tapped on the card (the hangar cannot change anything yet).</summary>
 		public event Action ActionRequested;
 
 		public int SelectedTab => m_tabs.selectedIndex;
@@ -48,6 +48,7 @@ namespace Opoint8182.UI
 		public void Open()
 		{
 			m_tabs.SetSelectedIndexWithoutNotify(k_PlanesTab);
+			BuildCards();
 			RefreshTab();
 		}
 
@@ -67,87 +68,67 @@ namespace Opoint8182.UI
 		{
 			m_grid.Clear();
 
-			var planes = ShopPlaceholderData.Planes;
-			for (var i = 0; i < planes.Length; i++)
-			{
-				m_grid.Add(BuildCard(planes[i], i == 0));
-			}
+			var plane = PlaneSelection.Equipped;
+			m_grid.Add(BuildEquippedCard(plane));
+			for (var i = 0; i < ShopPlaceholderData.TEASER_COUNT; i++) m_grid.Add(BuildTeaserCard(plane));
 		}
 
-		private VisualElement BuildCard(ShopPlaneCard data, bool first)
+		private VisualElement BuildEquippedCard(PlaneDefinition plane)
 		{
-			var locked = data.State == ShopCardState.Locked;
+			var thumb = MakeThumb(plane, "shop-thumb__picture");
 
-			var card = new LipBox();
-			card.AddToClassList("card");
-			card.AddToClassList("shop-card");
-			card.AddToClassList($"shop-card--{data.State.ToString().ToLowerInvariant()}");
-			if (first) card.AddToClassList("shop-card--first");
+			var pill = new VisualElement();
+			pill.AddToClassList("shop-pill");
+			pill.AddToClassList("shop-pill--equipped");
+			pill.Add(MakeLabel("EQUIPPED", "shop-pill__label shop-pill__label--equipped"));
+			pill.RegisterCallback<ClickEvent>(_ => ActionRequested?.Invoke());
 
-			// Transparent slot: the 3D half renders the plane into it. Locked cards show a "?" instead.
-			var thumb = new VisualElement { pickingMode = PickingMode.Ignore };
-			thumb.AddToClassList("shop-thumb");
-			if (locked)
-			{
-				thumb.AddToClassList("shop-thumb--locked");
-				thumb.Add(MakeLabel("?", "shop-thumb__mark"));
-			}
-
-			card.Add(thumb);
-			card.Add(MakeLabel(data.Name, locked ? "shop-name shop-name--locked" : "shop-name"));
-			card.Add(MakeLabel(data.Description, "shop-desc"));
-			card.Add(BuildAction(data));
+			var card = MakeCard("shop-card--equipped", thumb, plane != null ? plane.DisplayName : string.Empty,
+				plane != null ? plane.Tagline : string.Empty, pill);
+			card.AddToClassList("shop-card--first");
 			return card;
 		}
 
-		private VisualElement BuildAction(ShopPlaneCard data)
+		// A dark silhouette with a question mark: no names or prices for planes that do not exist yet.
+		private static VisualElement BuildTeaserCard(PlaneDefinition silhouette)
 		{
-			switch (data.State)
-			{
-				case ShopCardState.Buy:
-				{
-					var button = new LipButton { variant = LipVariant.Primary, lipSize = LipSize.Small };
-					button.AddToClassList("shop-action");
-					button.Add(MakeLabel($"BUY · {data.Detail}", "shop-action__label"));
-					button.Add(MakeCoin());
-					button.clicked += () => ActionRequested?.Invoke();
-					return button;
-				}
-				case ShopCardState.Equipped:
-				{
-					var pill = new VisualElement();
-					pill.AddToClassList("shop-pill");
-					pill.AddToClassList("shop-pill--equipped");
-					pill.Add(MakeLabel("EQUIPPED", "shop-pill__label shop-pill__label--equipped"));
-					pill.RegisterCallback<ClickEvent>(_ => ActionRequested?.Invoke());
-					return pill;
-				}
-				case ShopCardState.NotEnough:
-				{
-					var pill = new VisualElement();
-					pill.AddToClassList("shop-pill");
-					pill.AddToClassList("shop-pill--short");
-					pill.Add(MakeLabel(data.Detail, "shop-pill__label"));
-					pill.Add(MakeCoin());
-					pill.Add(MakeLabel("· NOT ENOUGH", "shop-pill__label shop-pill__label--tail"));
-					return pill;
-				}
-				default:
-				{
-					var pill = new VisualElement();
-					pill.AddToClassList("shop-pill");
-					pill.AddToClassList("shop-pill--locked");
-					pill.Add(MakeLabel(data.Detail, "shop-pill__label shop-pill__label--locked"));
-					return pill;
-				}
-			}
+			var thumb = MakeThumb(silhouette, "shop-thumb__silhouette");
+			thumb.AddToClassList("shop-thumb--teaser");
+			thumb.Add(MakeLabel("?", "shop-thumb__mark"));
+
+			var pill = new VisualElement();
+			pill.AddToClassList("shop-pill");
+			pill.AddToClassList("shop-pill--teaser");
+			pill.Add(MakeLabel(ShopPlaceholderData.TEASER_PILL, "shop-pill__label shop-pill__label--teaser"));
+
+			return MakeCard("shop-card--teaser", thumb, ShopPlaceholderData.TEASER_NAME, ShopPlaceholderData.TEASER_LINE, pill);
 		}
 
-		private static VisualElement MakeCoin()
+		private static VisualElement MakeThumb(PlaneDefinition plane, string pictureClass)
 		{
-			var coin = new VisualElement { pickingMode = PickingMode.Ignore };
-			coin.AddToClassList("shop-coin");
-			return coin;
+			var thumb = new VisualElement { pickingMode = PickingMode.Ignore };
+			thumb.AddToClassList("shop-thumb");
+
+			var picture = new VisualElement { pickingMode = PickingMode.Ignore };
+			picture.AddToClassList(pictureClass);
+			if (plane != null && plane.Thumbnail != null) picture.style.backgroundImage = new StyleBackground(plane.Thumbnail);
+			thumb.Add(picture);
+			return thumb;
+		}
+
+		private static LipBox MakeCard(string stateClass, VisualElement thumb, string name, string line, VisualElement action)
+		{
+			var card = new LipBox();
+			card.AddToClassList("card");
+			card.AddToClassList("shop-card");
+			card.AddToClassList(stateClass);
+
+			var teaser = stateClass == "shop-card--teaser";
+			card.Add(thumb);
+			card.Add(MakeLabel(name, teaser ? "shop-name shop-name--teaser" : "shop-name"));
+			card.Add(MakeLabel(line, "shop-desc"));
+			card.Add(action);
+			return card;
 		}
 
 		private static Label MakeLabel(string text, string classes)

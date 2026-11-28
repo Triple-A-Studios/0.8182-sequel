@@ -15,4 +15,4 @@ MonoBehaviour:
   m_id: primitive
   m_displayName: 404 - Plane Not Found
   m_visualPrefab: {fileID: 8320734687088561122, guid: 0bbfb4bc266a1f94b95ce5a7b261bd72, type: 3}
-  m_thumbnail: {fileID: 0}
+  m_thumbnail: {fileID: 21300000, guid: 078e2e1c3f7af2f4ba21fcefe4080360, type: 3}

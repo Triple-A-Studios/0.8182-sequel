@@ -24,6 +24,13 @@ Built in 3D art pass Pass 1. Status: landed and verified in the Editor (flight, 
 - Meshes and materials only: no collider, rigidbody or animator (they are stripped at runtime anyway).
 - URP Lit or Simple Lit materials, one or two per plane. The Airbus is about 3.5k vertices, 2k triangles, one material. WebGL and Android use the Mobile quality level (SRP Batcher on, dynamic batching off, one shadow cascade).
 
+## Stills and the Profile portrait
+(3D art pass, Pass 8.)
+- **`Tools > Art > Render Art Stills`** (`ArtStillsBuilder`) renders into `Art/Textures/Stills`: one transparent 640 x 400 sprite per catalog plane (assigned as `PlaneDefinition.Thumbnail`), the crash effect (`Tex_CrashFx_ClassicBoom`, 256 x 256) and the loading key art (`Tex_KeyArt`, 1600 x 624: the default plane flying into a building's weak point, staged in the game scene for its sky, sun and fog; the scene is closed without saving, and must not be open when the tool runs). Run it again after a plane, building or effect changes. From the Unity CLI the call can report a time-out while the render still finishes.
+- **`PlanePortraitRig`** (`Scripts/UI/Profile`): the Profile's turntable (24 degrees per second). Its own camera renders the equipped plane into a transparent 840 x 600 texture, far below the world, lit by the game scene's sun. `ProfileScreen.Open` creates it, `Close` releases it (also when the menu unloads for a run). Without it (the share card, which has no camera) the slot shows the plane's still.
+- **Names:** the airliner's display name is **Bonk 747** (id `airbus`, asset `Plane_Airbus`, unchanged); `PlaneDefinition.Tagline` is the line on its shop card. The one crash effect is shown as **Classic Boom** (a constant in `ProfileScreen`, the still set in `Profile.uss`).
+- Keep UI elements with background pictures free of `overflow: hidden` on rounded corners: in the off-screen share card render such an element came out plain white.
+
 ## Hook points for later
 - **Beta shop:** an owned-planes set checked before `PlaneSelection.Equip`; `Thumbnail` for the cards; price data next to the definition.
 - **Menu rooftop slot, Profile portrait and thumbnails, share card:** `PlaneVisualHost.Spawn` into a preview parent under a camera.

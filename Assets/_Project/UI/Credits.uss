@@ -160,5 +160,10 @@
     margin-bottom: 20px;
     -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
     font-size: 24px;
-    color: rgba(246, 239, 226, 0.45);
+    padding: 6px 18px;
+    border-width: 3px;
+    border-radius: 14px;
+    border-color: rgba(246, 239, 226, 0.4);
+    background-color: var(--panel-inner);
+    color: var(--ink);
 }

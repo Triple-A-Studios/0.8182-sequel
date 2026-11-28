@@ -39,27 +39,8 @@
     border-width: 4px;
     border-radius: 24px;
     border-color: rgba(246, 239, 226, 0.42);
-    background-color: rgba(246, 239, 226, 0.06);
-    align-items: center;
-    justify-content: center;
-}
-
-/* The supplied PNG is a 2160 px square with the mark in the middle third; crop to it like the UI gallery does. */
-.loading-logo {
-    width: 640px;
-    height: 400px;
-    background-image: url("../Art/Textures/UI/Tex_Logo.png");
-    background-size: 140% auto;
-    background-position: center 58%;
-    background-repeat: no-repeat;
-}
-
-.loading-art-caption {
-    margin-top: 18px;
-    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
-    font-size: 28px;
-    letter-spacing: 2px;
-    color: rgba(246, 239, 226, 0.78);
+    background-image: url("../Art/Textures/Stills/Tex_KeyArt.png");
+    -unity-background-scale-mode: scale-and-crop;
 }
 
 /* ---- Rotate prompt ---- */

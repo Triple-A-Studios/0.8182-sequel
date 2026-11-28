@@ -17,13 +17,9 @@
 
             <ui:VisualElement class="loading-stage" picking-mode="Ignore">
 
-                <!-- Key art slot. The studio logo stands in until real key art exists (3D half). -->
+                <!-- Key art, rendered from the game by Tools > Art > Render Art Stills. -->
                 <ui:VisualElement name="loading-art" class="loading-art" picking-mode="Ignore">
-                    <ui:VisualElement class="loading-key-slot" picking-mode="Ignore">
-                        <ui:VisualElement class="loading-logo" picking-mode="Ignore" />
-                    </ui:VisualElement>
-                    <!-- DELETE before shipping - dev annotation, per the mockup. -->
-                    <ui:Label text="KEY ART: plane mid-crash through a skyline" class="loading-art-caption" picking-mode="Ignore" />
+                    <ui:VisualElement class="loading-key-slot" picking-mode="Ignore" />
                 </ui:VisualElement>
 
                 <!-- Replaces the art while the page is portrait (web). -->

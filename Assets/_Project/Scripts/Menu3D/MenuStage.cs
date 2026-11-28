@@ -29,6 +29,13 @@ namespace Opoint8182.Menu3D
 		[FoldoutGroup("Menu Camera")] [SerializeField] private Vector3 m_cameraLookOffset = new(0f, 1.6f, 0f);
 		[FoldoutGroup("Menu Camera")] [SerializeField] private float m_cameraFov = 40f;
 
+		// A hand-held camera's drift on the menu view. It fades out as a takeoff starts. The Screen shake setting turned down
+		// scales it down too (0% holds the camera still).
+		[Title("Handheld Noise")]
+		[FoldoutGroup("Handheld Noise")] [SerializeField] private Vector3 m_noiseDegrees = new(0.6f, 0.8f, 0.4f);
+		[FoldoutGroup("Handheld Noise")] [SerializeField] private float m_noiseDistance = 0.06f;
+		[FoldoutGroup("Handheld Noise")] [SerializeField] private float m_noiseSpeed = 0.35f;
+
 		[Title("Idle")]
 		[FoldoutGroup("Idle")] [SerializeField] private float m_bobHeight = 0.07f;
 		[FoldoutGroup("Idle")] [SerializeField] private float m_bobCyclesPerSecond = 0.6f;
@@ -256,12 +263,13 @@ namespace Opoint8182.Menu3D
 			m_planeAnchor.SetPositionAndRotation(position + bob, Quaternion.Euler(pitch, 0f, roll));
 			m_planeAnchor.localScale = scale;
 
-			ApplyCamera(parked, position);
+			// Like the plane's bob, the camera noise is gone a moment into a takeoff.
+			ApplyCamera(parked, position, idle);
 		}
 
 		// The camera stands still at the menu view until the swing, then moves to the follow camera's place behind the plane.
 		// All along it turns to keep the plane in frame, from the wind-back until the player has control.
-		private void ApplyCamera(Vector3 parked, Vector3 plane)
+		private void ApplyCamera(Vector3 parked, Vector3 plane, float handheld)
 		{
 			var menuPosition = parked + m_cameraOffset;
 
@@ -274,7 +282,17 @@ namespace Opoint8182.Menu3D
 
 			var aim = plane + Vector3.Lerp(m_cameraLookOffset, FollowAimOffset(), swing);
 
-			m_camera.transform.SetPositionAndRotation(position, Quaternion.LookRotation(aim - position));
+			var rotation = Quaternion.LookRotation(aim - position);
+
+			var strength = handheld * Mathf.Clamp01(SettingsService.ScreenShake / 100f);
+			if (strength > 0f)
+			{
+				var time = Time.unscaledTime * m_noiseSpeed;
+				position += rotation * (new Vector3(Noise(time, 1.3f), Noise(time, 11.7f), 0f) * (m_noiseDistance * strength));
+				rotation *= Quaternion.Euler(Vector3.Scale(new Vector3(Noise(time, 23.1f), Noise(time, 37.9f), Noise(time, 51.4f)), m_noiseDegrees) * strength);
+			}
+
+			m_camera.transform.SetPositionAndRotation(position, rotation);
 			m_camera.fieldOfView = Mathf.Lerp(m_cameraFov, m_followCamera.Lens.FieldOfView, swing);
 		}
 
@@ -285,6 +303,14 @@ namespace Opoint8182.Menu3D
 			var offset = m_follow.FollowOffset;
 			var forward = m_followCamera.transform.forward;
 			return offset + forward * (-offset.z / Mathf.Max(0.01f, forward.z));
+		}
+
+		// Smooth random drift around zero, roughly -1 to 1: a slow wave with a quicker, smaller one on top. Each channel is its own row.
+		private static float Noise(float time, float row)
+		{
+			var slow = Mathf.PerlinNoise(time, row) - 0.5f;
+			var quick = Mathf.PerlinNoise(time * 2.7f, row + 5.5f) - 0.5f;
+			return (slow + quick * 0.35f) * 2f;
 		}
 
 		private static float Smooth(float t)

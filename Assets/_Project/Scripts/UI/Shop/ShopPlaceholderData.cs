@@ -1,36 +1,10 @@
 namespace Opoint8182.UI
 {
-	public enum ShopCardState
-	{
-		Equipped,
-		Buy,
-		NotEnough,
-		Locked,
-	}
-
-	/// <summary>One plane card on the shop's PLANES tab. Prices and progress are display strings (static for now).</summary>
-	public readonly struct ShopPlaneCard
-	{
-		public readonly string Name;
-		public readonly string Description;
-		public readonly ShopCardState State;
-
-		/// <summary>Price text for Buy / NotEnough, progress text ("2.4 / 5.0 km") for Locked, unused for Equipped.</summary>
-		public readonly string Detail;
-
-		public ShopPlaneCard(string name, string description, ShopCardState state, string detail = "")
-		{
-			Name = name;
-			Description = description;
-			State = state;
-			Detail = detail;
-		}
-	}
-
 	/// <summary>
-	/// Static stand-ins for the shop (UI/art pass, Pass 7a): the four plane cards and the copy. There is no currency,
-	/// ownership or unlock system yet, so nothing here can be bought or equipped; the real thing is the Beta
-	/// shop / currency milestone. The coin total is shared with the menu chip (<see cref="ProfilePlaceholderData.COINS"/>).
+	/// The shop's fixed copy. There is no currency, ownership or unlock system yet, so nothing can be bought or equipped: the
+	/// PLANES tab shows the equipped plane (real, from its <see cref="PlaneDefinition"/>) and teaser cards for the planes
+	/// the Beta shop / currency milestone will bring. The coin total is shared with the menu chip
+	/// (<see cref="ProfilePlaceholderData.COINS"/>).
 	/// </summary>
 	public static class ShopPlaceholderData
 	{
@@ -40,12 +14,10 @@ namespace Opoint8182.UI
 		public const string BETA_TITLE = "COMING IN BETA";
 		public const string BETA_BODY = "Keep stacking coins, you'll need them";
 
-		public static readonly ShopPlaneCard[] Planes =
-		{
-			new("Crop Duster Mk.II", "Slow, forgiving, huge nose", ShopCardState.Equipped),
-			new("Jet Lunchbox", "Fast, twitchy, thirsty", ShopCardState.Buy, "8,000"),
-			new("Flying Bathtub", "Heavy. Tough buildings fear it", ShopCardState.NotEnough, "18,000"),
-			new("LOCKED", "Unlocks at 5 km in a single run", ShopCardState.Locked, "2.4 / 5.0 km"),
-		};
+		/// <summary>Teaser cards next to the equipped one.</summary>
+		public const int TEASER_COUNT = 3;
+		public const string TEASER_NAME = "MYSTERY PLANE";
+		public const string TEASER_LINE = "Still in the hangar";
+		public const string TEASER_PILL = "COMING IN BETA";
 	}
 }

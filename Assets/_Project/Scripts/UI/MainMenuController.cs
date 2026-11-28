@@ -40,6 +40,13 @@ namespace Opoint8182.UI
 		private const string k_AchievementsScreenId = "achievements";
 		private const string k_ComingSoonMessage = "COMING SOON";
 
+		// The screens that show the 3D stage behind them; any other screen keeps the flat backdrop.
+		private static readonly HashSet<string> m_S_StageScreenIds = new()
+		{
+			k_MenuScreenId, k_SettingsScreenId, k_LeaderboardScreenId, k_ProfileScreenId, k_ShopScreenId, k_CreditsScreenId,
+			k_AchievementsScreenId,
+		};
+
 		// The counters can roll over at UTC midnight while the menu is open: reading them applies the new day, and this
 		// refresh makes sure something reads them now and then.
 		private const long k_RefreshMilliseconds = 30000;
@@ -596,12 +603,12 @@ namespace Opoint8182.UI
 			EnterRun();
 		}
 
-		// The main screen shows the 3D stage behind it; every other screen, and a menu with no stage (the scene opened on its own),
-		// keeps the flat backdrop. Checked every frame because the game scene may finish loading after this one.
+		// The screens in m_S_StageScreenIds show the 3D stage behind them; the others, and a menu with no stage (the scene opened on
+		// its own), keep the flat backdrop. Checked every frame because the game scene may finish loading after this one.
 		private void UpdateBackdrop()
 		{
 			var stage = MenuStage.Instance;
-			var seeThrough = stage != null && stage.IsShowing && m_router.CurrentScreenId == k_MenuScreenId;
+			var seeThrough = stage != null && stage.IsShowing && m_S_StageScreenIds.Contains(m_router.CurrentScreenId);
 			if (seeThrough == m_seeThrough) return;
 
 			m_seeThrough = seeThrough;

@@ -90,34 +90,45 @@
 
 .shop-card--equipped.card > .lipbox__face { border-color: var(--green); }
 
-.shop-card--locked.card > .lipbox__face {
+.shop-card--teaser.card > .lipbox__face {
     background-color: var(--panel-inner);
     border-color: rgba(246, 239, 226, 0.3);
 }
 
-.shop-card--locked.card > .lipbox__lip { background-color: rgba(16, 24, 35, 0.5); }
+.shop-card--teaser.card > .lipbox__lip { background-color: rgba(16, 24, 35, 0.5); }
 
-/* The thumbnail slot stays empty and transparent for the 3D half (the plane render). */
+/* A still of the equipped plane, or its dark silhouette on a teaser card. */
 .shop-thumb {
     height: 250px;
     flex-shrink: 0;
-    border-width: 4px;
     border-radius: 18px;
-    border-color: rgba(246, 239, 226, 0.4);
-    background-color: rgba(246, 239, 226, 0.03);
-    align-items: center;
-    justify-content: center;
+    background-color: rgba(246, 239, 226, 0.06);
 }
 
-.shop-thumb--locked {
-    border-width: 0;
-    background-color: rgba(10, 16, 24, 0.5);
+.shop-thumb__picture,
+.shop-thumb__silhouette {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 0;
+    bottom: 0;
+    -unity-background-scale-mode: scale-to-fit;
 }
+
+.shop-thumb__silhouette { -unity-background-image-tint-color: rgba(10, 16, 24, 0.75); }
+
+.shop-thumb--teaser { background-color: rgba(10, 16, 24, 0.5); }
 
 .shop-thumb__mark {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    -unity-text-align: middle-center;
     -unity-font-definition: url("../Art/Fonts/Baloo2-ExtraBold.ttf");
     font-size: 90px;
-    color: rgba(246, 239, 226, 0.35);
+    color: rgba(246, 239, 226, 0.45);
 }
 
 .shop-name {
@@ -132,7 +143,7 @@
     text-overflow: ellipsis;
 }
 
-.shop-name--locked { color: rgba(246, 239, 226, 0.6); }
+.shop-name--teaser { color: rgba(246, 239, 226, 0.6); }
 
 .shop-desc {
     height: 36px;
@@ -145,28 +156,7 @@
     text-overflow: ellipsis;
 }
 
-/* ---- Card action: BUY button / state pills (one fixed height so the four cards line up) ---- */
-
-.shop-action {
-    height: 88px;
-    margin-top: 16px;
-    flex-shrink: 0;
-}
-
-.shop-action__label {
-    -unity-font-definition: url("../Art/Fonts/Nunito-ExtraBold.ttf");
-    font-size: 30px;
-    color: var(--ink-dark);
-}
-
-/* The coin on the amber BUY button is dark, like the mockup's glyph. */
-.shop-action .shop-coin {
-    width: 26px;
-    height: 26px;
-    border-radius: 13px;
-    background-image: none;
-    background-color: var(--ink-dark);
-}
+/* ---- Card action: the state pill (one fixed height so the four cards line up) ---- */
 
 .shop-pill {
     flex-direction: row;
@@ -188,8 +178,6 @@
     color: rgba(246, 239, 226, 0.55);
 }
 
-.shop-pill__label--tail { margin-left: 8px; }
-
 .shop-pill--equipped {
     border-color: var(--green);
     background-color: rgba(95, 194, 106, 0.2);
@@ -200,12 +188,12 @@
     color: #BFF0C3;
 }
 
-.shop-pill--locked {
+.shop-pill--teaser {
     border-width: 0;
     background-color: rgba(246, 239, 226, 0.08);
 }
 
-.shop-pill__label--locked { font-size: 28px; color: rgba(246, 239, 226, 0.5); }
+.shop-pill__label--teaser { font-size: 28px; color: rgba(246, 239, 226, 0.5); }
 
 /* ---- Beta banner (CRASH FX / BUILDING SKINS) ---- */
 
@@ -255,8 +243,14 @@
 .shop-footnote {
     flex-shrink: 0;
     margin-top: 12px;
+    align-self: flex-start;
     white-space: normal;
     -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
     font-size: 28px;
-    color: rgba(246, 239, 226, 0.6);
+    padding: 10px 22px;
+    border-width: 3px;
+    border-radius: 14px;
+    border-color: rgba(246, 239, 226, 0.4);
+    background-color: var(--panel-inner);
+    color: var(--ink);
 }

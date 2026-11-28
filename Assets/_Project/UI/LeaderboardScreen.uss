@@ -120,7 +120,7 @@
     background-color: var(--ink-35);
 }
 
-/* ---- Rows: ranks 1-3 are tinted and larger, the rest are flat panels ---- */
+/* ---- Rows: ranks 1-3 are larger, with a solid tint and outline; the rest are flat panels ---- */
 
 .lb-row {
     flex-direction: row;
@@ -135,21 +135,24 @@
     flex-shrink: 0;
 }
 
-.lb-row--top { height: 106px; }
+.lb-row--top {
+    height: 106px;
+    border-width: 5px;
+}
 
 .lb-row--gold {
-    background-color: rgba(240, 169, 59, 0.18);
-    border-color: rgba(240, 169, 59, 0.55);
+    background-color: #55462A;
+    border-color: var(--amber);
 }
 
 .lb-row--silver {
-    background-color: rgba(246, 239, 226, 0.12);
-    border-color: rgba(246, 239, 226, 0.28);
+    background-color: #434E5E;
+    border-color: #C9D1DA;
 }
 
 .lb-row--bronze {
-    background-color: rgba(232, 96, 60, 0.16);
-    border-color: rgba(232, 96, 60, 0.4);
+    background-color: #523536;
+    border-color: #E8603C;
 }
 
 /* The player's own row inside the list: amber outline (the pinned row below repeats it). */

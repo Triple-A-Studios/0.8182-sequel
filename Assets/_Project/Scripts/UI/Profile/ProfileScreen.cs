@@ -28,6 +28,8 @@ namespace Opoint8182.UI
 		private const long k_KeyboardPollMs = 100;
 		private const float k_StatValueSize = 72f;
 		private const float k_StatValueMinSize = 44f;
+		// The one crash effect so far; its still is set in Profile.uss.
+		private const string k_CrashFxName = "Classic Boom";
 		private static readonly string[] m_S_StatValueNames = { "stat-high-score", "stat-distance", "stat-buildings", "stat-combo", "stat-runs", "stat-perfect" };
 
 		private readonly VisualElement m_root;
@@ -45,6 +47,7 @@ namespace Opoint8182.UI
 		private bool m_glowOn;
 		private readonly VisualElement m_nameField;
 		private IVisualElementScheduledItem m_keyboardPoll;
+		private PlanePortraitRig m_portrait;
 		private float m_keyboardShift;
 
 		private bool m_editing;
@@ -122,26 +125,37 @@ namespace Opoint8182.UI
 			BadgeService.TakeNewUnlocks();
 			BuildBadges();
 			Refresh();
+
+			// The live portrait takes over from the still picture while the screen is up.
+			BindEquippedPlane();
+			if (m_portrait == null) m_portrait = PlanePortraitRig.Create();
+			if (m_portrait != null) m_root.Q<VisualElement>("profile-portrait-slot").style.backgroundImage = Background.FromRenderTexture(m_portrait.Texture);
 		}
 
 		/// <summary>
-		/// For the share card: drops the buttons and the hint lines (back, SHARE, rename, the dev caption in the portrait slot, the
-		/// header's chevron), leaving the profile as an image.
+		/// For the share card: drops the buttons and the hint lines (back, SHARE, rename, the header's chevron), leaving the
+		/// profile as an image. The portrait keeps the plane's still picture: an off-screen panel has no camera behind it.
 		/// </summary>
 		public void PrepareForShare()
 		{
 			SetDisplay(m_root.Q<VisualElement>("profile-back"), false);
 			SetDisplay(m_root.Q<VisualElement>("profile-share"), false);
 			SetDisplay(m_editButton, false);
-			SetDisplay(m_root.Q<VisualElement>(className: "profile-portrait__caption"), false);
 			SetDisplay(m_root.Q<VisualElement>(className: "profile-badges__chevron"), false);
 			foreach (var pip in m_root.Query<VisualElement>(className: "badge__new").ToList()) SetDisplay(pip, false);
 		}
 
-		/// <summary>Drops an edit in progress. Call when the router hides the screen.</summary>
+		/// <summary>Drops an edit in progress and the live portrait. Call when the router hides the screen.</summary>
 		public void Close()
 		{
 			CancelEdit();
+			if (m_portrait != null)
+			{
+				m_portrait.Release();
+				m_portrait = null;
+				BindEquippedPlane();
+			}
+
 			m_glowPulse?.Pause();
 			m_glowPulse = null;
 		}
@@ -303,8 +317,19 @@ namespace Opoint8182.UI
 			SetText("profile-id", ProfilePlaceholderData.ID_LINE);
 			SetText("profile-coins", ProfilePlaceholderData.COINS);
 			BindLifetimeStats();
-			SetText("profile-plane", ProfilePlaceholderData.EQUIPPED_PLANE);
-			SetText("profile-fx", ProfilePlaceholderData.CRASH_FX);
+			BindEquippedPlane();
+			SetText("profile-fx", k_CrashFxName);
+		}
+
+		// The equipped plane's name and still picture, on its card and in the portrait slot.
+		private void BindEquippedPlane()
+		{
+			var plane = PlaneSelection.Equipped;
+			SetText("profile-plane", plane != null ? plane.DisplayName : string.Empty);
+
+			var still = plane != null && plane.Thumbnail != null ? new StyleBackground(plane.Thumbnail) : new StyleBackground(StyleKeyword.None);
+			m_root.Q<VisualElement>("profile-plane-thumb").style.backgroundImage = still;
+			m_root.Q<VisualElement>("profile-portrait-slot").style.backgroundImage = still;
 		}
 
 		// The six tiles are the player's lifetime stats; HIGH SCORE is the same best Game Over compares a run with.

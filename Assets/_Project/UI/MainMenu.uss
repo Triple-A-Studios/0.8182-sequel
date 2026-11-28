@@ -221,7 +221,6 @@
     color: var(--ink);
 }
 
-.menu-tile-label--small { font-size: 26px; }
 
 .menu-shop-icon {
     width: 86px;

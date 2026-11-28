@@ -22,6 +22,9 @@ namespace Opoint8182
 
 		[SerializeField] private string m_displayName;
 
+		[Tooltip("One short line under the name on the plane's shop card.")]
+		[SerializeField] private string m_tagline;
+
 		[Tooltip("Meshes and materials only: pivot at the centre, nose along +Z, no colliders, rigidbody or animator.")]
 		[SerializeField] private GameObject m_visualPrefab;
 
@@ -30,6 +33,7 @@ namespace Opoint8182
 
 		public string Id => m_id;
 		public string DisplayName => string.IsNullOrEmpty(m_displayName) ? m_id : m_displayName;
+		public string Tagline => m_tagline;
 		public GameObject VisualPrefab => m_visualPrefab;
 		public Sprite Thumbnail => m_thumbnail;
 

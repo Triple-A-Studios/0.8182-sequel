@@ -72,21 +72,11 @@
 }
 
 .profile-portrait__slot {
-    width: 420px;
-    height: 300px;
-    border-width: 4px;
-    border-radius: 20px;
-    border-color: rgba(246, 239, 226, 0.4);
-    background-color: rgba(246, 239, 226, 0.06);
-}
-
-.profile-portrait__caption {
-    margin-top: 16px;
-    white-space: normal;
-    -unity-font-definition: url("../Art/Fonts/Nunito-SemiBold.ttf");
-    font-size: 24px;
-    color: var(--ink-70);
-    -unity-text-align: middle-center;
+    align-self: stretch;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 200px;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 /* ---- Display name card ---- */
@@ -232,13 +222,14 @@
     -unity-text-align: middle-left;
 }
 
-/* The best-run tile reads as the hero: amber tint and outline. */
+/* The best-run tile reads as the hero: a solid golden tint and a solid amber outline. */
 .stat-tile--hero.card > .lipbox__face {
-    border-color: rgba(240, 169, 59, 0.5);
-    background-color: rgba(240, 169, 59, 0.16);
+    border-width: 5px;
+    border-color: var(--amber);
+    background-color: #55462A;
 }
 
-.stat-tile--hero.card > .lipbox__lip { background-color: rgba(16, 24, 35, 0.6); }
+.stat-tile--hero.card > .lipbox__lip { background-color: rgba(16, 24, 35, 0.7); }
 
 .stat-tile--hero .stat-tile__label { color: rgba(240, 169, 59, 0.95); }
 
@@ -259,7 +250,7 @@
     padding: 8px 28px;
 }
 
-/* The thumbnail slot stays empty and transparent for the 3D half (equipped plane / crash FX render). */
+/* A still of the equipped plane or the crash effect. */
 .profile-thumb {
     width: 88px;
     height: 88px;
@@ -269,6 +260,19 @@
     border-radius: 18px;
     border-color: rgba(246, 239, 226, 0.4);
     background-color: rgba(246, 239, 226, 0.06);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* The plane's still has room around it for the shop card: zoom in for the small square. */
+.profile-thumb--plane {
+    background-size: 140% auto;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.profile-thumb--fx {
+    background-image: url("../Art/Textures/Stills/Tex_CrashFx_ClassicBoom.png");
+    -unity-background-scale-mode: scale-and-crop;
 }
 
 .profile-equip__text {

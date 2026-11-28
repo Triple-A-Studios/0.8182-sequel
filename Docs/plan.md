@@ -204,7 +204,19 @@ Replace the primitive 3D with final art and fill every 3D slot the UI left empty
   - Checks: the menu now renders the 3D scene, so compare frame rate and heat on Android and WebGL with the perf overlay (together with the Pass 6 effects, not yet checked on a device).
   - Out of scope: the Profile portrait and thumbnails, Shop thumbnails, loading key art and the share card (a later pass); other planes or a plane picker; menu music; backlog items (#43 and #41 stay in the backlog).
 
-Later passes are scoped as they are reached. Candidates, in rough order: Profile portrait / thumbnails, loading key art and the share card; hardening, device checks and close-out.
+- **Pass 8** — Profile art and key art (scoped, built and playtested in the Editor 2026-11-28; follow-ups the same day: the 3D stage shows behind every menu screen, solid rank rows, HIGH SCORE tile and small-print plates, a hand-held drift on the menu camera, and the menu tile reads RANKS; stills and portrait in [planes.md](technical-design/planes.md#stills-and-the-profile-portrait))
+  - Why: the last 3D slots are still empty boxes with dev captions (Profile portrait and thumbnails, Shop cards, loading key art), and Profile still names a plane and a crash effect that do not exist.
+  - **Profile portrait** — a live slow turntable of the equipped plane (`PlaneVisualHost.Spawn`, [planes.md](technical-design/planes.md)): a small off-screen rig with its own camera into a transparent render texture, rendering only while the Profile screen is open, released when it closes. It follows a change of equipped plane. The dev caption goes.
+  - **Names** (developer, 2026-11-28): the plane's display name is **Bonk 747** (a play on Boeing; its saved `Id` and asset name stay as they are) and the crash effect is **Classic Boom**. The display name is changed already.
+  - **Plane thumbnails** — an Editor tool renders a still of each plane in the catalog into `PlaneDefinition.Thumbnail`. Used by the Profile's EQUIPPED PLANE card (with the plane's real name), the Shop's equipped card, and the share card.
+  - **Shop** — the equipped card shows the real plane (name, a short line, thumbnail, EQUIPPED). The other plane cards become teasers: a mystery silhouette marked as coming in Beta, with no made-up names, prices or BUY buttons. The Beta tabs are unchanged.
+  - **Crash FX card** — shows the real crash effect as **Classic Boom** with a still picture of the burst.
+  - **Loading key art** — a still of the game's own plane crashing through a skyline, staged and rendered by an Editor tool into one texture, replacing the studio logo in the loading slot and the dev caption. Compressed, with the WebGL download size checked. The portrait rotate prompt still works.
+  - **Share card** — the Profile image shows the plane still in the portrait slot and the thumbnails (an off-screen panel has no camera behind it, [share.md](technical-design/share.md)).
+  - Placeholder registry and the 3D slots list in [ui.md](technical-design/ui.md) updated; no dev captions left on any screen.
+  - Out of scope: new planes, buying or equipping from the Shop, currency (the coin amounts and the ID line stay placeholders), more crash effects or a picker, backlog items (#43 and #41 stay in the backlog), the device checks for Passes 6 to 8.
+
+Later passes are scoped as they are reached. Candidates: hardening, device checks and close-out.
 
 ### Milestone: Daily play structure
 A real return to the menu, weekly + all-time boards, 3 attempts a day plus capped practice, server-validated scores and opt-in share. Branch `alpha-ms12/daily-play-structure`.

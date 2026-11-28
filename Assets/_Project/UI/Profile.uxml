@@ -16,10 +16,8 @@
             <!-- Left: portrait slot + display name -->
             <ui:VisualElement class="profile-left" picking-mode="Ignore">
                 <op:LipBox class="card profile-portrait">
-                    <!-- Transparent + picking-mode ignore so a camera render of the equipped plane can show through (3D half). -->
+                    <!-- The equipped plane: a live turntable while the screen is open, a still picture otherwise (the share card). -->
                     <ui:VisualElement name="profile-portrait-slot" class="profile-portrait__slot" picking-mode="Ignore" />
-                    <!-- DELETE before shipping - dev annotation for the 3D half, per mockup spec. -->
-                    <ui:Label text="3D portrait: equipped plane, slow turntable" class="profile-portrait__caption" picking-mode="Ignore" />
                 </op:LipBox>
 
                 <op:LipBox class="card profile-name-card">
@@ -80,17 +78,17 @@
 
                 <ui:VisualElement class="profile-row" picking-mode="Ignore">
                     <op:LipBox class="card profile-equip profile-equip--first">
-                        <ui:VisualElement class="profile-thumb" picking-mode="Ignore" />
+                        <ui:VisualElement name="profile-plane-thumb" class="profile-thumb profile-thumb--plane" picking-mode="Ignore" />
                         <ui:VisualElement class="profile-equip__text" picking-mode="Ignore">
                             <ui:Label text="EQUIPPED PLANE" class="profile-label" picking-mode="Ignore" />
-                            <ui:Label name="profile-plane" text="Crop Duster Mk.II" class="profile-equip__name" picking-mode="Ignore" />
+                            <ui:Label name="profile-plane" text="" class="profile-equip__name" picking-mode="Ignore" />
                         </ui:VisualElement>
                     </op:LipBox>
                     <op:LipBox class="card profile-equip">
-                        <ui:VisualElement class="profile-thumb" picking-mode="Ignore" />
+                        <ui:VisualElement class="profile-thumb profile-thumb--fx" picking-mode="Ignore" />
                         <ui:VisualElement class="profile-equip__text" picking-mode="Ignore">
                             <ui:Label text="CRASH FX" class="profile-label" picking-mode="Ignore" />
-                            <ui:Label name="profile-fx" text="Confetti Blast" class="profile-equip__name" picking-mode="Ignore" />
+                            <ui:Label name="profile-fx" text="Classic Boom" class="profile-equip__name" picking-mode="Ignore" />
                         </ui:VisualElement>
                     </op:LipBox>
                 </ui:VisualElement>

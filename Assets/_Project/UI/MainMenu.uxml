@@ -73,7 +73,7 @@
                             <ui:VisualElement class="menu-lb-bar menu-lb-bar--tall" />
                             <ui:VisualElement class="menu-lb-bar menu-lb-bar--mid" />
                         </ui:VisualElement>
-                        <ui:Label text="LEADERBOARD" class="t-nunito-extrabold menu-tile-label menu-tile-label--small" />
+                        <ui:Label text="RANKS" class="t-nunito-extrabold menu-tile-label" />
                     </op:LipBox>
                 </ui:VisualElement>
 

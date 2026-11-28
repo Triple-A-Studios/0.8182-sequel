@@ -67,7 +67,7 @@ Play mode only (a panel needs the player loop), one render at a time (a second c
 
 Things this depends on, learnt while building it:
 - **Safe area.** `GameOverView` insets by the device safe area; a notch would shift the card, so its constructor takes `applySafeArea` (false for the card). The flow screens sit in a 24 px padded stage like the menu's safe area.
-- **No scene camera.** An offscreen panel has no 3D behind it: the Profile portrait and thumbnail slots are empty rectangles in the image (revisit in the 3D art pass: the real portrait is a camera render in the slot). The portrait dev caption is hidden in the card.
+- **No scene camera.** An offscreen panel has no 3D behind it, so the Profile card shows still pictures: the plane's thumbnail in the portrait slot (the live turntable exists only on the real screen) and the two card thumbnails ([planes.md](planes.md#stills-and-the-profile-portrait)). A rounded element with `overflow: hidden` and a picture rendered white in the card: avoid that combination.
 - **Panel sharing.** The card panel is its own runtime panel (its own `PanelSettings` instance), so it does not pick pointer events or draw over the game.
 - **Cost.** A render is a few frames; on WebGL the readback and PNG encode of a 2400 x 1152 texture is the heaviest part (a short hitch on tap, accepted; it worked on desktop and Android browsers).
 
@@ -107,6 +107,5 @@ Decided with the developer in 8d: the run card and the real Game Over screen use
 ## Open / later
 
 - A game link in the share text (one place, `ShareCardData.Text`).
-- 3D portrait and thumbnails in the Profile card: the 3D art pass.
 - The run card's DISTANCE, FLATTENED and BEST COMBO are the run's real values since Player profile & run stats Pass 2 (`ShareCardData.ForRun(..., stats)`; without `stats` the samples and galleries fall back to the placeholders); EARNED stays a stand-in until the currency. The player name is the saved display name (`UiProfileState.DisplayName`).
 - Optional: save to the gallery on Android (needs a storage permission on Android 8-9), a Web Share API path on WebGL.
