@@ -21,6 +21,8 @@ The boards show the Unity Authentication player name, so a changed name is pushe
 
 ## Testing
 
+Development builds intercept a few hidden commands in the name field (`perf_on`, `perf_off`, `cap_60`, `cap_61`, `cap_30`, `cap_free`, `cap_reset`; [performance.md](performance.md)): they are run instead of being saved as a name, so the name never changes. Release builds do not know them.
+
 Editor menu `Tools > Profile Name` (`Scripts/Editor/ProfileNameMenu.cs`): Log Name (name and whether it is synced), Reset Name, Sync Now (play from `Bootstrap` for the service).
 
 ## Open

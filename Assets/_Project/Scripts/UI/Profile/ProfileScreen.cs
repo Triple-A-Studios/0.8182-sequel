@@ -182,6 +182,15 @@ namespace Opoint8182.UI
 		{
 			if (!m_editing) return;
 
+			// Development builds: a hidden command (perf overlay, frame-rate cap) is run instead of being taken as a name.
+			if (Opoint8182.Perf.DevCommands.TryRun(m_nameInput.value, out var devFeedback))
+			{
+				SetEditing(false);
+				Refresh();
+				m_idLabel.text = devFeedback;
+				return;
+			}
+
 			// Nothing usable typed (or the same name): leave the edit and keep the old name. Too short or on the blocklist: stay in the edit and say so.
 			var name = DisplayNameRules.Sanitize(m_nameInput.value);
 			if (name.Length > 0 && name != UiProfileState.DisplayName)

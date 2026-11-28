@@ -13,7 +13,9 @@ namespace Opoint8182.Perf
 	/// <summary>
 	/// Development-only perf overlay (3D art pass, Pass 5b): live fps, frame times, hitches, render and memory counters, and a
 	/// summary of the last runs, so a phone can be judged without a cable. It lives next to the launch panel in the Bootstrap
-	/// scene (which survives every scene load), is off in release builds, and is opened with F9 or a three-finger tap.
+	/// scene (which survives every scene load), is off in release builds, and is opened with F9 (Editor) or the hidden
+	/// <c>perf_on</c> command typed into the Profile name field (<see cref="DevCommands"/>; three fingers is the Android screenshot).
+	/// Once open it stays open, across scenes, until it is hidden or the app closes.
 	/// The run summary (average fps, 1 % low, worst frame, hitches, memory change) is also logged when a run ends.
 	/// </summary>
 	[RequireComponent(typeof(PanelRenderer))]
@@ -46,7 +48,8 @@ namespace Opoint8182.Perf
 		private long m_runStartMemory;
 		private float m_nextRefresh;
 		private bool m_open;
-		private bool m_threeFingersDown;
+
+		private static PerfOverlay m_s_instance;
 
 		private void Awake()
 		{
@@ -54,6 +57,27 @@ namespace Opoint8182.Perf
 
 			// A release build never shows or samples anything.
 			if (!Debug.isDebugBuild) gameObject.SetActive(false);
+			else m_s_instance = this;
+		}
+
+		private void OnDestroy()
+		{
+			if (m_s_instance == this) m_s_instance = null;
+		}
+
+		/// <summary>Shows the overlay. False when this scene setup has none (a scene opened on its own, not through Bootstrap).</summary>
+		public static bool Open()
+		{
+			if (m_s_instance == null) return false;
+
+			m_s_instance.SetOpen(true);
+			return true;
+		}
+
+		/// <summary>Hides the overlay (it keeps sampling, so a run's summary is not lost).</summary>
+		public static void Close()
+		{
+			if (m_s_instance != null) m_s_instance.SetOpen(false);
 		}
 
 		private void OnEnable()
@@ -140,30 +164,11 @@ namespace Opoint8182.Perf
 			if (m_open) Refresh();
 		}
 
-		// F9 in the Editor and on a keyboard; three fingers down together on a touch screen (re-armed when all are lifted).
+		// F9 on a keyboard (the Editor). A touch screen has no spare gesture: use the perf_on command instead.
 		private void PollToggle()
 		{
 			var keyboard = Keyboard.current;
 			if (keyboard != null && keyboard.f9Key.wasPressedThisFrame) Toggle();
-
-			var touchscreen = Touchscreen.current;
-			if (touchscreen == null) return;
-
-			var down = 0;
-			for (var i = 0; i < touchscreen.touches.Count; i++)
-			{
-				if (touchscreen.touches[i].press.isPressed) down++;
-			}
-
-			if (down >= 3 && !m_threeFingersDown)
-			{
-				m_threeFingersDown = true;
-				Toggle();
-			}
-			else if (down == 0)
-			{
-				m_threeFingersDown = false;
-			}
 		}
 
 		private void Toggle() => SetOpen(!m_open);
