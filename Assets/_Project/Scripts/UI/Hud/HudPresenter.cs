@@ -1,6 +1,7 @@
 using Alchemy.Inspector;
 using Opoint8182.Altitude;
 using Opoint8182.Bootstrap;
+using Opoint8182.Common;
 using Opoint8182.Daily;
 using Opoint8182.Fuel;
 using Opoint8182.Game;
@@ -44,6 +45,7 @@ namespace Opoint8182.UI
 
 			// The view is built at scene load, before the player can change the controls in the menu's Settings screen.
 			SettingsService.Changed += OnSettingsChanged;
+			CombatEvents.Restored += OnRestored;
 
 			if (m_fuelSystem != null) m_fuelSystem.FuelValue.AddListener(OnFuelChanged);
 			if (m_healthSystem != null) m_healthSystem.HealthValue.AddListener(OnHealthChanged);
@@ -77,6 +79,7 @@ namespace Opoint8182.UI
 		protected override void OnDisable()
 		{
 			SettingsService.Changed -= OnSettingsChanged;
+			CombatEvents.Restored -= OnRestored;
 			if (m_fuelSystem != null) m_fuelSystem.FuelValue.RemoveListener(OnFuelChanged);
 			if (m_healthSystem != null) m_healthSystem.HealthValue.RemoveListener(OnHealthChanged);
 			if (m_scoreSystem != null)
@@ -314,6 +317,14 @@ namespace Opoint8182.UI
 
 			if (m_lastHealth >= 0f && health < m_lastHealth) View.ShowDamage(m_lastHealth - health);
 			m_lastHealth = health;
+		}
+
+		// A Heal building hit off its weak point restores nothing, so it shows nothing. Health already full still counts.
+		private void OnRestored(IRestorer source, float amount)
+		{
+			if (amount <= 0f || (m_gameManager != null && !m_gameManager.IsRunActive)) return;
+
+			View?.ShowHeal();
 		}
 
 		private void OnScoreChanged(int score) => View?.SetScore(score);

@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 1267239827469065794}
   - component: {fileID: 900000010001}
   - component: {fileID: 663814597798949890}
+  - component: {fileID: 1650555532895290104}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Player
@@ -250,3 +251,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.PlaneVisualHost
   m_visualRoot: {fileID: 4128297192964488244}
+--- !u!114 &1650555532895290104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5561655706574146712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6e4d923e9fc7a04c86f000f6587df96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Opoint8182.Vfx.PlaneVfx
+  m_crashBurstPrefab: {fileID: 2372486065305536864, guid: a186a1f4aa649f3458ec26f765690708, type: 3}
+  m_runEndBlastPrefab: {fileID: 691876334811461904, guid: 092af431935a4c540aaca67f6d4a53b4, type: 3}
+  m_wreckFirePrefab: {fileID: 6567238396084412405, guid: 09776664c5a1f044db5c272a5425c750, type: 3}
+  m_burstPoolSize: 4
+  m_minBurstScale: 0.7
+  m_maxBurstScale: 1.2
+  m_burstOffset: {x: 0, y: 0, z: 1.5}
+  m_blastScale: 2.5
+  m_blastOffset: {x: 0, y: 0, z: 0}
+  m_fireScale: 1
+  m_fireOffset: {x: 0, y: 0, z: 0}

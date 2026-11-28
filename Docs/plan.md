@@ -184,7 +184,18 @@ Replace the primitive 3D with final art and fill every 3D slot the UI left empty
   - Output: a results table in `Docs/technical-design/performance.md` (new: budgets, how to measure, results) and a ranked list of levers with the expected gain of each. Known candidates, all decided from the data and scoped as their own pass if needed: no shadow casting on buildings and obstacles, shadow distance 50 to about 30, HDR off on the `Mobile` asset, render scale 0.8 to 0.7, building triangles 25k to about 10k with the decimation tool and 5 material slots to 1 through an atlas (the method of the ground dressing), fewer ground tiles and a shorter fog end, dressing off on weak phones, bird animation cost.
   - Out of scope: any optimisation, the crash / smoke / wear VFX, other platforms, long-term telemetry.
 
-Later passes are scoped as they are reached. Candidates, in rough order: crash, smoke and plane-wear VFX; menu 3D slots (plane on a rooftop) and the takeoff transition; Profile portrait / thumbnails, loading key art and the share card; hardening, device checks and close-out.
+- **Pass 6** — Crash and run-end VFX (scoped, built and playtested in the Editor 2026-11-28; Android / WebGL not checked; details in [vfx.md](technical-design/vfx.md))
+  - Why: there are no effects yet; a destroyed building just vanishes. The developer imports a cartoon VFX pack first. Pack needs: Built-in Particle System (not VFX Graph, which needs compute shaders that WebGL 2 does not have), materials that work in URP, light on overdraw (soft full-screen smoke is the expensive part on a phone).
+  - **Building crash burst** — debris and dust where a building is destroyed (Normal, Tough including a mistimed hit, Heal), bigger for a better crash quality. Driven from the existing crash / restore events; no physics debris, no colliders.
+  - **Run-end blast** — an explosion at the plane for the endings that stop it (out of fuel, wrecked, hit the deck). Flew too high and out of bounds keep flying away with no blast (design doc, fail states).
+  - **Wreck fire** (added 2026-11-28) — after the blast the plane stays on fire until the next run or the menu.
+  - Prefabs picked by the developer: `CFXR Explosion 1 Variant` (burst; its smoke lifetime shortened so it does not fill the screen), `CFXR3 Hit Fire B (Air) Variant` (blast), `CFXR2 Firewall A Variant` (fire).
+  - **Game Over pause** — about 1 s (unscaled time) between a blast and the Game Over screen. The final score, stats and badges are still fixed the moment the run ends.
+  - **Heal vignette** — a fading green screen edge, like the red ground-warning vignette (HUD UI Toolkit, [ui.md](technical-design/ui.md)), when health is restored by either a `HealthPickup` or a Heal building (both raise `CombatEvents.Restored`). A Heal building hit that restores nothing (weak point missed, amount 0) shows no vignette.
+  - Budgets (the phone already misses 60 fps): effects pooled, nothing instantiated during a run, low particle caps, few shared materials, no effect lights or shadows. Check with the perf overlay on Android and WebGL; proposed line: no clear drop from the Pass 5 numbers and no new frames over 100 ms from an effect.
+  - Out of scope: plane wear smoke, pickup particle effects, bird and obstacle hit effects (deferred until after optimisation, backlog #42), new sounds, backlog #41, any gameplay or scoring change.
+
+Later passes are scoped as they are reached. Candidates, in rough order: menu 3D slots (plane on a rooftop) and the takeoff transition; Profile portrait / thumbnails, loading key art and the share card; hardening, device checks and close-out.
 
 ### Milestone: Daily play structure
 A real return to the menu, weekly + all-time boards, 3 attempts a day plus capped practice, server-validated scores and opt-in share. Branch `alpha-ms12/daily-play-structure`.

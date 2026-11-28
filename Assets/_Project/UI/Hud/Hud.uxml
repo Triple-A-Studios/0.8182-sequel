@@ -69,6 +69,8 @@
                 <ui:VisualElement class="hud-damage-vignette" picking-mode="Ignore" />
                 <ui:VisualElement class="hud-damage-cracks" picking-mode="Ignore" />
             </ui:VisualElement>
+            <!-- Health restored: green edges that fade out; hidden while the ground warning owns the frame. -->
+            <ui:VisualElement name="heal-vignette" class="hud-heal-vignette" picking-mode="Ignore" />
             <ui:VisualElement name="ground-vignette" class="hud-vignette-red" picking-mode="Ignore" />
             <ui:Label name="ground-text" text="PULL UP!" class="t-baloo-extrabold hud-ground-text" picking-mode="Ignore" />
         </ui:VisualElement>

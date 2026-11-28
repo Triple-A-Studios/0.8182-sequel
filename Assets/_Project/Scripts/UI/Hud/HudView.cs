@@ -26,6 +26,7 @@ namespace Opoint8182.UI
 		private const float k_GroundFlashLow = 0.25f;
 		private const long k_LowFuelFlashPeriodMs = 500;
 		private const long k_DamageDurationMs = 1500;
+		private const long k_HealHoldMs = 250;
 		private const float k_PopupMarginX = 300f;
 		private const float k_PopupMarginTop = 300f;
 		private const float k_PopupMarginBottom = 200f;
@@ -61,6 +62,9 @@ namespace Opoint8182.UI
 		private readonly Label m_fuelLabel;
 		private readonly VisualElement m_healthWrap;
 		private readonly VisualElement m_damageOverlay;
+		private readonly VisualElement m_healVignette;
+		private IVisualElementScheduledItem m_healHide;
+		private bool m_healRequested;
 		private readonly VisualElement m_hitWrap;
 		private readonly Label m_hitLabel;
 		private IVisualElementScheduledItem m_lowFuelFlash;
@@ -123,6 +127,7 @@ namespace Opoint8182.UI
 			m_fuelLabel = root.Q<Label>("fuel-label");
 			m_healthWrap = root.Q<VisualElement>("health-wrap");
 			m_damageOverlay = root.Q<VisualElement>("damage-overlay");
+			m_healVignette = root.Q<VisualElement>("heal-vignette");
 			m_hitWrap = root.Q<VisualElement>("hit-wrap");
 			m_hitLabel = root.Q<Label>("hit-label");
 
@@ -229,10 +234,31 @@ namespace Opoint8182.UI
 			m_hitLabel.text = $"-{Mathf.Max(1, Mathf.RoundToInt(hpLost))} HEALTH";
 			m_hitWrap.style.display = DisplayStyle.Flex;
 			m_damageRequested = true;
+			m_healRequested = false;
 			RefreshFrameEffects();
 
 			m_damageHide?.Pause();
 			m_damageHide = m_hitWrap.schedule.Execute(HideDamage).StartingIn(k_DamageDurationMs);
+		}
+
+		/// <summary>
+		/// Health restored (a Heal building or a health pickup): green edges that fade out. Replaces the damage cracks if they are
+		/// still up, and defers to the ground warning like them.
+		/// </summary>
+		public void ShowHeal()
+		{
+			m_healRequested = true;
+			m_damageRequested = false;
+			RefreshFrameEffects();
+
+			m_healHide?.Pause();
+			m_healHide = m_healVignette.schedule.Execute(HideHeal).StartingIn(k_HealHoldMs);
+		}
+
+		private void HideHeal()
+		{
+			m_healRequested = false;
+			RefreshFrameEffects();
 		}
 
 		/// <summary>Clears the damage state immediately (gallery reset).</summary>
@@ -437,6 +463,7 @@ namespace Opoint8182.UI
 		private void RefreshFrameEffects()
 		{
 			m_damageOverlay.EnableInClassList("is-visible", m_damageRequested && !m_groundActive);
+			m_healVignette.EnableInClassList("is-visible", m_healRequested && !m_groundActive);
 		}
 
 		private void ToggleLowFuelFlash()

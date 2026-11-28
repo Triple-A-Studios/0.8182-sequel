@@ -479,6 +479,25 @@
     transition-duration: 0.08s;
 }
 
+/* Heal vignette: same shape of fade as the damage overlay, a little slower on the way out. */
+.hud-heal-vignette {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0;
+    background-image: url("../../Art/Textures/UI/Tex_UiVignetteGreen.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    transition-property: opacity;
+    transition-duration: 0.9s;
+}
+
+.hud-heal-vignette.is-visible {
+    opacity: 0.6;
+    transition-duration: 0.1s;
+}
+
 .hud-damage-vignette {
     position: absolute;
     left: 0;

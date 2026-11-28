@@ -9,6 +9,7 @@ using Opoint8182.Game;
 using Opoint8182.Health;
 using Opoint8182.Lateral;
 using Opoint8182.Spawning;
+using Opoint8182.Vfx;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -36,6 +37,7 @@ namespace Opoint8182.Player
 
         private bool m_isRunEnded;
 
+        private PlaneVfx m_planeVfx;
         private PlaneController m_planeController;
         private Rigidbody m_rigidbody;
         private FuelSystem m_fuelSystem;
@@ -48,6 +50,7 @@ namespace Opoint8182.Player
         private void Awake()
         {
             m_planeController = GetComponent<PlaneController>();
+            m_planeVfx = GetComponent<PlaneVfx>();
             m_rigidbody = GetComponent<Rigidbody>();
             m_fuelSystem = GetComponent<FuelSystem>();
             m_healthSystem = GetComponent<HealthSystem>();
@@ -147,6 +150,7 @@ namespace Opoint8182.Player
             m_planeController.enabled = false;
             m_rigidbody.linearVelocity = Vector3.zero;
             m_cameraJuice?.ShakeForDepleted();
+            if (m_planeVfx != null) m_planeVfx.PlayRunEnd();
         }
 
         private void HandleFlyAway()

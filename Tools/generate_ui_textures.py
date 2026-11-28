@@ -256,6 +256,7 @@ if __name__ == "__main__":
     hazard_tape("Tex_UiHazardTape.png")
     edge_vignette("Tex_UiVignetteRed.png", "#E0452F", 0.9)
     edge_vignette("Tex_UiVignetteDark.png", "#101823", 0.75)
+    edge_vignette("Tex_UiVignetteGreen.png", "#3FCB5A", 0.9)
     cracks("Tex_UiCracks.png")
     arrow_up("Tex_UiArrowUp.png")
     dashed_ring("Tex_UiDashedRing.png")

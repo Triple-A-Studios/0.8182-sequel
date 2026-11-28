@@ -24,6 +24,10 @@ namespace Opoint8182.UI
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private ScoreSystem m_scoreSystem;
 
+		[Title("Tunables")]
+		// How long the run-end blast has the screen to itself before the panel covers it.
+		[FoldoutGroup("Tunables")] [SerializeField] [Min(0f)] private float m_blastDelaySeconds = 1f;
+
 		private const string k_UnavailableText = "Leaderboard unavailable";
 		private const string k_SubmitFailedText = "Couldn't submit score";
 		private const string k_NotAcceptedText = "Score not accepted";
@@ -102,19 +106,35 @@ namespace Opoint8182.UI
 			m_row = GameOverRow.Derive(DailyPlay.Mode, m_gameManager != null && m_gameManager.IsPracticeRun, DailyPlay.AttemptsLeft,
 				DailyPlay.PracticeRemainingSeconds, DailyPlay.NextResetUtc, DailyPlay.Clock.UtcNow);
 
+			// Everything about the run is read above, at the moment it ended; only the showing waits for the blast.
+			if (HasBlast(cause) && m_blastDelaySeconds > 0f)
+			{
+				Tween.Delay(this, m_blastDelaySeconds, target => target.PresentResult(), useUnscaledTime: true);
+				return;
+			}
+
+			PresentResult();
+		}
+
+		// The endings that stop the plane. Flying too high or out of bounds just flies off, with nothing to wait for.
+		private static bool HasBlast(RunEndCause cause) =>
+			cause == RunEndCause.OutOfFuel || cause == RunEndCause.Wrecked || cause == RunEndCause.HitTheDeck;
+
+		private void PresentResult()
+		{
 			if (View != null)
 			{
 				View.ApplyAttemptState(m_row);
 				View.SetStats(RunStatsFormat.Distance(m_lastRun.DistanceMeters), RunStatsFormat.Count(m_lastRun.BuildingsDestroyed),
 					RunStatsFormat.Count(m_lastRun.BestCombo), GameOverPlaceholderData.Earned);
-				View.SetCause(cause);
-				View.SetScore(score);
+				View.SetCause(m_lastCause);
+				View.SetScore(m_lastScore);
 				View.SetNewBest(m_lastNewBest);
 				View.SetYourBest(!m_lastNewBest && m_bestBefore > 0 ? m_bestBefore.ToString("N0") : null);
 				View.Show();
 			}
 
-			SubmitAndShowRank(score);
+			SubmitAndShowRank(m_lastScore);
 			AnnounceBadges();
 		}
 

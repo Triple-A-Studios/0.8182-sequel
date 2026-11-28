@@ -137,6 +137,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 - Profile stats (Pass 3), run stats on Game Over and NEW BEST (Pass 2), name (Pass 4) and badges (Pass 5) landed.
 - Shop, currency, equipped plane / FX, coin popups, HOW TO PLAY: **Beta**.
 - 3D slots and dev captions, takeoff, key art, smoke / plane wear: **3D art pass**.
+- Heal vignette (green screen edges when health is restored, 3D art pass Pass 6): [vfx.md](vfx.md#heal-vignette).
 - Cosmetics left on purpose: the 19 px PROFILE sub-label, solid borders where the mockup is dashed, Nunito for the mockup's monospace lines, `S07-leaderboard-empty.png` and `S11` no-rank PNG are stale (the HTML and notes win), `Docs/Mockups` is ~51 MB without LFS.
 
 ## Decisions of record (UI/art pass)
