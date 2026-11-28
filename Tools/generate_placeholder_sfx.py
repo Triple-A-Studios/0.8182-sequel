@@ -143,6 +143,10 @@ def build():
     write('WarnLowFuel', seq(sine(520, 0.07), silence(0.04), sine(520, 0.07)), 0.7)
     write('WarnLowHealth', seq(sweep(160, 90, 0.1, amp=1.0), silence(0.06), sweep(150, 80, 0.12, amp=0.8)), 0.8)
 
+    # ---- Takeoff: a rising ratchet while the plane winds back, then the launch ----
+    write('TakeoffWindUp', seq(*[mix(sine(500 + 90 * i, 0.04, release=0.3), gain(noise(0.015, lowpass=0.7, seed=81 + i), 0.4)) + silence(0.03) for i in range(8)]), 0.6)
+    write('TakeoffLaunch', mix(noise(0.75, lowpass=0.28, seed=91, attack=0.05, release=0.7), sweep(140, 620, 0.7, amp=0.5, attack=0.08)), 0.75)
+
     # ---- Run end ----
     write('RunEndWreck', mix(noise(0.9, lowpass=0.15, seed=51, release=1.0), sweep(120, 40, 0.8, amp=1.0)), 0.9)
     write('RunEndFuel', seq(*[sweep(300 - 40 * i, 200 - 40 * i, 0.12, amp=1.0 - 0.15 * i) + silence(0.05 + 0.03 * i) for i in range(5)]), 0.75)

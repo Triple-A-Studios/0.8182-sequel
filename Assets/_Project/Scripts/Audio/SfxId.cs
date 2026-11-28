@@ -34,5 +34,9 @@ namespace Opoint8182.Audio
 		RunEndFlyOff,
 		RunEndGround,
 		GameOver,
+
+		// Appended: the library stores ids by number.
+		TakeoffWindUp,
+		TakeoffLaunch,
 	}
 }

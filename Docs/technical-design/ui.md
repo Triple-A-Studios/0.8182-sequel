@@ -106,7 +106,7 @@ Every static stand-in is in one block per screen, flagged in code. Replacing it 
 | Last week's results sample (gallery and the Editor debug mode only; play uses `LeaderboardLastWeekResultsSource`) | `LastWeekResultsPlaceholderData` | nothing left to replace in play |
 | Loading quips | `LoadingQuips` | the developer rewriting them |
 
-**3D slots** (transparent, bordered, with dev captions to delete when the art exists): menu `plane-slot` + `plane-slot-caption` ("3D: equipped plane on a rooftop..."), Profile `profile-portrait-slot` + caption and the two `.profile-thumb`s, Shop `.shop-thumb`s, Loading `.loading-key-slot` (the studio logo stands in for key art). The takeoff transition and smoke / plane-wear VFX are 3D work. A plane model for any of these slots is put in the world with `PlaneVisualHost.Spawn` ([planes.md](planes.md)). All belong to the **3D art pass** milestone (see [plan.md](../plan.md#phase-alpha)).
+**3D slots** (transparent, bordered, with dev captions to delete when the art exists; the menu's slot is gone, the whole main screen now shows the 3D stage, see [menu-stage.md](menu-stage.md)): Profile `profile-portrait-slot` + caption and the two `.profile-thumb`s, Shop `.shop-thumb`s, Loading `.loading-key-slot` (the studio logo stands in for key art). The takeoff transition is built ([menu-stage.md](menu-stage.md)); smoke / plane-wear VFX are 3D work (backlog #42). A plane model for any of these slots is put in the world with `PlaneVisualHost.Spawn` ([planes.md](planes.md)). All belong to the **3D art pass** milestone (see [plan.md](../plan.md#phase-alpha)).
 
 ## Dev galleries and test seams
 
@@ -136,7 +136,7 @@ None of the dev scenes is in Build Settings (Bootstrap, MainMenu, Prototype are)
 - Boards, closed weeks and S11 are real since Daily play structure Passes 3-4 (#28); SHARE (S07 / S11 / Game Over / Profile) shares a rendered image since Daily play structure Pass 8.
 - Profile stats (Pass 3), run stats on Game Over and NEW BEST (Pass 2), name (Pass 4) and badges (Pass 5) landed.
 - Shop, currency, equipped plane / FX, coin popups, HOW TO PLAY: **Beta**.
-- 3D slots and dev captions, takeoff, key art, smoke / plane wear: **3D art pass**.
+- The remaining 3D slots and dev captions, key art: **3D art pass**; smoke / plane wear: backlog #42.
 - Heal vignette (green screen edges when health is restored, 3D art pass Pass 6): [vfx.md](vfx.md#heal-vignette).
 - Cosmetics left on purpose: the 19 px PROFILE sub-label, solid borders where the mockup is dashed, Nunito for the mockup's monospace lines, `S07-leaderboard-empty.png` and `S11` no-rank PNG are stale (the HTML and notes win), `Docs/Mockups` is ~51 MB without LFS.
 

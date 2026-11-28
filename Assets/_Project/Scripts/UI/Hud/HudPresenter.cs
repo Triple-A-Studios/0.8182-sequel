@@ -7,6 +7,7 @@ using Opoint8182.Fuel;
 using Opoint8182.Game;
 using Opoint8182.Health;
 using Opoint8182.Lateral;
+using Opoint8182.Menu3D;
 using Opoint8182.Player;
 using Opoint8182.Score;
 using UnityEngine;
@@ -79,6 +80,7 @@ namespace Opoint8182.UI
 		protected override void OnDisable()
 		{
 			SettingsService.Changed -= OnSettingsChanged;
+			View?.StopEntrance();
 			CombatEvents.Restored -= OnRestored;
 			if (m_fuelSystem != null) m_fuelSystem.FuelValue.RemoveListener(OnFuelChanged);
 			if (m_healthSystem != null) m_healthSystem.HealthValue.RemoveListener(OnHealthChanged);
@@ -116,6 +118,7 @@ namespace Opoint8182.UI
 			view.BoostChanged += OnBoostChanged;
 			view.PauseClicked += OnPauseClicked;
 			view.ApplyControlSettings();
+			if (MenuStage.ConsumeHudEntrance()) view.PlayEntrance();
 			view.PausePopup.CountdownFinished += OnCountdownFinished;
 			view.PausePopup.RestartRequested += OnRestartRequested;
 			view.PausePopup.QuitRequested += OnQuitRequested;

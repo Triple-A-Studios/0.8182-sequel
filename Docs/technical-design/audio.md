@@ -35,6 +35,8 @@ One component on the `GameManager` object in `Prototype` (found by `FindAnyObjec
 
 Low fuel / low health use the HUD's default thresholds (`HudView.DefaultLowFuelThreshold` / `DefaultLowHealthThreshold`) as their own serialized values: change both together. The beep cadences are serialized on the component.
 
+The takeoff from the menu plays `TakeoffWindUp` and `TakeoffLaunch` from `MenuStage` ([menu-stage.md](menu-stage.md)).
+
 ## Placeholder clips
 
 `Tools/generate_placeholder_sfx.py` (stdlib only, deterministic) writes about 26 mono 16-bit 22.05 kHz WAVs (about 0.5 MB total) into `Assets/_Project/Audio/Placeholder/`; they are committed. To use real audio, drop a file with the id's name (for example `CrashPerfect.wav`) anywhere under `Assets/_Project/Audio` **outside** `Placeholder`: it wins over the placeholder of the same id after a library rebuild. No code change.

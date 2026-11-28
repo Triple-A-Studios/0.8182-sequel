@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -63,6 +64,7 @@ namespace Opoint8182.UI
 		private readonly VisualElement m_healthWrap;
 		private readonly VisualElement m_damageOverlay;
 		private readonly VisualElement m_healVignette;
+		private readonly List<PrimeTween.Tween> m_entranceTweens = new();
 		private IVisualElementScheduledItem m_healHide;
 		private bool m_healRequested;
 		private readonly VisualElement m_hitWrap;
@@ -259,6 +261,42 @@ namespace Opoint8182.UI
 		{
 			m_healRequested = false;
 			RefreshFrameEffects();
+		}
+
+		/// <summary>The HUD drops in after a takeoff: the readouts from above, the boost button from below.</summary>
+		public void PlayEntrance()
+		{
+			DropIn("score-block", -300f, 0f);
+			DropIn("practice-tag", -300f, 0.04f);
+			DropIn("top-stack", -300f, 0.08f);
+			DropIn("pause-button", -300f, 0.12f);
+			DropIn("touch-boost-button", 500f, 0.12f);
+		}
+
+		private void DropIn(string elementName, float fromY, float delay)
+		{
+			var element = Root.Q<VisualElement>(elementName);
+			if (element == null) return;
+
+			// A stylesheet transition on translate (the top stack has one) would drag behind the tween.
+			element.style.transitionDuration = new List<TimeValue> { new(0f) };
+			element.style.translate = new Translate(0f, fromY);
+			var tween = PrimeTween.Tween.Custom(element, fromY, 0f, 0.35f, (target, y) => target.style.translate = new Translate(0f, y),
+					PrimeTween.Ease.OutBack, startDelay: delay, useUnscaledTime: true)
+				// Hand the position back to the stylesheet.
+				.OnComplete(element, target =>
+				{
+					target.style.translate = StyleKeyword.Null;
+					target.style.transitionDuration = StyleKeyword.Null;
+				});
+			m_entranceTweens.Add(tween);
+		}
+
+		/// <summary>Stops a drop-in that is still running; call before the panel goes away.</summary>
+		public void StopEntrance()
+		{
+			foreach (var tween in m_entranceTweens) tween.Stop();
+			m_entranceTweens.Clear();
 		}
 
 		/// <summary>Clears the damage state immediately (gallery reset).</summary>

@@ -82,6 +82,11 @@ namespace Opoint8182.Audio
 					entry.priority = 55; entry.maxConcurrent = 1;
 					break;
 
+				case SfxId.TakeoffWindUp:
+				case SfxId.TakeoffLaunch:
+					entry.priority = 40; entry.maxConcurrent = 1;
+					break;
+
 				case SfxId.RunEndWreck:
 				case SfxId.RunEndFuel:
 				case SfxId.RunEndFlyOff:

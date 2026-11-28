@@ -303,3 +303,27 @@ MonoBehaviour:
     ignorePause: 0
     duckAmount: 0.5
     duckSeconds: 1
+  - id: 24
+    clips:
+    - {fileID: 8300000, guid: d3ab21693d6d48c4e9ccd44d6561469e, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 40
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0
+  - id: 25
+    clips:
+    - {fileID: 8300000, guid: 69ee70178fbe9bd438f927edf7426955, type: 3}
+    volume: 1
+    pitchRange: {x: 1, y: 1}
+    priority: 40
+    cooldown: 0
+    maxConcurrent: 1
+    loop: 0
+    ignorePause: 0
+    duckAmount: 1
+    duckSeconds: 0

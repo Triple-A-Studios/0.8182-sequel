@@ -1,0 +1,27 @@
+# Menu stage and takeoff (3D art pass, Pass 7)
+
+The main menu's 3D backdrop and the takeoff from it into a run. The scope is in [plan.md](../plan.md#milestone-3d-art-pass) (Pass 7).
+
+## The stage
+`Prefabs/World/MenuStage.prefab`, placed once in `Prototype.unity` (the menu scene has no camera or world of its own). Built by `Tools > World > Build Menu Stage` (`MenuStageBuilder`) from the city pack: `Building_Coffee Shop` turned lengthways as the rooftop (floor at height 6.41, centred at z -80) and four traffic cones. 5 renderers, 628 triangles, no colliders. Plus a parked point, the plane anchor (the equipped model is spawned there with `PlaneVisualHost.Spawn`) and two small dust effects made from the crash burst's smoke. **Rebuilding replaces the prefab, including the camera and timing values the developer tuned on it** (note them first): change positions in the builder; camera and timing fields are on `MenuStage`. The prefab's values, not the script defaults, are what the game uses.
+
+## `MenuStage` (`Scripts/Menu3D`)
+- Shows on `GameManager.ReturnedToMenu` (and at start when the game is in the menu), hides on `RunStarted`. A restart or retry reloads straight into playing, so it never shows.
+- While showing, the Cinemachine brain is off and the stage drives the main camera: a three-quarter view of the parked plane (developer-tuned: offset (-8, 3, 10), so from the front left, looking 0.8 above the plane; field of view 40). The plane bobs and rolls a little.
+- The real plane does not move: it waits at its start position (0, 4, -48) with `Visual` switched off. The takeoff animates only the stand-in model and the camera, so the run starts exactly as before.
+- **Takeoff** (1.55 s, unscaled, long frames capped at 0.05 s): wind back 2.2 with the nose up (to 0.45 s), squash (to 0.65 s), launch with a stretch along a curve that ends on the start position at the flight speed (`PlaneController.ForwardSpeed`). **Camera:** it stands still at the menu view until the swing (tuned: from 0.8 s), then moves to the follow camera's place. From the start of the wind-back to the hand-off it turns to keep the plane in frame; the aim point eases from the menu's look offset to the point that gives the follow camera's fixed rotation, so the hand-off has no jump. The swing end is capped at the takeoff's length (the tuned 1.65 s acts as 1.55). Hop height and extra camera lift are both tuned to 0. `Skip()` jumps to the end. The last frame is held until the run starts, and the brain is switched back on there.
+
+## Menu side (`MainMenuController`)
+- The flat backdrop (`.screen-bg` and the stripes) is hidden only while the stage shows **and** the main screen is current. Other screens, and `MainMenu` run on its own, keep it. The `plane-slot` placeholder and its caption are gone. No scrim was needed: the title and buttons read against the sky.
+- PLAY works as before up to the accepted run (the attempt is spent there). Then, if the stage is showing: any other open screen is closed, the five menu clusters slide off their nearest edges (0.25 s, 0.04 s apart), a full-screen catcher turns a tap into skip, Escape is ignored, and a second PLAY does nothing. When the stage reports the end, the menu enters the run and unloads as before. A skip unloads the menu mid-slide, so `OnDisable` stops the slide tweens.
+
+## HUD drop-in
+`MenuStage.ConsumeHudEntrance()` is true once after a takeoff; `HudPresenter` then calls `HudView.PlayEntrance()` (readouts from above, boost from below, 0.35 s). `StopEntrance()` runs when the HUD is disabled.
+
+## Sounds
+`SfxId.TakeoffWindUp` and `TakeoffLaunch` (placeholders from `Tools/generate_placeholder_sfx.py`), played by `MenuStage`. New ids go at the end of the enum: the library stores them by number.
+
+## Checked
+The developer playtested in the Editor, tuned the camera and takeoff values, and accepted the tracking camera (2026-11-28).
+
+Editor Play mode from `Bootstrap` (2026-11-28), PLAY pressed from script in practice mode: the menu with the stage; takeoff frames; after the camera change, the camera did not move before the swing, the plane stayed centred left to right, and it ended at rotation (10, 0, 0) with the developer's values; on the switch to the run the camera and the plane were at the same positions before and after (camera (0, 7, -58), plane (0, 4, -48)); skip with a second PLAY press; return to the menu; the Profile screen still opaque; restart with no takeoff; no new errors in the final run. Not checked: a real tap and the sounds by ear, the competitive confirm path (no attempts left that day), `MainMenu` run on its own, the portrait prompt during a takeoff, wide phone aspect ratios, Android and WebGL (the menu now renders the 3D scene).

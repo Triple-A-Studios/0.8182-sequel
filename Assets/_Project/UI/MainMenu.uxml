@@ -77,14 +77,6 @@
                     </op:LipBox>
                 </ui:VisualElement>
 
-                <!-- Transparent + picking-mode ignore so a camera render of the equipped plane can show through later (3D half). -->
-                <ui:VisualElement name="plane-slot-block" class="plane-slot-block" picking-mode="Ignore">
-                    <ui:VisualElement name="plane-slot" class="plane-slot" picking-mode="Ignore" />
-                    <ui:VisualElement name="plane-slot-caption" class="plane-slot-caption" picking-mode="Ignore">
-                        <ui:Label text="3D: equipped plane on a rooftop, idle bob + dust puffs" class="caption-label" />
-                    </ui:VisualElement>
-                </ui:VisualElement>
-
                 <ui:VisualElement name="play-cluster" class="play-cluster" picking-mode="Ignore">
                     <op:TabBar name="mode-tabs" choices="COMPETITIVE,PRACTICE" accent="Coral" class="menu-mode-tabs" />
                     <op:LipBox name="play-button" variant="Primary" lip-size="Large" class="menu-play">

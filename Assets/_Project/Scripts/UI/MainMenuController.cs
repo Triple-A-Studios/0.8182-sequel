@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using Alchemy.Inspector;
 using Opoint8182.Badges;
 using Opoint8182.Daily;
 using Opoint8182.Game;
+using Opoint8182.Menu3D;
+using PrimeTween;
 using Opoint8182.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,6 +45,19 @@ namespace Opoint8182.UI
 		private const long k_RefreshMilliseconds = 30000;
 		private const float k_FetchRetrySeconds = 15f;
 
+		// Takeoff: each piece of the menu leaves by its nearest edge.
+		private const float k_SlideSeconds = 0.25f;
+		private const float k_SlideStaggerSeconds = 0.04f;
+		private const float k_SlideDistance = 1000f;
+		private static readonly (string name, Vector2 direction)[] m_S_SlideOut =
+		{
+			("top-left-cluster", new Vector2(-1f, 0f)),
+			("logo-block", new Vector2(0f, -1f)),
+			("top-right-cluster", new Vector2(1f, 0f)),
+			("left-icon-column", new Vector2(-1f, 0f)),
+			("play-cluster", new Vector2(0f, 1f)),
+		};
+
 		[Title("References")]
 		[FoldoutGroup("References")] [SerializeField] private float m_baseSafeAreaPadding = 24f;
 
@@ -69,6 +85,11 @@ namespace Opoint8182.UI
 		private bool m_refreshing;
 		private bool m_fetching;
 		private bool m_starting;
+		private bool m_takingOff;
+		private readonly List<Tween> m_slideTweens = new();
+		private VisualElement m_backdrop;
+		private VisualElement m_backdropStripes;
+		private bool m_seeThrough;
 		private float m_nextAutoFetch;
 		private VisualElement m_popupAttempt;
 		private VisualElement m_popupQuit;
@@ -100,6 +121,10 @@ namespace Opoint8182.UI
 		{
 			DailyPlay.Changed -= OnDailyChanged;
 			m_panelRenderer.UnregisterUIReloadCallback(OnUIReload);
+
+			// A skipped takeoff unloads the menu mid-slide: a tween must not write to an element of a dead panel.
+			foreach (var tween in m_slideTweens) tween.Stop();
+			m_slideTweens.Clear();
 			m_loadedRoot = null;
 			m_leaderboardScreen?.Close();
 			m_profileScreen?.Close();
@@ -117,6 +142,11 @@ namespace Opoint8182.UI
 		private void Update()
 		{
 			if (m_router == null) return;
+
+			UpdateBackdrop();
+
+			// The takeoff only answers to a tap (skip).
+			if (m_takingOff) return;
 
 			// Escape doubles as the Android back button in the Input System. Closes an open popup; nothing at the root.
 			var keyboard = Keyboard.current;
@@ -137,6 +167,9 @@ namespace Opoint8182.UI
 		{
 			if (m_loadedRoot == root) return;
 			m_loadedRoot = root;
+			m_backdrop = root.Q<VisualElement>(className: "screen-bg");
+			m_backdropStripes = root.Q<VisualElement>(className: "screen-stripes");
+			m_seeThrough = false;
 
 			SafeAreaHelper.Apply(root.Q<VisualElement>("safe-area"), m_baseSafeAreaPadding);
 
@@ -439,7 +472,7 @@ namespace Opoint8182.UI
 
 		private void OnPlayClicked()
 		{
-			if (m_starting) return;
+			if (m_starting || m_takingOff) return;
 
 			// Competitive needs the server's count: until it is known a press asks again instead of starting.
 			if (m_playMode == PlayMode.Competitive && !DailyPlay.IsServerStateKnown)
@@ -553,6 +586,66 @@ namespace Opoint8182.UI
 				return;
 			}
 
+			var stage = MenuStage.Instance;
+			if (stage != null && stage.IsShowing)
+			{
+				BeginTakeoff(stage);
+				return;
+			}
+
+			EnterRun();
+		}
+
+		// The main screen shows the 3D stage behind it; every other screen, and a menu with no stage (the scene opened on its own),
+		// keeps the flat backdrop. Checked every frame because the game scene may finish loading after this one.
+		private void UpdateBackdrop()
+		{
+			var stage = MenuStage.Instance;
+			var seeThrough = stage != null && stage.IsShowing && m_router.CurrentScreenId == k_MenuScreenId;
+			if (seeThrough == m_seeThrough) return;
+
+			m_seeThrough = seeThrough;
+			var display = seeThrough ? DisplayStyle.None : DisplayStyle.Flex;
+			if (m_backdrop != null) m_backdrop.style.display = display;
+			if (m_backdropStripes != null) m_backdropStripes.style.display = display;
+			m_loadedRoot.Q<VisualElement>("root")?.EnableInClassList("menu-root--stage", seeThrough);
+		}
+
+		// The run is already paid for here. The menu slides away, the stage flies the plane off the roof, and the run starts when it
+		// arrives. A tap anywhere skips to the end.
+		private void BeginTakeoff(MenuStage stage)
+		{
+			m_takingOff = true;
+
+			// The player may have opened another screen while the server was answering.
+			while (m_router.Back()) { }
+			m_router.ClosePopup();
+			UpdateBackdrop();
+
+			var catcher = new VisualElement { name = "takeoff-skip" };
+			catcher.AddToClassList("menu-takeoff-skip");
+			catcher.RegisterCallback<PointerDownEvent>(_ => stage.Skip());
+			(m_loadedRoot.Q<VisualElement>("root") ?? m_loadedRoot).Add(catcher);
+
+			for (var i = 0; i < m_S_SlideOut.Length; i++)
+			{
+				var (elementName, direction) = m_S_SlideOut[i];
+				var element = m_loadedRoot.Q<VisualElement>(elementName);
+				if (element == null) continue;
+
+				var offset = direction * k_SlideDistance;
+				m_slideTweens.Add(Tween.Custom(element, 0f, 1f, k_SlideSeconds, (target, t) => target.style.translate = new Translate(offset.x * t, offset.y * t),
+					Ease.InCubic, startDelay: i * k_SlideStaggerSeconds, useUnscaledTime: true));
+			}
+
+			stage.PlayTakeoff(() =>
+			{
+				if (this != null && m_loadedRoot != null) EnterRun();
+			});
+		}
+
+		private void EnterRun()
+		{
 			// Hide immediately so there's no chance of a leftover-menu flash once gameplay
 			// resumes - GameManager.EnterPlayingState only takes effect next frame (see
 			// GameManager's own comment on why), unloading MainMenu is fire-and-forget.

@@ -38,6 +38,8 @@ namespace Opoint8182.Player
         public Vector3 Velocity => m_rigidbody.linearVelocity;
         public float Speed => m_rigidbody.linearVelocity.magnitude;
         public Vector3 Forward => transform.forward;
+        /// <summary>The cruise speed without boost.</summary>
+        public float ForwardSpeed => m_forwardSpeed;
         public float SpeedMultiplier { get; set; } = 1f;
         public bool IsBoosting { get; private set; }
         public Vector2 TouchSteer { get; set; }
